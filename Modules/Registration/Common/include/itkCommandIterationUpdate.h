@@ -21,62 +21,65 @@
 #include "itkCommand.h"
 #include "itkWeakPointer.h"
 
-namespace itk {
+namespace itk
+{
 
 /**
  *  Implementation of the Command Pattern to be invoked every iteration
  * \class CommandIterationUpdate
  * \ingroup ITKRegistrationCommon
  */
-template < typename TOptimizer >
+template <typename TOptimizer>
 class CommandIterationUpdate : public Command
 {
 public:
   /**
    * Standard "Self" typedef.
    */
-  typedef CommandIterationUpdate   Self;
+  using Self = CommandIterationUpdate;
 
 
   /**
    * Standard "Superclass" typedef.
    */
-  typedef itk::Command  Superclass;
+  using Superclass = itk::Command;
 
 
   /**
-   * Smart pointer typedef support.
+   * Smart pointer type alias support
    */
-  typedef itk::SmartPointer<Self>  Pointer;
+  using Pointer = itk::SmartPointer<Self>;
 
   /**
-   * ConstSmart pointer typedef support.
+   * ConstSmart pointer type alias support
    */
-  typedef itk::SmartPointer<const Self>  ConstPointer;
+  using ConstPointer = itk::SmartPointer<const Self>;
 
   /**
    * Execute method will print data at each iteration
    */
-  virtual void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(itk::Object * caller, const itk::EventObject & event) override
   {
-    Execute( (const itk::Object *)caller, event);
+    Execute((const itk::Object *)caller, event);
   }
 
-  virtual void Execute(const itk::Object *, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(const itk::Object *, const itk::EventObject & event) override
   {
-    if( typeid( event ) == typeid( itk::StartEvent ) )
-      {
+    if (typeid(event) == typeid(itk::StartEvent))
+    {
       std::cout << std::endl << "Position              Value";
       std::cout << std::endl << std::endl;
-      }
-    else if( typeid( event ) == typeid( itk::IterationEvent ) )
-      {
+    }
+    else if (typeid(event) == typeid(itk::IterationEvent))
+    {
       std::cout << m_Optimizer->GetCurrentIteration() << " = ";
       std::cout << m_Optimizer->GetValue() << " : ";
       std::cout << m_Optimizer->GetCurrentPosition() << std::endl;
-      }
-    else if( typeid( event ) == typeid( itk::EndEvent ) )
-      {
+    }
+    else if (typeid(event) == typeid(itk::EndEvent))
+    {
       std::cout << std::endl << std::endl;
       std::cout << "After " << m_Optimizer->GetCurrentIteration();
       std::cout << "  iterations " << std::endl;
@@ -86,51 +89,49 @@ public:
       std::cout << std::endl;
       std::cout << "Stop condition = " << m_Optimizer->GetStopCondition();
       std::cout << std::endl;
-      }
-
+    }
   }
 
 
   /**
    * Run-time type information (and related methods).
    */
-  itkTypeMacro( CommandIterationUpdate, ::itk::Command );
+  itkTypeMacro(CommandIterationUpdate, ::itk::Command);
 
 
   /**
    * Method for creation through the object factory.
    */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
 
   /**
    * Type defining the optimizer
    */
-  typedef    TOptimizer     OptimizerType;
+  using OptimizerType = TOptimizer;
 
 
   /**
    * Set Optimizer
    */
-  void SetOptimizer( OptimizerType * optimizer )
-    {
+  void
+  SetOptimizer(OptimizerType * optimizer)
+  {
     m_Optimizer = optimizer;
-    m_Optimizer->AddObserver( itk::IterationEvent(), this );
-    }
+    m_Optimizer->AddObserver(itk::IterationEvent(), this);
+  }
 
 protected:
-
   /**
    * Constructor
    */
-  CommandIterationUpdate() {};
+  CommandIterationUpdate() = default;
 
 private:
-
   /**
    *  WeakPointer to the Optimizer
    */
-  WeakPointer<OptimizerType>   m_Optimizer;
+  WeakPointer<OptimizerType> m_Optimizer;
 };
 
 } // end namespace itk

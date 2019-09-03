@@ -42,36 +42,36 @@ namespace itk
  *
  * \ingroup ITKImageGrid
  */
-template< typename TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT CyclicShiftImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT CyclicShiftImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef CyclicShiftImageFilter                          Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CyclicShiftImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                               InputImageType;
-  typedef TOutputImage                              OutputImageType;
-  typedef typename InputImageType::Pointer          InputImagePointer;
-  typedef typename InputImageType::ConstPointer     InputImageConstPointer;
-  typedef typename InputImageType::RegionType       InputImageRegionType;
-  typedef typename InputImageType::PixelType        InputImagePixelType;
-  typedef typename OutputImageType::Pointer         OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer    OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType      OutputImageRegionType;
-  typedef typename OutputImageType::PixelType       OutputImagePixelType;
-  typedef typename OutputImageType::IndexType       IndexType;
-  typedef typename OutputImageType::SizeType        SizeType;
-  typedef typename OutputImageType::OffsetType      OffsetType;
-  typedef typename OutputImageType::OffsetValueType OffsetValueType;
+  /** Standard class type aliases. */
+  using Self = CyclicShiftImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using IndexType = typename OutputImageType::IndexType;
+  using SizeType = typename OutputImageType::SizeType;
+  using OffsetType = typename OutputImageType::OffsetType;
+  using OffsetValueType = typename OutputImageType::OffsetValueType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -85,30 +85,28 @@ public:
 
 protected:
   CyclicShiftImageFilter();
-  ~CyclicShiftImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~CyclicShiftImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** This filter needs the entire input be available so it needs to
    * provide an implementation of GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
-  /** This filter can be threaded. */
-  void  ThreadedGenerateData(const OutputImageRegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  /** This filter is multi-threaded. */
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType &) override;
+
 
   /** Protected so that subclasses may set it without calling
   Modified(). */
   OffsetType m_Shift;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CyclicShiftImageFilter);
-
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCyclicShiftImageFilter.hxx"
+#  include "itkCyclicShiftImageFilter.hxx"
 #endif
 
 

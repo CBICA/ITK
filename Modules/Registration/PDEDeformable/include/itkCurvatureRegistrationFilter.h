@@ -21,8 +21,8 @@
 #include "itkPDEDeformableRegistrationFilter.h"
 #include "itkMeanSquareRegistrationFunction.h"
 
-#if defined( ITK_USE_FFTWF ) || defined( ITK_USE_FFTWD )
-#include "fftw3.h"
+#if !defined(ITK_USE_CUFFTW) && defined(ITK_USE_FFTWF) || defined(ITK_USE_FFTWD)
+#  include "fftw3.h"
 
 namespace itk
 {
@@ -94,101 +94,109 @@ namespace itk
  * \author Torsten Rohlfing, SRI International, Neuroscience Program
  * \ingroup ITKPDEDeformableRegistration
  */
-template< typename TFixedImage, typename TMovingImage, typename TDisplacementField,
-          typename TImageForceFunction =
-            MeanSquareRegistrationFunction< TFixedImage, TMovingImage, TDisplacementField > >
-class ITK_TEMPLATE_EXPORT CurvatureRegistrationFilter:
-  public PDEDeformableRegistrationFilter< TFixedImage, TMovingImage,
-                                          TDisplacementField >
+template <typename TFixedImage,
+          typename TMovingImage,
+          typename TDisplacementField,
+          typename TImageForceFunction = MeanSquareRegistrationFunction<TFixedImage, TMovingImage, TDisplacementField>>
+class ITK_TEMPLATE_EXPORT CurvatureRegistrationFilter
+  : public PDEDeformableRegistrationFilter<TFixedImage, TMovingImage, TDisplacementField>
 {
 public:
-  /** Standard class typedefs. */
-  typedef CurvatureRegistrationFilter                                                     Self;
-  typedef PDEDeformableRegistrationFilter< TFixedImage, TMovingImage, TDisplacementField > Superclass;
-  typedef SmartPointer< Self >                                                            Pointer;
-  typedef SmartPointer< const Self >                                                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CurvatureRegistrationFilter);
+
+  /** Standard class type aliases. */
+  using Self = CurvatureRegistrationFilter;
+  using Superclass = PDEDeformableRegistrationFilter<TFixedImage, TMovingImage, TDisplacementField>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(CurvatureRegistrationFilter,
-               PDEDeformableRegistrationFilter);
+  itkTypeMacro(CurvatureRegistrationFilter, PDEDeformableRegistrationFilter);
 
   /** Inherit types from superclass. */
-  typedef typename Superclass::TimeStepType TimeStepType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
   /** FixedImage image type. */
-  typedef typename Superclass::FixedImageType    FixedImageType;
-  typedef typename Superclass::FixedImagePointer FixedImagePointer;
-  itkStaticConstMacro(ImageDimension, unsigned int, FixedImageType::ImageDimension);
+  using FixedImageType = typename Superclass::FixedImageType;
+  using FixedImagePointer = typename Superclass::FixedImagePointer;
+  static constexpr unsigned int ImageDimension = FixedImageType::ImageDimension;
 
   /** MovingImage image type. */
-  typedef typename Superclass::MovingImageType    MovingImageType;
-  typedef typename Superclass::MovingImagePointer MovingImagePointer;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using MovingImagePointer = typename Superclass::MovingImagePointer;
 
   /** Deformation field type. */
-  typedef typename Superclass::DisplacementFieldType
-  DisplacementFieldType;
-  typedef typename Superclass::DisplacementFieldPointer
-  DisplacementFieldPointer;
+  using DisplacementFieldType = typename Superclass::DisplacementFieldType;
+  using DisplacementFieldPointer = typename Superclass::DisplacementFieldPointer;
 
-  typedef typename TDisplacementField::PixelType         DisplacementFieldPixelType;
-  typedef typename DisplacementFieldPixelType::ValueType DisplacementFieldComponentType;
-  itkStaticConstMacro(DeformationVectorDimension, unsigned int, DisplacementFieldPixelType::Dimension);
+  using DisplacementFieldPixelType = typename TDisplacementField::PixelType;
+  using DisplacementFieldComponentType = typename DisplacementFieldPixelType::ValueType;
+  static constexpr unsigned int DeformationVectorDimension = DisplacementFieldPixelType::Dimension;
 
-  #if defined( ITK_USE_FFTWD )
-  //Prefer to use double precision
-  typedef double RealTypeDFT;
-  #else
-    #if defined( ITK_USE_FFTWF )
-  //Allow to use single precision
-      #warning "Using single precision for FFT computations!"
-  typedef double RealTypeDFT;
-    #endif
-  #endif
+#  if defined(ITK_USE_FFTWD)
+  // Prefer to use double precision
+  using RealTypeDFT = double;
+#  else
+#    if defined(ITK_USE_FFTWF)
+  // Allow to use single precision
+#      warning "Using single precision for FFT computations!"
+  using RealTypeDFT = double;
+#    endif
+#  endif
 
-  typedef Image< RealTypeDFT, TDisplacementField::ImageDimension > DisplacementFieldComponentImageType;
-  typedef typename DisplacementFieldComponentImageType::Pointer    DisplacementFieldComponentImagePointer;
+  using DisplacementFieldComponentImageType = Image<RealTypeDFT, TDisplacementField::ImageDimension>;
+  using DisplacementFieldComponentImagePointer = typename DisplacementFieldComponentImageType::Pointer;
 
   /** FiniteDifferenceFunction type. */
-  typedef typename Superclass::FiniteDifferenceFunctionType
-  FiniteDifferenceFunctionType;
+  using FiniteDifferenceFunctionType = typename Superclass::FiniteDifferenceFunctionType;
 
   /** CurvatureRegistrationFilterFunction type. */
-  typedef TImageForceFunction RegistrationFunctionType;
+  using RegistrationFunctionType = TImageForceFunction;
 
   /** Set the constraint vs. image forces weight. */
-  void SetConstraintWeight(const float w) { m_ConstraintWeight = w; }
+  void
+  SetConstraintWeight(const float w)
+  {
+    m_ConstraintWeight = w;
+  }
 
   /** Set the time step. */
-  void SetTimeStep(const TimeStepType ts) { m_TimeStep = ts; }
+  void
+  SetTimeStep(const TimeStepType ts)
+  {
+    m_TimeStep = ts;
+  }
 
   /** Get the metric value. The metric value is the mean square difference
    * in intensity between the fixed image and transforming moving image
    * computed over the the overlapping region between the two images.
    * This is value is only available for the previous iteration and
    * NOT the current iteration. */
-  virtual double GetMetric() const;
+  virtual double
+  GetMetric() const;
 
 protected:
   CurvatureRegistrationFilter();
-  ~CurvatureRegistrationFilter();
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~CurvatureRegistrationFilter() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Initialize the state of filter before starting first iteration. */
-  virtual void Initialize();
+  void
+  Initialize() override;
 
   /** Apply update. */
-  virtual void ApplyUpdate(const TimeStepType& dt);
+  void
+  ApplyUpdate(const TimeStepType & dt) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CurvatureRegistrationFilter);
-
   unsigned int m_FixedImageDimensions[ImageDimension];
 
-  RealTypeDFT *m_DisplacementFieldComponentImage;
-  RealTypeDFT *m_DisplacementFieldComponentImageDCT;
+  RealTypeDFT * m_DisplacementFieldComponentImage;
+  RealTypeDFT * m_DisplacementFieldComponentImageDCT;
 
   float m_ConstraintWeight;
 
@@ -197,14 +205,14 @@ private:
 
   TimeStepType m_TimeStep;
 
-  RealTypeDFT *m_DiagonalElements[ImageDimension];
+  RealTypeDFT * m_DiagonalElements[ImageDimension];
 };
 } // end namespace itk
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCurvatureRegistrationFilter.hxx"
-#endif
+#  ifndef ITK_MANUAL_INSTANTIATION
+#    include "itkCurvatureRegistrationFilter.hxx"
+#  endif
 
-#endif //defined(ITK_USE_FFTWF) || defined(ITK_USE_FFTWD)
+#endif // defined(ITK_USE_FFTWF) || defined(ITK_USE_FFTWD)
 
 #endif

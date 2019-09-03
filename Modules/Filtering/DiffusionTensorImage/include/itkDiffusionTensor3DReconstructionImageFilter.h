@@ -27,9 +27,20 @@
 #include "vnl/algo/vnl_svd.h"
 #include "itkVectorContainer.h"
 #include "itkVectorImage.h"
-
+#include "ITKDiffusionTensorImageExport.h"
 namespace itk
 {
+/** \class GradientEnumeration
+ * \ingroup ITKDiffusionTensorImage
+ * enum to indicate if the gradient image is specified as a single multi-
+ * component image or as several separate images */
+enum class GradientEnumeration : uint8_t
+{
+  GradientIsInASingleImage = 1,
+  GradientIsInManyImages,
+  Else
+};
+
 /** \class DiffusionTensor3DReconstructionImageFilter
  * \brief This class takes as input one or more reference image (acquired in the
  * absence of diffusion sensitizing gradients) and 'n' diffusion
@@ -41,19 +52,19 @@ namespace itk
  * \par Inputs and Usage
  * There are two ways to use this class. When you have one reference image and \c n
  * gradient images, you would use the class as
- * \code
- *       filter->SetReferenceImage( image0 );
- *       filter->AddGradientImage( direction1, image1 );
- *       filter->AddGradientImage( direction2, image2 );
- *   ...
- * \endcode
+   \code
+         filter->SetReferenceImage( image0 );
+         filter->AddGradientImage( direction1, image1 );
+         filter->AddGradientImage( direction2, image2 );
+     ...
+   \endcode
  *
  * \par
  * When you have the 'n' gradient and one or more reference images in a single
  * multi-component image (VectorImage), you can specify the images simply as
- * \code
- *       filter->SetGradientImage( directionsContainer, vectorImage );
- * \endcode
+   \code
+         filter->SetGradientImage( directionsContainer, vectorImage );
+   \endcode
  * Note that this method is used to specify both the reference and gradient images.
  * This is convenient when the DWI images are read in using the
  * <a href="http://wiki.na-mic.org/Wiki/index.php/NAMIC_Wiki:DTI:Nrrd_format">NRRD</a>
@@ -63,9 +74,9 @@ namespace itk
  *
  * \par Outputs
  * The output image is an image of Tensors:
- * \code
- *       Image< DiffusionTensor3D< TTensorPixelType >, 3 >
- * \endcode
+   \code
+         Image< DiffusionTensor3D< TTensorPixelType >, 3 >
+   \endcode
  *
  * \par Parameters
  * \li Threshold -  Threshold on the reference image data. The output tensor will
@@ -92,9 +103,9 @@ namespace itk
  * \warning
  * Although this filter has been written to support multiple threads, please
  * set the number of threads to 1.
- * \code
- *         filter->SetNumberOfThreads(1);
- * \endcode
+   \code
+           filter->SetNumberOfWorkUnits(1);
+   \endcode
  * This is due to buggy code in netlib/dsvdc, that is called by vnl_svd.
  * (used to compute the pseudo-inverse to find the dual tensor basis).
  *
@@ -119,77 +130,73 @@ namespace itk
  * \ingroup ITKDiffusionTensorImage
  */
 
-template< typename TReferenceImagePixelType,
+template <typename TReferenceImagePixelType,
           typename TGradientImagePixelType = TReferenceImagePixelType,
           typename TTensorPixelType = double,
-          typename TMaskImageType = Image<unsigned char, 3> >
-class ITK_TEMPLATE_EXPORT DiffusionTensor3DReconstructionImageFilter:
-  public ImageToImageFilter< Image< TReferenceImagePixelType, 3 >,
-                             Image< DiffusionTensor3D< TTensorPixelType >, 3 > >
+          typename TMaskImageType = Image<unsigned char, 3>>
+class ITK_TEMPLATE_EXPORT DiffusionTensor3DReconstructionImageFilter
+  : public ImageToImageFilter<Image<TReferenceImagePixelType, 3>, Image<DiffusionTensor3D<TTensorPixelType>, 3>>
 {
 public:
-
-  typedef DiffusionTensor3DReconstructionImageFilter Self;
-  typedef SmartPointer< Self >                       Pointer;
-  typedef SmartPointer< const Self >                 ConstPointer;
-  typedef ImageToImageFilter< Image< TReferenceImagePixelType, 3 >,
-                              Image< DiffusionTensor3D< TTensorPixelType >, 3 > >
-  Superclass;
+  using Self = DiffusionTensor3DReconstructionImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass =
+    ImageToImageFilter<Image<TReferenceImagePixelType, 3>, Image<DiffusionTensor3D<TTensorPixelType>, 3>>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(DiffusionTensor3DReconstructionImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(DiffusionTensor3DReconstructionImageFilter, ImageToImageFilter);
 
-  typedef TReferenceImagePixelType ReferencePixelType;
+  using ReferencePixelType = TReferenceImagePixelType;
 
-  typedef TGradientImagePixelType GradientPixelType;
+  using GradientPixelType = TGradientImagePixelType;
 
-  typedef DiffusionTensor3D< TTensorPixelType > TensorPixelType;
+  using TensorPixelType = DiffusionTensor3D<TTensorPixelType>;
 
   /** Reference image data,  This image is acquired in the absence
    * of a diffusion sensitizing field gradient */
-  typedef typename Superclass::InputImageType ReferenceImageType;
+  using ReferenceImageType = typename Superclass::InputImageType;
 
-  typedef Image< TensorPixelType, 3 > TensorImageType;
+  using TensorImageType = Image<TensorPixelType, 3>;
 
-  typedef TensorImageType OutputImageType;
+  using OutputImageType = TensorImageType;
 
-  typedef typename Superclass::OutputImageRegionType
-  OutputImageRegionType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
   /** Typedef defining one (of the many) gradient images.  */
-  typedef Image< GradientPixelType, 3 > GradientImageType;
+  using GradientImageType = Image<GradientPixelType, 3>;
 
-  /** An alternative typedef defining one (of the many) gradient images.
+  /** An alternative type alias defining one (of the many) gradient images.
    * It will be assumed that the vectorImage has the same dimension as the
    * Reference image and a vector length parameter of \c n (number of
    * gradient directions) */
-  typedef VectorImage< GradientPixelType, 3 > GradientImagesType;
+  using GradientImagesType = VectorImage<GradientPixelType, 3>;
 
   /** The type for the optional SpatialObject for masking*/
-  typedef SpatialObject<3> MaskSpatialObjectType;
+  using MaskSpatialObjectType = SpatialObject<3>;
 
   /** The type for the optional mask image */
-  typedef TMaskImageType MaskImageType;
+  using MaskImageType = TMaskImageType;
 
   /** Holds the tensor basis coefficients G_k */
-  typedef vnl_matrix_fixed< double, 6, 6 > TensorBasisMatrixType;
+  using TensorBasisMatrixType = vnl_matrix_fixed<double, 6, 6>;
 
-  typedef vnl_matrix< double > CoefficientMatrixType;
+  using CoefficientMatrixType = vnl_matrix<double>;
 
   /** Holds each magnetic field gradient used to acquire one DWImage */
-  typedef vnl_vector_fixed< double, 3 > GradientDirectionType;
+  using GradientDirectionType = vnl_vector_fixed<double, 3>;
 
   /** Container to hold gradient directions of the 'n' DW measurements */
-  typedef VectorContainer< unsigned int,
-                           GradientDirectionType >                  GradientDirectionContainerType;
+  using GradientDirectionContainerType = VectorContainer<unsigned int, GradientDirectionType>;
 
   /** Set method to add a gradient direction and its corresponding image. */
-  void AddGradientImage(const GradientDirectionType &, const GradientImageType *image);
-  const GradientImageType *GetGradientImage(unsigned index) const;
+  void
+  AddGradientImage(const GradientDirectionType &, const GradientImageType * image);
+  const GradientImageType *
+  GetGradientImage(unsigned index) const;
 
   /** Another set method to add a gradient directions and its corresponding
    * image. The image here is a VectorImage. The user is expected to pass the
@@ -197,41 +204,48 @@ public:
    * corresponds to the gradient direction of the ith component image the
    * VectorImage.  For the baseline image, a vector of all zeros
    * should be set. */
-  void SetGradientImage(GradientDirectionContainerType *,
-                        const GradientImagesType *image);
+  void
+  SetGradientImage(GradientDirectionContainerType *, const GradientImagesType * image);
 
   /** Set method to set the reference image. */
-  void SetReferenceImage(ReferenceImageType *referenceImage)
+  void
+  SetReferenceImage(ReferenceImageType * referenceImage)
   {
-    if ( m_GradientImageTypeEnumeration == GradientIsInASingleImage )
-      {
+    if (m_GradientImageTypeEnumeration == GradientEnumeration::GradientIsInASingleImage)
+    {
       itkExceptionMacro(<< "Cannot call both methods:"
                         << "AddGradientImage and SetGradientImage. Please call only one of them.");
-      }
+    }
 
     this->ProcessObject::SetNthInput(0, referenceImage);
 
-    m_GradientImageTypeEnumeration = GradientIsInManyImages;
+    m_GradientImageTypeEnumeration = GradientEnumeration::GradientIsInManyImages;
   }
 
   /** Get reference image */
-  virtual ReferenceImageType * GetReferenceImage()
-  { return ( static_cast< ReferenceImageType * >( this->ProcessObject::GetInput(0) ) ); }
+  virtual ReferenceImageType *
+  GetReferenceImage()
+  {
+    return (static_cast<ReferenceImageType *>(this->ProcessObject::GetInput(0)));
+  }
 
   /** Return the gradient direction. idx is 0 based */
-  virtual GradientDirectionType GetGradientDirection(unsigned int idx) const
+  virtual GradientDirectionType
+  GetGradientDirection(unsigned int idx) const
   {
-    if ( idx >= m_NumberOfGradientDirections )
-      {
+    if (idx >= m_NumberOfGradientDirections)
+    {
       itkExceptionMacro(<< "Gradient direction " << idx << "does not exist");
-      }
+    }
     return m_GradientDirectionContainer->ElementAt(idx + 1);
   }
 
   /** set an image mask */
-  void SetMaskImage(MaskImageType *maskImage);
+  void
+  SetMaskImage(MaskImageType * maskImage);
   /** set a spatial object mask */
-  void SetMaskSpatialObject(MaskSpatialObjectType *maskSpatialObject);
+  void
+  SetMaskSpatialObject(MaskSpatialObjectType * maskSpatialObject);
 
 
   /** Threshold on the reference image data. The output tensor will be a null
@@ -248,58 +262,57 @@ public:
    */
   itkSetMacro(BValue, TTensorPixelType);
 #ifdef GetBValue
-#undef GetBValue
+#  undef GetBValue
 #endif
   itkGetConstReferenceMacro(BValue, TTensorPixelType);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( ReferenceEqualityComparableCheck,
-                   ( Concept::EqualityComparable< ReferencePixelType > ) );
-  itkConceptMacro( TensorEqualityComparableCheck,
-                   ( Concept::EqualityComparable< TensorPixelType > ) );
-  itkConceptMacro( GradientConvertibleToDoubleCheck,
-                   ( Concept::Convertible< GradientPixelType, double > ) );
-  itkConceptMacro( DoubleConvertibleToTensorCheck,
-                   ( Concept::Convertible< double, TensorPixelType > ) );
-  itkConceptMacro( GradientReferenceAdditiveOperatorsCheck,
-                   ( Concept::AdditiveOperators< GradientPixelType, GradientPixelType,
-                                                 ReferencePixelType > ) );
-  itkConceptMacro( GradientReferenceAdditiveAndAssignOperatorsCheck,
-                   ( Concept::AdditiveAndAssignOperators< GradientPixelType,
-                                                          ReferencePixelType > ) );
+  itkConceptMacro(ReferenceEqualityComparableCheck, (Concept::EqualityComparable<ReferencePixelType>));
+  itkConceptMacro(TensorEqualityComparableCheck, (Concept::EqualityComparable<TensorPixelType>));
+  itkConceptMacro(GradientConvertibleToDoubleCheck, (Concept::Convertible<GradientPixelType, double>));
+  itkConceptMacro(DoubleConvertibleToTensorCheck, (Concept::Convertible<double, TensorPixelType>));
+  itkConceptMacro(GradientReferenceAdditiveOperatorsCheck,
+                  (Concept::AdditiveOperators<GradientPixelType, GradientPixelType, ReferencePixelType>));
+  itkConceptMacro(GradientReferenceAdditiveAndAssignOperatorsCheck,
+                  (Concept::AdditiveAndAssignOperators<GradientPixelType, ReferencePixelType>));
 
-  itkConceptMacro( ReferenceOStreamWritableCheck,
-                   ( Concept::OStreamWritable< ReferencePixelType > ) );
-  itkConceptMacro( TensorOStreamWritableCheck,
-                   ( Concept::OStreamWritable< TensorPixelType > ) );
+  itkConceptMacro(ReferenceOStreamWritableCheck, (Concept::OStreamWritable<ReferencePixelType>));
+  itkConceptMacro(TensorOStreamWritableCheck, (Concept::OStreamWritable<TensorPixelType>));
   // End concept checking
 #endif
 
 protected:
   DiffusionTensor3DReconstructionImageFilter();
-  ~DiffusionTensor3DReconstructionImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DiffusionTensor3DReconstructionImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void ComputeTensorBasis();
+  void
+  ComputeTensorBasis();
 
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  void ThreadedGenerateData(const
-                            OutputImageRegionType & outputRegionForThread, ThreadIdType) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 
-  void VerifyPreconditions() ITK_OVERRIDE;
+  void
+  VerifyPreconditions() ITKv5_CONST override;
 
-  /** enum to indicate if the gradient image is specified as a single multi-
-   * component image or as several separate images */
-  typedef enum {
-    GradientIsInASingleImage = 1,
-    GradientIsInManyImages,
-    Else
-    } GradientImageTypeEnumeration;
+  /** Enables backwards compatibility for enum values */
+  using GradientImageTypeEnumeration = GradientEnumeration;
+#if !defined(ITK_LEGACY_REMOVE)
+  // We need to expose the enum values at the class level
+  // for backwards compatibility
+  static constexpr GradientImageTypeEnumeration GradientIsInASingleImage =
+    GradientImageTypeEnumeration::GradientIsInASingleImage;
+  static constexpr GradientImageTypeEnumeration GradientIsInManyImages =
+    GradientImageTypeEnumeration::GradientIsInManyImages;
+  static constexpr GradientImageTypeEnumeration Else = GradientImageTypeEnumeration::Else;
+#endif
 
 private:
-
   /* Tensor basis coeffs */
   TensorBasisMatrixType m_TensorBasis;
 
@@ -326,10 +339,14 @@ private:
   /** Mask Image Present */
   bool m_MaskImagePresent;
 };
-}
+
+/** Define how to print enum values */
+extern ITKDiffusionTensorImage_EXPORT std::ostream &
+                                      operator<<(std::ostream & out, const GradientEnumeration value);
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDiffusionTensor3DReconstructionImageFilter.hxx"
+#  include "itkDiffusionTensor3DReconstructionImageFilter.hxx"
 #endif
 
 #endif

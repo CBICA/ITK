@@ -20,54 +20,53 @@
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
 #include "itkTestingMacros.h"
 
-int itkIsoDataThresholdImageFilterTest(int argc, char* argv[] )
+int
+itkIsoDataThresholdImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 3 )
-    {
-    std::cerr << "Usage: " << argv[0];
+  if (argc < 3)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv);
     std::cerr << " inputImageFile outputImageFile";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef  short          InputPixelType;
-  typedef  unsigned char  OutputPixelType;
+  using InputPixelType = short;
+  using OutputPixelType = unsigned char;
 
-  typedef itk::Image< InputPixelType,  2 >   InputImageType;
-  typedef itk::Image< OutputPixelType, 2 >   OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, 2>;
+  using OutputImageType = itk::Image<OutputPixelType, 2>;
 
-  typedef itk::IsoDataThresholdImageFilter<
-               InputImageType, OutputImageType >  FilterType;
+  using FilterType = itk::IsoDataThresholdImageFilter<InputImageType, OutputImageType>;
 
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
   FilterType::Pointer filter = FilterType::New();
   WriterType::Pointer writer = WriterType::New();
 
-  FilterWatcher watcher(filter);
+  itk::SimpleFilterWatcher watcher(filter);
 
-  filter->SetInsideValue( 255 );
-  TEST_SET_GET_VALUE( 255, filter->GetInsideValue() );
+  filter->SetInsideValue(255);
+  ITK_TEST_SET_GET_VALUE(255, filter->GetInsideValue());
 
-  filter->SetOutsideValue( 0 );
-  TEST_SET_GET_VALUE( 0, filter->GetOutsideValue() );
+  filter->SetOutsideValue(0);
+  ITK_TEST_SET_GET_VALUE(0, filter->GetOutsideValue());
 
-  reader->SetFileName( argv[1] );
-  filter->SetInput( reader->GetOutput() );
-  //filter->SetNumberOfHistogramBins (atoi(argv[3]));
-  writer->SetInput( filter->GetOutput() );
+  reader->SetFileName(argv[1]);
+  filter->SetInput(reader->GetOutput());
+  // filter->SetNumberOfHistogramBins (std::stoi(argv[3]));
+  writer->SetInput(filter->GetOutput());
 
   filter->Update();
   std::cout << "Computed Threshold is: "
-            << itk::NumericTraits<FilterType::InputPixelType>::PrintType(filter->GetThreshold())
-            << std::endl;
-  writer->SetFileName( argv[2] );
+            << itk::NumericTraits<FilterType::InputPixelType>::PrintType(filter->GetThreshold()) << std::endl;
+  writer->SetFileName(argv[2]);
   writer->Update();
 
   return EXIT_SUCCESS;

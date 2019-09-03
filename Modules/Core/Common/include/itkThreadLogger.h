@@ -18,12 +18,12 @@
 #ifndef itkThreadLogger_h
 #define itkThreadLogger_h
 
-#include "itkMultiThreader.h"
 #include "itkLogger.h"
-#include "itkSimpleFastMutexLock.h"
+#include <mutex>
 
 #include <string>
 #include <queue>
+#include <thread>
 
 namespace itk
 {
@@ -37,14 +37,13 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT ThreadLogger:public Logger
+class ITKCommon_EXPORT ThreadLogger : public Logger
 {
 public:
-
-  typedef ThreadLogger               Self;
-  typedef Logger                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = ThreadLogger;
+  using Superclass = Logger;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ThreadLogger, Logger);
@@ -52,11 +51,11 @@ public:
   /** New macro for creation of a Smart Pointer */
   itkNewMacro(Self);
 
-  typedef  Logger::OutputType OutputType;
+  using OutputType = Logger::OutputType;
 
-  typedef  Logger::PriorityLevelType PriorityLevelType;
+  using PriorityLevelType = Logger::PriorityLevelType;
 
-  typedef  unsigned int DelayType;
+  using DelayType = unsigned int;
 
   /** Definition of types of operations for ThreadLogger. */
   typedef enum
@@ -66,68 +65,77 @@ public:
     ADD_LOG_OUTPUT,
     WRITE,
     FLUSH
-  }
-  OperationType;
+  } OperationType;
 
   /** Set the priority level for the current logger. Only messages that have
    * priorities equal or greater than the one set here will be posted to the
    * current outputs. */
-  virtual void SetPriorityLevel(PriorityLevelType level) ITK_OVERRIDE;
+  void
+  SetPriorityLevel(PriorityLevelType level) override;
 
   /** Get the priority level for the current logger. Only messages that have
    * priorities equal or greater than the one set here will be posted to the
    * current outputs. */
-  virtual PriorityLevelType GetPriorityLevel() const ITK_OVERRIDE;
+  PriorityLevelType
+  GetPriorityLevel() const override;
 
-  virtual void SetLevelForFlushing(PriorityLevelType level) ITK_OVERRIDE;
+  void
+  SetLevelForFlushing(PriorityLevelType level) override;
 
-  virtual PriorityLevelType GetLevelForFlushing() const ITK_OVERRIDE;
+  PriorityLevelType
+  GetLevelForFlushing() const override;
 
-/** Set the delay in milliseconds between checks to see if there are any
- *  low priority messages to be processed.
- */
-  virtual void SetDelay(DelayType delay);
+  /** Set the delay in milliseconds between checks to see if there are any
+   *  low priority messages to be processed.
+   */
+  virtual void
+  SetDelay(DelayType delay);
 
-/** Get the delay in milliseconds between checks to see if there are any
- *  low priority messages to be processed.
- */
-  virtual DelayType GetDelay() const;
+  /** Get the delay in milliseconds between checks to see if there are any
+   *  low priority messages to be processed.
+   */
+  virtual DelayType
+  GetDelay() const;
 
   /** Registers another output stream with the multiple output. */
-  virtual void AddLogOutput(OutputType *output) ITK_OVERRIDE;
+  void
+  AddLogOutput(OutputType * output) override;
 
-  virtual void Write(PriorityLevelType level, std::string const & content) ITK_OVERRIDE;
+  void
+  Write(PriorityLevelType level, std::string const & content) override;
 
-  virtual void Flush() ITK_OVERRIDE;
+  void
+  Flush() override;
 
 protected:
-
   /** Constructor */
   ThreadLogger();
 
   /** Destructor */
-  virtual ~ThreadLogger() ITK_OVERRIDE;
+  ~ThreadLogger() override;
 
   /** Print contents of a ThreadLogger */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  static ITK_THREAD_RETURN_TYPE ThreadFunction(void *);
+  void
+  ThreadFunction();
 
 private:
+  void
+  InternalFlush();
 
-  void InternalFlush();
+  using OperationContainerType = std::queue<OperationType>;
 
-  typedef std::queue< OperationType > OperationContainerType;
+  using MessageContainerType = std::queue<std::string>;
 
-  typedef std::queue< std::string > MessageContainerType;
+  using LevelContainerType = std::queue<PriorityLevelType>;
 
-  typedef std::queue< PriorityLevelType > LevelContainerType;
+  using OutputContainerType = std::queue<OutputType::Pointer>;
 
-  typedef std::queue< OutputType::Pointer > OutputContainerType;
+  std::thread m_Thread;
 
-  MultiThreader::Pointer m_Threader;
-
-  ThreadIdType m_ThreadID;
+  bool m_TerminationRequested;
 
   OperationContainerType m_OperationQ;
 
@@ -137,11 +145,11 @@ private:
 
   OutputContainerType m_OutputQ;
 
-  SimpleFastMutexLock m_Mutex;
+  mutable std::mutex m_Mutex;
 
   DelayType m_Delay;
 
-};  // class ThreadLogger
+}; // class ThreadLogger
 } // namespace itk
 
-#endif  // itkThreadLogger_h
+#endif // itkThreadLogger_h

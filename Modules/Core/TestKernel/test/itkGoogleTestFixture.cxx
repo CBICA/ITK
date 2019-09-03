@@ -23,22 +23,26 @@
 
 namespace
 {
-class GoogleTestFixture
-  : public ::testing::Test
+class GoogleTestFixture : public ::testing::Test
 {
 public:
-  GoogleTestFixture() : m_C(1) {}
-  ~GoogleTestFixture() {}
+  GoogleTestFixture() {}
+  ~GoogleTestFixture() override = default;
 
 protected:
-  void SetUp() {}
-  void TearDown() {}
+  void
+  SetUp() override
+  {}
+  void
+  TearDown() override
+  {}
 
-  int m_C;
+  int m_C{ 1 };
 };
-}
+} // namespace
 
 
-TEST_F(GoogleTestFixture,t) {
+TEST_F(GoogleTestFixture, t)
+{
   EXPECT_EQ(1, m_C);
 }

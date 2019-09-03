@@ -18,27 +18,28 @@
 #include "itkMemoryProbesCollectorBase.h"
 #include "itkTestingMacros.h"
 #if defined(TEST_WITH_SLEEP)
-#if defined(_WIN32) && !defined(__CYGWIN__)
-#include <windows.h>
-#else
-#include <unistd.h>
-inline
-void Sleep(unsigned int milleseconds)
+#  if defined(_WIN32) && !defined(__CYGWIN__)
+#    include <windows.h>
+#  else
+#    include <unistd.h>
+inline void
+Sleep(unsigned int milleseconds)
 {
   sleep(milleseconds / 1000);
 }
-#endif
+#  endif
 #else
-#define Sleep(x) // Empty
-#endif //defined(TEST_WITH_SLEEP)
+#  define Sleep(x) // Empty
+#endif             // defined(TEST_WITH_SLEEP)
 
 
-int itkMemoryProbesCollecterBaseTest(int, char *[])
+int
+itkMemoryProbesCollecterBaseTest(int, char *[])
 {
-  const size_t megabyte = 1024L * 1024L;
+  const size_t mebibyte = 1024L * 1024L;
 
   itk::MemoryProbesCollectorBase mcollecter;
-  itk::MemoryProbe probe;
+  itk::MemoryProbe               probe;
   mcollecter.Start("Update");
   Sleep(5000);
   mcollecter.Stop("Update");
@@ -46,30 +47,29 @@ int itkMemoryProbesCollecterBaseTest(int, char *[])
   mcollecter.Clear();
   mcollecter.Start("Update");
   probe.Start();
-  char *buf = new char[megabyte];
-  for(unsigned int i = 0; i < megabyte; i++)
-    {
+  auto * buf = new char[mebibyte];
+  for (unsigned int i = 0; i < mebibyte; i++)
+  {
     buf[i] = static_cast<char>(i & 0xff);
-    }
+  }
   Sleep(5000);
   mcollecter.Stop("Update");
   probe.Stop();
   size_t total = probe.GetTotal();
   std::cout << " Total Value " << probe.GetTotal() << std::endl;
-  if(total == 0)
-    {
+  if (total == 0)
+  {
     std::cout << "WARNING: Total memory usage should be greater than zero"
-              << "Memory Probes do not work on this platform"
-              << std::endl;
+              << "Memory Probes do not work on this platform" << std::endl;
     delete[] buf;
     return EXIT_SUCCESS;
-    }
+  }
   mcollecter.Report();
   delete[] buf;
 
 
-  TRY_EXPECT_EXCEPTION(mcollecter.GetProbe("IDoNotExist"));
-  TRY_EXPECT_NO_EXCEPTION(mcollecter.GetProbe("Update"));
+  ITK_TRY_EXPECT_EXCEPTION(mcollecter.GetProbe("IDoNotExist"));
+  ITK_TRY_EXPECT_NO_EXCEPTION(mcollecter.GetProbe("Update"));
 
   return EXIT_SUCCESS;
 }

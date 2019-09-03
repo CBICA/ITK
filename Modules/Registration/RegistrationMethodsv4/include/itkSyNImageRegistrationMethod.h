@@ -63,187 +63,205 @@ namespace itk
  *
  * \ingroup ITKRegistrationMethodsv4
  */
-template<typename TFixedImage, typename TMovingImage, typename TOutputTransform =
-  DisplacementFieldTransform<double, TFixedImage::ImageDimension>,
-  typename TVirtualImage = TFixedImage,
-  typename TPointSet = PointSet<unsigned int, TFixedImage::ImageDimension> >
+template <typename TFixedImage,
+          typename TMovingImage,
+          typename TOutputTransform = DisplacementFieldTransform<double, TFixedImage::ImageDimension>,
+          typename TVirtualImage = TFixedImage,
+          typename TPointSet = PointSet<unsigned int, TFixedImage::ImageDimension>>
 class ITK_TEMPLATE_EXPORT SyNImageRegistrationMethod
-: public ImageRegistrationMethodv4<TFixedImage, TMovingImage, TOutputTransform, TVirtualImage, TPointSet>
+  : public ImageRegistrationMethodv4<TFixedImage, TMovingImage, TOutputTransform, TVirtualImage, TPointSet>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SyNImageRegistrationMethod                                                  Self;
-  typedef ImageRegistrationMethodv4<TFixedImage, TMovingImage, TOutputTransform,
-                                                       TVirtualImage, TPointSet>      Superclass;
-  typedef SmartPointer<Self>                                                          Pointer;
-  typedef SmartPointer<const Self>                                                    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SyNImageRegistrationMethod);
+
+  /** Standard class type aliases. */
+  using Self = SyNImageRegistrationMethod;
+  using Superclass = ImageRegistrationMethodv4<TFixedImage, TMovingImage, TOutputTransform, TVirtualImage, TPointSet>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** ImageDimension constants */
-  itkStaticConstMacro( ImageDimension, unsigned int, TFixedImage::ImageDimension );
+  static constexpr unsigned int ImageDimension = TFixedImage::ImageDimension;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( SyNImageRegistrationMethod, SimpleImageRegistrationMethod );
+  itkTypeMacro(SyNImageRegistrationMethod, SimpleImageRegistrationMethod);
 
-  /** Input typedefs for the images. */
-  typedef TFixedImage                                                 FixedImageType;
-  typedef typename FixedImageType::Pointer                            FixedImagePointer;
-  typedef typename Superclass::FixedImagesContainerType               FixedImagesContainerType;
-  typedef TMovingImage                                                MovingImageType;
-  typedef typename MovingImageType::Pointer                           MovingImagePointer;
-  typedef typename Superclass::MovingImagesContainerType              MovingImagesContainerType;
+  /** Input type alias for the images. */
+  using FixedImageType = TFixedImage;
+  using FixedImagePointer = typename FixedImageType::Pointer;
+  using FixedImagesContainerType = typename Superclass::FixedImagesContainerType;
+  using MovingImageType = TMovingImage;
+  using MovingImagePointer = typename MovingImageType::Pointer;
+  using MovingImagesContainerType = typename Superclass::MovingImagesContainerType;
 
-  typedef typename Superclass::PointSetType                           PointSetType;
-  typedef typename PointSetType::Pointer                              PointSetPointer;
-  typedef typename Superclass::PointSetsContainerType                 PointSetsContainerType;
+  using PointSetType = typename Superclass::PointSetType;
+  using PointSetPointer = typename PointSetType::Pointer;
+  using PointSetsContainerType = typename Superclass::PointSetsContainerType;
 
-  /** Metric and transform typedefs */
-  typedef typename Superclass::ImageMetricType                        ImageMetricType;
-  typedef typename ImageMetricType::Pointer                           ImageMetricPointer;
-  typedef typename ImageMetricType::MeasureType                       MeasureType;
+  /** Metric and transform type alias */
+  using ImageMetricType = typename Superclass::ImageMetricType;
+  using ImageMetricPointer = typename ImageMetricType::Pointer;
+  using MeasureType = typename ImageMetricType::MeasureType;
 
-  typedef ImageMaskSpatialObject<ImageDimension>                      ImageMaskSpatialObjectType;
-  typedef typename Superclass::FixedImageMaskType                     FixedImageMaskType;
-  typedef typename ImageMaskSpatialObjectType::ImageType              FixedMaskImageType;
-  typedef typename Superclass::FixedImageMasksContainerType           FixedImageMasksContainerType;
-  typedef typename Superclass::MovingImageMaskType                    MovingImageMaskType;
-  typedef typename ImageMaskSpatialObjectType::ImageType              MovingMaskImageType;
-  typedef typename Superclass::MovingImageMasksContainerType          MovingImageMasksContainerType;
+  using ImageMaskSpatialObjectType = ImageMaskSpatialObject<ImageDimension>;
+  using FixedImageMaskType = typename Superclass::FixedImageMaskType;
+  using FixedMaskImageType = typename ImageMaskSpatialObjectType::ImageType;
+  using FixedImageMasksContainerType = typename Superclass::FixedImageMasksContainerType;
+  using MovingImageMaskType = typename Superclass::MovingImageMaskType;
+  using MovingMaskImageType = typename ImageMaskSpatialObjectType::ImageType;
+  using MovingImageMasksContainerType = typename Superclass::MovingImageMasksContainerType;
 
-  typedef typename Superclass::VirtualImageType                       VirtualImageType;
-  typedef typename Superclass::VirtualImageBaseType                   VirtualImageBaseType;
-  typedef typename Superclass::VirtualImageBaseConstPointer           VirtualImageBaseConstPointer;
+  using VirtualImageType = typename Superclass::VirtualImageType;
+  using VirtualImageBaseType = typename Superclass::VirtualImageBaseType;
+  using VirtualImageBaseConstPointer = typename Superclass::VirtualImageBaseConstPointer;
 
-  typedef typename Superclass::MultiMetricType                        MultiMetricType;
-  typedef typename Superclass::MetricType                             MetricType;
-  typedef typename MetricType::Pointer                                MetricPointer;
-  typedef typename Superclass::PointSetMetricType                     PointSetMetricType;
+  using MultiMetricType = typename Superclass::MultiMetricType;
+  using MetricType = typename Superclass::MetricType;
+  using MetricPointer = typename MetricType::Pointer;
+  using PointSetMetricType = typename Superclass::PointSetMetricType;
 
-  typedef typename Superclass::InitialTransformType                   InitialTransformType;
-  typedef TOutputTransform                                            OutputTransformType;
-  typedef typename OutputTransformType::Pointer                       OutputTransformPointer;
-  typedef typename OutputTransformType::ScalarType                    RealType;
-  typedef typename OutputTransformType::DerivativeType                DerivativeType;
-  typedef typename DerivativeType::ValueType                          DerivativeValueType;
-  typedef typename OutputTransformType::DisplacementFieldType         DisplacementFieldType;
-  typedef typename DisplacementFieldType::Pointer                     DisplacementFieldPointer;
-  typedef typename DisplacementFieldType::PixelType                   DisplacementVectorType;
+  using InitialTransformType = typename Superclass::InitialTransformType;
+  using OutputTransformType = TOutputTransform;
+  using OutputTransformPointer = typename OutputTransformType::Pointer;
+  using RealType = typename OutputTransformType::ScalarType;
+  using DerivativeType = typename OutputTransformType::DerivativeType;
+  using DerivativeValueType = typename DerivativeType::ValueType;
+  using DisplacementFieldType = typename OutputTransformType::DisplacementFieldType;
+  using DisplacementFieldPointer = typename DisplacementFieldType::Pointer;
+  using DisplacementVectorType = typename DisplacementFieldType::PixelType;
 
-  typedef typename Superclass::CompositeTransformType                 CompositeTransformType;
-  typedef typename CompositeTransformType::TransformType              TransformBaseType;
+  using CompositeTransformType = typename Superclass::CompositeTransformType;
+  using TransformBaseType = typename CompositeTransformType::TransformType;
 
-  typedef typename Superclass::DecoratedOutputTransformType           DecoratedOutputTransformType;
-  typedef typename DecoratedOutputTransformType::Pointer              DecoratedOutputTransformPointer;
+  using DecoratedOutputTransformType = typename Superclass::DecoratedOutputTransformType;
+  using DecoratedOutputTransformPointer = typename DecoratedOutputTransformType::Pointer;
 
-  typedef DisplacementFieldTransform<RealType, ImageDimension>        DisplacementFieldTransformType;
-  typedef typename DisplacementFieldTransformType::Pointer            DisplacementFieldTransformPointer;
+  using DisplacementFieldTransformType = DisplacementFieldTransform<RealType, ImageDimension>;
+  using DisplacementFieldTransformPointer = typename DisplacementFieldTransformType::Pointer;
 
-  typedef Array<SizeValueType>                                        NumberOfIterationsArrayType;
+  using NumberOfIterationsArrayType = Array<SizeValueType>;
 
   /** Set/Get the learning rate. */
-  itkSetMacro( LearningRate, RealType );
-  itkGetConstMacro( LearningRate, RealType );
+  itkSetMacro(LearningRate, RealType);
+  itkGetConstMacro(LearningRate, RealType);
 
   /** Set/Get the number of iterations per level. */
-  itkSetMacro( NumberOfIterationsPerLevel, NumberOfIterationsArrayType );
-  itkGetConstMacro( NumberOfIterationsPerLevel, NumberOfIterationsArrayType );
+  itkSetMacro(NumberOfIterationsPerLevel, NumberOfIterationsArrayType);
+  itkGetConstMacro(NumberOfIterationsPerLevel, NumberOfIterationsArrayType);
 
   /** Set/Get the convergence threshold */
-  itkSetMacro( ConvergenceThreshold, RealType );
-  itkGetConstMacro( ConvergenceThreshold, RealType );
+  itkSetMacro(ConvergenceThreshold, RealType);
+  itkGetConstMacro(ConvergenceThreshold, RealType);
 
   /** Set/Get the convergence window size */
-  itkSetMacro( ConvergenceWindowSize, unsigned int );
-  itkGetConstMacro( ConvergenceWindowSize, unsigned int );
+  itkSetMacro(ConvergenceWindowSize, unsigned int);
+  itkGetConstMacro(ConvergenceWindowSize, unsigned int);
 
   /** Let the user control whether we compute metric derivatives in the downsampled or full-res space.
    *  The default is 'true' --- classic SyN --- but there may be advantages to the other approach.
    *  Classic SyN did not have this possibility. This implementation will let us explore the question.
    */
-  itkSetMacro( DownsampleImagesForMetricDerivatives, bool );
-  itkGetConstMacro( DownsampleImagesForMetricDerivatives, bool );
+  itkSetMacro(DownsampleImagesForMetricDerivatives, bool);
+  itkGetConstMacro(DownsampleImagesForMetricDerivatives, bool);
 
   /** Allow the user to average the gradients in the mid-point domain. Default false.
    *  One might choose to do this to further reduce bias.
    */
-  itkSetMacro( AverageMidPointGradients, bool );
-  itkGetConstMacro( AverageMidPointGradients, bool );
+  itkSetMacro(AverageMidPointGradients, bool);
+  itkGetConstMacro(AverageMidPointGradients, bool);
 
   /**
    * Get/Set the Gaussian smoothing variance for the update field.
-   * Default = 1.75.
    */
-  itkSetMacro( GaussianSmoothingVarianceForTheUpdateField, RealType );
-  itkGetConstReferenceMacro( GaussianSmoothingVarianceForTheUpdateField, RealType );
+  itkSetMacro(GaussianSmoothingVarianceForTheUpdateField, RealType);
+  itkGetConstReferenceMacro(GaussianSmoothingVarianceForTheUpdateField, RealType);
 
   /**
    * Get/Set the Gaussian smoothing variance for the total field.
-   * Default = 0.5.
    */
-  itkSetMacro( GaussianSmoothingVarianceForTheTotalField, RealType );
-  itkGetConstReferenceMacro( GaussianSmoothingVarianceForTheTotalField, RealType );
+  itkSetMacro(GaussianSmoothingVarianceForTheTotalField, RealType);
+  itkGetConstReferenceMacro(GaussianSmoothingVarianceForTheTotalField, RealType);
 
   /** Get modifiable FixedToMiddle and MovingToMidle transforms to save the current state of the registration. */
-  itkGetModifiableObjectMacro( FixedToMiddleTransform, OutputTransformType );
-  itkGetModifiableObjectMacro( MovingToMiddleTransform, OutputTransformType );
+  itkGetModifiableObjectMacro(FixedToMiddleTransform, OutputTransformType);
+  itkGetModifiableObjectMacro(MovingToMiddleTransform, OutputTransformType);
 
   /** Set FixedToMiddle and MovingToMidle transforms to restore the registration from a saved state. */
-  itkSetObjectMacro( FixedToMiddleTransform, OutputTransformType);
-  itkSetObjectMacro( MovingToMiddleTransform, OutputTransformType);
+  itkSetObjectMacro(FixedToMiddleTransform, OutputTransformType);
+  itkSetObjectMacro(MovingToMiddleTransform, OutputTransformType);
 
 protected:
   SyNImageRegistrationMethod();
-  virtual ~SyNImageRegistrationMethod() ITK_OVERRIDE;
-  virtual void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  ~SyNImageRegistrationMethod() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Perform the registration. */
-  virtual void  GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Handle optimization internally */
-  virtual void StartOptimization();
+  virtual void
+  StartOptimization();
 
   /**
    * Initialize by setting the interconnects between the components. Need to override
    * in the SyN class since we need to "adapt" the \c m_InverseTransform
    */
-  virtual void InitializeRegistrationAtEachLevel( const SizeValueType ) ITK_OVERRIDE;
+  void
+  InitializeRegistrationAtEachLevel(const SizeValueType) override;
 
-  virtual DisplacementFieldPointer ComputeUpdateField( const FixedImagesContainerType, const PointSetsContainerType,
-    const TransformBaseType *, const MovingImagesContainerType, const PointSetsContainerType,
-    const TransformBaseType *, const FixedImageMasksContainerType, const MovingImageMasksContainerType, MeasureType & );
-  virtual DisplacementFieldPointer ComputeMetricGradientField( const FixedImagesContainerType,
-    const PointSetsContainerType, const TransformBaseType *, const MovingImagesContainerType,
-    const PointSetsContainerType, const TransformBaseType *, const FixedImageMasksContainerType,
-    const MovingImageMasksContainerType, MeasureType & );
+  virtual DisplacementFieldPointer
+  ComputeUpdateField(const FixedImagesContainerType,
+                     const PointSetsContainerType,
+                     const TransformBaseType *,
+                     const MovingImagesContainerType,
+                     const PointSetsContainerType,
+                     const TransformBaseType *,
+                     const FixedImageMasksContainerType,
+                     const MovingImageMasksContainerType,
+                     MeasureType &);
+  virtual DisplacementFieldPointer
+  ComputeMetricGradientField(const FixedImagesContainerType,
+                             const PointSetsContainerType,
+                             const TransformBaseType *,
+                             const MovingImagesContainerType,
+                             const PointSetsContainerType,
+                             const TransformBaseType *,
+                             const FixedImageMasksContainerType,
+                             const MovingImageMasksContainerType,
+                             MeasureType &);
 
-  virtual DisplacementFieldPointer ScaleUpdateField( const DisplacementFieldType * );
-  virtual DisplacementFieldPointer GaussianSmoothDisplacementField( const DisplacementFieldType *, const RealType );
-  virtual DisplacementFieldPointer InvertDisplacementField( const DisplacementFieldType *, const DisplacementFieldType * = ITK_NULLPTR );
+  virtual DisplacementFieldPointer
+  ScaleUpdateField(const DisplacementFieldType *);
+  virtual DisplacementFieldPointer
+  GaussianSmoothDisplacementField(const DisplacementFieldType *, const RealType);
+  virtual DisplacementFieldPointer
+  InvertDisplacementField(const DisplacementFieldType *, const DisplacementFieldType * = nullptr);
 
-  RealType                                                        m_LearningRate;
+  RealType m_LearningRate{ 0.25 };
 
-  OutputTransformPointer                                          m_MovingToMiddleTransform;
-  OutputTransformPointer                                          m_FixedToMiddleTransform;
+  OutputTransformPointer m_MovingToMiddleTransform{ nullptr };
+  OutputTransformPointer m_FixedToMiddleTransform{ nullptr };
 
-  RealType                                                        m_ConvergenceThreshold;
-  unsigned int                                                    m_ConvergenceWindowSize;
+  RealType     m_ConvergenceThreshold{ static_cast<RealType>(1.0e-6) };
+  unsigned int m_ConvergenceWindowSize{ 10 };
 
-  NumberOfIterationsArrayType                                     m_NumberOfIterationsPerLevel;
-  bool                                                            m_DownsampleImagesForMetricDerivatives;
-  bool                                                            m_AverageMidPointGradients;
+  NumberOfIterationsArrayType m_NumberOfIterationsPerLevel;
+  bool                        m_DownsampleImagesForMetricDerivatives{ true };
+  bool                        m_AverageMidPointGradients{ false };
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SyNImageRegistrationMethod);
-
-  RealType                                                        m_GaussianSmoothingVarianceForTheUpdateField;
-  RealType                                                        m_GaussianSmoothingVarianceForTheTotalField;
+  RealType m_GaussianSmoothingVarianceForTheUpdateField{ 3.0 };
+  RealType m_GaussianSmoothingVarianceForTheTotalField{ 0.5 };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSyNImageRegistrationMethod.hxx"
+#  include "itkSyNImageRegistrationMethod.hxx"
 #endif
 
 #endif

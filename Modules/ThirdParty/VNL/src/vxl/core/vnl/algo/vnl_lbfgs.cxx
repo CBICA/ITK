@@ -1,7 +1,4 @@
 // This is core/vnl/algo/vnl_lbfgs.cxx
-#ifdef VCL_NEEDS_PRAGMA_INTERFACE
-#pragma implementation
-#endif
 //:
 // \file
 //
@@ -14,7 +11,6 @@
 #include <iostream>
 #include <iomanip>
 #include "vnl_lbfgs.h"
-#include <vcl_compiler.h>
 
 #include <vnl/algo/vnl_netlib.h> // lbfgs_()
 
@@ -22,7 +18,7 @@
 // memory is set to 5, line_search_accuracy to 0.9.
 // Calls init_parameters
 vnl_lbfgs::vnl_lbfgs():
-  f_(VXL_NULLPTR)
+  f_(nullptr)
 {
   init_parameters();
 }
@@ -77,7 +73,7 @@ bool vnl_lbfgs::minimize(vnl_vector<double>& x)
     std::cerr << "vnl_lbfgs: ";
 
   double best_f = 0;
-  vnl_vector<double> best_x = x;
+  vnl_vector<double> best_x;
 
   bool ok;
   this->num_evaluations_ = 0;
@@ -105,8 +101,8 @@ bool vnl_lbfgs::minimize(vnl_vector<double>& x)
       best_f = f;
     }
 
-#define print_(i,a,b,c,d) std::cerr<<std::setw(6)<<i<<' '<<std::setw(20)<<a<<' '\
-           <<std::setw(20)<<b<<' '<<std::setw(20)<<c<<' '<<std::setw(20)<<d<<'\n'
+#define print_(i,a,b,c,d) std::cerr<<std::setw(6)<<(i)<<' '<<std::setw(20)<<(a)<<' '\
+           <<std::setw(20)<<(b)<<' '<<std::setw(20)<<(c)<<' '<<std::setw(20)<<(d)<<'\n'
 
     if (check_derivatives_)
     {

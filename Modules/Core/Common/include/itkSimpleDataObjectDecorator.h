@@ -62,18 +62,20 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename T >
-class ITK_TEMPLATE_EXPORT SimpleDataObjectDecorator:public DataObject
+template <typename T>
+class ITK_TEMPLATE_EXPORT SimpleDataObjectDecorator : public DataObject
 {
 public:
-  /** Standard typedefs. */
-  typedef SimpleDataObjectDecorator  Self;
-  typedef DataObject                 Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SimpleDataObjectDecorator);
+
+  /** Standard type alias. */
+  using Self = SimpleDataObjectDecorator;
+  using Superclass = DataObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Typedef for the component type (object being decorated) */
-  typedef T ComponentType;
+  using ComponentType = T;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -82,29 +84,36 @@ public:
   itkTypeMacro(SimpleDataObjectDecorator, DataObject);
 
   /** Set the contained object */
-  virtual void Set(const T & val);
+  virtual void
+  Set(const T & val);
 
   /** Get the contained object */
-  virtual T &       Get() { return m_Component; }
-  virtual const T & Get() const { return m_Component; }
+  virtual T &
+  Get()
+  {
+    return m_Component;
+  }
+  virtual const T &
+  Get() const
+  {
+    return m_Component;
+  }
 
 protected:
   SimpleDataObjectDecorator();
-  ~SimpleDataObjectDecorator() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SimpleDataObjectDecorator() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 protected:
-
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SimpleDataObjectDecorator);
-
   ComponentType m_Component;
   bool          m_Initialized;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSimpleDataObjectDecorator.hxx"
+#  include "itkSimpleDataObjectDecorator.hxx"
 #endif
 
 #endif

@@ -22,8 +22,7 @@ namespace itk
 /**
  * Instantiate object with no start, end, or progress methods.
  */
-LightProcessObject
-::LightProcessObject()
+LightProcessObject ::LightProcessObject()
 {
   m_AbortGenerateData = false;
   m_Progress = 0.0f;
@@ -33,9 +32,7 @@ LightProcessObject
  * Destructor for the LightProcessObject class. We've got to
  * UnRegister() the use of any input classes.
  */
-LightProcessObject
-::~LightProcessObject()
-{}
+LightProcessObject ::~LightProcessObject() = default;
 
 /**
  * Update the progress of the process object. If a ProgressMethod exists,
@@ -43,40 +40,37 @@ LightProcessObject
  * should range between (0,1).
  */
 void
-LightProcessObject
-::UpdateProgress(float amount)
+LightProcessObject ::UpdateProgress(float amount)
 {
   m_Progress = amount;
-  this->InvokeEvent( ProgressEvent() );
+  this->InvokeEvent(ProgressEvent());
 }
 
 /**
  *
  */
 void
-LightProcessObject
-::PrintSelf(std::ostream & os, Indent indent) const
+LightProcessObject ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
-  os << indent << "AbortGenerateData: " << ( m_AbortGenerateData ? "On\n" : "Off\n" );
+  os << indent << "AbortGenerateData: " << (m_AbortGenerateData ? "On\n" : "Off\n");
   os << indent << "Progress: " << m_Progress << "\n";
 }
 
 /**
-   *
-   */
+ *
+ */
 void
-LightProcessObject
-::UpdateOutputData()
+LightProcessObject ::UpdateOutputData()
 {
-  this->InvokeEvent( StartEvent() );
+  this->InvokeEvent(StartEvent());
 
   /**
    * GenerateData this object - we have not aborted yet, and our progress
    * before we start to execute is 0.0.
    */
-  m_AbortGenerateData = 0;
+  m_AbortGenerateData = false;
   m_Progress = 0.0f;
 
   this->GenerateData();
@@ -85,12 +79,12 @@ LightProcessObject
    * If we ended due to aborting, push the progress up to 1.0 (since
    * it probably didn't end there)
    */
-  if ( !m_AbortGenerateData )
-    {
+  if (!m_AbortGenerateData)
+  {
     this->UpdateProgress(1.0f);
-    }
+  }
 
   // Notify end event observers
-  this->InvokeEvent( EndEvent() );
+  this->InvokeEvent(EndEvent());
 }
 } // end namespace itk

@@ -35,93 +35,82 @@
 #include "itkExpectationMaximizationMixtureModelEstimator.h"
 #include "itkWeightedCentroidKdTreeGenerator.h"
 
-int itkStatisticsPrintTest(int , char* [])
+int
+itkStatisticsPrintTest(int, char *[])
 {
-  typedef float TMeasurementType;
+  using TMeasurementType = float;
 
-  typedef itk::FixedArray< TMeasurementType, 2 >  TMeasurementVectorType;
-  typedef itk::Image< TMeasurementVectorType, 3 > ImageType;
-  typedef itk::Image< unsigned char, 3>           ScalarImageType;
-  typedef itk::PointSet< TMeasurementType, 2 >    PointSetType;
-  typedef itk::Image< unsigned long , 3 >         OutputImageType;
+  using TMeasurementVectorType = itk::FixedArray<TMeasurementType, 2>;
+  using ImageType = itk::Image<TMeasurementVectorType, 3>;
+  using ScalarImageType = itk::Image<unsigned char, 3>;
+  using PointSetType = itk::PointSet<TMeasurementType, 2>;
+  using OutputImageType = itk::Image<unsigned long, 3>;
 
-  typedef itk::Statistics::ListSample< TMeasurementVectorType > SampleType;
+  using SampleType = itk::Statistics::ListSample<TMeasurementVectorType>;
 
-  typedef itk::Statistics::Subsample< SampleType > SubSampleType;
+  using SubSampleType = itk::Statistics::Subsample<SampleType>;
 
-  typedef itk::Statistics::Histogram< TMeasurementType > HistogramType;
+  using HistogramType = itk::Statistics::Histogram<TMeasurementType>;
 
-  typedef itk::Statistics::SampleToHistogramFilter<
-    SampleType, HistogramType > SampleToHistogramFilterType;
+  using SampleToHistogramFilterType = itk::Statistics::SampleToHistogramFilter<SampleType, HistogramType>;
 
-  typedef itk::Statistics::SampleClassifierFilter<
-    SampleType > SampleClassifierFilterType;
+  using SampleClassifierFilterType = itk::Statistics::SampleClassifierFilter<SampleType>;
 
-  typedef itk::Statistics::ImageClassifierFilter<
-    SampleType, ImageType, OutputImageType > ImageClassifierFilterType;
+  using ImageClassifierFilterType = itk::Statistics::ImageClassifierFilter<SampleType, ImageType, OutputImageType>;
 
-  typedef itk::Statistics::ImageToListSampleFilter<
-    ImageType, ScalarImageType > ImageToListSampleFilterType;
+  using ImageToListSampleFilterType = itk::Statistics::ImageToListSampleFilter<ImageType, ScalarImageType>;
 
-  typedef itk::Statistics::ImageToListSampleAdaptor<
-    ImageType> ImageToListSampleAdaptorType;
+  using ImageToListSampleAdaptorType = itk::Statistics::ImageToListSampleAdaptor<ImageType>;
 
-  typedef itk::Statistics::JointDomainImageToListSampleAdaptor<
-    ImageType> JointDomainImageToListSampleAdaptorType;
+  using JointDomainImageToListSampleAdaptorType = itk::Statistics::JointDomainImageToListSampleAdaptor<ImageType>;
 
-  typedef itk::Statistics::ScalarImageToCooccurrenceMatrixFilter<
-    ScalarImageType > ScalarImageToCooccurrenceMatrixFilterType;
+  using ScalarImageToCooccurrenceMatrixFilterType =
+    itk::Statistics::ScalarImageToCooccurrenceMatrixFilter<ScalarImageType>;
 
-  typedef itk::Statistics::ScalarImageToCooccurrenceListSampleFilter<
-    ScalarImageType > ScalarImageToCooccurrenceListSampleFilterType;
+  using ScalarImageToCooccurrenceListSampleFilterType =
+    itk::Statistics::ScalarImageToCooccurrenceListSampleFilter<ScalarImageType>;
 
-  typedef itk::Statistics::ScalarImageToTextureFeaturesFilter<
-    ScalarImageType > ScalarImageToTextureFeaturesFilterType;
+  using ScalarImageToTextureFeaturesFilterType = itk::Statistics::ScalarImageToTextureFeaturesFilter<ScalarImageType>;
 
-  typedef itk::Statistics::MembershipSample< SampleType > MembershipSampleType;
+  using MembershipSampleType = itk::Statistics::MembershipSample<SampleType>;
 
-  typedef itk::Statistics::DistanceToCentroidMembershipFunction<
-            TMeasurementVectorType > DistanceToCentroidMembershipFunctionType;
+  using DistanceToCentroidMembershipFunctionType =
+    itk::Statistics::DistanceToCentroidMembershipFunction<TMeasurementVectorType>;
 
-  typedef itk::Statistics::EuclideanDistanceMetric< TMeasurementVectorType >
-    EuclideanDistanceMetricType;
+  using EuclideanDistanceMetricType = itk::Statistics::EuclideanDistanceMetric<TMeasurementVectorType>;
 
-  typedef itk::Statistics::EuclideanSquareDistanceMetric< TMeasurementVectorType >
-    EuclideanSquareDistanceMetricType;
+  using EuclideanSquareDistanceMetricType = itk::Statistics::EuclideanSquareDistanceMetric<TMeasurementVectorType>;
 
-  typedef itk::Statistics::MahalanobisDistanceMetric< TMeasurementVectorType >
-    MahalanobisDistanceMetricType;
+  using MahalanobisDistanceMetricType = itk::Statistics::MahalanobisDistanceMetric<TMeasurementVectorType>;
 
-  typedef itk::Statistics::ManhattanDistanceMetric< TMeasurementVectorType >
-    ManhattanDistanceMetricType;
+  using ManhattanDistanceMetricType = itk::Statistics::ManhattanDistanceMetric<TMeasurementVectorType>;
 
-  typedef itk::Statistics::MaximumDecisionRule MaximumDecisionRuleType;
-  typedef itk::Statistics::MinimumDecisionRule MinimumDecisionRuleType;
+  using MaximumDecisionRuleType = itk::Statistics::MaximumDecisionRule;
+  using MinimumDecisionRuleType = itk::Statistics::MinimumDecisionRule;
 
-  typedef itk::Statistics::HistogramToTextureFeaturesFilter<
-    HistogramType > HistogramToTextureFeaturesFilterType;
+  using HistogramToTextureFeaturesFilterType = itk::Statistics::HistogramToTextureFeaturesFilter<HistogramType>;
 
-  typedef itk::Statistics::MeanSampleFilter< SampleType > MeanSampleFilterType;
+  using MeanSampleFilterType = itk::Statistics::MeanSampleFilter<SampleType>;
 
-  typedef itk::Statistics::WeightedMeanSampleFilter< SampleType > WeightedMeanSampleFilterType;
+  using WeightedMeanSampleFilterType = itk::Statistics::WeightedMeanSampleFilter<SampleType>;
 
-  typedef itk::Statistics::CovarianceSampleFilter< SampleType > CovarianceSampleFilterType;
+  using CovarianceSampleFilterType = itk::Statistics::CovarianceSampleFilter<SampleType>;
 
-  typedef itk::Statistics::WeightedCovarianceSampleFilter< SampleType > WeightedCovarianceSampleFilterType;
+  using WeightedCovarianceSampleFilterType = itk::Statistics::WeightedCovarianceSampleFilter<SampleType>;
 
-  typedef itk::Statistics::NeighborhoodSampler< SampleType > NeighborhoodSamplerType;
+  using NeighborhoodSamplerType = itk::Statistics::NeighborhoodSampler<SampleType>;
 
-  typedef itk::Statistics::PointSetToListSampleAdaptor< PointSetType > PointSetToListSampleAdaptorType;
+  using PointSetToListSampleAdaptorType = itk::Statistics::PointSetToListSampleAdaptor<PointSetType>;
 
-  typedef itk::Statistics::DenseFrequencyContainer2 DenseFrequencyContainer2Type;
+  using DenseFrequencyContainer2Type = itk::Statistics::DenseFrequencyContainer2;
 
-  typedef itk::Statistics::SparseFrequencyContainer2 SparseFrequencyContainer2Type;
+  using SparseFrequencyContainer2Type = itk::Statistics::SparseFrequencyContainer2;
 
-  typedef itk::Statistics::ExpectationMaximizationMixtureModelEstimator< SampleType > EMEstimatorType;
+  using EMEstimatorType = itk::Statistics::ExpectationMaximizationMixtureModelEstimator<SampleType>;
 
-  typedef itk::Statistics::WeightedCentroidKdTreeGenerator< SampleType >  TreeGeneratorType;
+  using TreeGeneratorType = itk::Statistics::WeightedCentroidKdTreeGenerator<SampleType>;
 
-  typedef itk::Statistics::KdTreeBasedKmeansEstimator< TreeGeneratorType::KdTreeType >  KdTreeBasedKMeansEstimatorType;
+  using KdTreeBasedKMeansEstimatorType = itk::Statistics::KdTreeBasedKmeansEstimator<TreeGeneratorType::KdTreeType>;
 
   SampleType::Pointer sampleObj = SampleType::New();
   std::cout << "----------ListSample " << sampleObj;
@@ -129,27 +118,22 @@ int itkStatisticsPrintTest(int , char* [])
   SubSampleType::Pointer subsampleObj = SubSampleType::New();
   std::cout << "----------Subsample " << subsampleObj;
 
-  HistogramType::Pointer HistogramObj=
-    HistogramType::New();
+  HistogramType::Pointer HistogramObj = HistogramType::New();
   std::cout << "----------Histogram " << HistogramObj;
 
-  SampleToHistogramFilterType::Pointer SampleToHistogramFilterObj =
-    SampleToHistogramFilterType::New();
+  SampleToHistogramFilterType::Pointer SampleToHistogramFilterObj = SampleToHistogramFilterType::New();
   std::cout << "----------SampleToHistogramFilter ";
   std::cout << SampleToHistogramFilterObj;
 
-  SampleClassifierFilterType::Pointer SampleClassifierFilterObj =
-    SampleClassifierFilterType::New();
+  SampleClassifierFilterType::Pointer xSampleClassifierFilterObj = SampleClassifierFilterType::New();
   std::cout << "----------SampleClassifierFilter ";
-  std::cout << SampleClassifierFilterObj;
+  std::cout << xSampleClassifierFilterObj;
 
-  ImageToListSampleFilterType::Pointer ImageToListSampleFilterObj =
-    ImageToListSampleFilterType::New();
+  ImageToListSampleFilterType::Pointer ImageToListSampleFilterObj = ImageToListSampleFilterType::New();
   std::cout << "----------ImageToListSampleFilter ";
   std::cout << ImageToListSampleFilterObj;
 
-  ImageToListSampleAdaptorType::Pointer ImageToListSampleAdaptorObj =
-    ImageToListSampleAdaptorType::New();
+  ImageToListSampleAdaptorType::Pointer ImageToListSampleAdaptorObj = ImageToListSampleAdaptorType::New();
   std::cout << "----------ImageToListSampleAdaptor ";
   std::cout << ImageToListSampleAdaptorObj;
 
@@ -158,8 +142,7 @@ int itkStatisticsPrintTest(int , char* [])
   std::cout << "----------JointDomainImageToListSampleAdaptor ";
   std::cout << JointDomainImageToListSampleAdaptorObj;
 
-  PointSetToListSampleAdaptorType::Pointer PointSetToListSampleAdaptorObj =
-    PointSetToListSampleAdaptorType::New();
+  PointSetToListSampleAdaptorType::Pointer PointSetToListSampleAdaptorObj = PointSetToListSampleAdaptorType::New();
   std::cout << "----------PointSetToListSampleAdaptor ";
   std::cout << PointSetToListSampleAdaptorObj;
 
@@ -173,84 +156,69 @@ int itkStatisticsPrintTest(int , char* [])
   std::cout << "----------ScalarImageToCooccurrenceListSampleFilter ";
   std::cout << ScalarImageToCooccurrenceListSampleFilterObj;
 
-  ScalarImageToTextureFeaturesFilterType::Pointer ScalarImageToTextureFeaturesFilterObj = ScalarImageToTextureFeaturesFilterType::New();
+  ScalarImageToTextureFeaturesFilterType::Pointer ScalarImageToTextureFeaturesFilterObj =
+    ScalarImageToTextureFeaturesFilterType::New();
   std::cout << "----------ScalarImageToTextureFeaturesFilter ";
   std::cout << ScalarImageToTextureFeaturesFilterObj;
 
-  HistogramToTextureFeaturesFilterType::Pointer HistogramToTextureFeaturesFilterObj=
+  HistogramToTextureFeaturesFilterType::Pointer HistogramToTextureFeaturesFilterObj =
     HistogramToTextureFeaturesFilterType::New();
   std::cout << "----------HistogramToTextureFeaturesFilter " << HistogramToTextureFeaturesFilterObj;
 
-  MembershipSampleType::Pointer MembershipSampleObj =
-    MembershipSampleType::New();
+  MembershipSampleType::Pointer MembershipSampleObj = MembershipSampleType::New();
   std::cout << "----------MembershipSample " << MembershipSampleObj;
 
   DistanceToCentroidMembershipFunctionType::Pointer DistanceToCentroidMembershipFunctionObj =
     DistanceToCentroidMembershipFunctionType::New();
   std::cout << "----------DistanceToCentroidMembershipFunction " << DistanceToCentroidMembershipFunctionObj;
 
-  MeanSampleFilterType::Pointer meanFilterObj =
-    MeanSampleFilterType::New();
+  MeanSampleFilterType::Pointer meanFilterObj = MeanSampleFilterType::New();
   std::cout << "----------Mean filter " << meanFilterObj;
 
-  WeightedMeanSampleFilterType::Pointer weighedMeanSampleFilterObj =
-    WeightedMeanSampleFilterType::New();
+  WeightedMeanSampleFilterType::Pointer weighedMeanSampleFilterObj = WeightedMeanSampleFilterType::New();
   std::cout << "----------WeightedMean filter " << weighedMeanSampleFilterObj;
 
-  CovarianceSampleFilterType::Pointer covarianceFilterObj =
-    CovarianceSampleFilterType::New();
+  CovarianceSampleFilterType::Pointer covarianceFilterObj = CovarianceSampleFilterType::New();
   std::cout << "----------Covariance filter " << covarianceFilterObj;
 
   WeightedCovarianceSampleFilterType::Pointer weighedCovarianceSampleFilterObj =
     WeightedCovarianceSampleFilterType::New();
   std::cout << "----------WeightedCovariance filter " << weighedCovarianceSampleFilterObj;
 
-  NeighborhoodSamplerType::Pointer neighborhoodSamplerObj =
-    NeighborhoodSamplerType::New();
+  NeighborhoodSamplerType::Pointer neighborhoodSamplerObj = NeighborhoodSamplerType::New();
   std::cout << "----------NeighborhoodSamplerType filter " << neighborhoodSamplerObj;
 
-  DenseFrequencyContainer2Type::Pointer DenseFrequencyContainer2Obj=
-    DenseFrequencyContainer2Type::New();
+  DenseFrequencyContainer2Type::Pointer DenseFrequencyContainer2Obj = DenseFrequencyContainer2Type::New();
   std::cout << "----------DenseFrequencyContainer " << DenseFrequencyContainer2Obj;
 
-  SparseFrequencyContainer2Type::Pointer SparseFrequencyContainer2Obj=
-    SparseFrequencyContainer2Type::New();
+  SparseFrequencyContainer2Type::Pointer SparseFrequencyContainer2Obj = SparseFrequencyContainer2Type::New();
   std::cout << "----------SparseFrequencyContainer2 " << SparseFrequencyContainer2Obj;
 
-  EuclideanDistanceMetricType::Pointer euclideanDistance=
-    EuclideanDistanceMetricType::New();
+  EuclideanDistanceMetricType::Pointer euclideanDistance = EuclideanDistanceMetricType::New();
   std::cout << "----------EuclideanDistanceMetricType " << euclideanDistance;
 
-  EuclideanSquareDistanceMetricType::Pointer euclideanSquareDistance=
-    EuclideanSquareDistanceMetricType::New();
+  EuclideanSquareDistanceMetricType::Pointer euclideanSquareDistance = EuclideanSquareDistanceMetricType::New();
   std::cout << "----------EuclideanSquareDistanceMetricType " << euclideanSquareDistance;
 
-  MahalanobisDistanceMetricType::Pointer mahalanobisDistance=
-    MahalanobisDistanceMetricType::New();
+  MahalanobisDistanceMetricType::Pointer mahalanobisDistance = MahalanobisDistanceMetricType::New();
   std::cout << "----------MahalanobisDistanceMetricType " << mahalanobisDistance;
 
-  ManhattanDistanceMetricType::Pointer manhattanDistance=
-    ManhattanDistanceMetricType::New();
+  ManhattanDistanceMetricType::Pointer manhattanDistance = ManhattanDistanceMetricType::New();
   std::cout << "----------ManhattanDistanceMetricType " << manhattanDistance;
 
-  MaximumDecisionRuleType::Pointer maximumDecsion=
-    MaximumDecisionRuleType::New();
+  MaximumDecisionRuleType::Pointer maximumDecsion = MaximumDecisionRuleType::New();
   std::cout << "----------MaximumDecisionRuleType " << maximumDecsion;
 
-  MinimumDecisionRuleType::Pointer minimumDecsion=
-    MinimumDecisionRuleType::New();
+  MinimumDecisionRuleType::Pointer minimumDecsion = MinimumDecisionRuleType::New();
   std::cout << "----------MinimumDecisionRuleType " << minimumDecsion;
 
-  ImageClassifierFilterType::Pointer classifierFilter=
-   ImageClassifierFilterType::New();
+  ImageClassifierFilterType::Pointer classifierFilter = ImageClassifierFilterType::New();
   std::cout << "----------ImageClassifierFilterType " << classifierFilter;
 
-  EMEstimatorType::Pointer emEstimator=
-   EMEstimatorType::New();
+  EMEstimatorType::Pointer emEstimator = EMEstimatorType::New();
   std::cout << "----------EMEstimatorType " << emEstimator;
 
-  KdTreeBasedKMeansEstimatorType::Pointer kdTreeBasedEstimator=
-   KdTreeBasedKMeansEstimatorType::New();
+  KdTreeBasedKMeansEstimatorType::Pointer kdTreeBasedEstimator = KdTreeBasedKMeansEstimatorType::New();
   std::cout << "----------KdTreeBasedKMeansEstimatorType " << kdTreeBasedEstimator;
 
   return EXIT_SUCCESS;

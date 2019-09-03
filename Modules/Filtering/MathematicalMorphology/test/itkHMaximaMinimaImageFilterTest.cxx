@@ -18,48 +18,45 @@
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
 #include "itkHMaximaImageFilter.h"
 #include "itkHMinimaImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkHMaximaMinimaImageFilterTest( int argc, char * argv[] )
+int
+itkHMaximaMinimaImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Missing parameters." << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << " inputImageFile";
+    std::cerr << itkNameOfTestExecutableMacro(argv) << " inputImageFile";
     std::cerr << " outputImageFile height" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //
   //  The following code defines the input and output pixel types and their
   //  associated image types.
   //
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned short   InputPixelType;
-  typedef short            InternalPixelType;
-  typedef unsigned char    OutputPixelType;
+  using InputPixelType = unsigned short;
+  using InternalPixelType = short;
+  using OutputPixelType = unsigned char;
 
-  typedef itk::Image< InputPixelType, Dimension >     InputImageType;
-  typedef itk::Image< InternalPixelType, Dimension >  InternalImageType;
-  typedef itk::Image< OutputPixelType, Dimension >    OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using InternalImageType = itk::Image<InternalPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
   // Readers/writers
-  typedef itk::ImageFileReader< InputImageType  >  ReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   // Define the itk::HMaximaImageFilter filter type
-  typedef itk::HMaximaImageFilter<
-                            InputImageType,
-                            InternalImageType > HMaximaFilterType;
+  using HMaximaFilterType = itk::HMaximaImageFilter<InputImageType, InternalImageType>;
   // Define the itk::HMinimaImageFilter filter type
-  typedef itk::HMinimaImageFilter<
-                            InternalImageType,
-                            OutputImageType > HMinimaFilterType;
+  using HMinimaFilterType = itk::HMinimaImageFilter<InternalImageType, OutputImageType>;
 
 
   // Creation of reader and writer filters
@@ -70,24 +67,24 @@ int itkHMaximaMinimaImageFilterTest( int argc, char * argv[] )
   HMaximaFilterType::Pointer hMaximaFilter = HMaximaFilterType::New();
   HMinimaFilterType::Pointer hMinimaFilter = HMinimaFilterType::New();
 
-  FilterWatcher watchHmaxima( hMaximaFilter, "HMaximaImageFilter" );
-  FilterWatcher watchHminima( hMinimaFilter, "HMinimaImageFilter" );
+  itk::SimpleFilterWatcher watchHmaxima(hMaximaFilter, "HMaximaImageFilter");
+  itk::SimpleFilterWatcher watchHminima(hMinimaFilter, "HMinimaImageFilter");
 
   // Set up the input and output files
-  reader->SetFileName( argv[1] );
-  writer->SetFileName( argv[2] );
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
 
   // Set up the filters
-  hMaximaFilter->SetInput( reader->GetOutput() );
-  hMaximaFilter->SetHeight( static_cast< InputPixelType >( atof( argv[3] ) ) );
+  hMaximaFilter->SetInput(reader->GetOutput());
+  hMaximaFilter->SetHeight(static_cast<InputPixelType>(std::stod(argv[3])));
 
-  hMinimaFilter->SetInput( hMaximaFilter->GetOutput() );
-  hMinimaFilter->SetHeight( static_cast< InputPixelType >( atof( argv[3] ) ) );
+  hMinimaFilter->SetInput(hMaximaFilter->GetOutput());
+  hMinimaFilter->SetHeight(static_cast<InputPixelType>(std::stod(argv[3])));
 
   // Run the filter
-  writer->SetInput( hMinimaFilter->GetOutput() );
+  writer->SetInput(hMinimaFilter->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
 
   std::cout << "Test finished." << std::endl;

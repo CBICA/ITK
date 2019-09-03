@@ -28,7 +28,7 @@
 #define COPY
 
 #ifdef COPY
-#include "itkNeighborhoodAlgorithm.h"
+#  include "itkNeighborhoodAlgorithm.h"
 #endif
 
 namespace itk
@@ -51,71 +51,72 @@ namespace itk
  * \ingroup ITKMathematicalMorphology
  */
 
-template< typename TInputImage, typename TOutputImage, typename TCompare >
-class ITK_TEMPLATE_EXPORT ReconstructionImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage, typename TCompare>
+class ITK_TEMPLATE_EXPORT ReconstructionImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ReconstructionImageFilter                       Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ReconstructionImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ReconstructionImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                            InputImageType;
-  typedef typename InputImageType::SizeType      ISizeType;
-  typedef TInputImage                            MarkerImageType;
-  typedef typename MarkerImageType::Pointer      MarkerImagePointer;
-  typedef typename MarkerImageType::ConstPointer MarkerImageConstPointer;
-  typedef typename MarkerImageType::RegionType   MarkerImageRegionType;
-  typedef typename MarkerImageType::PixelType    MarkerImagePixelType;
-  typedef typename InputImageType::PixelType     InputImagePixelType;
-  typedef typename InputImageType::IndexType     InputImageIndexType;
-  typedef TInputImage                            MaskImageType;
-  typedef typename MaskImageType::Pointer        MaskImagePointer;
-  typedef typename MaskImageType::ConstPointer   MaskImageConstPointer;
-  typedef typename MaskImageType::RegionType     MaskImageRegionType;
-  typedef typename MaskImageType::PixelType      MaskImagePixelType;
-  typedef TOutputImage                           OutputImageType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
-  typedef typename OutputImageType::IndexType    OutputImageIndexType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using ISizeType = typename InputImageType::SizeType;
+  using MarkerImageType = TInputImage;
+  using MarkerImagePointer = typename MarkerImageType::Pointer;
+  using MarkerImageConstPointer = typename MarkerImageType::ConstPointer;
+  using MarkerImageRegionType = typename MarkerImageType::RegionType;
+  using MarkerImagePixelType = typename MarkerImageType::PixelType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using InputImageIndexType = typename InputImageType::IndexType;
+  using MaskImageType = TInputImage;
+  using MaskImagePointer = typename MaskImageType::Pointer;
+  using MaskImageConstPointer = typename MaskImageType::ConstPointer;
+  using MaskImageRegionType = typename MaskImageType::RegionType;
+  using MaskImagePixelType = typename MaskImageType::PixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using OutputImageIndexType = typename OutputImageType::IndexType;
 
   /** ImageDimension constants */
   /** ImageDimension constants */
-  itkStaticConstMacro(MarkerImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(MaskImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int MarkerImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int MaskImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ReconstructionImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(ReconstructionImageFilter, ImageToImageFilter);
 
   /** Set/Get the marker image. Traditionally, the marker image must
    * be pixelwise less than or equal to the mask image (for dilation),
    * however this filter implicitly applies a mask to force the
    * constraint to hold. The marker image the
    * image that is dilated by this filter. */
-  void SetMarkerImage(const MarkerImageType *);
+  void
+  SetMarkerImage(const MarkerImageType *);
 
-  const MarkerImageType * GetMarkerImage();
+  const MarkerImageType *
+  GetMarkerImage();
 
   /** Set/Get the mask image. The mask image is used to "mask" the
    * dilated marker image. The mask operation is a pixelwise
    * minimum. */
-  void SetMaskImage(const MaskImageType *);
+  void
+  SetMaskImage(const MaskImageType *);
 
-  const MaskImageType * GetMaskImage();
+  const MaskImageType *
+  GetMaskImage();
 
   /**
    * Set/Get whether the connected components are defined strictly by
@@ -138,18 +139,22 @@ public:
 
 protected:
   ReconstructionImageFilter();
-  ~ReconstructionImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ReconstructionImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** ValuedRegionalExtremaImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** ValuedRegionalExtremaImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /**
    * the value of the border - used in boundary condition.
@@ -157,28 +162,26 @@ protected:
   typename TInputImage::PixelType m_MarkerValue;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ReconstructionImageFilter);
-
   bool m_FullyConnected;
   bool m_UseInternalCopy;
 
-  typedef typename itk::NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< OutputImageType > FaceCalculatorType;
+  using FaceCalculatorType = typename itk::NeighborhoodAlgorithm::ImageBoundaryFacesCalculator<OutputImageType>;
 
-  typedef typename FaceCalculatorType::FaceListType           FaceListType;
-  typedef typename FaceCalculatorType::FaceListType::iterator FaceListTypeIt;
+  using FaceListType = typename FaceCalculatorType::FaceListType;
+  using FaceListTypeIt = typename FaceCalculatorType::FaceListType::iterator;
 
-  typedef ImageRegionConstIterator< InputImageType > InputIteratorType;
-  typedef ImageRegionIterator< OutputImageType >     OutputIteratorType;
+  using InputIteratorType = ImageRegionConstIterator<InputImageType>;
+  using OutputIteratorType = ImageRegionIterator<OutputImageType>;
 
-  typedef typename OutputImageType::IndexType               OutIndexType;
-  typedef typename InputImageType::IndexType                InIndexType;
-  typedef ConstShapedNeighborhoodIterator< InputImageType > CNInputIterator;
-  typedef ShapedNeighborhoodIterator< OutputImageType >     NOutputIterator;
+  using OutIndexType = typename OutputImageType::IndexType;
+  using InIndexType = typename InputImageType::IndexType;
+  using CNInputIterator = ConstShapedNeighborhoodIterator<InputImageType>;
+  using NOutputIterator = ShapedNeighborhoodIterator<OutputImageType>;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkReconstructionImageFilter.hxx"
+#  include "itkReconstructionImageFilter.hxx"
 #endif
 
 #endif

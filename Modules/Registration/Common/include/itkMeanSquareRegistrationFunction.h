@@ -49,118 +49,131 @@ namespace itk
  * \ingroup FiniteDifferenceFunctions
  * \ingroup ITKRegistrationCommon
  */
-template< typename TFixedImage, typename TMovingImage, typename TDisplacementField >
-class ITK_TEMPLATE_EXPORT MeanSquareRegistrationFunction:
-  public PDEDeformableRegistrationFunction< TFixedImage,
-                                            TMovingImage, TDisplacementField >
+template <typename TFixedImage, typename TMovingImage, typename TDisplacementField>
+class ITK_TEMPLATE_EXPORT MeanSquareRegistrationFunction
+  : public PDEDeformableRegistrationFunction<TFixedImage, TMovingImage, TDisplacementField>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MeanSquareRegistrationFunction Self;
-  typedef PDEDeformableRegistrationFunction< TFixedImage,
-                                             TMovingImage, TDisplacementField >       Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MeanSquareRegistrationFunction);
+
+  /** Standard class type aliases. */
+  using Self = MeanSquareRegistrationFunction;
+  using Superclass = PDEDeformableRegistrationFunction<TFixedImage, TMovingImage, TDisplacementField>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(MeanSquareRegistrationFunction,
-               PDEDeformableRegistrationFunction);
+  itkTypeMacro(MeanSquareRegistrationFunction, PDEDeformableRegistrationFunction);
 
   /** MovingImage image type. */
-  typedef typename Superclass::MovingImageType    MovingImageType;
-  typedef typename Superclass::MovingImagePointer MovingImagePointer;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using MovingImagePointer = typename Superclass::MovingImagePointer;
 
   /** FixedImage image type. */
-  typedef typename Superclass::FixedImageType    FixedImageType;
-  typedef typename Superclass::FixedImagePointer FixedImagePointer;
-  typedef typename FixedImageType::IndexType     IndexType;
-  typedef typename FixedImageType::SizeType      SizeType;
-  typedef typename FixedImageType::SpacingType   SpacingType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using FixedImagePointer = typename Superclass::FixedImagePointer;
+  using IndexType = typename FixedImageType::IndexType;
+  using SizeType = typename FixedImageType::SizeType;
+  using SpacingType = typename FixedImageType::SpacingType;
 
   /** Displacement field type. */
-  typedef typename Superclass::DisplacementFieldType DisplacementFieldType;
-  typedef typename DisplacementFieldType::PixelType  DisplacementFieldPixelType;
-  typedef typename Superclass::DisplacementFieldTypePointer
-  DisplacementFieldTypePointer;
+  using DisplacementFieldType = typename Superclass::DisplacementFieldType;
+  using DisplacementFieldPixelType = typename DisplacementFieldType::PixelType;
+  using DisplacementFieldTypePointer = typename Superclass::DisplacementFieldTypePointer;
 
   /** Inherit some enums from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Inherit some enums from the superclass. */
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::FloatOffsetType  FloatOffsetType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
+  using PixelType = typename Superclass::PixelType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
   /** Interpolator type. */
-  typedef double                                                          CoordRepType;
-  typedef InterpolateImageFunction< MovingImageType, CoordRepType >       InterpolatorType;
-  typedef typename InterpolatorType::Pointer                              InterpolatorPointer;
-  typedef typename InterpolatorType::PointType                            PointType;
-  typedef LinearInterpolateImageFunction< MovingImageType, CoordRepType > DefaultInterpolatorType;
+  using CoordRepType = double;
+  using InterpolatorType = InterpolateImageFunction<MovingImageType, CoordRepType>;
+  using InterpolatorPointer = typename InterpolatorType::Pointer;
+  using PointType = typename InterpolatorType::PointType;
+  using DefaultInterpolatorType = LinearInterpolateImageFunction<MovingImageType, CoordRepType>;
 
   /** Covariant vector type. */
-  typedef CovariantVector< double, itkGetStaticConstMacro(ImageDimension) > CovariantVectorType;
+  using CovariantVectorType = CovariantVector<double, Self::ImageDimension>;
 
   /** Gradient calculator type. */
-  typedef CentralDifferenceImageFunction< FixedImageType > GradientCalculatorType;
-  typedef typename GradientCalculatorType::Pointer         GradientCalculatorPointer;
+  using GradientCalculatorType = CentralDifferenceImageFunction<FixedImageType>;
+  using GradientCalculatorPointer = typename GradientCalculatorType::Pointer;
 
   /** Set the moving image interpolator. */
-  void SetMovingImageInterpolator(InterpolatorType *ptr)
-  { m_MovingImageInterpolator = ptr; }
+  void
+  SetMovingImageInterpolator(InterpolatorType * ptr)
+  {
+    m_MovingImageInterpolator = ptr;
+  }
 
   /** Get the moving image interpolator. */
-  InterpolatorType * GetMovingImageInterpolator(void)
-  { return m_MovingImageInterpolator; }
+  InterpolatorType *
+  GetMovingImageInterpolator()
+  {
+    return m_MovingImageInterpolator;
+  }
 
   /** This class uses a constant timestep of 1. */
-  virtual TimeStepType ComputeGlobalTimeStep( void *itkNotUsed(GlobalData) ) const ITK_OVERRIDE
-  { return m_TimeStep; }
+  TimeStepType
+  ComputeGlobalTimeStep(void * itkNotUsed(GlobalData)) const override
+  {
+    return m_TimeStep;
+  }
 
   /** Return a pointer to a global data structure that is passed to
    * this object from the solver at each calculation.  */
-  virtual void * GetGlobalDataPointer() const ITK_OVERRIDE
+  void *
+  GetGlobalDataPointer() const override
   {
-    GlobalDataStruct *global = new GlobalDataStruct();
+    auto * global = new GlobalDataStruct();
 
     return global;
   }
 
   /** Release memory for global data structure. */
-  virtual void ReleaseGlobalDataPointer(void *GlobalData) const ITK_OVERRIDE
-  { delete (GlobalDataStruct *)GlobalData;  }
+  void
+  ReleaseGlobalDataPointer(void * GlobalData) const override
+  {
+    delete (GlobalDataStruct *)GlobalData;
+  }
 
   /** Set the object's state before each iteration. */
-  virtual void InitializeIteration() ITK_OVERRIDE;
+  void
+  InitializeIteration() override;
 
   /** This method is called by a finite difference solver image filter at
    * each pixel that does not lie on a data set boundary */
-  virtual PixelType  ComputeUpdate( const NeighborhoodType & neighborhood,
-                                    void *globalData,
-                                    const FloatOffsetType & offset = FloatOffsetType(0.0) ) ITK_OVERRIDE;
+  PixelType
+  ComputeUpdate(const NeighborhoodType & neighborhood,
+                void *                   globalData,
+                const FloatOffsetType &  offset = FloatOffsetType(0.0)) override;
 
 protected:
   MeanSquareRegistrationFunction();
-  ~MeanSquareRegistrationFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MeanSquareRegistrationFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** FixedImage image neighborhood iterator type. */
-  typedef ConstNeighborhoodIterator< FixedImageType > FixedImageNeighborhoodIteratorType;
+  using FixedImageNeighborhoodIteratorType = ConstNeighborhoodIterator<FixedImageType>;
 
   /** A global data type for this class of equation. Used to store
    * iterators for the fixed image. */
-  struct GlobalDataStruct {
+  struct GlobalDataStruct
+  {
     FixedImageNeighborhoodIteratorType m_FixedImageIterator;
   };
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MeanSquareRegistrationFunction);
-
   /** Cache fixed image information. */
   SpacingType m_FixedImageSpacing;
 
@@ -182,7 +195,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMeanSquareRegistrationFunction.hxx"
+#  include "itkMeanSquareRegistrationFunction.hxx"
 #endif
 
 #endif

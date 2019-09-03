@@ -55,15 +55,16 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT ImageRegionSplitterBase
-  :public Object
+class ITKCommon_EXPORT ImageRegionSplitterBase : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRegionSplitterBase    Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageRegionSplitterBase);
+
+  /** Standard class type aliases. */
+  using Self = ImageRegionSplitterBase;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageRegionSplitterBase, Object);
@@ -75,21 +76,17 @@ public:
    * method returns a number less than or equal to the requested number
    * of pieces. */
   template <unsigned int VImageDimension>
-    unsigned int GetNumberOfSplits(const ImageRegion<VImageDimension> & region,
-                                   unsigned int requestedNumber) const
+  unsigned int
+  GetNumberOfSplits(const ImageRegion<VImageDimension> & region, unsigned int requestedNumber) const
   {
-    return this->GetNumberOfSplitsInternal( VImageDimension,
-                                            region.GetIndex().m_Index,
-                                            region.GetSize().m_Size,
-                                            requestedNumber);
+    return this->GetNumberOfSplitsInternal(
+      VImageDimension, region.GetIndex().m_InternalArray, region.GetSize().m_InternalArray, requestedNumber);
   }
-  inline unsigned int GetNumberOfSplits(const ImageIORegion &region,
-                                        unsigned int requestedNumber) const
+  inline unsigned int
+  GetNumberOfSplits(const ImageIORegion & region, unsigned int requestedNumber) const
   {
-    return this->GetNumberOfSplitsInternal( region.GetImageDimension(),
-                                            &region.GetIndex()[0],
-                                            &region.GetSize()[0],
-                                            requestedNumber);
+    return this->GetNumberOfSplitsInternal(
+      region.GetImageDimension(), &region.GetIndex()[0], &region.GetSize()[0], requestedNumber);
   }
 
 
@@ -102,25 +99,20 @@ public:
    * the value of the region is undefined.
    */
   template <unsigned int VImageDimension>
-    unsigned int GetSplit( unsigned int i,
-                           unsigned int numberOfPieces,
-                           ImageRegion<VImageDimension> & region ) const
+  unsigned int
+  GetSplit(unsigned int i, unsigned int numberOfPieces, ImageRegion<VImageDimension> & region) const
   {
-    return this->GetSplitInternal( VImageDimension,
-                                   i,
-                                   numberOfPieces,
-                                   region.GetModifiableIndex().m_Index,
-                                   region.GetModifiableSize().m_Size );
+    return this->GetSplitInternal(VImageDimension,
+                                  i,
+                                  numberOfPieces,
+                                  region.GetModifiableIndex().m_InternalArray,
+                                  region.GetModifiableSize().m_InternalArray);
   }
-  unsigned int GetSplit( unsigned int i,
-                         unsigned int numberOfPieces,
-                         ImageIORegion & region ) const
+  unsigned int
+  GetSplit(unsigned int i, unsigned int numberOfPieces, ImageIORegion & region) const
   {
-    return this->GetSplitInternal( region.GetImageDimension(),
-                                   i,
-                                   numberOfPieces,
-                                   &region.GetModifiableIndex()[0],
-                                   &region.GetModifiableSize()[0] );
+    return this->GetSplitInternal(
+      region.GetImageDimension(), i, numberOfPieces, &region.GetModifiableIndex()[0], &region.GetModifiableSize()[0]);
   }
 
 protected:
@@ -128,25 +120,25 @@ protected:
 
   /** Templetless method to compute the number of possible splits for
    *  any number of dimensions. */
-  virtual unsigned int GetNumberOfSplitsInternal( unsigned int dim,
-                                                  const IndexValueType regionIndex[],
-                                                  const SizeValueType regionSize[],
-                                                  unsigned int requestedNumber ) const = 0;
+  virtual unsigned int
+  GetNumberOfSplitsInternal(unsigned int         dim,
+                            const IndexValueType regionIndex[],
+                            const SizeValueType  regionSize[],
+                            unsigned int         requestedNumber) const = 0;
 
   /** Templetless method to compute an actual split for any number of
    * dimensions. \c dim is the size of the \c regionIndex and \c
    * regionSize arrays.
    */
-  virtual unsigned int GetSplitInternal( unsigned int dim,
-                                         unsigned int i,
-                                         unsigned int numberOfPieces,
-                                         IndexValueType regionIndex[],
-                                         SizeValueType regionSize[] ) const = 0;
+  virtual unsigned int
+  GetSplitInternal(unsigned int   dim,
+                   unsigned int   i,
+                   unsigned int   numberOfPieces,
+                   IndexValueType regionIndex[],
+                   SizeValueType  regionSize[]) const = 0;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageRegionSplitterBase);
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 

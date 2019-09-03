@@ -42,37 +42,36 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT StatisticsKeepNObjectsLabelMapFilter:
-  public ShapeKeepNObjectsLabelMapFilter< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT StatisticsKeepNObjectsLabelMapFilter : public ShapeKeepNObjectsLabelMapFilter<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef StatisticsKeepNObjectsLabelMapFilter      Self;
-  typedef ShapeKeepNObjectsLabelMapFilter< TImage > Superclass;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StatisticsKeepNObjectsLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                              ImageType;
-  typedef typename ImageType::Pointer         ImagePointer;
-  typedef typename ImageType::ConstPointer    ImageConstPointer;
-  typedef typename ImageType::PixelType       PixelType;
-  typedef typename ImageType::IndexType       IndexType;
-  typedef typename ImageType::LabelObjectType LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = StatisticsKeepNObjectsLabelMapFilter;
+  using Superclass = ShapeKeepNObjectsLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename LabelObjectType::AttributeType AttributeType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
+
+  using AttributeType = typename LabelObjectType::AttributeType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(StatisticsKeepNObjectsLabelMapFilter,
-               ShapeKeepNObjectsLabelMapFilter);
+  itkTypeMacro(StatisticsKeepNObjectsLabelMapFilter, ShapeKeepNObjectsLabelMapFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
@@ -87,17 +86,15 @@ public:
 
 protected:
   StatisticsKeepNObjectsLabelMapFilter();
-  ~StatisticsKeepNObjectsLabelMapFilter() ITK_OVERRIDE {}
+  ~StatisticsKeepNObjectsLabelMapFilter() override = default;
 
-  void GenerateData() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(StatisticsKeepNObjectsLabelMapFilter);
-};                                                    // end of class
+  void
+  GenerateData() override;
+}; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkStatisticsKeepNObjectsLabelMapFilter.hxx"
+#  include "itkStatisticsKeepNObjectsLabelMapFilter.hxx"
 #endif
 
 #endif

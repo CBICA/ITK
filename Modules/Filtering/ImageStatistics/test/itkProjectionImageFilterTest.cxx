@@ -22,6 +22,7 @@
 #include "itkChangeLabelImageFilter.h"
 
 #include "itkProjectionImageFilter.h"
+#include "itkTestingMacros.h"
 
 namespace itk
 {
@@ -34,33 +35,38 @@ template <typename TInputPixel, typename TOutputPixel>
 class BinaryAccumulator
 {
 public:
-  BinaryAccumulator( unsigned long ) : m_IsForeground(false) {}
-  ~BinaryAccumulator(){}
+  BinaryAccumulator(unsigned long)
+    : m_IsForeground(false)
+  {}
+  ~BinaryAccumulator() = default;
 
-  inline void Initialize()
-    {
+  inline void
+  Initialize()
+  {
     m_IsForeground = false;
-    }
+  }
 
-  inline void operator()( const TInputPixel &input )
+  inline void
+  operator()(const TInputPixel & input)
+  {
+    if (input == 100)
     {
-    if( input == 100 )
-      {
       m_IsForeground = true;
-      }
     }
+  }
 
-  inline TOutputPixel GetValue()
+  inline TOutputPixel
+  GetValue()
+  {
+    if (m_IsForeground)
     {
-    if( m_IsForeground )
-      {
       return 100;
-      }
-    else
-      {
-      return 0;
-      }
     }
+    else
+    {
+      return 0;
+    }
+  }
 
   bool m_IsForeground;
 };
@@ -69,66 +75,65 @@ public:
 } // end namespace ProjectionImageFilterNamespace
 } // end namespace itk
 
-int itkProjectionImageFilterTest(int argc, char * argv[])
+int
+itkProjectionImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 5 )
-    {
+  if (argc < 5)
+  {
     std::cerr << "Missing Parameters " << std::endl;
-    std::cerr << "Usage: " << argv[0];
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv);
     std::cerr << " InputImage OutputImage Foreground Background" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const int dim = 3;
+  constexpr int dim = 3;
 
-  typedef unsigned char                PixelType;
-  typedef itk::Image< PixelType, dim > ImageType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, dim>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   // produce an image with 3 labels: 0 (background), 100 and 200
 
-  typedef itk::ThresholdLabelerImageFilter< ImageType, ImageType > LabelerType;
+  using LabelerType = itk::ThresholdLabelerImageFilter<ImageType, ImageType>;
   LabelerType::Pointer labeler = LabelerType::New();
-  labeler->SetInput( reader->GetOutput() );
+  labeler->SetInput(reader->GetOutput());
   LabelerType::RealThresholdVector thresholds;
-  thresholds.push_back( 100 );
-  thresholds.push_back( 200 );
-  labeler->SetRealThresholds( thresholds );
+  thresholds.push_back(100);
+  thresholds.push_back(200);
+  labeler->SetRealThresholds(thresholds);
 
-  typedef itk::ChangeLabelImageFilter< ImageType, ImageType > ChangeType;
+  using ChangeType = itk::ChangeLabelImageFilter<ImageType, ImageType>;
   ChangeType::Pointer change = ChangeType::New();
-  change->SetInput( labeler->GetOutput() );
-  change->SetChange( 1, 100 );
-  change->SetChange( 2, 200 );
+  change->SetInput(labeler->GetOutput());
+  change->SetChange(1, 100);
+  change->SetChange(2, 200);
 
-  typedef itk::ProjectionImageFilterNamespace::Function::BinaryAccumulator<
-    PixelType, PixelType>  FunctionType;
+  using FunctionType = itk::ProjectionImageFilterNamespace::Function::BinaryAccumulator<PixelType, PixelType>;
 
-  typedef itk::ProjectionImageFilter<
-    ImageType, ImageType, FunctionType > FilterType;
+  using FilterType = itk::ProjectionImageFilter<ImageType, ImageType, FunctionType>;
 
   FilterType::Pointer filter = FilterType::New();
-  filter->SetInput( change->GetOutput() );
+  filter->SetInput(change->GetOutput());
 
   itk::SimpleFilterWatcher watcher(filter, "filter");
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(argv[2]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

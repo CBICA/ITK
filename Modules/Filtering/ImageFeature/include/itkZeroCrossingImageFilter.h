@@ -55,45 +55,44 @@ namespace itk
  *  \ingroup ImageFeatureExtraction
  * \ingroup ITKImageFeature
  *
- * \wiki
- * \wikiexample{ImageProcessing/ZeroCrossingImageFilter,Find zero crossings in a signed image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageFeature/FindZeroCrossings,Find Zero Crossings In Signed Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ZeroCrossingImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ZeroCrossingImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard "Self" & Superclass typedef. */
-  typedef ZeroCrossingImageFilter                         Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ZeroCrossingImageFilter);
 
-  /** Image typedef support   */
-  typedef TInputImage  InputImageType;
-  typedef TOutputImage OutputImageType;
+  /** Standard "Self" & Superclass type alias. */
+  using Self = ZeroCrossingImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
 
-  /** SmartPointer typedef support  */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Image type alias support   */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+
+  /** SmartPointer type alias support  */
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Define pixel types  */
-  typedef typename TInputImage::PixelType  InputImagePixelType;
-  typedef typename TOutputImage::PixelType OutputImagePixelType;
+  using InputImagePixelType = typename TInputImage::PixelType;
+  using OutputImagePixelType = typename TOutputImage::PixelType;
 
   /** Method for creation through the object factory.  */
   itkNewMacro(Self);
 
   /** Typedef to describe the output image region type. */
-  typedef typename TOutputImage::RegionType OutputImageRegionType;
+  using OutputImageRegionType = typename TOutputImage::RegionType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ZeroCrossingImageFilter, ImageToImageFilter);
 
   /** ImageDimension enumeration   */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** ZeroCrossingImageFilter needs a larger input requested
    * region than the output requested region (larger by the kernel
@@ -103,7 +102,8 @@ public:
    * pipeline execution model.
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion()   */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** Set/Get the label value for zero-crossing pixels. */
   itkSetMacro(ForegroundValue, OutputImagePixelType);
@@ -115,52 +115,40 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputImagePixelType > ) );
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< ImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( InputComparableCheck,
-                   ( Concept::Comparable< InputImagePixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< OutputImagePixelType > ) );
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputImagePixelType>));
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<ImageDimension, OutputImageDimension>));
+  itkConceptMacro(InputComparableCheck, (Concept::Comparable<InputImagePixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
-  ZeroCrossingImageFilter()
-  {
-    m_ForegroundValue = NumericTraits< OutputImagePixelType >::OneValue();
-    m_BackgroundValue = NumericTraits< OutputImagePixelType >::ZeroValue();
-  }
-
-  ~ZeroCrossingImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ZeroCrossingImageFilter();
+  ~ZeroCrossingImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   OutputImagePixelType m_BackgroundValue;
   OutputImagePixelType m_ForegroundValue;
 
   /**
    * ZeroCrossingImageFilter can be implemented as a multithreaded filter.
-   * Therefore,this implementation provides a ThreadedGenerateData() routine which
+   * Therefore,this implementation provides a DynamicThreadedGenerateData() routine which
    * is called for each processing thread. The output image data is allocated
-   * automatically by the superclass prior to calling ThreadedGenerateData().
-   * ThreadedGenerateData can only write to the portion of the output image
+   * automatically by the superclass prior to calling DynamicThreadedGenerateData().
+   * DynamicThreadedGenerateData can only write to the portion of the output image
    * specified by the parameter "outputRegionForThread"
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()
    */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ZeroCrossingImageFilter);
-
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 };
-} //end of namespace itk
+} // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkZeroCrossingImageFilter.hxx"
+#  include "itkZeroCrossingImageFilter.hxx"
 #endif
 
 #endif

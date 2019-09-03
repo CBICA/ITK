@@ -65,14 +65,15 @@ class ITK_FORWARD_EXPORT TemporalDataObject;
 class ITKVideoCore_EXPORT TemporalProcessObject : public ProcessObject
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(TemporalProcessObject);
 
   /*-TYPEDEFS----------------------------------------------------------------*/
 
-  /** Standard class typedefs */
-  typedef TemporalProcessObject      Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases */
+  using Self = TemporalProcessObject;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(TemporalProcessObject, ProcessObject);
@@ -81,11 +82,14 @@ public:
 
   /** Override EnlargeOutputRequestedRegion, GenerateOutputRequestedRegion, and
    * GenerateInputRequestedRegion to handle temporal regions */
-  virtual void EnlargeOutputRequestedRegion(DataObject* output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
-  virtual void GenerateOutputRequestedRegion(DataObject* output) ITK_OVERRIDE;
+  void
+  GenerateOutputRequestedRegion(DataObject * output) override;
 
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** Get the number of frames of input required to produce output. We don't
    * provide a Set method because we want some filters to be able to hold this
@@ -102,7 +106,8 @@ public:
    * temporal region based on the largest possible temporal region of the input,
    * the unit input/output sizes for the process, and the number of frames
    * skipped per output*/
-  virtual void UpdateOutputInformation() ITK_OVERRIDE;
+  void
+  UpdateOutputInformation() override;
 
   /** Override ProcessObject's implementation of UpdateOutputData. This is
    * necessary because by default ProcessObject propagates the call to its
@@ -115,7 +120,8 @@ public:
    *
    * Code: this->ProcessObject::UpdateOutputData( output )
    */
-  virtual void UpdateOutputData(DataObject* output) ITK_OVERRIDE;
+  void
+  UpdateOutputData(DataObject * output) override;
 
   /** Override GenerateData to do temporal region streaming. This is analogous
    * to the ThreadedGenerateData system implemented in ImageSource, but it
@@ -127,7 +133,8 @@ public:
    * the requested temporal region of the input to each input requested
    * temporal sub-region (in sequence) and re-propagate the temporal region
    * request up the pipeline. */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** TemporalStreamingGenerateData is in charge of producing output for a
    * single portion of the output requested temporal region. This is where
@@ -135,26 +142,28 @@ public:
    * data (such as video frames) may instead use this function to split the
    * requested spatial region and process the spatial sub-regions using the
    * mechanism implemented in ImageBase for multithreading. */
-  virtual void TemporalStreamingGenerateData();
+  virtual void
+  TemporalStreamingGenerateData();
 
 protected:
-
   /*-PROTECTED METHODS-------------------------------------------------------*/
 
   /** Constructor that initializes members */
   TemporalProcessObject();
 
   /** Empty Destructor */
-  virtual ~TemporalProcessObject() ITK_OVERRIDE {}
+  ~TemporalProcessObject() override = default;
 
   /** ITK print mechanism */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Explicitly handle temporal regions in EnlargeRequestedRegion. The default
    * implementation makes sure that the output requested temporal region is
    * contained in the buffered temporal region or has a duration that is a
    * multiple of the unit output number of frames */
-  virtual void EnlargeOutputRequestedTemporalRegion(TemporalDataObject* output);
+  virtual void
+  EnlargeOutputRequestedTemporalRegion(TemporalDataObject * output);
 
   /** Explicitly handle temporal regions in GeneratOutputRegion. The default
    * implementation checks to see if a request is currently set and if not, it
@@ -163,7 +172,8 @@ protected:
    *
    * Note: If the largest possible temporal duration has infinite duration, the
    * requested temporal region will be set to have duration 1. */
-  virtual void GenerateOutputRequestedTemporalRegion(TemporalDataObject* output);
+  virtual void
+  GenerateOutputRequestedTemporalRegion(TemporalDataObject * output);
 
   /** Explicitly handle temporal regions in GenerateInputRequestedRegion. The
    * default implementation sets the requested temporal region on the input to
@@ -176,7 +186,8 @@ protected:
    * implements TemporalStreamingGenerateData, but this propagation is provided
    * so that subclasses which directly implement GenerateData will work
    * correctly. */
-  virtual void GenerateInputRequestedTemporalRegion();
+  virtual void
+  GenerateInputRequestedTemporalRegion();
 
   /** Split the output's RequestedTemporalRegion into the proper number of
    * sub-regions. By default it is assumed that each sub-region processed
@@ -186,26 +197,30 @@ protected:
    * in time while negative indicates backward in time.
    * The set of returned TemporalRegion objects is the set of temporal regions
    * that are needed as input to generate the entire output requested region */
-  virtual std::vector<TemporalRegion> SplitRequestedTemporalRegion();
+  virtual std::vector<TemporalRegion>
+  SplitRequestedTemporalRegion();
 
   /** Method that gets called by GenerateData before
    * TemporalStreamingGenerateData. Subclasses can override this method to
    * provide pre-processing for the data before splitting up the requested
    * output temporal region. */
-  virtual void BeforeTemporalStreamingGenerateData() {
-  }
+  virtual void
+  BeforeTemporalStreamingGenerateData()
+  {}
 
   /** Method that gets called by GenerateData after
    * TemporalStreamingGenerateData. Subclasses can override this method to
    * provide post-processing for the data after producing the requested output
    * temporal region. */
-  virtual void AfterTemporalStreamingGenerateData() {
-  }
+  virtual void
+  AfterTemporalStreamingGenerateData()
+  {}
 
   /** Generate a default LargestPossibleRegion. This is used by temporal
    * process objects that have no input. The default implementation starts at
    * frame 0 and has infinite duration. */
-  virtual TemporalRegion GenerateDefaultLargestPossibleTemporalRegion();
+  virtual TemporalRegion
+  GenerateDefaultLargestPossibleTemporalRegion();
 
   itkSetMacro(UnitInputNumberOfFrames, SizeValueType);
   itkSetMacro(UnitOutputNumberOfFrames, SizeValueType);
@@ -217,25 +232,21 @@ protected:
 
   /** Members to indicate the number of input frames and output frames required
    * to perform a single pass through the processing. */
-  SizeValueType  m_UnitInputNumberOfFrames;
-  SizeValueType  m_UnitOutputNumberOfFrames;
+  SizeValueType m_UnitInputNumberOfFrames{ 1 };
+  SizeValueType m_UnitOutputNumberOfFrames{ 1 };
 
   /** Number of frames to move in order to produce each set of output frames.
    * There is no public API for this member, but subclasses can set it
    * internally (or provide access to it) if they wish. */
-  OffsetValueType  m_FrameSkipPerOutput;
+  OffsetValueType m_FrameSkipPerOutput{ 1 };
 
   /** Member to indicate the location of the "current frame" in the minimum set
    * of input frames. For example, if the unit number of input frames is 6 and
    * m_InputStencilCurrentFrameIndex = 4, this indicates that for output frame
    * n, frames n-4 through n+1 are required, whereas if
    * m_InputStencilCurrentFrameIndex = 0, frames n through n+5 are required. */
-  SizeValueType  m_InputStencilCurrentFrameIndex;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TemporalProcessObject);
-
-};  // end class TemporalProcessObject
+  SizeValueType m_InputStencilCurrentFrameIndex{ 0 };
+}; // end class TemporalProcessObject
 
 } // end namespace itk
 

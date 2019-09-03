@@ -20,7 +20,7 @@
 
 #include "metaVesselTube.h"
 #include "itkMetaConverterBase.h"
-#include "itkVesselTubeSpatialObject.h"
+#include "itkTubeSpatialObject.h"
 
 namespace itk
 {
@@ -30,16 +30,17 @@ namespace itk
  *  \sa MetaConverterBase
  *  \ingroup ITKSpatialObjects
  */
-template< unsigned int NDimensions = 3 >
-class ITK_TEMPLATE_EXPORT MetaVesselTubeConverter :
-    public MetaConverterBase< NDimensions >
+template <unsigned int NDimensions = 3>
+class ITK_TEMPLATE_EXPORT MetaVesselTubeConverter : public MetaConverterBase<NDimensions>
 {
 public:
-  /** Standard class typedefs */
-  typedef MetaVesselTubeConverter          Self;
-  typedef MetaConverterBase< NDimensions > Superclass;
-  typedef SmartPointer< Self >             Pointer;
-  typedef SmartPointer< const Self >       ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MetaVesselTubeConverter);
+
+  /** Standard class type aliases */
+  using Self = MetaVesselTubeConverter;
+  using Superclass = MetaConverterBase<NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -47,38 +48,37 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MetaVesselTubeConverter, MetaConverterBase);
 
-  typedef typename Superclass::SpatialObjectType SpatialObjectType;
-  typedef typename SpatialObjectType::Pointer    SpatialObjectPointer;
-  typedef typename Superclass::MetaObjectType    MetaObjectType;
+  using SpatialObjectType = typename Superclass::SpatialObjectType;
+  using SpatialObjectPointer = typename SpatialObjectType::Pointer;
+  using MetaObjectType = typename Superclass::MetaObjectType;
 
   /** Specific class types for conversion */
-  typedef VesselTubeSpatialObject<NDimensions>               VesselTubeSpatialObjectType;
-  typedef typename VesselTubeSpatialObjectType::Pointer      VesselTubeSpatialObjectPointer;
-  typedef typename VesselTubeSpatialObjectType::ConstPointer VesselTubeSpatialObjectConstPointer;
-  typedef MetaVesselTube                                     VesselTubeMetaObjectType;
+  using VesselTubeSpatialObjectType = TubeSpatialObject<NDimensions>;
+  using VesselTubeSpatialObjectPointer = typename VesselTubeSpatialObjectType::Pointer;
+  using VesselTubeSpatialObjectConstPointer = typename VesselTubeSpatialObjectType::ConstPointer;
+  using VesselTubeMetaObjectType = MetaVesselTube;
 
   /** Convert the MetaObject to Spatial Object */
-  virtual SpatialObjectPointer MetaObjectToSpatialObject(const MetaObjectType *mo) ITK_OVERRIDE;
+  SpatialObjectPointer
+  MetaObjectToSpatialObject(const MetaObjectType * mo) override;
 
   /** Convert the SpatialObject to MetaObject */
-  virtual MetaObjectType *SpatialObjectToMetaObject(const SpatialObjectType *spatialObject) ITK_OVERRIDE;
+  MetaObjectType *
+  SpatialObjectToMetaObject(const SpatialObjectType * spatialObject) override;
 
 protected:
   /** Create the specific MetaObject for this class */
-  virtual MetaObjectType *CreateMetaObject() ITK_OVERRIDE;
+  MetaObjectType *
+  CreateMetaObject() override;
 
-  MetaVesselTubeConverter();
-  ~MetaVesselTubeConverter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MetaVesselTubeConverter);
-
+  MetaVesselTubeConverter() = default;
+  ~MetaVesselTubeConverter() override = default;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaVesselTubeConverter.hxx"
+#  include "itkMetaVesselTubeConverter.hxx"
 #endif
 
 #endif

@@ -35,124 +35,97 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup ITKImageFeature
  *
- * \wiki
- * \wikiexample{EdgesAndGradients/LaplacianRecursiveGaussianImageFilter,Compute the Laplacian of Gaussian (LoG) of an image}
- * \endwiki
+ * \spihnx
+ * \sphinxexample{Filtering/ImageFeature/ComputeLaplacian,Compute Laplacian}
+ * \endsphinx
  */
-template< typename TInputImage,
-          typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT LaplacianRecursiveGaussianImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT LaplacianRecursiveGaussianImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LaplacianRecursiveGaussianImageFilter           Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianRecursiveGaussianImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = LaplacianRecursiveGaussianImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Pixel Type of the input image */
-  typedef TInputImage                        InputImageType;
-  typedef typename InputImageType::PixelType PixelType;
+  using InputImageType = TInputImage;
+  using PixelType = typename InputImageType::PixelType;
 
   /** Image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  itkStaticConstMacro(NumberOfSmoothingFilters ,unsigned int, ImageDimension - 1);
+  static constexpr unsigned int NumberOfSmoothingFilters = ImageDimension - 1;
 
-  typedef typename NumericTraits< PixelType >::RealType RealType;
+  using RealType = typename NumericTraits<PixelType>::RealType;
 
   /** Define the image type for internal computations.
       RealType is usually 'double' in NumericTraits.
       Here we prefer float in order to save memory.  */
-  typedef float InternalRealType;
-  typedef Image< InternalRealType,
-                 itkGetStaticConstMacro(ImageDimension) >   RealImageType;
+  using InternalRealType = float;
+  using RealImageType = Image<InternalRealType, Self::ImageDimension>;
 
   /**  Smoothing filter type */
-  typedef RecursiveGaussianImageFilter<
-    RealImageType,
-    RealImageType
-    >    GaussianFilterType;
+  using GaussianFilterType = RecursiveGaussianImageFilter<RealImageType, RealImageType>;
 
   /**  Derivative filter type, it will be the first in the pipeline  */
-  typedef RecursiveGaussianImageFilter<
-    InputImageType,
-    RealImageType
-    >    DerivativeFilterType;
+  using DerivativeFilterType = RecursiveGaussianImageFilter<InputImageType, RealImageType>;
 
   /**  Pointer to a gaussian filter.  */
-  typedef typename GaussianFilterType::Pointer GaussianFilterPointer;
+  using GaussianFilterPointer = typename GaussianFilterType::Pointer;
 
   /**  Pointer to a derivative filter.  */
-  typedef typename DerivativeFilterType::Pointer DerivativeFilterPointer;
+  using DerivativeFilterPointer = typename DerivativeFilterType::Pointer;
 
   /**  Pointer to the Output Image */
-  typedef typename TOutputImage::Pointer OutputImagePointer;
+  using OutputImagePointer = typename TOutputImage::Pointer;
 
   /** Type of the output Image */
-  typedef TOutputImage                                 OutputImageType;
-  typedef typename          OutputImageType::PixelType OutputPixelType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
 
   /**  Command for observing progress of internal pipeline filters */
-  typedef          MemberCommand< Self > CommandType;
-  typedef typename CommandType::Pointer  CommandPointer;
+  using CommandType = MemberCommand<Self>;
+  using CommandPointer = typename CommandType::Pointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(LaplacianRecursiveGaussianImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(LaplacianRecursiveGaussianImageFilter, ImageToImageFilter);
 
   /** Set Sigma value. Sigma is measured in the units of image spacing. */
-  void SetSigma(RealType sigma);
-  RealType GetSigma() const;
+  void
+  SetSigma(RealType sigma);
+  RealType
+  GetSigma() const;
 
   /** Define which normalization factor will be used for the Gaussian
    *  \sa  RecursiveGaussianImageFilter::SetNormalizeAcrossScale
    */
-  void SetNormalizeAcrossScale(bool normalizeInScaleSpace);\
+  void
+  SetNormalizeAcrossScale(bool normalizeInScaleSpace);
   itkGetConstMacro(NormalizeAcrossScale, bool);
 
 protected:
   LaplacianRecursiveGaussianImageFilter();
-  virtual ~LaplacianRecursiveGaussianImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~LaplacianRecursiveGaussianImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Generate Data */
-  void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   // Override since the filter produces the entire dataset
-  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianRecursiveGaussianImageFilter);
-
-  // special binary functor to perform A+B*ConstValue
-  //
-  // Where A is the cumulativeImage, B is the last filter, and
-  // ConstValue is the spacing scalling
-  class AddMultConstFunctor
-  {
-  public:
-    typedef AddMultConstFunctor Self;
-
-    AddMultConstFunctor( void ) : m_Value( NumericTraits<PixelType>::OneValue() ) {}
-
-    bool operator!=( const Self &other ) const { return !(*this==other); }
-    bool operator==( const Self &other ) const { return m_Value == other.m_Value; }
-
-    inline InternalRealType operator()( const InternalRealType &a, const InternalRealType &b ) const
-    {
-      return static_cast<InternalRealType>( a + b*m_Value );
-    }
-
-    RealType m_Value;
-  };
-
   GaussianFilterPointer   m_SmoothingFilters[NumberOfSmoothingFilters];
   DerivativeFilterPointer m_DerivativeFilter;
 
@@ -162,7 +135,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLaplacianRecursiveGaussianImageFilter.hxx"
+#  include "itkLaplacianRecursiveGaussianImageFilter.hxx"
 #endif
 
 #endif

@@ -34,22 +34,21 @@ namespace itk
  * \ingroup DataRepresentation
  * \ingroup ITKCommon
  */
-template< typename TValue >
-class ITK_TEMPLATE_EXPORT TreeContainer:public TreeContainerBase< TValue >
+template <typename TValue>
+class ITK_TEMPLATE_EXPORT TreeContainer : public TreeContainerBase<TValue>
 {
 public:
+  /** Standard type alias */
+  using Superclass = TreeContainerBase<TValue>;
+  using Self = TreeContainer<TValue>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ValueType = TValue;
+  using TreeNodeType = TreeNode<ValueType>;
 
-  /** Standard typedefs */
-  typedef TreeContainerBase< TValue > Superclass;
-  typedef TreeContainer< TValue >     Self;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
-  typedef TValue                      ValueType;
-  typedef TreeNode< ValueType >       TreeNodeType;
-
-  /** Iterators typedef */
-  typedef TreeIteratorBase< Self >     IteratorType;
-  typedef PreOrderTreeIterator< Self > PreOrderIteratorType;
+  /** Iterators type alias */
+  using IteratorType = TreeIteratorBase<Self>;
+  using PreOrderIteratorType = PreOrderTreeIterator<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,62 +60,78 @@ public:
   TreeContainer(int defaultChildrenCount);
 
   /** Constructor */
-  TreeContainer(TreeContainer< TValue > & tree);
+  TreeContainer(TreeContainer<TValue> & tree);
 
   /** Set the root as an element */
-  virtual bool SetRoot(const TValue element) ITK_OVERRIDE;
+  bool
+  SetRoot(const TValue element) override;
 
   /** The the root as an iterator position */
-  bool SetRoot(IteratorType & pos);
+  bool
+  SetRoot(IteratorType & pos);
 
   /** Set the root as a tree node */
-  virtual bool SetRoot(TreeNode< TValue > *node) ITK_OVERRIDE;
+  bool
+  SetRoot(TreeNode<TValue> * node) override;
 
   /** Return true if the element is in the tree */
-  bool Contains(const TValue element) ITK_OVERRIDE;
+  bool
+  Contains(const TValue element) override;
 
   /** Return the number of elements in the tree */
-  int Count() const ITK_OVERRIDE;
+  int
+  Count() const override;
 
   /** Return true if the element is a leaf */
-  bool IsLeaf(const TValue element) ITK_OVERRIDE;
+  bool
+  IsLeaf(const TValue element) override;
 
   /** Return true if the element is a root */
-  bool IsRoot(const TValue element) ITK_OVERRIDE;
+  bool
+  IsRoot(const TValue element) override;
 
   /** Clear the tree */
-  bool Clear() ITK_OVERRIDE;
+  bool
+  Clear() override;
 
   /** operator equal */
-  bool operator==(TreeContainer< TValue > & tree);
+  bool
+  operator==(TreeContainer<TValue> & tree);
 
   /** Swap the iterators */
-  bool Swap(IteratorType & v, IteratorType & w);
+  bool
+  Swap(IteratorType & v, IteratorType & w);
 
   /** Get the root */
-  const TreeNodeType * GetRoot() const ITK_OVERRIDE { return m_Root.GetPointer(); }
+  const TreeNodeType *
+  GetRoot() const override
+  {
+    return m_Root.GetPointer();
+  }
 
   /** Add a child to a given parent using values */
-  bool Add(const TValue child, const TValue parent);
+  bool
+  Add(const TValue child, const TValue parent);
 
   /** Get node given a value */
-  const TreeNodeType * GetNode(TValue val) const;
+  const TreeNodeType *
+  GetNode(TValue val) const;
 
 protected:
-
   TreeContainer();
-  virtual ~TreeContainer() ITK_OVERRIDE;
+  ~TreeContainer() override = default;
 
   typename TreeNodeType::Pointer m_Root;
 
   int m_DefaultChildrenCount;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTreeContainer.hxx"
+#  include "itkTreeContainer.hxx"
 #endif
 
 #endif

@@ -54,115 +54,112 @@ namespace itk
  * in the buffer; the N arrays are then concatentated together on form
  * a single array.
  *
- * For efficiency, this transform does not make a copy of the parameters.
- * It only keeps a pointer to the input parameters and assumes that the memory
- * is managed by the caller.
- *
  * The following illustrates the typical usage of this class:
- * \verbatim
- * typedef BSplineTransform<double,2,3> TransformType;
- * TransformType::Pointer transform = TransformType::New();
- *
- * transform->SetTransformDomainOrigin( origin );
- * transform->SetTransformDomainPhysicalDimensions( physicalDimensions );
- * transform->SetTransformDomainDirection( direction );
- * transform->SetTransformDomainMeshSize( meshSize );
- *
- * // NB: the region must be set first before setting the parameters
- *
- * TransformType::ParametersType parameters( transform->GetNumberOfParameters() );
- *
- * // Fill the parameters with values
- *
- * transform->SetParameters( parameters )
- *
- * outputPoint = transform->TransformPoint( inputPoint );
- *
- * \endverbatim
+ * \code
+   using TransformType = BSplineTransform<double,2,3>;
+   TransformType::Pointer transform = TransformType::New();
+
+   transform->SetTransformDomainOrigin( origin );
+   transform->SetTransformDomainPhysicalDimensions( physicalDimensions );
+   transform->SetTransformDomainDirection( direction );
+   transform->SetTransformDomainMeshSize( meshSize );
+
+   // NB: The region must be set first before setting the parameters
+
+   TransformType::ParametersType parameters( transform->GetNumberOfParameters() );
+
+   // Fill the parameters with values
+
+   transform->SetParameters( parameters )
+
+   outputPoint = transform->TransformPoint( inputPoint );
+
+   \endcode
  *
  * An alternative way to set the B-spline coefficients is via array of
  * images. The fixed parameters of the transform are taken
  * directly from the first image. It is assumed that the subsequent images
  * are the same buffered region. The following illustrates the API:
- * \verbatim
+ * \code
+
+   TransformType::ImageConstPointer images[2];
+
+   // Fill the images up with values
+
+   transform->SetCoefficientImages( images );
+   outputPoint = transform->TransformPoint( inputPoint );
+
+   \endcode
  *
- * TransformType::ImageConstPointer images[2];
- *
- * // Fill the images up with values
- *
- * transform->SetCoefficientImages( images );
- * outputPoint = transform->TransformPoint( inputPoint );
- *
- * \endverbatim
- *
- * Warning: use either the SetParameters() or SetCoefficientImages()
+ * \warning Use either the SetParameters() or SetCoefficientImages()
  * API. Mixing the two modes may results in unexpected results.
  *
  * The class is templated coordinate representation type (float or double),
  * the space dimension and the spline order.
  *
  * \ingroup ITKTransform
- * \wikiexample{Registration/ImageRegistrationMethodBSpline,
- *   A global registration of two images}
  */
-template<typename TParametersValueType=double,
-          unsigned int NDimensions = 3,
-          unsigned int VSplineOrder = 3>
-class ITK_TEMPLATE_EXPORT BSplineTransform :
-  public BSplineBaseTransform<TParametersValueType,NDimensions,VSplineOrder>
+template <typename TParametersValueType = double, unsigned int NDimensions = 3, unsigned int VSplineOrder = 3>
+class ITK_TEMPLATE_EXPORT BSplineTransform
+  : public BSplineBaseTransform<TParametersValueType, NDimensions, VSplineOrder>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BSplineTransform                                       Self;
-  typedef BSplineBaseTransform<TParametersValueType,NDimensions,VSplineOrder> Superclass;
-  typedef SmartPointer<Self>                                     Pointer;
-  typedef SmartPointer<const Self>                               ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineTransform);
+
+  /** Standard class type aliases. */
+  using Self = BSplineTransform;
+  using Superclass = BSplineBaseTransform<TParametersValueType, NDimensions, VSplineOrder>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( BSplineTransform, BSplineBaseTransform );
+  itkTypeMacro(BSplineTransform, BSplineBaseTransform);
 
   /** Dimension of the domain space. */
-  itkStaticConstMacro( SpaceDimension, unsigned int, NDimensions );
+  static constexpr unsigned int SpaceDimension = NDimensions;
 
   /** The BSpline order. */
-  itkStaticConstMacro( SplineOrder, unsigned int, VSplineOrder );
+  static constexpr unsigned int SplineOrder = VSplineOrder;
 
   /** Standard scalar type for this class. */
-  typedef typename Superclass::ScalarType ScalarType;
+  using ScalarType = typename Superclass::ScalarType;
 
   /** Standard parameters container. */
-  typedef typename Superclass::ParametersType           ParametersType;
-  typedef typename Superclass::ParametersValueType      ParametersValueType;
-  typedef typename Superclass::FixedParametersType      FixedParametersType;
-  typedef typename Superclass::FixedParametersValueType FixedParametersValueType;
+  using ParametersType = typename Superclass::ParametersType;
+  using ParametersValueType = typename Superclass::ParametersValueType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using FixedParametersValueType = typename Superclass::FixedParametersValueType;
 
   /** Standard Jacobian container. */
-  typedef typename Superclass::JacobianType JacobianType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
 
   /** The number of parameters defininig this transform. */
-  typedef typename Superclass::NumberOfParametersType NumberOfParametersType;
+  using NumberOfParametersType = typename Superclass::NumberOfParametersType;
 
   /** Standard vector type for this class. */
-  typedef typename Superclass::InputVectorType  InputVectorType;
-  typedef typename Superclass::OutputVectorType OutputVectorType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
 
   /** Standard covariant vector type for this class. */
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
 
   /** Standard vnl_vector type for this class. */
-  typedef typename Superclass::InputVnlVectorType  InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType OutputVnlVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
 
   /** Standard coordinate point type for this class. */
-  typedef typename Superclass::InputPointType  InputPointType;
-  typedef typename Superclass::OutputPointType OutputPointType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
 
 
-  virtual std::string GetTransformTypeAsString() const ITK_OVERRIDE;
+  std::string
+  GetTransformTypeAsString() const override;
 
   /** This method sets the fixed parameters of the transform.
    * For a BSpline deformation transform, the fixed parameters are the
@@ -186,12 +183,13 @@ public:
    * itkTransformReader/Writer I/O filters.
    *
    */
-  virtual void SetFixedParameters( const FixedParametersType & parameters ) ITK_OVERRIDE;
+  void
+  SetFixedParameters(const FixedParametersType & parameters) override;
 
   /** Parameters as SpaceDimension number of images. */
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::ImagePointer          ImagePointer;
-  typedef typename Superclass::CoefficientImageArray CoefficientImageArray;
+  using ImageType = typename Superclass::ImageType;
+  using ImagePointer = typename Superclass::ImagePointer;
+  using CoefficientImageArray = typename Superclass::CoefficientImageArray;
 
   /** Set the array of coefficient images.
    *
@@ -204,25 +202,26 @@ public:
    * Warning: use either the SetParameters() or SetCoefficientImages()
    * API. Mixing the two modes may results in unexpected results.
    */
-  virtual void SetCoefficientImages( const CoefficientImageArray & images ) ITK_OVERRIDE;
+  void
+  SetCoefficientImages(const CoefficientImageArray & images) override;
 
   /** Typedefs for specifying the extent of the grid. */
-  typedef typename Superclass::RegionType    RegionType;
+  using RegionType = typename Superclass::RegionType;
 
-  typedef typename Superclass::IndexType     IndexType;
-  typedef typename Superclass::SizeType      SizeType;
-  typedef typename Superclass::SpacingType   SpacingType;
-  typedef typename Superclass::DirectionType DirectionType;
-  typedef typename Superclass::OriginType    OriginType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using SpacingType = typename Superclass::SpacingType;
+  using DirectionType = typename Superclass::DirectionType;
+  using OriginType = typename Superclass::OriginType;
 
   /** Interpolation weights function type. */
-  typedef typename Superclass::WeightsFunctionType WeightsFunctionType;
+  using WeightsFunctionType = typename Superclass::WeightsFunctionType;
 
-  typedef typename Superclass::WeightsType         WeightsType;
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  using WeightsType = typename Superclass::WeightsType;
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
   /** Parameter index array type. */
-  typedef typename Superclass::ParameterIndexArrayType ParameterIndexArrayType;
+  using ParameterIndexArrayType = typename Superclass::ParameterIndexArrayType;
 
   /**
    * Transform points by a BSpline deformable transformation.
@@ -233,89 +232,104 @@ public:
    * ( i * this->GetNumberOfParametersPerDimension() ) to the indices array.
    */
   using Superclass::TransformPoint;
-  virtual void TransformPoint( const InputPointType & inputPoint, OutputPointType & outputPoint,
-    WeightsType & weights, ParameterIndexArrayType & indices, bool & inside ) const ITK_OVERRIDE;
+  void
+  TransformPoint(const InputPointType &    inputPoint,
+                 OutputPointType &         outputPoint,
+                 WeightsType &             weights,
+                 ParameterIndexArrayType & indices,
+                 bool &                    inside) const override;
 
   /** Compute the Jacobian in one position. */
-  virtual void ComputeJacobianWithRespectToParameters( const InputPointType &, JacobianType & ) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToParameters(const InputPointType &, JacobianType &) const override;
 
   /** Return the number of parameters that completely define the Transfom. */
-  virtual NumberOfParametersType GetNumberOfParameters() const ITK_OVERRIDE;
+  NumberOfParametersType
+  GetNumberOfParameters() const override;
 
   /** Return the number of parameters per dimension. */
-  NumberOfParametersType GetNumberOfParametersPerDimension() const ITK_OVERRIDE;
+  NumberOfParametersType
+  GetNumberOfParametersPerDimension() const override;
 
-  typedef typename Superclass::SpacingType   PhysicalDimensionsType;
-  typedef typename Superclass::PixelType     PixelType;
+  using PhysicalDimensionsType = typename Superclass::SpacingType;
+  using PixelType = typename Superclass::PixelType;
 
-  typedef typename Superclass::MeshSizeType MeshSizeType;
+  using MeshSizeType = typename Superclass::MeshSizeType;
 
   /** Function to specify the transform domain origin. */
-  virtual void SetTransformDomainOrigin( const OriginType & );
+  virtual void
+  SetTransformDomainOrigin(const OriginType &);
 
   /** Function to retrieve the transform domain origin. */
-  itkGetConstMacro( TransformDomainOrigin, OriginType );
+  virtual OriginType
+  GetTransformDomainOrigin(void) const;
 
   /** Function to specify the transform domain physical dimensions. */
-  virtual void SetTransformDomainPhysicalDimensions( const PhysicalDimensionsType & );
+  virtual void
+  SetTransformDomainPhysicalDimensions(const PhysicalDimensionsType &);
 
   /** Function to retrieve the transform domain physical dimensions. */
-  itkGetConstMacro( TransformDomainPhysicalDimensions, PhysicalDimensionsType );
+  virtual PhysicalDimensionsType
+  GetTransformDomainPhysicalDimensions(void) const;
 
   /** Function to specify the transform domain direction. */
-  virtual void SetTransformDomainDirection( const DirectionType & );
+  virtual void
+  SetTransformDomainDirection(const DirectionType &);
 
   /** Function to retrieve the transform domain direction. */
-  itkGetConstMacro( TransformDomainDirection, DirectionType );
+  virtual DirectionType
+  GetTransformDomainDirection(void) const;
 
   /** Function to specify the transform domain mesh size. */
-  virtual void SetTransformDomainMeshSize( const MeshSizeType & );
+  virtual void
+  SetTransformDomainMeshSize(const MeshSizeType &);
 
   /** Function to retrieve the transform domain mesh size. */
-  itkGetConstMacro( TransformDomainMeshSize, MeshSizeType );
+  virtual MeshSizeType
+  GetTransformDomainMeshSize(void) const;
 
 protected:
   /** Print contents of an BSplineTransform. */
-  void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   BSplineTransform();
-  virtual ~BSplineTransform() ITK_OVERRIDE;
+  ~BSplineTransform() override = default;
 
 private:
+  /** Construct control point grid size from transform domain information in the fixed parameters. */
+  void
+  SetCoefficientImageInformationFromFixedParameters() override;
 
-  /** Construct control point grid size from transform domain information. */
-  virtual void SetFixedParametersGridSizeFromTransformDomainInformation() const ITK_OVERRIDE;
-
-  /** Construct control point grid origin from transform domain information. */
-  virtual void SetFixedParametersGridOriginFromTransformDomainInformation() const ITK_OVERRIDE;
-
-  /** Construct control point grid spacing from transform domain information. */
-  virtual void SetFixedParametersGridSpacingFromTransformDomainInformation() const ITK_OVERRIDE;
-
-  /** Construct control point grid direction from transform domain information. */
-  virtual void SetFixedParametersGridDirectionFromTransformDomainInformation() const ITK_OVERRIDE;
-
-  /** Construct control point grid size from transform domain information. */
-  virtual void SetCoefficientImageInformationFromFixedParameters() ITK_OVERRIDE;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineTransform);
+  /** Methods have empty implementations */
+  virtual void
+  SetFixedParametersGridSizeFromTransformDomainInformation() const override{};
+  virtual void
+  SetFixedParametersGridOriginFromTransformDomainInformation() const override{};
+  virtual void
+  SetFixedParametersGridSpacingFromTransformDomainInformation() const override
+  {}
+  virtual void
+  SetFixedParametersGridDirectionFromTransformDomainInformation() const override{};
 
   /** Check if a continuous index is inside the valid region. */
-  virtual bool InsideValidRegion( ContinuousIndexType & ) const ITK_OVERRIDE;
+  bool
+  InsideValidRegion(ContinuousIndexType &) const override;
 
-private:
+  void
+  SetFixedParametersFromCoefficientImageInformation();
 
-  OriginType             m_TransformDomainOrigin;
-  PhysicalDimensionsType m_TransformDomainPhysicalDimensions;
-  DirectionType          m_TransformDomainDirection;
-  DirectionType          m_TransformDomainDirectionInverse;
+  void
+  SetFixedParametersFromTransformDomainInformation(const OriginType &             meshOrigin,
+                                                   const PhysicalDimensionsType & meshPhysical,
+                                                   const DirectionType &          meshDirection,
+                                                   const MeshSizeType &           meshSize);
 
-  MeshSizeType m_TransformDomainMeshSize;
 }; // class BSplineTransform
-}  // namespace itk
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBSplineTransform.hxx"
+#  include "itkBSplineTransform.hxx"
 #endif
 
 #endif /* itkBSplineTransform_h */

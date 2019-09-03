@@ -29,282 +29,286 @@
 #include "itkTestingMacros.h"
 
 
-template< typename TInputImage, typename TBayesianClassifierInitializer, typename TBayesianClassifierFilter >
-int TestBayesianClassifierImageFilterWithNoPriors( typename TInputImage::Pointer image,
-  unsigned int numberOfClasses, unsigned int numberOfSmoothingIterations, char* outputFilename )
+template <typename TInputImage, typename TBayesianClassifierInitializer, typename TBayesianClassifierFilter>
+int
+TestBayesianClassifierImageFilterWithNoPriors(typename TInputImage::Pointer image,
+                                              unsigned int                  numberOfClasses,
+                                              unsigned int                  numberOfSmoothingIterations,
+                                              char *                        outputFilename)
 {
-  typedef TBayesianClassifierInitializer BayesianClassifierInitializerType;
-  typedef TBayesianClassifierFilter      BayesianClassifierFilterType;
+  using BayesianClassifierInitializerType = TBayesianClassifierInitializer;
+  using BayesianClassifierFilterType = TBayesianClassifierFilter;
 
-  typename BayesianClassifierInitializerType::Pointer bayesianInitializer =
-    BayesianClassifierInitializerType::New();
+  typename BayesianClassifierInitializerType::Pointer bayesianInitializer = BayesianClassifierInitializerType::New();
 
-  bayesianInitializer->SetInput( image );
-  bayesianInitializer->SetNumberOfClasses( numberOfClasses );
+  bayesianInitializer->SetInput(image);
+  bayesianInitializer->SetNumberOfClasses(numberOfClasses);
 
   typename BayesianClassifierFilterType::Pointer bayesianClassifier = BayesianClassifierFilterType::New();
 
-  bayesianClassifier->SetInput( bayesianInitializer->GetOutput() );
+  bayesianClassifier->SetInput(bayesianInitializer->GetOutput());
 
-  bayesianClassifier->SetNumberOfSmoothingIterations( numberOfSmoothingIterations );
-  TEST_SET_GET_VALUE( numberOfSmoothingIterations, bayesianClassifier->GetNumberOfSmoothingIterations() );
+  bayesianClassifier->SetNumberOfSmoothingIterations(numberOfSmoothingIterations);
+  ITK_TEST_SET_GET_VALUE(numberOfSmoothingIterations, bayesianClassifier->GetNumberOfSmoothingIterations());
 
-  typedef typename BayesianClassifierFilterType::ExtractedComponentImageType ExtractedComponentImageType;
-  typedef itk::GradientAnisotropicDiffusionImageFilter<
-    ExtractedComponentImageType, ExtractedComponentImageType >  SmoothingFilterType;
+  using ExtractedComponentImageType = typename BayesianClassifierFilterType::ExtractedComponentImageType;
+  using SmoothingFilterType =
+    itk::GradientAnisotropicDiffusionImageFilter<ExtractedComponentImageType, ExtractedComponentImageType>;
   typename SmoothingFilterType::Pointer smoother = SmoothingFilterType::New();
-  smoother->SetNumberOfIterations( 1 );
-  smoother->SetTimeStep( 0.125 );
-  smoother->SetConductanceParameter( 3 );
+  smoother->SetNumberOfIterations(1);
+  smoother->SetTimeStep(0.125);
+  smoother->SetConductanceParameter(3);
 
-  bayesianClassifier->SetSmoothingFilter( smoother );
-  TEST_SET_GET_VALUE( smoother, bayesianClassifier->GetSmoothingFilter().GetPointer() );
+  bayesianClassifier->SetSmoothingFilter(smoother);
+  ITK_TEST_SET_GET_VALUE(smoother, bayesianClassifier->GetSmoothingFilter().GetPointer());
 
 
-  typedef itk::PipelineMonitorImageFilter< TInputImage > MonitorFilterType;
+  using MonitorFilterType = itk::PipelineMonitorImageFilter<TInputImage>;
   typename MonitorFilterType::Pointer monitor = MonitorFilterType::New();
-  monitor->SetInput( bayesianClassifier->GetOutput() );
+  monitor->SetInput(bayesianClassifier->GetOutput());
 
 
-  typedef typename BayesianClassifierFilterType::OutputImageType ClassifierOutputImageType;
-  typedef itk::Image< unsigned char, TInputImage::ImageDimension > OutputImageType;
-  typedef itk::RescaleIntensityImageFilter<
-    ClassifierOutputImageType, OutputImageType > RescalerType;
+  using ClassifierOutputImageType = typename BayesianClassifierFilterType::OutputImageType;
+  using OutputImageType = itk::Image<unsigned char, TInputImage::ImageDimension>;
+  using RescalerType = itk::RescaleIntensityImageFilter<ClassifierOutputImageType, OutputImageType>;
   typename RescalerType::Pointer rescaler = RescalerType::New();
-  rescaler->SetInput( monitor->GetOutput() );
-  rescaler->SetOutputMinimum( 0 );
-  rescaler->SetOutputMaximum( 255 );
+  rescaler->SetInput(monitor->GetOutput());
+  rescaler->SetOutputMinimum(0);
+  rescaler->SetOutputMaximum(255);
 
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputFilename );
+  writer->SetFileName(outputFilename);
 
-  writer->SetInput( rescaler->GetOutput() );
+  writer->SetInput(rescaler->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   if (!monitor->VerifyAllInputCanNotStream())
-    {
+  {
     std::cout << "Pipeline did not execute as expected!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
 
 
-template< typename TInputImage, typename TBayesianClassifierInitializer, typename TBayesianClassifierFilter >
-int TestBayesianClassifierImageFilterWithPriors( typename TInputImage::Pointer image,
-  typename TBayesianClassifierFilter::PriorsImageType::Pointer priorsImage,
-  unsigned int numberOfClasses, unsigned int numberOfSmoothingIterations, char* outputFilename )
+template <typename TInputImage, typename TBayesianClassifierInitializer, typename TBayesianClassifierFilter>
+int
+TestBayesianClassifierImageFilterWithPriors(typename TInputImage::Pointer                                image,
+                                            typename TBayesianClassifierFilter::PriorsImageType::Pointer priorsImage,
+                                            unsigned int numberOfClasses,
+                                            unsigned int numberOfSmoothingIterations,
+                                            char *       outputFilename)
 {
-  typedef TBayesianClassifierInitializer BayesianClassifierInitializerType;
-  typedef TBayesianClassifierFilter      BayesianClassifierFilterType;
+  using BayesianClassifierInitializerType = TBayesianClassifierInitializer;
+  using BayesianClassifierFilterType = TBayesianClassifierFilter;
 
-  typename BayesianClassifierInitializerType::Pointer bayesianInitializer =
-    BayesianClassifierInitializerType::New();
+  typename BayesianClassifierInitializerType::Pointer bayesianInitializer = BayesianClassifierInitializerType::New();
 
-  bayesianInitializer->SetInput( image );
+  bayesianInitializer->SetInput(image);
 
-  bayesianInitializer->SetNumberOfClasses( numberOfClasses );
+  bayesianInitializer->SetNumberOfClasses(numberOfClasses);
 
   typename BayesianClassifierFilterType::Pointer bayesianClassifier = BayesianClassifierFilterType::New();
 
-  bayesianClassifier->SetInput( bayesianInitializer->GetOutput() );
-  bayesianClassifier->SetPriors( priorsImage );
+  bayesianClassifier->SetInput(bayesianInitializer->GetOutput());
+  bayesianClassifier->SetPriors(priorsImage);
 
-  bayesianClassifier->SetNumberOfSmoothingIterations( numberOfSmoothingIterations );
-  TEST_SET_GET_VALUE( numberOfSmoothingIterations, bayesianClassifier->GetNumberOfSmoothingIterations() );
+  bayesianClassifier->SetNumberOfSmoothingIterations(numberOfSmoothingIterations);
+  ITK_TEST_SET_GET_VALUE(numberOfSmoothingIterations, bayesianClassifier->GetNumberOfSmoothingIterations());
 
-  typedef typename BayesianClassifierFilterType::ExtractedComponentImageType ExtractedComponentImageType;
-  typedef itk::GradientAnisotropicDiffusionImageFilter<
-    ExtractedComponentImageType, ExtractedComponentImageType >  SmoothingFilterType;
+  using ExtractedComponentImageType = typename BayesianClassifierFilterType::ExtractedComponentImageType;
+  using SmoothingFilterType =
+    itk::GradientAnisotropicDiffusionImageFilter<ExtractedComponentImageType, ExtractedComponentImageType>;
   typename SmoothingFilterType::Pointer smoother = SmoothingFilterType::New();
-  smoother->SetNumberOfIterations( 1 );
-  smoother->SetTimeStep( 0.125 );
-  smoother->SetConductanceParameter( 3 );
+  smoother->SetNumberOfIterations(1);
+  smoother->SetTimeStep(0.125);
+  smoother->SetConductanceParameter(3);
 
-  bayesianClassifier->SetSmoothingFilter( smoother );
-  TEST_SET_GET_VALUE( smoother, bayesianClassifier->GetSmoothingFilter().GetPointer() );
+  bayesianClassifier->SetSmoothingFilter(smoother);
+  ITK_TEST_SET_GET_VALUE(smoother, bayesianClassifier->GetSmoothingFilter().GetPointer());
 
 
-  typedef itk::PipelineMonitorImageFilter< TInputImage > MonitorFilterType;
+  using MonitorFilterType = itk::PipelineMonitorImageFilter<TInputImage>;
   typename MonitorFilterType::Pointer monitor = MonitorFilterType::New();
-  monitor->SetInput( bayesianClassifier->GetOutput() );
+  monitor->SetInput(bayesianClassifier->GetOutput());
 
 
-  typedef typename BayesianClassifierFilterType::OutputImageType ClassifierOutputImageType;
-  typedef itk::Image< unsigned char,  TInputImage::ImageDimension > OutputImageType;
-  typedef itk::RescaleIntensityImageFilter<
-    ClassifierOutputImageType, OutputImageType > RescalerType;
+  using ClassifierOutputImageType = typename BayesianClassifierFilterType::OutputImageType;
+  using OutputImageType = itk::Image<unsigned char, TInputImage::ImageDimension>;
+  using RescalerType = itk::RescaleIntensityImageFilter<ClassifierOutputImageType, OutputImageType>;
   typename RescalerType::Pointer rescaler = RescalerType::New();
-  rescaler->SetInput( monitor->GetOutput() );
-  rescaler->SetOutputMinimum( 0 );
-  rescaler->SetOutputMaximum( 255 );
+  rescaler->SetInput(monitor->GetOutput());
+  rescaler->SetOutputMinimum(0);
+  rescaler->SetOutputMaximum(255);
 
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputFilename );
+  writer->SetFileName(outputFilename);
 
-  writer->SetInput( rescaler->GetOutput() );
+  writer->SetInput(rescaler->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   if (!monitor->VerifyAllInputCanNotStream())
-    {
+  {
     std::cout << "Pipeline did not execute as expected!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
 
 
-int itkBayesianClassifierImageFilterTest( int argc, char* argv[] )
+int
+itkBayesianClassifierImageFilterTest(int argc, char * argv[])
 {
 
-  if( argc < 6 )
-    {
+  if (argc < 6)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << " inputImageFile outputImageFile numberOfClasses smoothingIterations testPriors" << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv)
+              << " inputImageFile outputImageFile numberOfClasses smoothingIterations testPriors" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Set up reader
-  const unsigned int Dimension = 2;
-  typedef unsigned char                           InputPixelType;
-  typedef itk::Image< InputPixelType, Dimension > InputImageType;
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  constexpr unsigned int Dimension = 2;
+  using InputPixelType = unsigned char;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
 
 
-  typedef itk::BayesianClassifierInitializationImageFilter< InputImageType >
-    BayesianInitializerType;
+  using BayesianInitializerType = itk::BayesianClassifierInitializationImageFilter<InputImageType>;
 
   BayesianInitializerType::Pointer bayesianInitializer = BayesianInitializerType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( bayesianInitializer,
-    BayesianClassifierInitializationImageFilter, ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(
+    bayesianInitializer, BayesianClassifierInitializationImageFilter, ImageToImageFilter);
 
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  TRY_EXPECT_NO_EXCEPTION( reader->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(reader->Update());
 
   ReaderType::OutputImageType::Pointer inputImage = reader->GetOutput();
 
-  char* outputFilename = argv[2];
-  unsigned int numberOfClasses = atoi( argv[3] );
-  unsigned int numberOfSmoothingIterations = atoi( argv[4] );
-  bool testPriors = atoi( argv[5] );
+  char *       outputFilename = argv[2];
+  unsigned int numberOfClasses = std::stoi(argv[3]);
+  unsigned int numberOfSmoothingIterations = std::stoi(argv[4]);
+  bool         testPriors = std::stoi(argv[5]);
 
 
-  typedef unsigned char  LabelType;
-  typedef float          PriorType;
-  typedef float          PosteriorType;
+  using LabelType = unsigned char;
+  using PriorType = float;
+  using PosteriorType = float;
 
-  typedef BayesianInitializerType::OutputImageType InitialLabelImageType;
+  using InitialLabelImageType = BayesianInitializerType::OutputImageType;
 
-  typedef itk::BayesianClassifierImageFilter<
-    InitialLabelImageType, LabelType, PosteriorType, PriorType > BayesianClassifierFilterType;
+  using BayesianClassifierFilterType =
+    itk::BayesianClassifierImageFilter<InitialLabelImageType, LabelType, PosteriorType, PriorType>;
 
   BayesianClassifierFilterType::Pointer bayesianClassifier = BayesianClassifierFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( bayesianClassifier,
-    BayesianClassifierImageFilter, ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(bayesianClassifier, BayesianClassifierImageFilter, ImageToImageFilter);
 
   bool testStatus = EXIT_SUCCESS;
 
 
-  if( !testPriors )
-    {
+  if (!testPriors)
+  {
     std::cout << "Running the filter with no Priors set..." << std::endl;
 
-    testStatus = TestBayesianClassifierImageFilterWithNoPriors<
-      ReaderType::OutputImageType, BayesianInitializerType, BayesianClassifierFilterType >( inputImage,
-      numberOfClasses, numberOfSmoothingIterations, outputFilename );
-    }
+    testStatus = TestBayesianClassifierImageFilterWithNoPriors<ReaderType::OutputImageType,
+                                                               BayesianInitializerType,
+                                                               BayesianClassifierFilterType>(
+      inputImage, numberOfClasses, numberOfSmoothingIterations, outputFilename);
+  }
   else
-    {
+  {
     std::cout << "Running the filter with Priors set..." << std::endl;
 
-    typedef BayesianClassifierFilterType::PriorsImageType PriorsImageType;
+    using PriorsImageType = BayesianClassifierFilterType::PriorsImageType;
 
     const InputImageType * priorsInputImage = reader->GetOutput();
 
     PriorsImageType::Pointer priorsImage = PriorsImageType::New();
-    priorsImage->CopyInformation( priorsInputImage );
-    priorsImage->SetRegions( inputImage->GetLargestPossibleRegion() );
+    priorsImage->CopyInformation(priorsInputImage);
+    priorsImage->SetRegions(inputImage->GetLargestPossibleRegion());
     priorsImage->SetNumberOfComponentsPerPixel(5);
     priorsImage->Allocate(true);
 
-    testStatus =
-      TestBayesianClassifierImageFilterWithPriors<
-      ReaderType::OutputImageType, BayesianInitializerType, BayesianClassifierFilterType >(
-      inputImage, priorsImage, numberOfClasses, numberOfSmoothingIterations, outputFilename );
-    }
+    testStatus = TestBayesianClassifierImageFilterWithPriors<ReaderType::OutputImageType,
+                                                             BayesianInitializerType,
+                                                             BayesianClassifierFilterType>(
+      inputImage, priorsImage, numberOfClasses, numberOfSmoothingIterations, outputFilename);
+  }
 
   // TEST valid image type combinations.
   // The hypothesis is that the vector element type for
   // TestInitialLabelImageType must be the same as for TestPriorType
   {
-  const unsigned int     TestDimension = 2;
-  typedef unsigned char  TestLabelType;
-  typedef float          TestPosteriorType;
+    constexpr unsigned int TestDimension = 2;
+    using TestLabelType = unsigned char;
+    using TestPosteriorType = float;
 
-  typedef float                                            TestPriorType;
-  typedef itk::VectorImage< TestPriorType, TestDimension > TestInitialLabelImageType;
+    using TestPriorType = float;
+    using TestInitialLabelImageType = itk::VectorImage<TestPriorType, TestDimension>;
 
-  typedef itk::BayesianClassifierImageFilter<
-    TestInitialLabelImageType, TestLabelType, TestPosteriorType, TestPriorType > ClassifierFilterType;
-  ClassifierFilterType::Pointer filter = ClassifierFilterType::New();
+    using ClassifierFilterType =
+      itk::BayesianClassifierImageFilter<TestInitialLabelImageType, TestLabelType, TestPosteriorType, TestPriorType>;
+    ClassifierFilterType::Pointer filter = ClassifierFilterType::New();
 
-  if( filter.IsNull() )
+    if (filter.IsNull())
     {
-    return EXIT_FAILURE;
+      return EXIT_FAILURE;
     }
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, BayesianClassifierImageFilter, ImageToImageFilter );
+    ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, BayesianClassifierImageFilter, ImageToImageFilter);
   }
 
   {
-  const unsigned int     TestDimension = 2;
-  typedef unsigned char  TestLabelType;
-  typedef float          TestPosteriorType;
+    constexpr unsigned int TestDimension = 2;
+    using TestLabelType = unsigned char;
+    using TestPosteriorType = float;
 
-  typedef float          TestPriorType;
-  typedef itk::VectorImage< double, TestDimension > TestInitialLabelImageType; // The element type MUST be the PriorType
+    using TestPriorType = float;
+    using TestInitialLabelImageType = itk::VectorImage<double, TestDimension>; // The element type MUST be the PriorType
 
-  typedef itk::BayesianClassifierImageFilter<
-    TestInitialLabelImageType, TestLabelType, TestPosteriorType, TestPriorType > ClassifierFilterType;
-  ClassifierFilterType::Pointer filter = ClassifierFilterType::New();
-  if( filter.IsNull() )
+    using ClassifierFilterType =
+      itk::BayesianClassifierImageFilter<TestInitialLabelImageType, TestLabelType, TestPosteriorType, TestPriorType>;
+    ClassifierFilterType::Pointer filter = ClassifierFilterType::New();
+    if (filter.IsNull())
     {
-    return EXIT_FAILURE;
+      return EXIT_FAILURE;
     }
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, BayesianClassifierImageFilter, ImageToImageFilter );
+    ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, BayesianClassifierImageFilter, ImageToImageFilter);
   }
 
   {
-  const unsigned int TestDimension = 2;
-  typedef unsigned char  TestLabelType;
-  typedef float          TestPosteriorType;
+    constexpr unsigned int TestDimension = 2;
+    using TestLabelType = unsigned char;
+    using TestPosteriorType = float;
 
-  typedef double          TestPriorType;
-  typedef itk::VectorImage< TestPriorType, TestDimension > TestInitialLabelImageType; // The element type MUST be the PriorType
+    using TestPriorType = double;
+    using TestInitialLabelImageType =
+      itk::VectorImage<TestPriorType, TestDimension>; // The element type MUST be the PriorType
 
-  typedef itk::BayesianClassifierImageFilter<
-    TestInitialLabelImageType, TestLabelType, TestPosteriorType, TestPriorType > ClassifierFilterType;
-  ClassifierFilterType::Pointer filter = ClassifierFilterType::New();
-  if( filter.IsNull() )
+    using ClassifierFilterType =
+      itk::BayesianClassifierImageFilter<TestInitialLabelImageType, TestLabelType, TestPosteriorType, TestPriorType>;
+    ClassifierFilterType::Pointer filter = ClassifierFilterType::New();
+    if (filter.IsNull())
     {
-    return EXIT_FAILURE;
+      return EXIT_FAILURE;
     }
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, BayesianClassifierImageFilter, ImageToImageFilter );
+    ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, BayesianClassifierImageFilter, ImageToImageFilter);
   }
 
   std::cout << "Test passed." << std::endl;

@@ -35,27 +35,26 @@ namespace itk
  *
  * \ingroup ITKVideoFiltering
  */
-template<typename TImageToImageFilter>
-class ITK_TEMPLATE_EXPORT ImageFilterToVideoFilterWrapper :
-  public VideoToVideoFilter<
-          itk::VideoStream<typename TImageToImageFilter::InputImageType>,
-          itk::VideoStream<typename TImageToImageFilter::OutputImageType> >
+template <typename TImageToImageFilter>
+class ITK_TEMPLATE_EXPORT ImageFilterToVideoFilterWrapper
+  : public VideoToVideoFilter<itk::VideoStream<typename TImageToImageFilter::InputImageType>,
+                              itk::VideoStream<typename TImageToImageFilter::OutputImageType>>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFilterToVideoFilterWrapper);
 
-  /** Standard class typedefs */
-  typedef TImageToImageFilter                                ImageFilterType;
-  typedef typename ImageFilterType::InputImageType           InputFrameType;
-  typedef typename ImageFilterType::OutputImageType          OutputFrameType;
-  typedef itk::VideoStream< InputFrameType >                 InputVideoStreamType;
-  typedef itk::VideoStream< OutputFrameType >                OutputVideoStreamType;
+  /** Standard class type aliases */
+  using ImageFilterType = TImageToImageFilter;
+  using InputFrameType = typename ImageFilterType::InputImageType;
+  using OutputFrameType = typename ImageFilterType::OutputImageType;
+  using InputVideoStreamType = itk::VideoStream<InputFrameType>;
+  using OutputVideoStreamType = itk::VideoStream<OutputFrameType>;
 
-  typedef ImageFilterToVideoFilterWrapper< ImageFilterType > Self;
-  typedef VideoToVideoFilter< InputVideoStreamType,
-                              OutputVideoStreamType >        Superclass;
-  typedef SmartPointer< Self >                               Pointer;
-  typedef SmartPointer< const Self >                         ConstPointer;
-  typedef WeakPointer< const Self >                          ConstWeakPointer;
+  using Self = ImageFilterToVideoFilterWrapper<ImageFilterType>;
+  using Superclass = VideoToVideoFilter<InputVideoStreamType, OutputVideoStreamType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ConstWeakPointer = WeakPointer<const Self>;
 
   itkNewMacro(Self);
 
@@ -66,31 +65,29 @@ public:
   itkGetModifiableObjectMacro(ImageFilter, ImageFilterType);
 
 protected:
-
   /** Constructor and Destructor */
   ImageFilterToVideoFilterWrapper();
-  virtual ~ImageFilterToVideoFilterWrapper() ITK_OVERRIDE {}
+  ~ImageFilterToVideoFilterWrapper() override = default;
 
   /** PrintSelf */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Since we just set up a mini image pipeline inside, we override
    * TemporalStreamingGenerateData*/
-  virtual void TemporalStreamingGenerateData() ITK_OVERRIDE;
+  void
+  TemporalStreamingGenerateData() override;
 
   /** Pointer to filter to use for internal filter */
   typename ImageFilterType::Pointer m_ImageFilter;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFilterToVideoFilterWrapper);
-
-
-};  // end class ImageFilterToVideoFilterWrapper
+}; // end class ImageFilterToVideoFilterWrapper
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageFilterToVideoFilterWrapper.hxx"
+#  include "itkImageFilterToVideoFilterWrapper.hxx"
 #endif
 
 #endif

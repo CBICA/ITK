@@ -26,41 +26,41 @@
 namespace itk
 {
 /**
-  * \class StoppingCriterionBase
-  * \brief An abstract base class to represent a stopping criterion for an iterative
-  *        algorithm.
-  *
-  * The main method is StoppingCriterionBase::IsSatisfied that must be
-  * reimplemented in inheriting classes.
-  *
-  * \ingroup ITKCommon
-*/
+ * \class StoppingCriterionBase
+ * \brief An abstract base class to represent a stopping criterion for an iterative
+ *        algorithm.
+ *
+ * The main method is StoppingCriterionBase::IsSatisfied that must be
+ * reimplemented in inheriting classes.
+ *
+ * \ingroup ITKCommon
+ */
 class ITKCommon_EXPORT StoppingCriterionBase : public Object
 {
 public:
-  typedef StoppingCriterionBase       Self;
-  typedef Object                      Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StoppingCriterionBase);
+
+  using Self = StoppingCriterionBase;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkTypeMacro(StoppingCriterionBase, Object);
 
   /** \return \c true if the stopping criterion is reached (and the algorithm
   must stop).
       \return \c fasle else. */
-  virtual bool IsSatisfied() const = 0;
-  virtual std::string GetDescription() const = 0;
+  virtual bool
+  IsSatisfied() const = 0;
+  virtual std::string
+  GetDescription() const = 0;
 
 protected:
   /** \brief Constructor */
   StoppingCriterionBase();
   /** \brief Destructor */
-  virtual ~StoppingCriterionBase() ITK_OVERRIDE;
-
-private:
-  StoppingCriterionBase( const Self& );
-  void operator = ( const Self& );
+  ~StoppingCriterionBase() override;
 };
 
-}
+} // namespace itk
 #endif

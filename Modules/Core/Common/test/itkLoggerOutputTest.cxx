@@ -20,17 +20,19 @@
 #include <fstream>
 #include "itkStdStreamLogOutput.h"
 #include "itkLoggerOutput.h"
+#include "itkTestingMacros.h"
 
 
-int itkLoggerOutputTest( int argc, char *argv [] )
+int
+itkLoggerOutputTest(int argc, char * argv[])
 {
   try
-    {
+  {
     if (argc < 2)
-      {
-      std::cout << "Usage: " << argv[0] << " logFilename" << std::endl;
+    {
+      std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " logFilename" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
 
     // Create an ITK StdStreamLogOutputs
@@ -47,8 +49,8 @@ int itkLoggerOutputTest( int argc, char *argv [] )
 
     // Setting the logger
     logger->SetName("org.itk.rootLogger");
-    logger->SetPriorityLevel(itk::LoggerBase::INFO);
-    logger->SetLevelForFlushing(itk::LoggerBase::CRITICAL);
+    logger->SetPriorityLevel(itk::LoggerBase::PriorityLevelType::INFO);
+    logger->SetLevelForFlushing(itk::LoggerBase::PriorityLevelType::CRITICAL);
 
     std::cout << "  Adding console and file stream LogOutputs" << std::endl;
     logger->AddLogOutput(coutput);
@@ -62,7 +64,7 @@ int itkLoggerOutputTest( int argc, char *argv [] )
     // Create an ITK LoggerOutput and then test it.
     itk::LoggerOutput::Pointer pOver = itk::LoggerOutput::New();
     pOver->OverrideITKWindow();
-    pOver->SetLogger(logger);  // redirect messages from ITK OutputWindow -> logger2
+    pOver->SetLogger(logger); // redirect messages from ITK OutputWindow -> logger2
 
     // test message for ITK OutputWindow
     itk::OutputWindow::GetInstance()->DisplayText("** This is from ITK OutputWindow **\n");
@@ -70,13 +72,12 @@ int itkLoggerOutputTest( int argc, char *argv [] )
     itk::OutputWindow::GetInstance()->DisplayWarningText("** This is from ITK OutputWindow **\n");
     itk::OutputWindow::GetInstance()->DisplayErrorText("** This is from ITK OutputWindow **\n");
     itk::OutputWindow::GetInstance()->DisplayGenericOutputText("** This is from ITK OutputWindow **\n");
-
-    }
-  catch(...)
-    {
+  }
+  catch (...)
+  {
     std::cerr << "Exception catched !!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "[PASSED]" << std::endl;
   return EXIT_SUCCESS;

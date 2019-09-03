@@ -22,20 +22,9 @@
 
 namespace itk
 {
-template< typename TFunctionValue, unsigned int VImageDimension, typename TInput >
-SpatialFunction< TFunctionValue, VImageDimension, TInput >
-::SpatialFunction()
-{}
-
-template< typename TFunctionValue, unsigned int VImageDimension, typename TInput >
-SpatialFunction< TFunctionValue, VImageDimension, TInput >
-::~SpatialFunction()
-{}
-
-template< typename TFunctionValue, unsigned int VImageDimension, typename TInput >
+template <typename TFunctionValue, unsigned int VImageDimension, typename TInput>
 void
-SpatialFunction< TFunctionValue, VImageDimension, TInput >
-::PrintSelf(std::ostream & os, Indent indent) const
+SpatialFunction<TFunctionValue, VImageDimension, TInput>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 }

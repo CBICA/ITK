@@ -37,107 +37,112 @@
 #include "itkComplexToComplexFFTImageFilter.h"
 #include "itkForwardFFTImageFilter.h"
 #include "itkInverseFFTImageFilter.h"
+#include "itkTestingMacros.h"
 
-template< typename TPixel, unsigned int VDimension >
-int transformImage( const char * inputImageFileName, const char * outputImageFileName )
+template <typename TPixel, unsigned int VDimension>
+int
+transformImage(const char * inputImageFileName, const char * outputImageFileName)
 {
-  typedef TPixel                        RealPixelType;
-  typedef std::complex< RealPixelType > ComplexPixelType;
+  using RealPixelType = TPixel;
+  using ComplexPixelType = std::complex<RealPixelType>;
   const unsigned int Dimension = VDimension;
 
-  typedef itk::Image< RealPixelType, Dimension >    RealImageType;
-  typedef itk::Image< ComplexPixelType, Dimension > ComplexImageType;
+  using RealImageType = itk::Image<RealPixelType, Dimension>;
+  using ComplexImageType = itk::Image<ComplexPixelType, Dimension>;
 
-  typedef itk::ImageFileReader< RealImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<RealImageType>;
   typename ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( inputImageFileName );
+  reader->SetFileName(inputImageFileName);
 
-  typedef itk::ForwardFFTImageFilter< RealImageType, ComplexImageType > ForwardFilterType;
+  using ForwardFilterType = itk::ForwardFFTImageFilter<RealImageType, ComplexImageType>;
   typename ForwardFilterType::Pointer forwardFilter = ForwardFilterType::New();
-  forwardFilter->SetInput( reader->GetOutput() );
+  forwardFilter->SetInput(reader->GetOutput());
 
-  typedef itk::ComplexToComplexFFTImageFilter< ComplexImageType > ComplexFilterType;
+  using ComplexFilterType = itk::ComplexToComplexFFTImageFilter<ComplexImageType>;
   typename ComplexFilterType::Pointer inverseComplexFilter = ComplexFilterType::New();
-  inverseComplexFilter->SetInput( forwardFilter->GetOutput() );
-  inverseComplexFilter->SetTransformDirection( ComplexFilterType::INVERSE );
+  inverseComplexFilter->SetInput(forwardFilter->GetOutput());
+  inverseComplexFilter->SetTransformDirection(ComplexFilterType::INVERSE);
 
   typename ComplexFilterType::Pointer forwardComplexFilter = ComplexFilterType::New();
-  forwardComplexFilter->SetInput( inverseComplexFilter->GetOutput() );
-  forwardComplexFilter->SetTransformDirection( ComplexFilterType::FORWARD );
+  forwardComplexFilter->SetInput(inverseComplexFilter->GetOutput());
+  forwardComplexFilter->SetTransformDirection(ComplexFilterType::FORWARD);
   // This tests the CanUseDestructiveAlgorithm state with the FFTW version.
   forwardComplexFilter->ReleaseDataFlagOn();
 
-  typedef itk::InverseFFTImageFilter< ComplexImageType, RealImageType > InverseFilterType;
+  using InverseFilterType = itk::InverseFFTImageFilter<ComplexImageType, RealImageType>;
   typename InverseFilterType::Pointer inverseFilter = InverseFilterType::New();
-  inverseFilter->SetInput( forwardComplexFilter->GetOutput() );
+  inverseFilter->SetInput(forwardComplexFilter->GetOutput());
 
-  typedef itk::ImageFileWriter< RealImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<RealImageType>;
   typename WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputImageFileName );
-  writer->SetInput( inverseFilter->GetOutput() );
+  writer->SetFileName(outputImageFileName);
+  writer->SetInput(inverseFilter->GetOutput());
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & error )
-    {
+  }
+  catch (itk::ExceptionObject & error)
+  {
     std::cerr << error << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }
 
-int itkComplexToComplexFFTImageFilterTest( int argc, char * argv[] )
+int
+itkComplexToComplexFFTImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
-    std::cerr << "Usage: " << argv[0] << " <InputImage> <OutputImage> <float|double>" << std::endl;
+  if (argc < 4)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv) << " <InputImage> <OutputImage> <float|double>"
+              << std::endl;
     return EXIT_FAILURE;
-    }
-  const char * inputImageFileName = argv[1];
-  const char * outputImageFileName = argv[2];
-  const std::string pixelTypeString( argv[3] );
+  }
+  const char *      inputImageFileName = argv[1];
+  const char *      outputImageFileName = argv[2];
+  const std::string pixelTypeString(argv[3]);
 
-  itk::ImageIOBase::Pointer imageIO = itk::ImageIOFactory::CreateImageIO( inputImageFileName, itk::ImageIOFactory::ReadMode );
-  imageIO->SetFileName( inputImageFileName );
+  itk::ImageIOBase::Pointer imageIO =
+    itk::ImageIOFactory::CreateImageIO(inputImageFileName, itk::ImageIOFactory::FileModeType::ReadMode);
+  imageIO->SetFileName(inputImageFileName);
   imageIO->ReadImageInformation();
   const unsigned int dimension = imageIO->GetNumberOfDimensions();
 
-  if( pixelTypeString.compare( "float" ) == 0 )
+  if (pixelTypeString.compare("float") == 0)
+  {
+    switch (dimension)
     {
-    switch( dimension )
-      {
-    case 2:
-      return transformImage< float, 2 >( inputImageFileName, outputImageFileName );
-    case 3:
-      return transformImage< float, 3 >( inputImageFileName, outputImageFileName );
-    default:
-      std::cerr << "Unknown image dimension." << std::endl;
-      return EXIT_FAILURE;
-      }
-    return EXIT_SUCCESS;
+      case 2:
+        return transformImage<float, 2>(inputImageFileName, outputImageFileName);
+      case 3:
+        return transformImage<float, 3>(inputImageFileName, outputImageFileName);
+      default:
+        std::cerr << "Unknown image dimension." << std::endl;
+        return EXIT_FAILURE;
     }
-  else if( pixelTypeString.compare( "double" ) == 0 )
+    return EXIT_SUCCESS;
+  }
+  else if (pixelTypeString.compare("double") == 0)
+  {
+    switch (dimension)
     {
-    switch( dimension )
-      {
-    case 2:
-      return transformImage< double, 2 >( inputImageFileName, outputImageFileName );
-    case 3:
-      return transformImage< double, 3 >( inputImageFileName, outputImageFileName );
-    default:
-      std::cerr << "Unknown image dimension." << std::endl;
-      return EXIT_FAILURE;
-      }
-    return EXIT_SUCCESS;
+      case 2:
+        return transformImage<double, 2>(inputImageFileName, outputImageFileName);
+      case 3:
+        return transformImage<double, 3>(inputImageFileName, outputImageFileName);
+      default:
+        std::cerr << "Unknown image dimension." << std::endl;
+        return EXIT_FAILURE;
     }
+    return EXIT_SUCCESS;
+  }
   else
-    {
+  {
     std::cerr << "Unknown pixel type string." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   return EXIT_FAILURE;

@@ -45,69 +45,83 @@ namespace itk
 class ITKCommon_EXPORT RealTimeInterval
 {
 public:
-
-  typedef RealTimeInterval    Self;
+  using Self = RealTimeInterval;
 
   /** Internal types used to represent seconds and microseconds. */
-  typedef   int64_t   SecondsDifferenceType;
-  typedef   int64_t   MicroSecondsDifferenceType;
+  using SecondsDifferenceType = int64_t;
+  using MicroSecondsDifferenceType = int64_t;
 
   /** Constructor */
   RealTimeInterval();
 
   /** Constructor with values. Intentionally made public */
-  RealTimeInterval( SecondsDifferenceType, MicroSecondsDifferenceType );
+  RealTimeInterval(SecondsDifferenceType, MicroSecondsDifferenceType);
 
   /** Destructor */
   ~RealTimeInterval();
 
   /** Native type used to represent the time in different time units. */
-  typedef   double    TimeRepresentationType;
+  using TimeRepresentationType = double;
 
   /** Return time in multiple units. */
-  TimeRepresentationType GetTimeInMicroSeconds() const;
-  TimeRepresentationType GetTimeInMilliSeconds() const;
-  TimeRepresentationType GetTimeInSeconds() const;
-  TimeRepresentationType GetTimeInMinutes() const;
-  TimeRepresentationType GetTimeInHours() const;
-  TimeRepresentationType GetTimeInDays() const;
+  TimeRepresentationType
+  GetTimeInMicroSeconds() const;
+  TimeRepresentationType
+  GetTimeInMilliSeconds() const;
+  TimeRepresentationType
+  GetTimeInSeconds() const;
+  TimeRepresentationType
+  GetTimeInMinutes() const;
+  TimeRepresentationType
+  GetTimeInHours() const;
+  TimeRepresentationType
+  GetTimeInDays() const;
 
   /** Arithmetic operations between RealTimeInterval and RealTimeInterval. */
-  Self operator-( const Self & ) const;
-  Self operator+( const Self & ) const;
-  const Self & operator-=( const Self & );
-  const Self & operator+=( const Self & );
+  Self
+  operator-(const Self &) const;
+  Self
+  operator+(const Self &) const;
+  const Self &
+  operator-=(const Self &);
+  const Self &
+  operator+=(const Self &);
 
   /** Comparison operations. */
-  bool operator>( const Self & ) const;
-  bool operator<( const Self & ) const;
-  bool operator==( const Self & ) const;
-  bool operator!=( const Self & ) const;
-  bool operator<=( const Self & ) const;
-  bool operator>=( const Self & ) const;
+  bool
+  operator>(const Self &) const;
+  bool
+  operator<(const Self &) const;
+  bool
+  operator==(const Self &) const;
+  bool
+  operator!=(const Self &) const;
+  bool
+  operator<=(const Self &) const;
+  bool
+  operator>=(const Self &) const;
 
   /** Set with values. The units and signs of the seconds and microseconds will
    * be harmonized internally. */
-  void Set( SecondsDifferenceType, MicroSecondsDifferenceType );
+  void Set(SecondsDifferenceType, MicroSecondsDifferenceType);
 
   /** Default print out of a RealTimeInterval */
-  friend ITKCommon_EXPORT std::ostream & operator<<(std::ostream & os, const RealTimeInterval & v);
+  friend ITKCommon_EXPORT std::ostream &
+                          operator<<(std::ostream & os, const RealTimeInterval & v);
 
 private:
-
   friend class RealTimeStamp;
 
   /** Number of Seconds and Microseconds since... */
-  SecondsDifferenceType        m_Seconds;
+  SecondsDifferenceType m_Seconds;
 
   /** Number of Microseconds since the second.
    *  Should be in the range -999,999 to 999,999
    *  and it must always have the same sign as
    *  the m_Seconds member variable. */
-  MicroSecondsDifferenceType   m_MicroSeconds;
-
+  MicroSecondsDifferenceType m_MicroSeconds;
 };
 
 } // end of namespace itk
 
-#endif  // itkRealTimeInterval_h
+#endif // itkRealTimeInterval_h

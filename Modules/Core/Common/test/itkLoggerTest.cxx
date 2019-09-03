@@ -20,44 +20,19 @@
 #include <fstream>
 #include "itkStdStreamLogOutput.h"
 #include "itkLogger.h"
+#include "itkTestingMacros.h"
+#include "itkLogTester.h"
 
-class LogTester
-{
-public:
-  LogTester(){ this->m_Logger = ITK_NULLPTR; }
-  itk::Logger* GetLogger() { return m_Logger; }
-  void SetLogger(itk::Logger* logger) { m_Logger = logger; }
-  void log() {
-    itkLogMacro( DEBUG, "DEBUG message by itkLogMacro\n" );
-    itkLogMacro( INFO, "INFO message by itkLogMacro\n" );
-    itkLogMacro( WARNING, "WARNING message by itkLogMacro\n" );
-    itkLogMacro( CRITICAL, "CRITICAL message by itkLogMacro\n" );
-    itkLogMacro( FATAL, "FATAL message by itkLogMacro\n" );
-    itkLogMacro( MUSTFLUSH, "MUSTFLUSH message by itkLogMacro\n" );
-  }
-  static void logStatic(LogTester* tester)
-  {
-    itkLogMacroStatic(tester, DEBUG, "DEBUG message by itkLogMacroStatic\n" );
-    itkLogMacroStatic(tester, INFO, "INFO message by itkLogMacroStatic\n" );
-    itkLogMacroStatic(tester, WARNING, "WARNING message by itkLogMacroStatic\n" );
-    itkLogMacroStatic(tester, CRITICAL, "CRITICAL message by itkLogMacroStatic\n" );
-    itkLogMacroStatic(tester, FATAL, "FATAL message by itkLogMacroStatic\n" );
-    itkLogMacroStatic(tester, MUSTFLUSH, "MUSTFLUSH message by itkLogMacroStatic\n" );
-  }
-
-private:
-  itk::Logger* m_Logger;
-};
-
-int itkLoggerTest( int argc, char *argv [] )
+int
+itkLoggerTest(int argc, char * argv[])
 {
   try
-    {
+  {
     if (argc < 2)
-      {
-      std::cout << "Usage: " << argv[0] << " logFilename" << std::endl;
+    {
+      std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " logFilename" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     // Create an ITK StdStreamLogOutputs
     itk::StdStreamLogOutput::Pointer coutput = itk::StdStreamLogOutput::New();
@@ -73,8 +48,8 @@ int itkLoggerTest( int argc, char *argv [] )
 
     // Setting the logger
     logger->SetName("org.itk.rootLogger");
-    logger->SetPriorityLevel(itk::LoggerBase::INFO);
-    logger->SetLevelForFlushing(itk::LoggerBase::CRITICAL);
+    logger->SetPriorityLevel(itk::LoggerBase::PriorityLevelType::INFO);
+    logger->SetLevelForFlushing(itk::LoggerBase::PriorityLevelType::CRITICAL);
 
     std::cout << "  Adding console and file stream LogOutputs" << std::endl;
     logger->AddLogOutput(coutput);
@@ -87,67 +62,66 @@ int itkLoggerTest( int argc, char *argv [] )
 
     // Logging by the itkLogMacro from a class with itk::Logger
     std::cout << "  Logging by the itkLogMacro from a class with itk::Logger" << std::endl;
-    LogTester tester;
+    itk::Testing::LogTester tester;
     tester.SetLogger(logger);
     tester.log();
     // Logging by the itkLogMacroStatic from a class with itk::Logger
     std::cout << "  Logging by the itkLogMacroStatic from a class with itk::Logger" << std::endl;
-    LogTester::logStatic(&tester);
+    itk::Testing::LogTester::logStatic(&tester);
 
     // Writing by the logger
     std::cout << "  Writing by itk::Logger" << std::endl;
-    logger->Write(itk::LoggerBase::DEBUG, "This is the DEBUG message.\n");
-    logger->Write(itk::LoggerBase::INFO, "This is the INFO message.\n");
-    logger->Write(itk::LoggerBase::WARNING, "This is the WARNING message.\n");
-    logger->Write(itk::LoggerBase::CRITICAL, "This is the CRITICAL message.\n");
-    logger->Write(itk::LoggerBase::FATAL, "This is the FATAL message.\n");
-    logger->Write(itk::LoggerBase::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::DEBUG, "This is the DEBUG message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::INFO, "This is the INFO message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::WARNING, "This is the WARNING message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::CRITICAL, "This is the CRITICAL message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::FATAL, "This is the FATAL message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
     logger->Flush();
 
     itk::LoggerBase::TimeStampFormatType timeStampFormat = itk::LoggerBase::HUMANREADABLE;
-    logger->SetTimeStampFormat( timeStampFormat );
+    logger->SetTimeStampFormat(timeStampFormat);
 
-    if( logger->GetTimeStampFormat() != timeStampFormat )
-      {
+    if (logger->GetTimeStampFormat() != timeStampFormat)
+    {
       std::cerr << "Error in SetTimeStampFormat()/GetTimeStampFormat()" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
 
     std::cout << "  Writing by itk::Logger in Human Readable format" << std::endl;
-    logger->Write(itk::LoggerBase::DEBUG, "This is the DEBUG message.\n");
-    logger->Write(itk::LoggerBase::INFO, "This is the INFO message.\n");
-    logger->Write(itk::LoggerBase::WARNING, "This is the WARNING message.\n");
-    logger->Write(itk::LoggerBase::CRITICAL, "This is the CRITICAL message.\n");
-    logger->Write(itk::LoggerBase::FATAL, "This is the FATAL message.\n");
-    logger->Write(itk::LoggerBase::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::DEBUG, "This is the DEBUG message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::INFO, "This is the INFO message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::WARNING, "This is the WARNING message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::CRITICAL, "This is the CRITICAL message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::FATAL, "This is the FATAL message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
     logger->Flush();
 
 
     std::string humanReadableFormat = "%b %d, %Y, %H:%M:%S";
-    logger->SetHumanReadableFormat( humanReadableFormat );
+    logger->SetHumanReadableFormat(humanReadableFormat);
 
-    if( logger->GetHumanReadableFormat() != humanReadableFormat )
-      {
+    if (logger->GetHumanReadableFormat() != humanReadableFormat)
+    {
       std::cerr << "Error in SetHumanReadableFormat()/GetHumanReadableFormat()" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     std::cout << "  Writing by itk::Logger in Human Readable style with new format" << std::endl;
-    logger->Write(itk::LoggerBase::DEBUG, "This is the DEBUG message.\n");
-    logger->Write(itk::LoggerBase::INFO, "This is the INFO message.\n");
-    logger->Write(itk::LoggerBase::WARNING, "This is the WARNING message.\n");
-    logger->Write(itk::LoggerBase::CRITICAL, "This is the CRITICAL message.\n");
-    logger->Write(itk::LoggerBase::FATAL, "This is the FATAL message.\n");
-    logger->Write(itk::LoggerBase::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::DEBUG, "This is the DEBUG message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::INFO, "This is the INFO message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::WARNING, "This is the WARNING message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::CRITICAL, "This is the CRITICAL message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::FATAL, "This is the FATAL message.\n");
+    logger->Write(itk::LoggerBase::PriorityLevelType::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
     logger->Flush();
-
-    }
-  catch(...)
-    {
+  }
+  catch (...)
+  {
     std::cerr << "Exception catched !!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "[PASSED]" << std::endl;
   return EXIT_SUCCESS;

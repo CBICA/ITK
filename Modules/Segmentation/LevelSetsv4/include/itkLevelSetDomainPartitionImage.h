@@ -28,85 +28,87 @@ namespace itk
  * \brief Helper class used to partition domain and efficiently compute overlap.
  * \ingroup ITKLevelSetsv4
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT LevelSetDomainPartitionImage : public LevelSetDomainPartitionBase< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT LevelSetDomainPartitionImage : public LevelSetDomainPartitionBase<TImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartitionImage);
 
-  typedef LevelSetDomainPartitionImage          Self;
-  typedef LevelSetDomainPartitionBase< TImage > Superclass;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
+  using Self = LevelSetDomainPartitionImage;
+  using Superclass = LevelSetDomainPartitionBase<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro( LevelSetDomainPartitionImage, LevelSetDomainPartitionBase );
+  itkTypeMacro(LevelSetDomainPartitionImage, LevelSetDomainPartitionBase);
 
-  typedef TImage                             ImageType;
-  typedef typename ImageType::Pointer        ImagePointer;
-  typedef typename ImageType::ConstPointer   ImageConstPointer;
-  typedef typename ImageType::PixelType      PixelType;
-  typedef typename ImageType::RegionType     RegionType;
-  typedef typename ImageType::SizeType       SizeType;
-  typedef typename SizeType::SizeValueType   SizeValueType;
-  typedef typename ImageType::SpacingType    SpacingType;
-  typedef typename ImageType::IndexType      IndexType;
-  typedef typename IndexType::IndexValueType IndexValueType;
-  typedef typename ImageType::PointType      PointType;
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using RegionType = typename ImageType::RegionType;
+  using SizeType = typename ImageType::SizeType;
+  using SizeValueType = typename SizeType::SizeValueType;
+  using SpacingType = typename ImageType::SpacingType;
+  using IndexType = typename ImageType::IndexType;
+  using IndexValueType = typename IndexType::IndexValueType;
+  using PointType = typename ImageType::PointType;
 
-  typedef typename Superclass::IdentifierListType IdentifierListType;
+  using IdentifierListType = typename Superclass::IdentifierListType;
 
-  typedef Image< IdentifierListType, ImageDimension >   ListImageType;
-  typedef typename ListImageType::Pointer               ListImagePointer;
-  typedef typename ListImageType::ConstPointer          ListImageConstPointer;
-  typedef typename ListImageType::RegionType            ListRegionType;
-  typedef typename ListImageType::SizeType              ListSizeType;
-  typedef typename ListSizeType::SizeValueType          ListSizeValueType;
-  typedef typename ListImageType::SpacingType           ListSpacingType;
-  typedef typename ListImageType::IndexType             ListIndexType;
-  typedef typename ListIndexType::IndexValueType        ListIndexValueType;
-  typedef typename ListImageType::PointType             ListPointType;
-  typedef ImageRegionIteratorWithIndex< ListImageType > ListIteratorType;
+  using ListImageType = Image<IdentifierListType, ImageDimension>;
+  using ListImagePointer = typename ListImageType::Pointer;
+  using ListImageConstPointer = typename ListImageType::ConstPointer;
+  using ListRegionType = typename ListImageType::RegionType;
+  using ListSizeType = typename ListImageType::SizeType;
+  using ListSizeValueType = typename ListSizeType::SizeValueType;
+  using ListSpacingType = typename ListImageType::SpacingType;
+  using ListIndexType = typename ListImageType::IndexType;
+  using ListIndexValueType = typename ListIndexType::IndexValueType;
+  using ListPointType = typename ListImageType::PointType;
+  using ListIteratorType = ImageRegionIteratorWithIndex<ListImageType>;
 
-  typedef std::vector< RegionType >                     LevelSetDomainRegionVectorType;
+  using LevelSetDomainRegionVectorType = std::vector<RegionType>;
 
   /** Set the input image that will be used to compute an image with the list
    * of level sets domain overlaps. */
-  itkSetConstObjectMacro( Image, ImageType );
-  itkGetConstObjectMacro(Image, ImageType );
+  itkSetConstObjectMacro(Image, ImageType);
+  itkGetConstObjectMacro(Image, ImageType);
 
   /** Get the image with the list of level set domains. */
-  itkGetModifiableObjectMacro(ListDomain, ListImageType );
+  itkGetModifiableObjectMacro(ListDomain, ListImageType);
 
-  void SetLevelSetDomainRegionVector( const LevelSetDomainRegionVectorType& domain );
-  const LevelSetDomainRegionVectorType& GetLevelSetDomainRegionVector() const;
+  void
+  SetLevelSetDomainRegionVector(const LevelSetDomainRegionVectorType & domain);
+  const LevelSetDomainRegionVectorType &
+  GetLevelSetDomainRegionVector() const;
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  virtual void PopulateListDomain() ITK_OVERRIDE;
+  void
+  PopulateListDomain() override;
 
 protected:
-  LevelSetDomainPartitionImage();
-  virtual ~LevelSetDomainPartitionImage() ITK_OVERRIDE;
+  LevelSetDomainPartitionImage() = default;
+  ~LevelSetDomainPartitionImage() override = default;
 
   /** Allocate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void AllocateListDomain() ITK_OVERRIDE;
+  void
+  AllocateListDomain() override;
 
-  ImageConstPointer               m_Image;
-  ListImagePointer                m_ListDomain;
-  LevelSetDomainRegionVectorType  m_LevelSetDomainRegionVector;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartitionImage);
+  ImageConstPointer              m_Image;
+  ListImagePointer               m_ListDomain;
+  LevelSetDomainRegionVectorType m_LevelSetDomainRegionVector;
 };
-} //end namespace itk
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetDomainPartitionImage.hxx"
+#  include "itkLevelSetDomainPartitionImage.hxx"
 #endif
 
 #endif

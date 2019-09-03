@@ -30,18 +30,15 @@ namespace itk
  * \ingroup ITKTransform
  */
 
-template<
-  typename TParametersValueType=double,
-  unsigned int NDimensions = 3>
-class ITK_TEMPLATE_EXPORT ScalableAffineTransform:
-  public AffineTransform<TParametersValueType, NDimensions>
+template <typename TParametersValueType = double, unsigned int NDimensions = 3>
+class ITK_TEMPLATE_EXPORT ScalableAffineTransform : public AffineTransform<TParametersValueType, NDimensions>
 {
 public:
-  /** Standard typedefs   */
-  typedef ScalableAffineTransform                            Self;
-  typedef AffineTransform<TParametersValueType, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                 Pointer;
-  typedef SmartPointer<const Self>                           ConstPointer;
+  /** Standard type alias   */
+  using Self = ScalableAffineTransform;
+  using Superclass = AffineTransform<TParametersValueType, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(ScalableAffineTransform, AffineTransform);
@@ -50,84 +47,85 @@ public:
   itkNewMacro(Self);
 
   /** Dimension of the domain space. */
-  itkStaticConstMacro(InputSpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro(OutputSpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro(SpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro( ParametersDimension, unsigned int,
-                       NDimensions * ( NDimensions + 1 ) );
+  static constexpr unsigned int InputSpaceDimension = NDimensions;
+  static constexpr unsigned int OutputSpaceDimension = NDimensions;
+  static constexpr unsigned int SpaceDimension = NDimensions;
+  static constexpr unsigned int ParametersDimension = NDimensions * (NDimensions + 1);
 
   /** Types taken from the Superclass */
-  typedef typename Superclass::ParametersType            ParametersType;
-  typedef typename Superclass::ParametersValueType       ParametersValueType;
-  typedef typename Superclass::FixedParametersType       FixedParametersType;
-  typedef typename Superclass::FixedParametersValueType  FixedParametersValueType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::ScalarType                ScalarType;
-  typedef typename Superclass::InputVectorType           InputVectorType;
-  typedef typename Superclass::OutputVectorType          OutputVectorType;
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
-  typedef typename Superclass::InputVnlVectorType        InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType       OutputVnlVectorType;
-  typedef typename Superclass::InputPointType            InputPointType;
-  typedef typename Superclass::OutputPointType           OutputPointType;
-  typedef typename Superclass::MatrixType                MatrixType;
-  typedef typename Superclass::MatrixValueType           MatrixValueType;
-  typedef typename Superclass::InverseMatrixType         InverseMatrixType;
-  typedef typename Superclass::CenterType                CenterType;
-  typedef typename Superclass::OffsetType                OffsetType;
-  typedef typename Superclass::TranslationType           TranslationType;
+  using ParametersType = typename Superclass::ParametersType;
+  using ParametersValueType = typename Superclass::ParametersValueType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using FixedParametersValueType = typename Superclass::FixedParametersValueType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
+  using ScalarType = typename Superclass::ScalarType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using MatrixType = typename Superclass::MatrixType;
+  using MatrixValueType = typename Superclass::MatrixValueType;
+  using InverseMatrixType = typename Superclass::InverseMatrixType;
+  using CenterType = typename Superclass::CenterType;
+  using OffsetType = typename Superclass::OffsetType;
+  using TranslationType = typename Superclass::TranslationType;
 
   /** Base inverse transform type. This type should not be changed to the
    * concrete inverse transform type or inheritance would be lost.  */
-  typedef typename Superclass::InverseTransformBaseType InverseTransformBaseType;
-  typedef typename InverseTransformBaseType::Pointer    InverseTransformBasePointer;
+  using InverseTransformBaseType = typename Superclass::InverseTransformBaseType;
+  using InverseTransformBasePointer = typename InverseTransformBaseType::Pointer;
 
   /** Set the transformation to an Identity
    *
    * This sets the matrix to identity and the Offset to null. */
-  void SetIdentity(void) ITK_OVERRIDE;
+  void
+  SetIdentity() override;
 
   /** Set the scale of the transform */
-  virtual void SetScale(const InputVectorType & scale);
+  virtual void
+  SetScale(const InputVectorType & scale);
 
-  virtual void SetScaleComponent(const InputVectorType & scale)
-  { this->SetScale(scale); }
+  virtual void
+  SetScaleComponent(const InputVectorType & scale)
+  {
+    this->SetScale(scale);
+  }
 
   /** Set the scale of the transform */
-  virtual void SetScale(const double scale[NDimensions]);
+  virtual void
+  SetScale(const double scale[NDimensions]);
 
-  virtual void SetScaleComponent(const double scale[NDimensions])
-  { this->SetScale(scale); }
+  virtual void
+  SetScaleComponent(const double scale[NDimensions])
+  {
+    this->SetScale(scale);
+  }
 
   /** Get the scale of the transform */
-  virtual const double * GetScale() const
-  { return m_Scale; }
-  virtual const double * GetScaleComponent() const
-  { return m_Scale; }
+  virtual const double *
+  GetScale() const
+  {
+    return m_Scale;
+  }
+  virtual const double *
+  GetScaleComponent() const
+  {
+    return m_Scale;
+  }
 
   /** Get an inverse of this transform. */
-  bool GetInverse(Self *inverse) const;
+  bool
+  GetInverse(Self * inverse) const;
 
   /** Return an inverse of this transform. */
-  virtual InverseTransformBasePointer GetInverseTransform() const ITK_OVERRIDE;
-
-  /** Set the matrix of the transform. The matrix should not include
-   *  scale.
-   *  \deprecated use SetMatrix instead */
-  itkLegacyMacro(void SetMatrixComponent(const MatrixType & matrix));
-
-  /** Get matrix of the transform.
-   * \deprecated use GetMatrix instead  */
-  itkLegacyMacro(const MatrixType & GetMatrixComponent() const);
-
-  /** Set offset (origin) of the Transform.
-   * \deprecated use SetTranslation instead. */
-  itkLegacyMacro(void SetOffsetComponent(const OffsetType & offset) );
-
-  /** Get offset of the transform
-   * \deprecated use GetTranslation instead. */
-  itkLegacyMacro(const OffsetType & GetOffsetComponent(void) const );
+  InverseTransformBasePointer
+  GetInverseTransform() const override;
 
 protected:
   /** Construct an ScalableAffineTransform object
@@ -137,36 +135,42 @@ protected:
    * to values specified by the caller.  If the arguments are
    * omitted, then the AffineTransform is initialized to an identity
    * transformation in the appropriate number of dimensions. */
-  ScalableAffineTransform(const MatrixType & matrix,
-                          const OutputVectorType & offset);
-  ScalableAffineTransform(unsigned int outputSpaceDimension,
-                          unsigned int parametersDimension);
+  ScalableAffineTransform(const MatrixType & matrix, const OutputVectorType & offset);
+  ScalableAffineTransform(unsigned int outputSpaceDimension, unsigned int parametersDimension);
   ScalableAffineTransform(unsigned int parametersDimension);
   ScalableAffineTransform();
 
-  void ComputeMatrix() ITK_OVERRIDE;
+  void
+  ComputeMatrix() override;
 
   /** Destroy an ScalableAffineTransform object   */
-  virtual ~ScalableAffineTransform() ITK_OVERRIDE;
+  ~ScalableAffineTransform() override = default;
 
   /** Print contents of an ScalableAffineTransform */
-  void PrintSelf(std::ostream & s, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & s, Indent indent) const override;
 
-  void SetVarScale(const double *scale)
-  { for ( int i = 0; i < InputSpaceDimension; i++ ) { m_Scale[i] = scale[i]; } }
+  void
+  SetVarScale(const double * scale)
+  {
+    for (int i = 0; i < InputSpaceDimension; i++)
+    {
+      m_Scale[i] = scale[i];
+    }
+  }
 
 private:
-
-  ScalableAffineTransform(const Self & other);
-  const Self & operator=(const Self &);
+  ScalableAffineTransform(const Self & other) = delete;
+  const Self &
+  operator=(const Self &) = delete;
 
   double          m_Scale[NDimensions];
   InputVectorType m_MatrixScale;
-}; //class ScalableAffineTransform
-}  // namespace itk
+}; // class ScalableAffineTransform
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScalableAffineTransform.hxx"
+#  include "itkScalableAffineTransform.hxx"
 #endif
 
 #endif /* itkScalableAffineTransform_h */

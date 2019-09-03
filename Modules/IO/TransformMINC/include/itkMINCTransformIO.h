@@ -32,69 +32,77 @@ namespace itk
 
 /** \class MINCTransformIOTemplate
  *
-* \brief Read and write transforms in Minc XFM Format
-*
-* \author Vladimir S. FONOV
-*         Brain Imaging Center, Montreal Neurological Institute, McGill University, Montreal Canada 2012
-*
-* \ingroup ITKIOTransformMINC
-*/
-template<typename TParametersValueType>
-class ITKIOTransformMINC_EXPORT MINCTransformIOTemplate: public TransformIOBaseTemplate<TParametersValueType>
+ * \brief Read and write transforms in Minc XFM Format
+ *
+ * \author Vladimir S. FONOV
+ *         Brain Imaging Center, Montreal Neurological Institute, McGill University, Montreal Canada 2012
+ *
+ * \ingroup ITKIOTransformMINC
+ */
+template <typename TParametersValueType>
+class ITKIOTransformMINC_EXPORT MINCTransformIOTemplate : public TransformIOBaseTemplate<TParametersValueType>
 {
 public:
-  typedef MINCTransformIOTemplate                         Self;
-  typedef TransformIOBaseTemplate< TParametersValueType > Superclass;
-  typedef SmartPointer<Self>                              Pointer;
-  typedef SmartPointer<const Self>                        ConstPointer;
+  using Self = MINCTransformIOTemplate;
+  using Superclass = TransformIOBaseTemplate<TParametersValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename Superclass::TransformType          TransformType;
-  typedef typename Superclass::TransformPointer       TransformPointer;
-  typedef typename Superclass::TransformListType      TransformListType;
-  typedef typename Superclass::ConstTransformListType ConstTransformListType;
-  typedef typename TransformType::ParametersType      ParametersType;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformListType = typename Superclass::TransformListType;
+  using ConstTransformListType = typename Superclass::ConstTransformListType;
+  using ParametersType = typename TransformType::ParametersType;
 
-  typedef MatrixOffsetTransformBase<TParametersValueType, 3, 3> MatrixOffsetTransformBaseType;
+  using MatrixOffsetTransformBaseType = MatrixOffsetTransformBase<TParametersValueType, 3, 3>;
 
-  typedef typename MatrixOffsetTransformBaseType::MatrixType    MatrixType;
-  typedef typename MatrixOffsetTransformBaseType::OffsetType    OffsetType;
+  using MatrixType = typename MatrixOffsetTransformBaseType::MatrixType;
+  using OffsetType = typename MatrixOffsetTransformBaseType::OffsetType;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( MINCTransformIOTemplate, TransformIOBaseTemplate );
-  itkNewMacro( Self );
+  itkTypeMacro(MINCTransformIOTemplate, TransformIOBaseTemplate);
+  itkNewMacro(Self);
 
   /** Determine the file type. Returns true if this ImageIO can read the
-  * file specified. */
-  virtual bool CanReadFile( const char * fileName ) ITK_OVERRIDE;
+   * file specified. */
+  bool
+  CanReadFile(const char * fileName) override;
 
   /** Determine the file type. Returns true if this ImageIO can write the
-  * file specified. */
-  virtual bool CanWriteFile( const char * fileName ) ITK_OVERRIDE;
+   * file specified. */
+  bool
+  CanWriteFile(const char * fileName) override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read() ITK_OVERRIDE;
+  void
+  Read() override;
 
-  virtual void Write() ITK_OVERRIDE;
+  void
+  Write() override;
 
 protected:
   MINCTransformIOTemplate();
-  virtual ~MINCTransformIOTemplate() ITK_OVERRIDE;
+  ~MINCTransformIOTemplate() override;
 
   VIO_General_transform m_XFM;
   bool                  m_XFM_initialized;
 
 private:
-  void _cleanup();
-  void WriteOneTransform(const int transformIndex,
-                         const TransformType *transform,
-                         std::vector<VIO_General_transform> &_xfm,
-                         const char * xfm_file_base,int & serial);
+  void
+  _cleanup();
+  void
+  WriteOneTransform(const int                            transformIndex,
+                    const TransformType *                transform,
+                    std::vector<VIO_General_transform> & _xfm,
+                    const char *                         xfm_file_base,
+                    int &                                serial);
 
-  void ReadOneTransform(VIO_General_transform *xfm);
+  void
+  ReadOneTransform(VIO_General_transform * xfm);
 };
 
 /** This helps to meet backward compatibility */
-typedef MINCTransformIOTemplate<double> MINCTransformIO;
+using MINCTransformIO = MINCTransformIOTemplate<double>;
 
 } // end namespace itk
 
@@ -112,30 +120,24 @@ typedef MINCTransformIOTemplate<double> MINCTransformIO;
 //            need to be considered. This code *MUST* be *OUTSIDE* the header
 //            guards.
 //
-#  if defined( ITKIOTransformMINC_EXPORTS )
+#if defined(ITKIOTransformMINC_EXPORTS)
 //   We are building this library
-#    define ITKIOTransformMINC_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
-#  else
+#  define ITKIOTransformMINC_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
+#else
 //   We are using this library
-#    define ITKIOTransformMINC_EXPORT_EXPLICIT ITKIOTransformMINC_EXPORT
-#  endif
+#  define ITKIOTransformMINC_EXPORT_EXPLICIT ITKIOTransformMINC_EXPORT
+#endif
 namespace itk
 {
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
 
-  extern template class ITKIOTransformMINC_EXPORT_EXPLICIT MINCTransformIOTemplate< double >;
-extern template class ITKIOTransformMINC_EXPORT_EXPLICIT MINCTransformIOTemplate< float >;
+extern template class ITKIOTransformMINC_EXPORT_EXPLICIT MINCTransformIOTemplate<double>;
+extern template class ITKIOTransformMINC_EXPORT_EXPLICIT MINCTransformIOTemplate<float>;
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+ITK_GCC_PRAGMA_DIAG_POP()
 
 } // end namespace itk
-#  undef ITKIOTransformMINC_EXPORT_EXPLICIT
+#undef ITKIOTransformMINC_EXPORT_EXPLICIT
 #endif

@@ -18,7 +18,8 @@
 
 //  Software Guide : BeginLatex
 //
-//  This example illustrates the use of the \doxygen{GradientRecursiveGaussianImageFilter}.
+//  This example illustrates the use of the
+//  \doxygen{GradientRecursiveGaussianImageFilter}.
 //
 //  \index{itk::Gradient\-Recursive\-Gaussian\-Image\-Filter}
 //
@@ -42,14 +43,16 @@
 // Software Guide : EndCodeSnippet
 
 
-int main( int argc, char * argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputImageFile   outputVectorImageFile   sigma" << std::endl;
+    std::cerr << argv[0] << "  inputImageFile   outputVectorImageFile   sigma"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //  Software Guide : BeginLatex
@@ -60,12 +63,11 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int  Dimension = 3;
-  typedef    float    InputPixelType;
-  typedef    float    OutputComponentPixelType;
+  constexpr unsigned int Dimension = 3;
+  using InputPixelType = float;
+  using OutputComponentPixelType = float;
 
-  typedef itk::CovariantVector<
-    OutputComponentPixelType, Dimension > OutputPixelType;
+  using OutputPixelType = itk::CovariantVector<OutputComponentPixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
 
@@ -76,12 +78,12 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::Image< InputPixelType,  Dimension >   InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >   OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
 
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
 
 
   //  Software Guide : BeginLatex
@@ -94,13 +96,13 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::GradientRecursiveGaussianImageFilter<
-                        InputImageType, OutputImageType >  FilterType;
+  using FilterType =
+    itk::GradientRecursiveGaussianImageFilter<InputImageType, OutputImageType>;
   // Software Guide : EndCodeSnippet
 
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
 
   //  Software Guide : BeginLatex
@@ -126,7 +128,7 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  filter->SetInput( reader->GetOutput() );
+  filter->SetInput(reader->GetOutput());
   // Software Guide : EndCodeSnippet
 
 
@@ -138,11 +140,11 @@ int main( int argc, char * argv[] )
   //  \index{SetSigma()!itk::Gradient\-Recursive\-Gaussian\-Image\-Filter}
   //
   //  Software Guide : EndLatex
-  const double sigma = atof( argv[3] );
+  const double sigma = std::stod(argv[3]);
 
 
   // Software Guide : BeginCodeSnippet
-  filter->SetSigma( sigma );
+  filter->SetSigma(sigma);
   // Software Guide : EndCodeSnippet
 
 
@@ -170,15 +172,15 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetFileName( argv[2] );
+  writer->SetFileName(argv[2]);
 
 
   // Software Guide : BeginCodeSnippet
-  writer->SetInput( filter->GetOutput() );
+  writer->SetInput(filter->GetOutput());
   writer->Update();
   // Software Guide : EndCodeSnippet
 

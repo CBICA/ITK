@@ -33,7 +33,7 @@ namespace itk
  *
  * The speed function can be specified as a speed image or a
  * speed constant. The speed image is set using the method
- * SetInput(). If the speed image is ITK_NULLPTR, a constant speed function
+ * SetInput(). If the speed image is nullptr, a constant speed function
  * is used and is specified using method the SetSpeedConstant().
  *
  * If the speed function is constant and of value one, fast marching results
@@ -47,7 +47,7 @@ namespace itk
  *
  * The output information is computed as follows.
  *
- * If the speed image is ITK_NULLPTR or if the OverrideOutputInformation is set to
+ * If the speed image is nullptr or if the OverrideOutputInformation is set to
  * true, the output information is set from user specified parameters. These
  * parameters can be specified using methods
  * \li FastMarchingImageFilterBase::SetOutputRegion(),
@@ -70,17 +70,18 @@ namespace itk
  * \sa ImageFastMarchingTraits2
  *
  * \ingroup ITKFastMarching
-*/
-template< typename TInput, typename TOutput >
-class ITK_TEMPLATE_EXPORT FastMarchingImageFilterBase :
-    public FastMarchingBase< TInput, TOutput >
-  {
+ */
+template <typename TInput, typename TOutput>
+class ITK_TEMPLATE_EXPORT FastMarchingImageFilterBase : public FastMarchingBase<TInput, TOutput>
+{
 public:
-  typedef FastMarchingImageFilterBase          Self;
-  typedef FastMarchingBase< TInput, TOutput >  Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
-  typedef typename Superclass::Traits          Traits;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingImageFilterBase);
+
+  using Self = FastMarchingImageFilterBase;
+  using Superclass = FastMarchingBase<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Traits = typename Superclass::Traits;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -89,59 +90,63 @@ public:
   itkTypeMacro(FastMarchingImageFilterBase, FastMarchingBase);
 
 
-  typedef typename Superclass::InputDomainType     InputImageType;
-  typedef typename Superclass::InputDomainPointer  InputImagePointer;
-  typedef typename Superclass::InputPixelType      InputPixelType;
+  using InputImageType = typename Superclass::InputDomainType;
+  using InputImagePointer = typename Superclass::InputDomainPointer;
+  using InputPixelType = typename Superclass::InputPixelType;
 
-  typedef typename Superclass::OutputDomainType     OutputImageType;
-  typedef typename Superclass::OutputDomainPointer  OutputImagePointer;
-  typedef typename Superclass::OutputPixelType      OutputPixelType;
-  typedef typename OutputImageType::SpacingType     OutputSpacingType;
-  typedef typename OutputImageType::SizeType        OutputSizeType;
-  typedef typename OutputImageType::RegionType      OutputRegionType;
-  typedef typename OutputImageType::PointType       OutputPointType;
-  typedef typename OutputImageType::DirectionType   OutputDirectionType;
+  using OutputImageType = typename Superclass::OutputDomainType;
+  using OutputImagePointer = typename Superclass::OutputDomainPointer;
+  using OutputPixelType = typename Superclass::OutputPixelType;
+  using OutputSpacingType = typename OutputImageType::SpacingType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+  using OutputRegionType = typename OutputImageType::RegionType;
+  using OutputPointType = typename OutputImageType::PointType;
+  using OutputDirectionType = typename OutputImageType::DirectionType;
 
-  typedef typename Traits::NodeType                 NodeType;
-  typedef typename Traits::NodePairType             NodePairType;
-  typedef typename Traits::NodePairContainerType    NodePairContainerType;
-  typedef typename Traits::NodePairContainerPointer NodePairContainerPointer;
-  typedef typename Traits::NodePairContainerConstIterator
-    NodePairContainerConstIterator;
+  using NodeType = typename Traits::NodeType;
+  using NodePairType = typename Traits::NodePairType;
+  using NodePairContainerType = typename Traits::NodePairContainerType;
+  using NodePairContainerPointer = typename Traits::NodePairContainerPointer;
+  using NodePairContainerConstIterator = typename Traits::NodePairContainerConstIterator;
 
-  typedef typename Superclass::LabelType LabelType;
+  using LabelType = typename Superclass::LabelType;
 
-  itkStaticConstMacro( ImageDimension, unsigned int, Traits::ImageDimension );
+  static constexpr unsigned int ImageDimension = Traits::ImageDimension;
 
 
-  typedef Image< unsigned char, ImageDimension >  LabelImageType;
-  typedef typename LabelImageType::Pointer        LabelImagePointer;
+  using LabelImageType = Image<unsigned char, ImageDimension>;
+  using LabelImagePointer = typename LabelImageType::Pointer;
 
-  typedef Image< unsigned int, ImageDimension >
-    ConnectedComponentImageType;
-  typedef typename ConnectedComponentImageType::Pointer ConnectedComponentImagePointer;
+  using ConnectedComponentImageType = Image<unsigned int, ImageDimension>;
+  using ConnectedComponentImagePointer = typename ConnectedComponentImageType::Pointer;
 
-  typedef NeighborhoodIterator<LabelImageType> NeighborhoodIteratorType;
-  typedef typename NeighborhoodIteratorType::RadiusType NeighborhoodRadiusType;
+  using NeighborhoodIteratorType = NeighborhoodIterator<LabelImageType>;
+  using NeighborhoodRadiusType = typename NeighborhoodIteratorType::RadiusType;
 
   class InternalNodeStructure;
 
 
-  typedef FixedArray< InternalNodeStructure, ImageDimension > InternalNodeStructureArray;
+  using InternalNodeStructureArray = FixedArray<InternalNodeStructure, ImageDimension>;
 
-  itkGetModifiableObjectMacro(LabelImage, LabelImageType );
+  itkGetModifiableObjectMacro(LabelImage, LabelImageType);
 
   /** The output largeset possible, spacing and origin is computed as follows.
-   * If the speed image is ITK_NULLPTR or if the OverrideOutputInformation is true,
+   * If the speed image is nullptr or if the OverrideOutputInformation is true,
    * the output information is set from user specified parameters. These
    * parameters can be specified using methods SetOutputRegion(),
    * SetOutputSpacing(), SetOutputDirection(), and SetOutputOrigin().
-   * Else if the speed image is not ITK_NULLPTR, the output information
+   * Else if the speed image is not nullptr, the output information
    * is copied from the input speed image. */
-  virtual void SetOutputSize(const OutputSizeType & size)
-  { m_OutputRegion = size; }
-  virtual OutputSizeType GetOutputSize() const
-  { return m_OutputRegion.GetSize(); }
+  virtual void
+  SetOutputSize(const OutputSizeType & size)
+  {
+    m_OutputRegion = size;
+  }
+  virtual OutputSizeType
+  GetOutputSize() const
+  {
+    return m_OutputRegion.GetSize();
+  }
   itkSetMacro(OutputRegion, OutputRegionType);
   itkGetConstReferenceMacro(OutputRegion, OutputRegionType);
   itkSetMacro(OutputSpacing, OutputSpacingType);
@@ -155,110 +160,121 @@ public:
   itkBooleanMacro(OverrideOutputInformation);
 
 protected:
-
   FastMarchingImageFilterBase();
 
-  virtual ~FastMarchingImageFilterBase() ITK_OVERRIDE;
+  ~FastMarchingImageFilterBase() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  OutputRegionType  m_BufferedRegion;
-  NodeType          m_StartIndex;
-  NodeType          m_LastIndex;
+  OutputRegionType m_BufferedRegion;
+  NodeType         m_StartIndex;
+  NodeType         m_LastIndex;
 
   OutputRegionType    m_OutputRegion;
   OutputPointType     m_OutputOrigin;
   OutputSpacingType   m_OutputSpacing;
   OutputDirectionType m_OutputDirection;
-  bool                m_OverrideOutputInformation;
+  bool                m_OverrideOutputInformation{ false };
 
   /** Generate the output image meta information. */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
-  virtual void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
-  LabelImagePointer               m_LabelImage;
-  ConnectedComponentImagePointer  m_ConnectedComponentImage;
+  LabelImagePointer              m_LabelImage;
+  ConnectedComponentImagePointer m_ConnectedComponentImage;
 
-  IdentifierType GetTotalNumberOfNodes() const ITK_OVERRIDE;
+  IdentifierType
+  GetTotalNumberOfNodes() const override;
 
-  void SetOutputValue( OutputImageType* oDomain,
-                       const NodeType& iNode,
-                       const OutputPixelType& iValue ) ITK_OVERRIDE;
+  void
+  SetOutputValue(OutputImageType * oDomain, const NodeType & iNode, const OutputPixelType & iValue) override;
 
   /** Returns the output value for a given node */
-  const OutputPixelType GetOutputValue( OutputImageType* oImage,
-                                  const NodeType& iNode ) const ITK_OVERRIDE;
+  const OutputPixelType
+  GetOutputValue(OutputImageType * oImage, const NodeType & iNode) const override;
 
   /** Returns the label value for a given node */
   unsigned char
-  GetLabelValueForGivenNode( const NodeType& iNode ) const ITK_OVERRIDE;
+  GetLabelValueForGivenNode(const NodeType & iNode) const override;
 
   /** Set the label value for a given node */
-  void SetLabelValueForGivenNode( const NodeType& iNode,
-                                 const LabelType& iLabel ) ITK_OVERRIDE;
+  void
+  SetLabelValueForGivenNode(const NodeType & iNode, const LabelType & iLabel) override;
 
   /** Update values for the neighbors of a given node */
-  virtual void UpdateNeighbors( OutputImageType* oImage,
-                                const NodeType& iNode ) ITK_OVERRIDE;
+  void
+  UpdateNeighbors(OutputImageType * oImage, const NodeType & iNode) override;
 
   /** Update value for a given node */
-  virtual void UpdateValue( OutputImageType* oImage,
-                            const NodeType& iValue ) ITK_OVERRIDE;
+  void
+  UpdateValue(OutputImageType * oImage, const NodeType & iValue) override;
 
   /** Make sure the given node does not violate any topological constraint*/
-  bool CheckTopology( OutputImageType* oImage,
-                      const NodeType& iNode ) ITK_OVERRIDE;
-  void InitializeOutput( OutputImageType* oImage ) ITK_OVERRIDE;
+  bool
+  CheckTopology(OutputImageType * oImage, const NodeType & iNode) override;
+  void
+  InitializeOutput(OutputImageType * oImage) override;
 
   /** Find the nodes were the front will propagate given a node */
-  void GetInternalNodesUsed( OutputImageType* oImage,
-                             const NodeType& iNode,
-                             InternalNodeStructureArray& ioNodesUsed );
+  void
+  GetInternalNodesUsed(OutputImageType * oImage, const NodeType & iNode, InternalNodeStructureArray & ioNodesUsed);
 
   /** Solve the quadratic equation */
-  double Solve( OutputImageType* oImage,
-               const NodeType& iNode,
-               InternalNodeStructureArray& ioNeighbors ) const;
+  double
+  Solve(OutputImageType * oImage, const NodeType & iNode, InternalNodeStructureArray & ioNeighbors) const;
 
   //
   // Functions and variables to check for topology changes (2D/3D only).
   //
 
   // Functions/data for the 2-D case
-  void InitializeIndices2D();
-  bool IsChangeWellComposed2D( const NodeType& ) const;
-  bool IsCriticalC1Configuration2D( const std::bitset<9>& ) const;
-  bool IsCriticalC2Configuration2D( const std::bitset<9>& ) const;
-  bool IsCriticalC3Configuration2D( const std::bitset<9>& ) const;
-  bool IsCriticalC4Configuration2D( const std::bitset<9>& ) const;
+  void
+  InitializeIndices2D();
+  bool
+  IsChangeWellComposed2D(const NodeType &) const;
+  bool
+  IsCriticalC1Configuration2D(const std::bitset<9> &) const;
+  bool
+  IsCriticalC2Configuration2D(const std::bitset<9> &) const;
+  bool
+  IsCriticalC3Configuration2D(const std::bitset<9> &) const;
+  bool
+  IsCriticalC4Configuration2D(const std::bitset<9> &) const;
 
-  Array<unsigned char>  m_RotationIndices[4];
-  Array<unsigned char>  m_ReflectionIndices[2];
+  Array<unsigned char> m_RotationIndices[4];
+  Array<unsigned char> m_ReflectionIndices[2];
 
   // Functions/data for the 3-D case
-  void InitializeIndices3D();
-  bool IsCriticalC1Configuration3D( const std::bitset<8>& ) const;
-  unsigned int IsCriticalC2Configuration3D( const std::bitset<8>& ) const;
-  bool IsChangeWellComposed3D( const NodeType& ) const;
+  void
+  InitializeIndices3D();
+  bool
+  IsCriticalC1Configuration3D(const std::bitset<8> &) const;
+  unsigned int
+  IsCriticalC2Configuration3D(const std::bitset<8> &) const;
+  bool
+  IsChangeWellComposed3D(const NodeType &) const;
 
-  Array<unsigned char>                        m_C1Indices[12];
-  Array<unsigned char>                        m_C2Indices[8];
+  Array<unsigned char> m_C1Indices[12];
+  Array<unsigned char> m_C2Indices[8];
 
   // Functions for both 2D/3D cases
-  bool DoesVoxelChangeViolateWellComposedness( const NodeType& ) const;
-  bool DoesVoxelChangeViolateStrictTopology( const NodeType& ) const;
+  bool
+  DoesVoxelChangeViolateWellComposedness(const NodeType &) const;
+  bool
+  DoesVoxelChangeViolateStrictTopology(const NodeType &) const;
 
-  const InputImageType* m_InputCache;
+  const InputImageType * m_InputCache;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingImageFilterBase);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFastMarchingImageFilterBase.hxx"
+#  include "itkFastMarchingImageFilterBase.hxx"
 #endif
 
 #endif // itkFastMarchingImageFilterBase_h

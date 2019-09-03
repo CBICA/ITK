@@ -43,58 +43,57 @@ namespace itk
  *NormalVectorDiffusionFunction for an example.
  * \ingroup ITKFiniteDifference
  */
-template< typename TSparseImageType >
-class ITK_TEMPLATE_EXPORT FiniteDifferenceSparseImageFunction:
-  public FiniteDifferenceFunction< TSparseImageType >
+template <typename TSparseImageType>
+class ITK_TEMPLATE_EXPORT FiniteDifferenceSparseImageFunction : public FiniteDifferenceFunction<TSparseImageType>
 {
 public:
-  /** Standard class typedef. */
-  typedef FiniteDifferenceSparseImageFunction          Self;
-  typedef FiniteDifferenceFunction< TSparseImageType > Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FiniteDifferenceSparseImageFunction);
+
+  /** Standard class type alias. */
+  using Self = FiniteDifferenceSparseImageFunction;
+  using Superclass = FiniteDifferenceFunction<TSparseImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(FiniteDifferenceSparseImageFunction, FiniteDifferenceFunction);
 
   /** The image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Typedefs from the superclass. */
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::FloatOffsetType  FloatOffsetType;
-  typedef typename Superclass::ImageType        SparseImageType;
+  using PixelType = typename Superclass::PixelType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
+  using SparseImageType = typename Superclass::ImageType;
 
   /** The index type for the sparse image. */
-  typedef typename SparseImageType::IndexType IndexType;
+  using IndexType = typename SparseImageType::IndexType;
 
   /** The actual type of nodes stored the sparse image. */
-  typedef typename SparseImageType::NodeType NodeType;
+  using NodeType = typename SparseImageType::NodeType;
 
   /** The type for the variables of NodeType. Scalar or vector. */
-  typedef typename NodeType::NodeDataType NodeDataType;
+  using NodeDataType = typename NodeType::NodeDataType;
 
   /** This function is not called from the FiniteDifferenceSparseImageFilter
    *  class because we need to work with neighborhoods of pointers to data
    *  variables instead of neighborhoods of data directly. This function is
    *  replaced by the ComputeSparseUpdate function. */
-  virtual PixelType ComputeUpdate(const NeighborhoodType &,
-                                  void *,
-                                  const FloatOffsetType &) ITK_OVERRIDE
+  PixelType
+  ComputeUpdate(const NeighborhoodType &, void *, const FloatOffsetType &) override
   {
-    return static_cast< PixelType >( ITK_NULLPTR );
+    return static_cast<PixelType>(nullptr);
   }
 
   /** The update called from the FiniteDifferenceSparseImageFilter. This
       function replaces the ComputeUpdate function. */
   virtual NodeDataType
-  ComputeSparseUpdate( NeighborhoodType & neighborhood,
-                       void *globalData,
-                       const FloatOffsetType & offset = FloatOffsetType(0.0) )
-  const = 0;
+  ComputeSparseUpdate(NeighborhoodType &      neighborhood,
+                      void *                  globalData,
+                      const FloatOffsetType & offset = FloatOffsetType(0.0)) const = 0;
 
   /** This function provides support for a 2 step update computation that
    *  avoids repetitive computation. FiniteDifferenceSparseImageFilter first
@@ -105,20 +104,20 @@ public:
    *  the above examples are stored in the nodes of the SparseImage
    *  itself. Therefore, this function will have to know about the NodeType it
    *  is dealing with. This function does nothing by default. */
-  virtual void PrecomputeSparseUpdate(NeighborhoodType &) const {}
+  virtual void
+  PrecomputeSparseUpdate(NeighborhoodType &) const
+  {}
 
 protected:
-  FiniteDifferenceSparseImageFunction() {}
-  ~FiniteDifferenceSparseImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FiniteDifferenceSparseImageFunction);
+  FiniteDifferenceSparseImageFunction() = default;
+  ~FiniteDifferenceSparseImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFiniteDifferenceSparseImageFunction.hxx"
+#  include "itkFiniteDifferenceSparseImageFunction.hxx"
 #endif
 
 #endif

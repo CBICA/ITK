@@ -1,11 +1,11 @@
-#include <stdio.h>
-#include <ctype.h>
+#include <iostream>
+#include <cstdlib>
+
 #include <metaSurface.h>
 
 int main(int, char * [])
 {
-
-  METAIO_STREAM::cout << "Creating test file ...";
+  std::cout << "Creating test file ...";
   MetaSurface* surface = new MetaSurface(3);
   surface->ID(0);
   SurfacePnt* pnt;
@@ -24,12 +24,12 @@ int main(int, char * [])
   }
 
 
-  METAIO_STREAM::cout << "Writing ASCII test file ...";
+  std::cout << "Writing ASCII test file ...";
 
   surface->Write("mySurface.meta");
 
-  METAIO_STREAM::cout << "done" << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "Reading ASCII test file ...";
+  std::cout << "done" << std::endl;
+  std::cout << "Reading ASCII test file ...";
 
   surface->Clear();
   surface->Read("mySurface.meta");
@@ -41,27 +41,32 @@ int main(int, char * [])
   unsigned int d=0;
   while(it != list.end())
   {
+    for(d = 0; d < 3; d++)
+    {
+      std::cout << (*it)->m_X[d] << " ";
+    }
+    std::cout << std::endl;
+    for(d = 0; d < 3; d++)
+    {
+      std::cout << (*it)->m_V[d] << " ";
+    }
 
-    for(d = 0; d < 3; d++)
+    std::cout << std::endl;
+    for (d = 0; d < 4; d++)
     {
-      METAIO_STREAM::cout << (*it)->m_X[d] << " ";
+      std::cout << (*it)->m_Color[d] << " ";
     }
-    METAIO_STREAM::cout << METAIO_STREAM::endl;
-    for(d = 0; d < 3; d++)
-    {
-      METAIO_STREAM::cout << (*it)->m_V[d] << " ";
-    }
-    METAIO_STREAM::cout << METAIO_STREAM::endl;
+    std::cout << std::endl;
     ++it;
   }
 
-  METAIO_STREAM::cout << "Writing Binary test file ...";
+  std::cout << "Writing Binary test file ...";
   surface->BinaryData(true);
   surface->ElementType(MET_FLOAT);
   surface->Write("mySurface.meta");
 
-  METAIO_STREAM::cout << "done" << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "Reading Binary test file ...";
+  std::cout << "done" << std::endl;
+  std::cout << "Reading Binary test file ...";
 
   surface->Clear();
   surface->Read("mySurface.meta");
@@ -74,17 +79,18 @@ int main(int, char * [])
   {
     for(d = 0; d < 3; d++)
     {
-      METAIO_STREAM::cout << (*it)->m_X[d] << " ";
+      std::cout << (*it)->m_X[d] << " ";
     }
-    METAIO_STREAM::cout << METAIO_STREAM::endl;
+    std::cout << std::endl;
     for(d = 0; d < 3; d++)
     {
-      METAIO_STREAM::cout << (*it)->m_V[d] << " ";
+      std::cout << (*it)->m_V[d] << " ";
     }
-    METAIO_STREAM::cout << METAIO_STREAM::endl;
+    std::cout << std::endl;
     ++it;
   }
 
-  METAIO_STREAM::cout << "done" << METAIO_STREAM::endl;
-  return 1;
+  delete surface;
+  std::cout << "done" << std::endl;
+  return EXIT_SUCCESS;
 }

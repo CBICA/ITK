@@ -108,7 +108,7 @@ public:
     }
 
   int m_Id; // id of the cell link
-  METAIO_STL::list<int> m_Links;
+  std::list<int> m_Links;
 };
 
 /** Define a mesh point data */
@@ -124,15 +124,15 @@ public:
     {
     }
 
-  virtual void Write( METAIO_STREAM::ofstream* stream) = 0;
+  virtual void Write( std::ofstream* stream) = 0;
   virtual unsigned int GetSize(void) = 0;
   virtual MET_ValueEnumType GetMetaType() = 0;
   int m_Id;
 
 protected:
 
-  METAIO_STREAM::ifstream* m_ReadStream;
-  METAIO_STREAM::ofstream* m_WriteStream;
+  std::ifstream* m_ReadStream;
+  std::ofstream* m_WriteStream;
 
 };
 
@@ -143,14 +143,14 @@ class METAIO_EXPORT MeshData : public MeshDataBase
 public:
 
   MeshData() {m_Id=-1;}
-  ~MeshData() MET_OVERRIDE {}
+  ~MeshData() override {}
 
-  MET_ValueEnumType GetMetaType() MET_OVERRIDE
+  MET_ValueEnumType GetMetaType() override
     {
     return MET_GetPixelType(typeid(TElementType));
     }
 
-  void Write( METAIO_STREAM::ofstream* stream) MET_OVERRIDE
+  void Write( std::ofstream* stream) override
     {
     //char* id = new char[sizeof(int)];
     // The file is written as LSB by default
@@ -167,7 +167,7 @@ public:
     stream->write((char *)&data,sizeof(data));
     }
 
-  unsigned int GetSize(void) MET_OVERRIDE
+  unsigned int GetSize(void) override
     {
     unsigned int size = sizeof(int);
     size += sizeof(m_Data);
@@ -179,7 +179,7 @@ public:
 
 
 class METAIO_EXPORT MetaMesh : public MetaObject
-  {
+{
 
   /////
   //
@@ -188,11 +188,11 @@ class METAIO_EXPORT MetaMesh : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<MeshPoint*> PointListType;
-   typedef METAIO_STL::list<MeshCell*>  CellListType;
-   typedef METAIO_STL::list<MeshCellLink*>  CellLinkListType;
-   typedef METAIO_STL::list<MeshDataBase*> PointDataListType;
-   typedef METAIO_STL::list<MeshDataBase*> CellDataListType;
+   typedef std::list<MeshPoint*> PointListType;
+   typedef std::list<MeshCell*>  CellListType;
+   typedef std::list<MeshCellLink*>  CellLinkListType;
+   typedef std::list<MeshDataBase*> PointDataListType;
+   typedef std::list<MeshDataBase*> CellDataListType;
 
     ////
     //
@@ -207,35 +207,35 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     MetaMesh(unsigned int dim);
 
-    ~MetaMesh(void) MET_OVERRIDE;
+    ~MetaMesh(void) override;
 
-    void PrintInfo(void) const MET_OVERRIDE;
+    void PrintInfo(void) const override;
 
-    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+    void CopyInfo(const MetaObject * _object) override;
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the mesh
+    //       Number of points which compose the mesh
     int   NPoints(void) const;
 
     //    NCells(...)
     //       Required Field
-    //       Number of cells wich compose the mesh
+    //       Number of cells which compose the mesh
     int   NCells(void) const;
 
     //    NCellLinks(...)
     //       Required Field
-    //       Number of cellLinks wich compose the mesh
+    //       Number of cellLinks which compose the mesh
     int   NCellLinks(void) const;
 
     //    NCellTypes(...)
     //       Required Field
-    //       Number of celles wich compose the mesh
+    //       Number of cells which compose the mesh
     void  NCellTypes(int ncelltypes);
     int   NCellTypes(void) const;
 
     /** Clear the metaMesh */
-    void  Clear(void) MET_OVERRIDE;
+    void  Clear(void) override;
 
     PointListType & GetPoints(void) {return m_PointList;}
     const PointListType & GetPoints(void) const  {return m_PointList;}
@@ -267,15 +267,15 @@ class METAIO_EXPORT MetaMesh : public MetaObject
 
     bool  m_ElementByteOrderMSB;
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
-    bool  M_Write(void) MET_OVERRIDE;
+    bool  M_Write(void) override;
 
     int m_NPoints;
     int m_NCells;
@@ -296,7 +296,7 @@ class METAIO_EXPORT MetaMesh : public MetaObject
     MET_ValueEnumType m_PointDataType;
     MET_ValueEnumType m_CellDataType;
 
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

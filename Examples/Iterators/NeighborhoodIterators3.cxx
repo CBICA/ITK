@@ -36,7 +36,7 @@
 // Sobel edge detection, where iteration speed is a critical.
 //
 // Splitting the image into the necessary regions is an easy task when you use
-// the \doxygen{ImageBoundaryFacesCalculator}.  The face
+// the \doxygen{NeighborhoodAlgorithm::ImageBoundaryFacesCalculator}.  The face
 // calculator is so named because it returns a list of the ``faces'' of the ND
 // dataset.  Faces are those regions whose pixels all lie within a distance $d$
 // from the boundary, where $d$ is the radius of the neighborhood stencil used
@@ -58,44 +58,43 @@
 #include "itkNeighborhoodAlgorithm.h"
 // Software Guide : EndCodeSnippet
 
-int main( int argc, char ** argv )
+int
+main(int argc, char ** argv)
 {
-  if ( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Missing parameters. " << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0]
-              << " inputImageFile outputImageFile direction"
-              << std::endl;
+    std::cerr << argv[0] << " inputImageFile outputImageFile direction" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef float                             PixelType;
-  typedef itk::Image< PixelType, 2 >        ImageType;
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using PixelType = float;
+  using ImageType = itk::Image<PixelType, 2>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
-  typedef itk::ConstNeighborhoodIterator< ImageType > NeighborhoodIteratorType;
-  typedef itk::ImageRegionIterator< ImageType>        IteratorType;
+  using NeighborhoodIteratorType = itk::ConstNeighborhoodIterator<ImageType>;
+  using IteratorType = itk::ImageRegionIterator<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
   try
-    {
+  {
     reader->Update();
-    }
-  catch ( itk::ExceptionObject &err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   ImageType::Pointer output = ImageType::New();
   output->SetRegions(reader->GetOutput()->GetRequestedRegion());
   output->Allocate();
 
   itk::SobelOperator<PixelType, 2> sobelOperator;
-  sobelOperator.SetDirection( ::atoi(argv[3]) );
+  sobelOperator.SetDirection(::std::stoi(argv[3]));
   sobelOperator.CreateDirectional();
 
   itk::NeighborhoodInnerProduct<ImageType> innerProduct;
@@ -111,10 +110,10 @@ int main( int argc, char ** argv )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::NeighborhoodAlgorithm
-    ::ImageBoundaryFacesCalculator< ImageType > FaceCalculatorType;
+  using FaceCalculatorType =
+    itk::NeighborhoodAlgorithm::ImageBoundaryFacesCalculator<ImageType>;
 
-  FaceCalculatorType faceCalculator;
+  FaceCalculatorType               faceCalculator;
   FaceCalculatorType::FaceListType faceList;
   // Software Guide : EndCodeSnippet
 
@@ -137,8 +136,8 @@ int main( int argc, char ** argv )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  faceList = faceCalculator(reader->GetOutput(), output->GetRequestedRegion(),
-                            sobelOperator.GetRadius());
+  faceList = faceCalculator(
+    reader->GetOutput(), output->GetRequestedRegion(), sobelOperator.GetRadius());
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -166,20 +165,19 @@ int main( int argc, char ** argv )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  IteratorType out;
+  IteratorType             out;
   NeighborhoodIteratorType it;
 
-  for ( fit=faceList.begin(); fit != faceList.end(); ++fit)
-    {
-    it = NeighborhoodIteratorType( sobelOperator.GetRadius(),
-                                  reader->GetOutput(), *fit );
-    out = IteratorType( output, *fit );
+  for (fit = faceList.begin(); fit != faceList.end(); ++fit)
+  {
+    it = NeighborhoodIteratorType(sobelOperator.GetRadius(), reader->GetOutput(), *fit);
+    out = IteratorType(output, *fit);
 
-    for (it.GoToBegin(), out.GoToBegin(); ! it.IsAtEnd(); ++it, ++out)
-      {
-      out.Set( innerProduct(it, sobelOperator) );
-      }
+    for (it.GoToBegin(), out.GoToBegin(); !it.IsAtEnd(); ++it, ++out)
+    {
+      out.Set(innerProduct(it, sobelOperator));
     }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -195,32 +193,31 @@ int main( int argc, char ** argv )
   //
   // Software Guide : EndLatex
 
-  typedef unsigned char                          WritePixelType;
-  typedef itk::Image< WritePixelType, 2 >        WriteImageType;
-  typedef itk::ImageFileWriter< WriteImageType > WriterType;
+  using WritePixelType = unsigned char;
+  using WriteImageType = itk::Image<WritePixelType, 2>;
+  using WriterType = itk::ImageFileWriter<WriteImageType>;
 
-  typedef itk::RescaleIntensityImageFilter<
-    ImageType, WriteImageType > RescaleFilterType;
+  using RescaleFilterType = itk::RescaleIntensityImageFilter<ImageType, WriteImageType>;
 
   RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
 
-  rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 255 );
+  rescaler->SetOutputMinimum(0);
+  rescaler->SetOutputMaximum(255);
   rescaler->SetInput(output);
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( rescaler->GetOutput() );
+  writer->SetFileName(argv[2]);
+  writer->SetInput(rescaler->GetOutput());
   try
-    {
+  {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject &err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

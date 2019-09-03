@@ -21,11 +21,12 @@
 #include <iostream>
 
 
-int itkFileOutputWindowTest(int, char* [] )
+int
+itkFileOutputWindowTest(int, char *[])
 {
 
   // Declare the type for the morphology Filter
-  typedef itk::FileOutputWindow myFileOutputWindow;
+  using myFileOutputWindow = itk::FileOutputWindow;
 
   // Create the filter
   myFileOutputWindow::Pointer window = myFileOutputWindow::New();

@@ -47,7 +47,7 @@ namespace itk
  * and storage.  A "MeshTraits" structure is used to define the container
  * and identifier to access the points.  See DefaultStaticMeshTraits
  * for the set of type definitions needed.  All types that are defined
- * in the "MeshTraits" structure will have duplicate typedefs in the resulting
+ * in the "MeshTraits" structure will have duplicate type alias in the resulting
  * mesh itself.
  *
  * PointSet has two template parameters.  The first is the pixel type, or the
@@ -68,27 +68,27 @@ namespace itk
  * \ingroup DataRepresentation
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{PointSet/CreatePointSet,Create a PointSet}
- * \wikiexample{PointSet/ReadPointSet,Read a PointSet}
- * \wikiexample{PointSet/WritePointSet,Write a PointSet}
- * \wikiexample{PointSet/BoundingBox,Get the bounding box of a PointSet}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateAPointSet,Create a PointSet}
+ * \sphinxexample{Core/Common/ReadAPointSet,Read a PointSet}
+ * \sphinxexample{Core/Common/WriteAPointSet,Write a PointSet}
+ * \sphinxexample{Core/Common/BoundingBoxOfAPointSet,Bounding Box Of A Point Set}
+ * \endsphinx
  */
 
-template<
-  typename TPixelType,
-  unsigned int VDimension = 3,
-  typename TMeshTraits = DefaultStaticMeshTraits< TPixelType, VDimension, VDimension >
-  >
-class ITK_TEMPLATE_EXPORT PointSet:public DataObject
+template <typename TPixelType,
+          unsigned int VDimension = 3,
+          typename TMeshTraits = DefaultStaticMeshTraits<TPixelType, VDimension, VDimension>>
+class ITK_TEMPLATE_EXPORT PointSet : public DataObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef PointSet                   Self;
-  typedef DataObject                 Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PointSet);
+
+  /** Standard class type aliases. */
+  using Self = PointSet;
+  using Superclass = DataObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -97,33 +97,32 @@ public:
   itkTypeMacro(PointSet, Object);
 
   /** Hold on to the type information specified by the template parameters. */
-  typedef TMeshTraits                    MeshTraits;
-  typedef typename MeshTraits::PixelType PixelType;
+  using MeshTraits = TMeshTraits;
+  using PixelType = typename MeshTraits::PixelType;
 
-  /** Convenient typedefs obtained from TMeshTraits template parameter. */
-  typedef typename MeshTraits::CoordRepType       CoordRepType;
-  typedef typename MeshTraits::PointIdentifier    PointIdentifier;
-  typedef typename MeshTraits::PointType          PointType;
-  typedef typename MeshTraits::PointsContainer    PointsContainer;
-  typedef typename MeshTraits::PointDataContainer PointDataContainer;
+  /** Convenient type alias obtained from TMeshTraits template parameter. */
+  using CoordRepType = typename MeshTraits::CoordRepType;
+  using PointIdentifier = typename MeshTraits::PointIdentifier;
+  using PointType = typename MeshTraits::PointType;
+  using PointsContainer = typename MeshTraits::PointsContainer;
+  using PointDataContainer = typename MeshTraits::PointDataContainer;
 
-  /** Convenient typedefs obtained from TMeshTraits template parameter. */
-  itkStaticConstMacro(PointDimension, unsigned int,
-                      TMeshTraits::PointDimension);
+  /** Convenient type alias obtained from TMeshTraits template parameter. */
+  static constexpr unsigned int PointDimension = TMeshTraits::PointDimension;
 
   /** Create types that are pointers to each of the container types. */
-  typedef typename PointsContainer::Pointer         PointsContainerPointer;
-  typedef typename PointsContainer::ConstPointer    PointsContainerConstPointer;
-  typedef typename PointDataContainer::Pointer      PointDataContainerPointer;
-  typedef typename PointDataContainer::ConstPointer PointDataContainerConstPointer;
+  using PointsContainerPointer = typename PointsContainer::Pointer;
+  using PointsContainerConstPointer = typename PointsContainer::ConstPointer;
+  using PointDataContainerPointer = typename PointDataContainer::Pointer;
+  using PointDataContainerConstPointer = typename PointDataContainer::ConstPointer;
 
   /** Create types that are iterators for each of the container types. */
-  typedef typename PointsContainer::ConstIterator    PointsContainerConstIterator;
-  typedef typename PointsContainer::Iterator         PointsContainerIterator;
-  typedef typename PointDataContainer::ConstIterator PointDataContainerIterator;
+  using PointsContainerConstIterator = typename PointsContainer::ConstIterator;
+  using PointsContainerIterator = typename PointsContainer::Iterator;
+  using PointDataContainerIterator = typename PointDataContainer::ConstIterator;
 
   /** Type used to define Regions */
-  typedef long RegionType;
+  using RegionType = long;
 
   /** Get the maximum number of regions that this data can be
    * separated into. */
@@ -135,79 +134,100 @@ protected:
   PointsContainerPointer m_PointsContainer;
 
   /** An object containing data associated with the mesh's points.
-   * Optionally, this can be ITK_NULLPTR, indicating that no data are associated with
+   * Optionally, this can be nullptr, indicating that no data are associated with
    * the points.  The data for a point can be accessed through its point
    * identifier. */
   PointDataContainerPointer m_PointDataContainer;
 
 public:
   /** PointSet-level operation interface. */
-  void PassStructure(Self *inputPointSet);
+  void
+  PassStructure(Self * inputPointSet);
 
-  virtual void Initialize(void) ITK_OVERRIDE;
+  void
+  Initialize() override;
 
-  PointIdentifier GetNumberOfPoints() const;
+  PointIdentifier
+  GetNumberOfPoints() const;
 
   /** Define Set/Get access routines for each internal container.
    * Methods also exist to add points, cells, etc. one at a time
    * rather than through an entire container. */
-  void SetPoints(PointsContainer *);
+  void
+  SetPoints(PointsContainer *);
 
-  PointsContainer * GetPoints();
+  PointsContainer *
+  GetPoints();
 
-  const PointsContainer * GetPoints() const;
+  const PointsContainer *
+  GetPoints() const;
 
-  void SetPointData(PointDataContainer *);
+  void
+  SetPointData(PointDataContainer *);
 
-  PointDataContainer * GetPointData();
+  PointDataContainer *
+  GetPointData();
 
-  const PointDataContainer * GetPointData() const;
+  const PointDataContainer *
+  GetPointData() const;
 
   /** Access routines to fill the Points container, and get information
    * from it. */
   void SetPoint(PointIdentifier, PointType);
-  bool GetPoint(PointIdentifier, PointType *) const;
+  bool
+            GetPoint(PointIdentifier, PointType *) const;
   PointType GetPoint(PointIdentifier) const;
 
   /** Access routines to fill the PointData container, and get information
    * from it. */
   void SetPointData(PointIdentifier, PixelType);
-  bool GetPointData(PointIdentifier, PixelType *) const;
+  bool
+  GetPointData(PointIdentifier, PixelType *) const;
 
   /** Methods to manage streaming. */
-  virtual void UpdateOutputInformation() ITK_OVERRIDE;
+  void
+  UpdateOutputInformation() override;
 
-  virtual void SetRequestedRegionToLargestPossibleRegion() ITK_OVERRIDE;
+  void
+  SetRequestedRegionToLargestPossibleRegion() override;
 
-  virtual void CopyInformation(const DataObject *data) ITK_OVERRIDE;
+  void
+  CopyInformation(const DataObject * data) override;
 
-  virtual void Graft(const DataObject *data) ITK_OVERRIDE;
+  void
+  Graft(const DataObject * data) override;
 
-  virtual bool RequestedRegionIsOutsideOfTheBufferedRegion() ITK_OVERRIDE;
+  bool
+  RequestedRegionIsOutsideOfTheBufferedRegion() override;
 
-  virtual bool VerifyRequestedRegion() ITK_OVERRIDE;
+  bool
+  VerifyRequestedRegion() override;
 
   /** Set the requested region from this data object to match the requested
    * region of the data object passed in as a parameter.  This method
    * implements the API from DataObject. The data object parameter must be
    * castable to a PointSet. */
-  virtual void SetRequestedRegion(const DataObject *data) ITK_OVERRIDE;
+  void
+  SetRequestedRegion(const DataObject * data) override;
 
   /** Set/Get the Requested region */
-  virtual void SetRequestedRegion(const RegionType & region);
+  virtual void
+  SetRequestedRegion(const RegionType & region);
 
   itkGetConstMacro(RequestedRegion, RegionType);
 
   /** Set/Get the Buffered region */
-  virtual void SetBufferedRegion(const RegionType & region);
+  virtual void
+  SetBufferedRegion(const RegionType & region);
 
   itkGetConstMacro(BufferedRegion, RegionType);
 
 protected:
   /** Constructor for use by New() method. */
   PointSet();
-  ~PointSet() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~PointSet() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   // If the RegionType is ITK_UNSTRUCTURED_REGION, then the following
   // variables represent the maximum number of region that the data
@@ -224,14 +244,11 @@ protected:
   RegionType m_RequestedNumberOfRegions;
   RegionType m_BufferedRegion;
   RegionType m_RequestedRegion;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PointSet);
-};                              // End Class: PointSet
+}; // End Class: PointSet
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPointSet.hxx"
+#  include "itkPointSet.hxx"
 #endif
 
 /*

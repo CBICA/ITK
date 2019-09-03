@@ -31,26 +31,27 @@
 //   Main code
 //
 //-------------------------
-int itkVectorGeometryTest(int, char* [] )
+int
+itkVectorGeometryTest(int, char *[])
 {
 
   // Dimension & Type
-  const     unsigned int    N = 3;
-  typedef   double          ValueType;
+  constexpr unsigned int N = 3;
+  using ValueType = double;
 
   //  Vector type
-  typedef    itk::Vector< ValueType, N >    VectorType;
+  using VectorType = itk::Vector<ValueType, N>;
 
-/*
-  VectorType vv;
-  vv = 0, 2, 4;
+  /*
+    VectorType vv;
+    vv = 0, 2, 4;
 
-  if( vv[0] != 0 || vv[1] != 2 || vv[2] != 4 )
-    {
-    std::cerr << "Error initializing the Vector " << std::endl;
-    return EXIT_FAILURE;
-    }
-  */
+    if( vv[0] != 0 || vv[1] != 2 || vv[2] != 4 )
+      {
+      std::cerr << "Error initializing the Vector " << std::endl;
+      return EXIT_FAILURE;
+      }
+    */
 
   VectorType va;
   va[0] = 1.0;
@@ -69,15 +70,15 @@ int itkVectorGeometryTest(int, char* [] )
   std::cout << "vb = (1,3,5)   = ";
   std::cout << vb << std::endl;
 
-  VectorType   vc  =  vb - va;
+  VectorType vc = vb - va;
   std::cout << "vc  =  vb - va  = ";
   std::cout << vc << std::endl;
 
-  VectorType   vd  =  va * 5.0;
+  VectorType vd = va * 5.0;
   std::cout << "vd  =  va * 5.0 = ";
   std::cout << vd << std::endl;
 
-  VectorType   ve  =  vd / 5.0;
+  VectorType ve = vd / 5.0;
   std::cout << "ve  =  vd * 5.0 = ";
   std::cout << ve << std::endl;
 
@@ -89,12 +90,12 @@ int itkVectorGeometryTest(int, char* [] )
   std::cout << "ve  -=  vb      = ";
   std::cout << ve << std::endl;
 
-  VectorType   vh  =  vb;
+  VectorType vh = vb;
   std::cout << "vh   =  vb      = ";
   std::cout << vh << std::endl;
 
 
-  VectorType   vg( va );
+  VectorType vg(va);
   std::cout << "vg( va )        = ";
   std::cout << vg << std::endl;
 
@@ -103,7 +104,7 @@ int itkVectorGeometryTest(int, char* [] )
   std::cout << "vg squared norm = ";
   std::cout << norm2 << std::endl;
 
-  ValueType norm  = vg.GetNorm();
+  ValueType norm = vg.GetNorm();
   std::cout << "vg norm = ";
   std::cout << norm << std::endl;
 
@@ -111,10 +112,10 @@ int itkVectorGeometryTest(int, char* [] )
   // Test for vnl interface
 
   // Test the no const version that returns an vnl_vector_ref
-  vnl_vector_ref< ValueType > vnlVector = va.GetVnlVector();
+  vnl_vector_ref<ValueType> vnlVector = va.GetVnlVector();
   {
     std::cout << "vnl_vector_ref = va ";
-    for( unsigned int i=0; i<N; i++ )
+    for (unsigned int i = 0; i < N; i++)
     {
       std::cout << vnlVector[i] << ", ";
     }
@@ -123,15 +124,15 @@ int itkVectorGeometryTest(int, char* [] )
     std::cout << "vnl_vector_ref.begin() = va.Begin()";
     std::cout << std::endl;
     std::cout << vnlVector.begin() << " = ";
-    std::cout << va.Begin() << std::endl;
+    std::cout << va.cbegin() << std::endl;
   }
 
   // Test the const version that returns an vnl_vector
-  const VectorType vf(va);
+  const VectorType      vf(va);
   vnl_vector<ValueType> vnlVector2 = vf.GetVnlVector();
   {
     std::cout << "vnl_vector = va ";
-    for( unsigned int i=0; i<N; i++ )
+    for (unsigned int i = 0; i < N; i++)
     {
       std::cout << vnlVector2[i] << ", ";
     }
@@ -140,7 +141,7 @@ int itkVectorGeometryTest(int, char* [] )
     std::cout << "vnl_vector.begin() != vf.Begin()";
     std::cout << std::endl;
     std::cout << vnlVector2.begin() << " = ";
-    std::cout << vf.Begin() << std::endl;
+    std::cout << vf.cbegin() << std::endl;
   }
 
 
@@ -152,22 +153,22 @@ int itkVectorGeometryTest(int, char* [] )
     vv[2] = 5;
 
     VectorType vw;
-    vw.Fill( 0 );
+    vw.Fill(0);
 
-    if( vv == vw )
-      {
+    if (vv == vw)
+    {
       std::cout << std::endl;
       std::cout << "Problem with operator==() " << std::endl;
       std::cout << "Vector " << vv;
       std::cout << " is reported as being equal to " << std::endl;
       std::cout << "Vector " << vw << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     VectorType ww;
     ww = vv;
 
-    if( vv != ww )
+    if (vv != ww)
     {
       std::cout << std::endl;
       std::cout << "Problem with operator!=() " << std::endl;
@@ -177,7 +178,7 @@ int itkVectorGeometryTest(int, char* [] )
       return EXIT_FAILURE;
     }
 
-    if( !( vv == ww ) )
+    if (!(vv == ww))
     {
       std::cout << std::endl;
       std::cout << "Problem with operator==() " << std::endl;
@@ -186,38 +187,36 @@ int itkVectorGeometryTest(int, char* [] )
       std::cout << "Vector " << ww << std::endl;
       return EXIT_FAILURE;
     }
-
   }
 
   // Test for CastFrom() method
   {
-  std::cout << "Test for CastFrom() method... ";
+    std::cout << "Test for CastFrom() method... ";
 
-  const float tolerance = 1e-7;
+    const float tolerance = 1e-7;
 
-  //  Vector Classes
-  typedef    itk::Vector<  double, N >    DoubleVectorType;
-  typedef    itk::Vector<  float , N >    FloatVectorType;
+    //  Vector Classes
+    using DoubleVectorType = itk::Vector<double, N>;
+    using FloatVectorType = itk::Vector<float, N>;
 
-  DoubleVectorType dp;
-  dp[0] = 1.0;
-  dp[1] = 1.7;
-  dp[2] = 1.9;
+    DoubleVectorType dp;
+    dp[0] = 1.0;
+    dp[1] = 1.7;
+    dp[2] = 1.9;
 
-  FloatVectorType fp;
-  fp[0] = 0.0;
-  fp[1] = 0.0;
-  fp[2] = 0.0;
-
-
-  fp.CastFrom( dp );
+    FloatVectorType fp;
+    fp[0] = 0.0;
+    fp[1] = 0.0;
+    fp[2] = 0.0;
 
 
-  for(unsigned int i=0; i<N; i++)
+    fp.CastFrom(dp);
+
+
+    for (unsigned int i = 0; i < N; i++)
     {
-    FloatVectorType::ValueType val =
-        static_cast< FloatVectorType::ValueType >( dp[i] );
-    if( itk::Math::abs( val - fp[i] ) > tolerance )
+      auto val = static_cast<FloatVectorType::ValueType>(dp[i]);
+      if (itk::Math::abs(val - fp[i]) > tolerance)
       {
         std::cout << "Test failed at component " << i << std::endl;
         return EXIT_FAILURE;
@@ -225,9 +224,7 @@ int itkVectorGeometryTest(int, char* [] )
     }
 
 
-  std::cout << " PASSED ! " << std::endl;
-
+    std::cout << " PASSED ! " << std::endl;
   }
   return EXIT_SUCCESS;
-
 }

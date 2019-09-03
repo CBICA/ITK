@@ -41,39 +41,38 @@ namespace Statistics
  *
  * \ingroup ITKStatistics
  */
-template< typename TVector >
-class ITK_TEMPLATE_EXPORT DistanceToCentroidMembershipFunction:
-  public MembershipFunctionBase< TVector >
+template <typename TVector>
+class ITK_TEMPLATE_EXPORT DistanceToCentroidMembershipFunction : public MembershipFunctionBase<TVector>
 {
 public:
-  /** Standard class typedefs */
-  typedef DistanceToCentroidMembershipFunction Self;
-  typedef MembershipFunctionBase< TVector >    Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DistanceToCentroidMembershipFunction);
+
+  /** Standard class type aliases */
+  using Self = DistanceToCentroidMembershipFunction;
+  using Superclass = MembershipFunctionBase<TVector>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Strandard macros */
-  itkTypeMacro(DistanceToCentroidMembershipFunction,
-               MembershipFunctionBase);
+  itkTypeMacro(DistanceToCentroidMembershipFunction, MembershipFunctionBase);
   itkNewMacro(Self);
 
   /** SmartPointer class for superclass */
-  typedef typename Superclass::Pointer MembershipFunctionPointer;
+  using MembershipFunctionPointer = typename Superclass::Pointer;
 
   /** Typedef alias for the measurement vectors */
-  typedef TVector MeasurementVectorType;
+  using MeasurementVectorType = TVector;
 
   /** Typedef to represent the length of measurement vectors */
-  typedef typename Superclass::MeasurementVectorSizeType
-  MeasurementVectorSizeType;
+  using MeasurementVectorSizeType = typename Superclass::MeasurementVectorSizeType;
 
   /**  Set the length of each measurement vector. */
-  virtual void SetMeasurementVectorSize(MeasurementVectorSizeType) ITK_OVERRIDE;
+  void SetMeasurementVectorSize(MeasurementVectorSizeType) override;
 
   /** Type of the DistanceMetric to use */
-  typedef DistanceMetric< MeasurementVectorType > DistanceMetricType;
-  typedef typename DistanceMetricType::Pointer    DistanceMetricPointer;
-  typedef typename DistanceMetricType::OriginType CentroidType;
+  using DistanceMetricType = DistanceMetric<MeasurementVectorType>;
+  using DistanceMetricPointer = typename DistanceMetricType::Pointer;
+  using CentroidType = typename DistanceMetricType::OriginType;
 
   /** Set the DistanceMetric to be used when calling the Evaluate() method */
   itkSetObjectMacro(DistanceMetric, DistanceMetricType);
@@ -86,34 +85,37 @@ public:
    * function directly. */
 
   /** Set the centroid of the class (propagated to the DistanceMetric) */
-  void SetCentroid(const CentroidType & centroid);
+  void
+  SetCentroid(const CentroidType & centroid);
 
   /** Get the centroid of the class (requested from the DistanceMetric */
-  const CentroidType & GetCentroid() const;
+  const CentroidType &
+  GetCentroid() const;
 
   /**
    * Method to get probability of an instance. The return value is the
    * value of the density function, not probability. */
-  double Evaluate(const MeasurementVectorType & measurement) const ITK_OVERRIDE;
+  double
+  Evaluate(const MeasurementVectorType & measurement) const override;
 
 protected:
   DistanceToCentroidMembershipFunction();
-  virtual ~DistanceToCentroidMembershipFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DistanceToCentroidMembershipFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Return a copy of the current membership function */
-  virtual typename LightObject::Pointer InternalClone() const ITK_OVERRIDE;
+  typename LightObject::Pointer
+  InternalClone() const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DistanceToCentroidMembershipFunction);
-
   DistanceMetricPointer m_DistanceMetric;
 };
 } // end of namespace Statistics
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDistanceToCentroidMembershipFunction.hxx"
+#  include "itkDistanceToCentroidMembershipFunction.hxx"
 #endif
 
 #endif

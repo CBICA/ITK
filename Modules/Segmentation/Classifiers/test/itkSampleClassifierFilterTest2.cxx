@@ -23,171 +23,168 @@
 #include "itkNormalVariateGenerator.h"
 
 
-//Test if the SampleClassifier filter labels observations correctly
-int itkSampleClassifierFilterTest2( int, char * [] )
+// Test if the SampleClassifier filter labels observations correctly
+int
+itkSampleClassifierFilterTest2(int, char *[])
 {
 
-  const unsigned int numberOfComponents = 1;
-  typedef float      MeasurementType;
+  constexpr unsigned int numberOfComponents = 1;
+  using MeasurementType = float;
 
-  const unsigned int numberOfClasses = 2;
+  constexpr unsigned int numberOfClasses = 2;
 
-  typedef itk::Array< MeasurementType >                         MeasurementVectorType;
-  typedef itk::Statistics::ListSample< MeasurementVectorType >  SampleType;
-  typedef itk::Statistics::SampleClassifierFilter< SampleType > FilterType;
+  using MeasurementVectorType = itk::Array<MeasurementType>;
+  using SampleType = itk::Statistics::ListSample<MeasurementVectorType>;
+  using FilterType = itk::Statistics::SampleClassifierFilter<SampleType>;
 
   FilterType::Pointer filter = FilterType::New();
 
   SampleType::Pointer sample = SampleType::New();
-  sample->SetMeasurementVectorSize( numberOfComponents );
+  sample->SetMeasurementVectorSize(numberOfComponents);
 
-  filter->SetNumberOfClasses( numberOfClasses );
+  filter->SetNumberOfClasses(numberOfClasses);
 
-  if( filter->GetNumberOfClasses() != numberOfClasses )
-    {
+  if (filter->GetNumberOfClasses() != numberOfClasses)
+  {
     std::cerr << "GetNumberOfClasses() didn't matched SetNumberOfClasses()" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef FilterType::ClassLabelVectorObjectType               ClassLabelVectorObjectType;
-  typedef FilterType::ClassLabelVectorType                     ClassLabelVectorType;
-  typedef FilterType::MembershipFunctionVectorObjectType       MembershipFunctionVectorObjectType;
-  typedef FilterType::MembershipFunctionVectorType             MembershipFunctionVectorType;
+  using ClassLabelVectorObjectType = FilterType::ClassLabelVectorObjectType;
+  using ClassLabelVectorType = FilterType::ClassLabelVectorType;
+  using MembershipFunctionVectorObjectType = FilterType::MembershipFunctionVectorObjectType;
+  using MembershipFunctionVectorType = FilterType::MembershipFunctionVectorType;
 
-  typedef itk::Statistics::GaussianMembershipFunction< MeasurementVectorType >
-                                                       MembershipFunctionType;
-  typedef MembershipFunctionType::MeanVectorType       MeanVectorType;
-  typedef MembershipFunctionType::CovarianceMatrixType CovarianceMatrixType;
+  using MembershipFunctionType = itk::Statistics::GaussianMembershipFunction<MeasurementVectorType>;
+  using MeanVectorType = MembershipFunctionType::MeanVectorType;
+  using CovarianceMatrixType = MembershipFunctionType::CovarianceMatrixType;
 
-  typedef MembershipFunctionType::Pointer              MembershipFunctionPointer;
+  using MembershipFunctionPointer = MembershipFunctionType::Pointer;
 
-  ClassLabelVectorObjectType::Pointer  classLabelsObject = ClassLabelVectorObjectType::New();
-  filter->SetClassLabels( classLabelsObject );
+  ClassLabelVectorObjectType::Pointer classLabelsObject = ClassLabelVectorObjectType::New();
+  filter->SetClassLabels(classLabelsObject);
 
-  MembershipFunctionVectorObjectType::Pointer membershipFunctionsObject =
-                                        MembershipFunctionVectorObjectType::New();
-  filter->SetMembershipFunctions( membershipFunctionsObject );
+  MembershipFunctionVectorObjectType::Pointer membershipFunctionsObject = MembershipFunctionVectorObjectType::New();
+  filter->SetMembershipFunctions(membershipFunctionsObject);
   // Add three membership functions and rerun the filter
-  MembershipFunctionVectorType &  membershipFunctionsVector = membershipFunctionsObject->Get();
+  MembershipFunctionVectorType & membershipFunctionsVector = membershipFunctionsObject->Get();
 
   MembershipFunctionPointer membershipFunction1 = MembershipFunctionType::New();
-  membershipFunction1->SetMeasurementVectorSize( numberOfComponents );
-  MeanVectorType  mean1;
-  itk::NumericTraits<MeanVectorType>::SetLength( mean1, numberOfComponents );
+  membershipFunction1->SetMeasurementVectorSize(numberOfComponents);
+  MeanVectorType mean1;
+  itk::NumericTraits<MeanVectorType>::SetLength(mean1, numberOfComponents);
   mean1[0] = 10.5;
 
-  membershipFunction1->SetMean( mean1 );
+  membershipFunction1->SetMean(mean1);
   CovarianceMatrixType covariance1;
-  covariance1.SetSize( numberOfComponents, numberOfComponents );
+  covariance1.SetSize(numberOfComponents, numberOfComponents);
   covariance1.SetIdentity();
   covariance1[0][0] = 0.5;
-  membershipFunction1->SetCovariance( covariance1 );
-  membershipFunctionsVector.push_back( membershipFunction1.GetPointer() );
+  membershipFunction1->SetCovariance(covariance1);
+  membershipFunctionsVector.push_back(membershipFunction1);
 
   MembershipFunctionPointer membershipFunction2 = MembershipFunctionType::New();
-  membershipFunction1->SetMeasurementVectorSize( numberOfComponents );
+  membershipFunction1->SetMeasurementVectorSize(numberOfComponents);
 
-  MeanVectorType  mean2;
-  itk::NumericTraits<MeanVectorType>::SetLength( mean2, numberOfComponents );
+  MeanVectorType mean2;
+  itk::NumericTraits<MeanVectorType>::SetLength(mean2, numberOfComponents);
   mean2[0] = 200.5;
-  membershipFunction2->SetMean( mean2 );
+  membershipFunction2->SetMean(mean2);
 
   CovarianceMatrixType covariance2;
-  covariance2.SetSize( numberOfComponents, numberOfComponents );
+  covariance2.SetSize(numberOfComponents, numberOfComponents);
   covariance2.SetIdentity();
   covariance2[0][0] = 0.5;
-  membershipFunction2->SetCovariance( covariance2 );
-  membershipFunctionsVector.push_back( membershipFunction2.GetPointer() );
+  membershipFunction2->SetCovariance(covariance2);
+  membershipFunctionsVector.push_back(membershipFunction2);
 
   // Add class labels
-  ClassLabelVectorType & classLabelVector  = classLabelsObject->Get();
+  ClassLabelVectorType & classLabelVector = classLabelsObject->Get();
 
-  typedef FilterType::ClassLabelType        ClassLabelType;
+  using ClassLabelType = FilterType::ClassLabelType;
 
-  ClassLabelType  class1 = 0;
-  classLabelVector.push_back( class1 );
+  ClassLabelType class1 = 0;
+  classLabelVector.push_back(class1);
 
-  ClassLabelType  class2 = 1;
-  classLabelVector.push_back( class2 );
+  ClassLabelType class2 = 1;
+  classLabelVector.push_back(class2);
 
-  //Set a decision rule type
-  typedef itk::Statistics::MaximumDecisionRule  DecisionRuleType;
+  // Set a decision rule type
+  using DecisionRuleType = itk::Statistics::MaximumDecisionRule;
 
-  DecisionRuleType::Pointer    decisionRule = DecisionRuleType::New();
-  filter->SetDecisionRule( decisionRule );
+  DecisionRuleType::Pointer decisionRule = DecisionRuleType::New();
+  filter->SetDecisionRule(decisionRule);
 
-  //Generate samples from a Gaussian distribution with mean and
-  //covariance parameter as the first membership function.
-  //All the samples should be labeled by the classifier as
-  //the first class
+  // Generate samples from a Gaussian distribution with mean and
+  // covariance parameter as the first membership function.
+  // All the samples should be labeled by the classifier as
+  // the first class
 
-  typedef itk::Statistics::NormalVariateGenerator NormalGeneratorType;
+  using NormalGeneratorType = itk::Statistics::NormalVariateGenerator;
   NormalGeneratorType::Pointer normalGenerator = NormalGeneratorType::New();
 
-  normalGenerator->Initialize( 101 );
+  normalGenerator->Initialize(101);
 
   MeasurementVectorType mv;
-  itk::NumericTraits<MeasurementVectorType>::SetLength( mv, numberOfComponents );
-  double mean = mean1[0];
-  double standardDeviation = std::sqrt(covariance1[0][0]);
+  itk::NumericTraits<MeasurementVectorType>::SetLength(mv, numberOfComponents);
+  double       mean = mean1[0];
+  double       standardDeviation = std::sqrt(covariance1[0][0]);
   unsigned int numberOfSampleEachClass = 10;
-  for ( unsigned int i = 0; i < numberOfSampleEachClass; ++i )
-    {
-    mv[0] = (normalGenerator->GetVariate() * standardDeviation ) + mean;
-    sample->PushBack( mv );
-    }
+  for (unsigned int i = 0; i < numberOfSampleEachClass; ++i)
+  {
+    mv[0] = (normalGenerator->GetVariate() * standardDeviation) + mean;
+    sample->PushBack(mv);
+  }
 
-  //Add samples for the second gaussian
+  // Add samples for the second gaussian
   mean = mean2[0];
   standardDeviation = std::sqrt(covariance1[0][0]);
-  for ( unsigned int i = 0; i < numberOfSampleEachClass; ++i )
-    {
-    mv[0] = (normalGenerator->GetVariate() * standardDeviation ) + mean;
-    sample->PushBack( mv );
-    }
+  for (unsigned int i = 0; i < numberOfSampleEachClass; ++i)
+  {
+    mv[0] = (normalGenerator->GetVariate() * standardDeviation) + mean;
+    sample->PushBack(mv);
+  }
 
-  filter->SetInput( sample );
+  filter->SetInput(sample);
 
   try
-    {
+  {
     filter->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  //Check if the measurement vectors are correctly labelled.
-  const FilterType::MembershipSampleType* membershipSample = filter->GetOutput();
+  // Check if the measurement vectors are correctly labelled.
+  const FilterType::MembershipSampleType *        membershipSample = filter->GetOutput();
   FilterType::MembershipSampleType::ConstIterator iter = membershipSample->Begin();
 
   unsigned int sampleCounter = 0;
-  while ( iter != membershipSample->End() )
+  while (iter != membershipSample->End())
+  {
+    if (sampleCounter < numberOfSampleEachClass)
     {
-    if( sampleCounter < numberOfSampleEachClass )
+      if (iter.GetClassLabel() != class1)
       {
-      if( iter.GetClassLabel() != class1 )
-        {
-        std::cerr << "Classification error: " << sampleCounter
-                  << "\t" << iter.GetClassLabel()
-                  << "\tclass1=" << class1 << std::endl;
+        std::cerr << "Classification error: " << sampleCounter << "\t" << iter.GetClassLabel() << "\tclass1=" << class1
+                  << std::endl;
         return EXIT_FAILURE;
-        }
       }
+    }
     else
+    {
+      if (iter.GetClassLabel() != class2)
       {
-      if( iter.GetClassLabel() != class2 )
-        {
-        std::cerr << "Classification error: " << sampleCounter
-                  << "\t" << iter.GetClassLabel()
-                  << "\tclass2=" << class2 << std::endl;
+        std::cerr << "Classification error: " << sampleCounter << "\t" << iter.GetClassLabel() << "\tclass2=" << class2
+                  << std::endl;
         return EXIT_FAILURE;
-        }
       }
+    }
     ++iter;
     ++sampleCounter;
-    }
+  }
 
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;

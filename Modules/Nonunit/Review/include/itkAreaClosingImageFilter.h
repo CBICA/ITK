@@ -55,43 +55,48 @@ namespace itk
  *
  * \ingroup ITKReview
  */
-template< typename TInputImage, typename TOutputImage, typename TAttribute = typename TInputImage::SpacingType::ValueType >
-class AreaClosingImageFilter:
-  public AttributeMorphologyBaseImageFilter< TInputImage, TOutputImage, TAttribute,
-                                             std::less< typename TInputImage::PixelType > >
+template <typename TInputImage,
+          typename TOutputImage,
+          typename TAttribute = typename TInputImage::SpacingType::ValueType>
+class AreaClosingImageFilter
+  : public AttributeMorphologyBaseImageFilter<TInputImage,
+                                              TOutputImage,
+                                              TAttribute,
+                                              std::less<typename TInputImage::PixelType>>
 
 {
 public:
-  typedef AreaClosingImageFilter Self;
-  typedef AttributeMorphologyBaseImageFilter< TInputImage, TOutputImage, TAttribute,
-                                              std::less< typename TInputImage::PixelType > >
-  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AreaClosingImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = AreaClosingImageFilter;
+  using Superclass = AttributeMorphologyBaseImageFilter<TInputImage,
+                                                        TOutputImage,
+                                                        TAttribute,
+                                                        std::less<typename TInputImage::PixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**
    * Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same.
    */
-  typedef typename TOutputImage::PixelType         OutputPixelType;
-  typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
-  typedef typename TInputImage::PixelType          InputPixelType;
-  typedef typename TInputImage::InternalPixelType  InputInternalPixelType;
-  typedef typename TInputImage::IndexType          IndexType;
-  typedef typename TInputImage::OffsetType         OffsetType;
-  typedef typename TInputImage::SizeType           SizeType;
-  typedef TAttribute                               AttributeType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using OutputInternalPixelType = typename TOutputImage::InternalPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputInternalPixelType = typename TInputImage::InternalPixelType;
+  using IndexType = typename TInputImage::IndexType;
+  using OffsetType = typename TInputImage::OffsetType;
+  using SizeType = typename TInputImage::SizeType;
+  using AttributeType = TAttribute;
 
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(AreaClosingImageFilter,
-               AttributeMorphologyBaseImageFilter);
+  itkTypeMacro(AreaClosingImageFilter, AttributeMorphologyBaseImageFilter);
 
   /**
    * Set/Get whether the image spacing is used or not - defaults to true.
@@ -101,42 +106,38 @@ public:
   itkBooleanMacro(UseImageSpacing);
 
 protected:
-  AreaClosingImageFilter()
-  {
-    m_UseImageSpacing = true;
-  }
+  AreaClosingImageFilter() { m_UseImageSpacing = true; }
 
-  virtual ~AreaClosingImageFilter() {}
+  ~AreaClosingImageFilter() override {}
 
-  void GenerateData() ITK_OVERRIDE
+  void
+  GenerateData() override
   {
     this->m_AttributeValuePerPixel = 1;
-    if ( m_UseImageSpacing )
-      {
+    if (m_UseImageSpacing)
+    {
       // compute pixel size
       double psize = 1.0;
-      for ( unsigned i = 0; i < ImageDimension; i++ )
-        {
+      for (unsigned i = 0; i < ImageDimension; i++)
+      {
         psize *= this->GetInput()->GetSpacing()[i];
-        }
-      this->m_AttributeValuePerPixel = static_cast< AttributeType >( psize );
+      }
+      this->m_AttributeValuePerPixel = static_cast<AttributeType>(psize);
       // std::cout << "m_AttributeValuePerPixel: " <<
       // this->m_AttributeValuePerPixel << std::endl;
       // and call superclass implementation of GenerateData()
-      }
+    }
     Superclass::GenerateData();
   }
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     Superclass::PrintSelf(os, indent);
-    os << indent << "UseImageSpacing: "  << m_UseImageSpacing << std::endl;
+    os << indent << "UseImageSpacing: " << m_UseImageSpacing << std::endl;
   }
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(AreaClosingImageFilter);
-
   bool m_UseImageSpacing;
 };
 } // namespace itk

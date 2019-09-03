@@ -30,56 +30,84 @@ namespace itk
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizers
  */
-class ITKOptimizers_EXPORT RegularStepGradientDescentBaseOptimizer:
-  public SingleValuedNonLinearOptimizer
+class ITKOptimizers_EXPORT RegularStepGradientDescentBaseOptimizer : public SingleValuedNonLinearOptimizer
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef RegularStepGradientDescentBaseOptimizer Self;
-  typedef SingleValuedNonLinearOptimizer          Superclass;
-  typedef SmartPointer< Self >                    Pointer;
-  typedef SmartPointer< const Self >              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RegularStepGradientDescentBaseOptimizer);
+
+  /** Standard "Self" type alias. */
+  using Self = RegularStepGradientDescentBaseOptimizer;
+  using Superclass = SingleValuedNonLinearOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(RegularStepGradientDescentBaseOptimizer,
-               SingleValuedNonLinearOptimizer);
+  itkTypeMacro(RegularStepGradientDescentBaseOptimizer, SingleValuedNonLinearOptimizer);
 
-  /** Codes of stopping conditions. */
-  typedef enum {
+  /** \class StopConditionType
+   *
+   * \ingroup ITKOptimizers
+   * Codes of stopping conditions. */
+  enum class StopConditionType : uint8_t
+  {
     GradientMagnitudeTolerance = 1,
     StepTooSmall = 2,
     ImageNotAvailable = 3,
     CostFunctionError = 4,
     MaximumNumberOfIterations = 5,
     Unknown = 6
-    } StopConditionType;
-
+  };
+#if !defined(ITK_LEGACY_REMOVE)
+  // We need to expose the enum values at the class level
+  // for backwards compatibility
+  static constexpr StopConditionType GradientMagnitudeTolerance = StopConditionType::GradientMagnitudeTolerance;
+  static constexpr StopConditionType StepTooSmall = StopConditionType::StepTooSmall;
+  static constexpr StopConditionType ImageNotAvailable = StopConditionType::ImageNotAvailable;
+  static constexpr StopConditionType CostFunctionError = StopConditionType::CostFunctionError;
+  static constexpr StopConditionType MaximumNumberOfIterations = StopConditionType::MaximumNumberOfIterations;
+  static constexpr StopConditionType Unknown = StopConditionType::Unknown;
+#endif
   /** Specify whether to minimize or maximize the cost function. */
   itkSetMacro(Maximize, bool);
   itkGetConstReferenceMacro(Maximize, bool);
   itkBooleanMacro(Maximize);
-  bool GetMinimize() const
-  { return !m_Maximize; }
-  void SetMinimize(bool v)
-  { this->SetMaximize(!v); }
-  void    MinimizeOn(void)
-  { SetMaximize(false); }
-  void    MinimizeOff(void)
-  { SetMaximize(true); }
+  bool
+  GetMinimize() const
+  {
+    return !m_Maximize;
+  }
+  void
+  SetMinimize(bool v)
+  {
+    this->SetMaximize(!v);
+  }
+  void
+  MinimizeOn()
+  {
+    SetMaximize(false);
+  }
+  void
+  MinimizeOff()
+  {
+    SetMaximize(true);
+  }
 
   /** Start optimization. */
-  virtual void    StartOptimization(void) ITK_OVERRIDE;
+  void
+  StartOptimization() override;
 
   /** Resume previously stopped optimization with current parameters.
    * \sa StopOptimization */
-  void    ResumeOptimization();
+  void
+  ResumeOptimization();
 
   /** Stop optimization.
    * \sa ResumeOptimization */
-  void    StopOptimization();
+  void
+  StopOptimization();
 
   /** Set/Get parameters to control the optimization process. */
   itkSetMacro(MaximumStepLength, double);
@@ -99,26 +127,28 @@ public:
   itkGetConstReferenceMacro(Gradient, DerivativeType);
 
   /** Get the reason for termination */
-  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
+  const std::string
+  GetStopConditionDescription() const override;
 
 protected:
   RegularStepGradientDescentBaseOptimizer();
-  virtual ~RegularStepGradientDescentBaseOptimizer() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~RegularStepGradientDescentBaseOptimizer() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Advance one step following the gradient direction
    * This method verifies if a change in direction is required
    * and if a reduction in steplength is required. */
-  virtual void AdvanceOneStep();
+  virtual void
+  AdvanceOneStep();
 
   /** Advance one step along the corrected gradient taking into
    * account the steplength represented by factor.
    * This method is invoked by AdvanceOneStep. It is expected
    * to be overrided by optimization methods in non-vector spaces
    * \sa AdvanceOneStep */
-  virtual void StepAlongGradient(
-    double,
-    const DerivativeType &)
+  virtual void
+  StepAlongGradient(double, const DerivativeType &)
   {
     ExceptionObject ex;
 
@@ -128,13 +158,11 @@ protected:
   }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RegularStepGradientDescentBaseOptimizer);
-
 protected:
   DerivativeType m_Gradient;
   DerivativeType m_PreviousGradient;
 
-  bool               m_Stop;
+  bool               m_Stop{ false };
   bool               m_Maximize;
   MeasureType        m_Value;
   double             m_GradientMagnitudeTolerance;
@@ -147,6 +175,11 @@ protected:
   SizeValueType      m_CurrentIteration;
   std::ostringstream m_StopConditionDescription;
 };
+
+// Define how to print enumeration
+extern ITKOptimizers_EXPORT std::ostream &
+                            operator<<(std::ostream & out, const RegularStepGradientDescentBaseOptimizer::StopConditionType value);
+
 } // end namespace itk
 
 #endif

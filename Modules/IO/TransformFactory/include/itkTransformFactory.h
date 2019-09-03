@@ -35,23 +35,28 @@ namespace itk
 /** \class TransformFactory
  * \brief Create instances of Transforms
  * \ingroup ITKTransformFactory
+ *
+ * /sphinx
+ * /sphinxexample{IO/TransformFactory/RegisterTransformWithTransformFactory,Register Transform With Transform Factory}
+ * /endsphinx
  */
 
-template< typename T >
-class TransformFactory:public TransformFactoryBase
+template <typename T>
+class TransformFactory : public TransformFactoryBase
 {
 public:
-  static void RegisterTransform()
+  static void
+  RegisterTransform()
   {
     typename T::Pointer t = T::New();
 
     TransformFactoryBase::Pointer f = TransformFactoryBase::GetFactory();
 
-    f->RegisterTransform ( t->GetTransformTypeAsString().c_str(),
-                           t->GetTransformTypeAsString().c_str(),
-                           t->GetTransformTypeAsString().c_str(),
-                           1,
-                           CreateObjectFunction< T >::New() );
+    f->RegisterTransform(t->GetTransformTypeAsString().c_str(),
+                         t->GetTransformTypeAsString().c_str(),
+                         t->GetTransformTypeAsString().c_str(),
+                         1,
+                         CreateObjectFunction<T>::New());
   }
 };
 } // end namespace itk

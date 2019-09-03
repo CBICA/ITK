@@ -23,34 +23,36 @@
 #include "itkTextOutput.h"
 #include "itkSimpleFilterWatcher.h"
 
-int itkConfidenceConnectedImageFilterTest(int ac, char* av[] )
+int
+itkConfidenceConnectedImageFilterTest(int ac, char * av[])
 {
   // Comment the following if you want to use the itk text output window
   itk::OutputWindow::SetInstance(itk::TextOutput::New());
 
-  if(ac < 5)
-    {
+  if (ac < 5)
+  {
     std::cerr << "Usage: " << av[0] << " InputImage BaselineImage seed_x seed_y\n";
     return -1;
-    }
+  }
 
-  typedef unsigned char            PixelType;
-  typedef itk::Image<PixelType, 2> myImage;
+  using PixelType = unsigned char;
+  using myImage = itk::Image<PixelType, 2>;
 
-  itk::ImageFileReader<myImage>::Pointer input
-    = itk::ImageFileReader<myImage>::New();
+  itk::ImageFileReader<myImage>::Pointer input = itk::ImageFileReader<myImage>::New();
   input->SetFileName(av[1]);
 
   // Create a filter
-  typedef itk::ConfidenceConnectedImageFilter<myImage,myImage> FilterType;
+  using FilterType = itk::ConfidenceConnectedImageFilter<myImage, myImage>;
 
-  FilterType::Pointer filter = FilterType::New();
+  FilterType::Pointer      filter = FilterType::New();
   itk::SimpleFilterWatcher filterWatch(filter);
 
   filter->SetInput(input->GetOutput());
-  filter->SetInitialNeighborhoodRadius( 3 ); // measured in pixels
+  filter->SetInitialNeighborhoodRadius(3); // measured in pixels
 
-  FilterType::IndexType seed; seed[0] = atoi(av[3]); seed[1] = atoi(av[4]);
+  FilterType::IndexType seed;
+  seed[0] = std::stoi(av[3]);
+  seed[1] = std::stoi(av[4]);
   //  FilterType::IndexType seed; seed[0] = 56; seed[1] = 90;
   //  FilterType::IndexType seed; seed[0] = 96; seed[1] = 214;
   filter->SetSeed(seed);
@@ -58,67 +60,54 @@ int itkConfidenceConnectedImageFilterTest(int ac, char* av[] )
   filter->SetReplaceValue(255);
   filter->SetNumberOfIterations(10);
 
-  const FilterType::SeedsContainerType &seeds = filter->GetSeeds();
   std::cout << "Filter Seeds";
-  for(FilterType::SeedsContainerType::const_iterator it =
-        seeds.begin(); it != seeds.end(); it++)
-    {
-    std::cout << " " << (*it);
-    }
+  for (const auto & oneSeed : filter->GetSeeds())
+  {
+    std::cout << " " << oneSeed;
+  }
   std::cout << std::endl;
 
   try
-    {
+  {
     input->Update();
     filter->Update();
-    }
-  catch (itk::ExceptionObject& e)
-    {
-    std::cerr << "Exception detected: "  << e.GetDescription();
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    std::cerr << "Exception detected: " << e.GetDescription();
     return -1;
-    }
+  }
 
   // Test the GetMacros
   double doubleMultiplier = filter->GetMultiplier();
-  std::cout << "filter->GetMultiplier(): "
-            << doubleMultiplier
-            << std::endl;
+  std::cout << "filter->GetMultiplier(): " << doubleMultiplier << std::endl;
 
   unsigned int uintNumberOfIterations = filter->GetNumberOfIterations();
-  std::cout << "filter->GetNumberOfIterations(): "
-            << uintNumberOfIterations
-            << std::endl;
+  std::cout << "filter->GetNumberOfIterations(): " << uintNumberOfIterations << std::endl;
 
   PixelType pixelReplaceValue = filter->GetReplaceValue();
-  std::cout << "filter->GetReplaceValue(): "
-            << static_cast<itk::NumericTraits<PixelType>::PrintType>(pixelReplaceValue)
+  std::cout << "filter->GetReplaceValue(): " << static_cast<itk::NumericTraits<PixelType>::PrintType>(pixelReplaceValue)
             << std::endl;
 
   const unsigned int cuintInitialNeighborhoodRadius = filter->GetInitialNeighborhoodRadius();
-  std::cout << "filter->GetInitialNeighborhoodRadius(): "
-            << cuintInitialNeighborhoodRadius
-            << std::endl;
+  std::cout << "filter->GetInitialNeighborhoodRadius(): " << cuintInitialNeighborhoodRadius << std::endl;
 
   const double mean = filter->GetMean();
-  std::cout << "filter->GetMean(): "
-            << mean
-            << std::endl;
+  std::cout << "filter->GetMean(): " << mean << std::endl;
 
   const double variance = filter->GetVariance();
-  std::cout << "filter->GetVariance(): "
-            << variance
-            << std::endl;
+  std::cout << "filter->GetVariance(): " << variance << std::endl;
 
   // Generate test image
   itk::ImageFileWriter<myImage>::Pointer writer;
   writer = itk::ImageFileWriter<myImage>::New();
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( av[2] );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(av[2]);
   writer->Update();
 
   // Exercise AddSeed() method
-  filter->AddSeed( seed );
+  filter->AddSeed(seed);
 
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

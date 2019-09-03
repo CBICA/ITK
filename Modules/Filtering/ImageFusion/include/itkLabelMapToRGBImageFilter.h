@@ -24,7 +24,8 @@
 #include "itkRGBPixel.h"
 
 
-namespace itk {
+namespace itk
+{
 
 /** \class LabelMapToRGBImageFilter
  * \brief Convert a LabelMap to a colored image
@@ -40,81 +41,89 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKImageFusion
  */
-template<typename TInputImage, typename TOutputImage=Image< RGBPixel<unsigned char>, TInputImage::ImageDimension > >
-class ITK_TEMPLATE_EXPORT LabelMapToRGBImageFilter :
-    public LabelMapFilter<TInputImage, TOutputImage>
+template <typename TInputImage, typename TOutputImage = Image<RGBPixel<unsigned char>, TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT LabelMapToRGBImageFilter : public LabelMapFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelMapToRGBImageFilter                   Self;
-  typedef LabelMapFilter<TInputImage, TOutputImage>  Superclass;
-  typedef SmartPointer<Self>                         Pointer;
-  typedef SmartPointer<const Self>                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToRGBImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::Pointer         InputImagePointer;
-  typedef typename InputImageType::ConstPointer    InputImageConstPointer;
-  typedef typename InputImageType::RegionType      InputImageRegionType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename InputImageType::LabelObjectType LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = LabelMapToRGBImageFilter;
+  using Superclass = LabelMapFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename OutputImageType::Pointer        OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer   OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType     OutputImageRegionType;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename OutputImageType::IndexType      IndexType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using LabelObjectType = typename InputImageType::LabelObjectType;
 
-  typedef typename Functor::LabelToRGBFunctor< InputImagePixelType, OutputImagePixelType > FunctorType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using IndexType = typename OutputImageType::IndexType;
+
+  using FunctorType = typename Functor::LabelToRGBFunctor<InputImagePixelType, OutputImagePixelType>;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(LabelMapToRGBImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(LabelMapToRGBImageFilter, ImageToImageFilter);
 
   /** Set/Get the rgb functor - defaults to a reasonable set of colors.
    * This can be used to apply a different colormap.
    */
-  virtual void SetFunctor(const FunctorType & functor)
+  virtual void
+  SetFunctor(const FunctorType & functor)
   {
-    if ( m_Functor != functor )
-      {
+    if (m_Functor != functor)
+    {
       m_Functor = functor;
       this->Modified();
-      }
+    }
   }
-  FunctorType &       GetFunctor() { return m_Functor; }
-  const FunctorType & GetFunctor() const { return m_Functor; }
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
+  const FunctorType &
+  GetFunctor() const
+  {
+    return m_Functor;
+  }
 
 protected:
-  LabelMapToRGBImageFilter();
-  ~LabelMapToRGBImageFilter() ITK_OVERRIDE {};
+  LabelMapToRGBImageFilter() = default;
+  ~LabelMapToRGBImageFilter() override = default;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  virtual void ThreadedProcessLabelObject( LabelObjectType * labelObject ) ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToRGBImageFilter);
-
-  FunctorType               m_Functor;
+  FunctorType m_Functor;
 }; // end of class
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelMapToRGBImageFilter.hxx"
+#  include "itkLabelMapToRGBImageFilter.hxx"
 #endif
 
 #endif

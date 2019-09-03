@@ -21,7 +21,7 @@
 
 #include "itkObjectToObjectOptimizerBase.h"
 #include "ITKOptimizersv4Export.h"
-#include "itkAutoPointer.h"
+#include <memory>
 
 
 namespace itk
@@ -81,7 +81,7 @@ namespace itk
  *
  * [4] Jorge Nocedal.
  * Updating Quasi-Newton Matrices with Limited Storage.
- * Mathematics of Computation, Vol. 35, No. 151, pp. 773–782, 1980.
+ * Mathematics of Computation, Vol. 35, No. 151, pp. 773-782, 1980.
  *
  * [5] Dong C. Liu and Jorge Nocedal.
  * On the limited memory BFGS method for large scale optimization.
@@ -89,7 +89,7 @@ namespace itk
  *
  * [6] More, J. J. and D. J. Thuente.
  * Line Search Algorithms with Guaranteed Sufficient Decrease.
- * ACM Transactions on Mathematical Software 20, no. 3 (1994): 286–307.
+ * ACM Transactions on Mathematical Software 20, no. 3 (1994): 286-307.
  *
  * [7] John E. Dennis and Robert B. Schnabel.
  * Numerical Methods for Unconstrained Optimization and Nonlinear Equations,
@@ -99,12 +99,14 @@ namespace itk
  */
 
 
-class ITKOptimizersv4_EXPORT LBFGS2Optimizerv4:
-    public ObjectToObjectOptimizerBaseTemplate<double>{
+class ITKOptimizersv4_EXPORT LBFGS2Optimizerv4 : public ObjectToObjectOptimizerBaseTemplate<double>
+{
 
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LBFGS2Optimizerv4);
 
-  enum LineSearchMethod{
+  enum LineSearchMethod
+  {
     /** The default algorithm (MoreThuente method). */
     LINESEARCH_DEFAULT = 0,
     /** MoreThuente method proposd by More and Thuente. */
@@ -151,18 +153,18 @@ public:
    * out how to make it a template parameter and set the required
    * define so lbfgs.h uses the corrcet version
    **/
-  typedef double PrecisionType;
+  using PrecisionType = double;
 
 
-  /** Standard "Self" typedef. */
-  typedef LBFGS2Optimizerv4                           Self;
-  typedef ObjectToObjectOptimizerBaseTemplate<double> Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  /** Standard "Self" type alias. */
+  using Self = LBFGS2Optimizerv4;
+  using Superclass = ObjectToObjectOptimizerBaseTemplate<double>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef Superclass::MetricType     MetricType;
-  typedef Superclass::ParametersType ParametersType;
-  typedef Superclass::ScalesType     ScalesType;
+  using MetricType = Superclass::MetricType;
+  using ParametersType = Superclass::ParametersType;
+  using ScalesType = Superclass::ScalesType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -171,59 +173,71 @@ public:
   itkTypeMacro(LBFGS2Optimizerv4, Superclass);
 
   /** Start optimization with an initial value. */
-  virtual void StartOptimization(bool doOnlyInitialization = false) ITK_OVERRIDE;
+  void
+  StartOptimization(bool doOnlyInitialization = false) override;
 
-  virtual const StopConditionReturnStringType GetStopConditionDescription() const ITK_OVERRIDE;
+  const StopConditionReturnStringType
+  GetStopConditionDescription() const override;
 
   /** This optimizer does not support scaling of the derivatives. */
-  virtual void SetScales(const ScalesType &) ITK_OVERRIDE;
+  void
+  SetScales(const ScalesType &) override;
 
   /** This optimizer does not support weighting of the derivatives. */
-  virtual void SetWeights(const ScalesType ) ITK_OVERRIDE;
+  void
+  SetWeights(const ScalesType) override;
   /**
-  * Set/Get the number of corrections to approximate the inverse hessian matrix.
-  * The L-BFGS routine stores the computation results of previous \c m
-  * iterations to approximate the inverse hessian matrix of the current
-  * iteration. This parameter controls the size of the limited memories
-  * (corrections). The default value is \c 6. Values less than \c 3 are
-  * not recommended. Large values will result in excessive computing time.
-  */
-  void SetHessianApproximationAccuracy(int m);
-  int GetHessianApproximationAccuracy() const;
+   * Set/Get the number of corrections to approximate the inverse hessian matrix.
+   * The L-BFGS routine stores the computation results of previous \c m
+   * iterations to approximate the inverse hessian matrix of the current
+   * iteration. This parameter controls the size of the limited memories
+   * (corrections). The default value is \c 6. Values less than \c 3 are
+   * not recommended. Large values will result in excessive computing time.
+   */
+  void
+  SetHessianApproximationAccuracy(int m);
+  int
+  GetHessianApproximationAccuracy() const;
 
   /**
-  * Set/Get epsilon for convergence test.
-  * This parameter determines the accuracy with which the solution is to
-  * be found. A minimization terminates when
-  * \f$||g|| < \epsilon * max(1, ||x||)\f$,
-  * where ||.|| denotes the Euclidean (L2) norm. The default value is
-  * \c 1e-5.
-  */
-  void SetSolutionAccuracy(PrecisionType epsilon);
-  PrecisionType GetSolutionAccuracy() const;
+   * Set/Get epsilon for convergence test.
+   * This parameter determines the accuracy with which the solution is to
+   * be found. A minimization terminates when
+   * \f$||g|| < \epsilon * max(1, ||x||)\f$,
+   * where ||.|| denotes the Euclidean (L2) norm. The default value is
+   * \c 1e-5.
+   */
+  void
+  SetSolutionAccuracy(PrecisionType epsilon);
+  PrecisionType
+  GetSolutionAccuracy() const;
 
   /**
-  * Set/Ger distance for delta-based convergence test.
-  * This parameter determines the distance, in iterations, to compute
-  * the rate of decrease of the objective function. If the value of this
-  * parameter is zero, the library does not perform the delta-based
-  * convergence test. The default value is \c 0.
-  */
-  void SetDeltaConvergenceDistance(int nPast);
-  int GetDeltaConvergenceDistance() const;
+   * Set/Get distance for delta-based convergence test.
+   * This parameter determines the distance, in iterations, to compute
+   * the rate of decrease of the objective function. If the value of this
+   * parameter is zero, the library does not perform the delta-based
+   * convergence test. The default value is \c 0.
+   */
+  void
+  SetDeltaConvergenceDistance(int nPast);
+  int
+  GetDeltaConvergenceDistance() const;
 
   /**
-  * Delta for convergence test.
-  * This parameter determines the minimum rate of decrease of the
-  * objective function. The library stops iterations when the
-  * following condition is met:
-  * \f$(f' - f) / f < \delta\f$,
-  * where f' is the objective value of past iterations ago, and f is
-  * the objective value of the current iteration.
-  * The default value is \c 0.
-  */
-  void SetDeltaConvergenceTolerance(PrecisionType tol);
-  PrecisionType GetDeltaConvergenceTolerance() const;
+   * Delta for convergence test.
+   * This parameter determines the minimum rate of decrease of the
+   * objective function. The library stops iterations when the
+   * following condition is met:
+   * \f$(f' - f) / f < \delta\f$,
+   * where f' is the objective value of past iterations ago, and f is
+   * the objective value of the current iteration.
+   * The default value is \c 0.
+   */
+  void
+  SetDeltaConvergenceTolerance(PrecisionType tol);
+  PrecisionType
+  GetDeltaConvergenceTolerance() const;
 
 
   /**
@@ -234,13 +248,23 @@ public:
    *  optimization process until a convergence or error. The default value
    *  is \c 0.
    */
-  void SetMaximumIterations(int maxIterations);
-  int GetMaximumIterations() const;
+  void
+  SetMaximumIterations(int maxIterations);
+  int
+  GetMaximumIterations() const;
 
   /** Aliased to Set/Get MaximumIterations to match base class interface.
    */
-  virtual SizeValueType GetNumberOfIterations() const  ITK_OVERRIDE { return GetMaximumIterations(); }
-  virtual void SetNumberOfIterations( const SizeValueType _arg ) ITK_OVERRIDE { SetMaximumIterations(static_cast<int>(_arg)); }
+  SizeValueType
+  GetNumberOfIterations() const override
+  {
+    return GetMaximumIterations();
+  }
+  void
+  SetNumberOfIterations(const SizeValueType _arg) override
+  {
+    SetMaximumIterations(static_cast<int>(_arg));
+  }
 
   /**
    * The line search algorithm.
@@ -248,16 +272,20 @@ public:
    * L-BFGS routine. See lbfgs.h for enumeration of line search type.
    * Defaults to More-Thuente's method.
    */
-  void SetLineSearch(const LineSearchMethod &linesearch);
-  LineSearchMethod GetLineSearch() const;
+  void
+  SetLineSearch(const LineSearchMethod & linesearch);
+  LineSearchMethod
+  GetLineSearch() const;
 
   /**
    * The maximum number of trials for the line search.
    *  This parameter controls the number of function and gradients evaluations
    *  per iteration for the line search routine. The default value is \c 20.
    */
-  void SetMaximumLineSearchEvaluations(int n);
-  int GetMaximumLineSearchEvaluations() const;
+  void
+  SetMaximumLineSearchEvaluations(int n);
+  int
+  GetMaximumLineSearchEvaluations() const;
 
   /**
    * The minimum step of the line search routine.
@@ -266,8 +294,10 @@ public:
    *  problem is extremely badly scaled (in which case the exponents should
    *  be increased).
    */
-  void SetMinimumLineSearchStep(PrecisionType step);
-  PrecisionType GetMinimumLineSearchStep() const;
+  void
+  SetMinimumLineSearchStep(PrecisionType step);
+  PrecisionType
+  GetMinimumLineSearchStep() const;
 
   /**
    * The maximum step of the line search.
@@ -276,16 +306,20 @@ public:
    *  problem is extremely badly scaled (in which case the exponents should
    *  be increased).
    */
-  void SetMaximumLineSearchStep(PrecisionType step);
-  PrecisionType GetMaximumLineSearchStep() const;
+  void
+  SetMaximumLineSearchStep(PrecisionType step);
+  PrecisionType
+  GetMaximumLineSearchStep() const;
 
   /**
    * A parameter to control the accuracy of the line search routine.
    *  The default value is \c 1e-4. This parameter should be greater
    *  than zero and smaller than \c 0.5.
    */
-  void SetLineSearchAccuracy( PrecisionType ftol );
-  PrecisionType GetLineSearchAccuracy() const;
+  void
+  SetLineSearchAccuracy(PrecisionType ftol);
+  PrecisionType
+  GetLineSearchAccuracy() const;
 
 
   /**
@@ -297,8 +331,10 @@ public:
    *  The default value is \c 0.9. This parameter should be greater
    *  than the \c ftol parameter and smaller than \c 1.0.
    */
-  void SetWolfeCoefficient( PrecisionType wc );
-  PrecisionType GetWolfeCoefficient() const;
+  void
+  SetWolfeCoefficient(PrecisionType wc);
+  PrecisionType
+  GetWolfeCoefficient() const;
 
 
   /**
@@ -312,8 +348,10 @@ public:
    * greater than the \c ftol parameter (\c 1e-4) and smaller than
    * \c 1.0.
    */
-  void SetLineSearchGradientAccuracy( PrecisionType gtol );
-  PrecisionType GetLineSearchGradientAccuracy() const;
+  void
+  SetLineSearchGradientAccuracy(PrecisionType gtol);
+  PrecisionType
+  GetLineSearchGradientAccuracy() const;
 
   /**
    * The machine precision for floating-point values.
@@ -322,8 +360,10 @@ public:
    *  with the status code (\c LBFGSERR_ROUNDING_ERROR) if the relative width
    *  of the interval of uncertainty is less than this parameter.
    */
-  void SetMachinePrecisionTolerance(PrecisionType xtol);
-  PrecisionType GetMachinePrecisionTolerance() const;
+  void
+  SetMachinePrecisionTolerance(PrecisionType xtol);
+  PrecisionType
+  GetMachinePrecisionTolerance() const;
 
   /**
    * Coeefficient for the L1 norm of variables.
@@ -338,8 +378,10 @@ public:
    *  the function value F(x) and gradients G(x) as usual. The default value
    *  is zero.
    */
-  void SetOrthantwiseCoefficient( PrecisionType orthant_c);
-  PrecisionType GetOrthantwiseCoefficient() const;
+  void
+  SetOrthantwiseCoefficient(PrecisionType orthant_c);
+  PrecisionType
+  GetOrthantwiseCoefficient() const;
 
   /**
    * Start index for computing L1 norm of the variables.
@@ -355,8 +397,10 @@ public:
    *  variables, \f$x_1, ..., x_{b-1}\f$ (e.g., a bias term of logistic
    *  regression) from being regularized. The default value is zero.
    */
-  void SetOrthantwiseStart(int start);
-  int GetOrthantwiseStart() const;
+  void
+  SetOrthantwiseStart(int start);
+  int
+  GetOrthantwiseStart() const;
 
   /**
    * End index for computing L1 norm of the variables.
@@ -365,15 +409,17 @@ public:
    *  specifies the index number at which the library stops computing the
    *  L1 norm of the variables x,
    */
-  void SetOrthantwiseEnd(int end);
-  int GetOrthantwiseEnd() const;
+  void
+  SetOrthantwiseEnd(int end);
+  int
+  GetOrthantwiseEnd() const;
 
   /** Get paramater norm of current iteration */
   itkGetConstMacro(CurrentParameterNorm, PrecisionType);
   /** Get gradient norm of current iteration */
   itkGetConstMacro(CurrentGradientNorm, PrecisionType);
-   //itkGetConstMacro(CurrentParameter, double* );
-   //itkGetConstMacro(CurrentGradient, double* );
+  // itkGetConstMacro(CurrentParameter, double* );
+  // itkGetConstMacro(CurrentGradient, double* );
   /** Get stepsize of current iteration */
   itkGetConstMacro(CurrentStepSize, PrecisionType);
   /** Get number of evaluations for current iteration */
@@ -381,60 +427,56 @@ public:
 
 protected:
   LBFGS2Optimizerv4();
-  virtual ~LBFGS2Optimizerv4() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~LBFGS2Optimizerv4() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 
   /** Progress callback from libLBFGS forwards it to the specific instance */
-  static int UpdateProgressCallback( void *Instance,
-             const PrecisionType *x,
-             const PrecisionType *g,
-             const PrecisionType fx,
-             const PrecisionType xnorm,
-             const PrecisionType gnorm,
-             const PrecisionType step,
-             int n,
-             int k,
-             int ls
-           );
+  static int
+  UpdateProgressCallback(void *                Instance,
+                         const PrecisionType * x,
+                         const PrecisionType * g,
+                         const PrecisionType   fx,
+                         const PrecisionType   xnorm,
+                         const PrecisionType   gnorm,
+                         const PrecisionType   step,
+                         int                   n,
+                         int                   k,
+                         int                   ls);
 
   /** Update the progress as reported from libLBFSG and notify itkObject */
-  int UpdateProgress( const PrecisionType *x,
-                      const PrecisionType *g,
-                      const PrecisionType fx,
-                      const PrecisionType xnorm,
-                      const PrecisionType gnorm,
-                      const PrecisionType step,
-                      int n,
-                      int k,
-                      int ls
-                    );
+  int
+  UpdateProgress(const PrecisionType * x,
+                 const PrecisionType * g,
+                 const PrecisionType   fx,
+                 const PrecisionType   xnorm,
+                 const PrecisionType   gnorm,
+                 const PrecisionType   step,
+                 int                   n,
+                 int                   k,
+                 int                   ls);
 
   //** Function evluation callback from libLBFGS frowrad to instance */
-  static PrecisionType EvaluateCostCallback( void *instance,
-                                               const PrecisionType *x,
-                                               PrecisionType *g,
-                                               const int n,
-                                               const PrecisionType step
-                                             );
+  static PrecisionType
+  EvaluateCostCallback(void *                instance,
+                       const PrecisionType * x,
+                       PrecisionType *       g,
+                       const int             n,
+                       const PrecisionType   step);
 
-  PrecisionType EvaluateCost( const PrecisionType *x,
-                                PrecisionType *g,
-                                const int n,
-                                const PrecisionType step
-                              );
+  PrecisionType
+  EvaluateCost(const PrecisionType * x, PrecisionType * g, const int n, const PrecisionType step);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LBFGS2Optimizerv4);
-
   // Private Implementation (Pimpl), to hide liblbfgs data structures
   class PrivateImplementationHolder;
 
-  AutoPointer<PrivateImplementationHolder> m_Pimpl;
+  std::unique_ptr<PrivateImplementationHolder> m_Pimpl;
 
   /** Progress update variables */
-  const double *m_CurrentGradient;
-  const double *m_CurrentParameter;
+  const double * m_CurrentGradient;
+  const double * m_CurrentParameter;
 
   double m_CurrentStepSize;
   double m_CurrentParameterNorm;

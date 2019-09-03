@@ -20,37 +20,38 @@
 #include "itkImageFileReader.h"
 #include "itkNrrdImageIO.h"
 
-#define SPECIFIC_IMAGEIO_MODULE_TEST
+// Specific ImageIO test
 
-int itkNrrdComplexImageReadTest( int ac, char* av[] )
+int
+itkNrrdComplexImageReadTest(int ac, char * av[])
 {
-  if(ac < 1)
-    {
+  if (ac < 1)
+  {
     std::cerr << "Usage: " << av[0] << " Input\n";
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef std::complex<float>      PixelType;
-  typedef itk::Image<PixelType, 2> myImage;
+  using PixelType = std::complex<float>;
+  using myImage = itk::Image<PixelType, 2>;
 
-  typedef itk::ImageFileReader<myImage>  ReaderType;
+  using ReaderType = itk::ImageFileReader<myImage>;
 
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetImageIO( itk::NrrdImageIO::New() );
+  reader->SetImageIO(itk::NrrdImageIO::New());
 
   reader->SetFileName(av[1]);
 
   try
-    {
+  {
     reader->Update();
-    }
+  }
   catch (itk::ExceptionObject & e)
-    {
+  {
     std::cerr << "exception in file reader " << std::endl;
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   myImage::Pointer image = reader->GetOutput();
 
@@ -60,9 +61,9 @@ int itkNrrdComplexImageReadTest( int ac, char* av[] )
   // volume is being read.  I/O errors will generate more than tiny
   // differences near representational precision.
 
-  float err = 0;
+  float              err = 0;
   myImage::IndexType coord;
-  PixelType sample;
+  PixelType          sample;
   coord[0] = 0;
   coord[1] = 0;
   sample = image->GetPixel(coord);
@@ -107,14 +108,12 @@ int itkNrrdComplexImageReadTest( int ac, char* av[] )
 
   double thresh = 0.00000038;
   if (err > thresh)
-    {
-    std::cout << "failure because err == " << err
-              << "> " << thresh << std::endl;
+  {
+    std::cout << "failure because err == " << err << "> " << thresh << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
-
+  }
 }

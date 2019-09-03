@@ -18,18 +18,21 @@
 
 #include "itkDecisionRule.h"
 
-namespace itk {
-namespace Statistics {
-namespace DecisionRuleTest {
+namespace itk
+{
+namespace Statistics
+{
+namespace DecisionRuleTest
+{
 
 class MyDecisionRule : public DecisionRule
 {
 public:
-  /** Standard class typedef. */
-  typedef MyDecisionRule                   Self;
-  typedef DecisionRule                     Superclass;
-  typedef SmartPointer< Self >             Pointer;
-  typedef SmartPointer<const Self>         ConstPointer;
+  /** Standard class type alias. */
+  using Self = MyDecisionRule;
+  using Superclass = DecisionRule;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard macros */
   itkTypeMacro(MyDecisionRule, DecisionRule);
@@ -38,39 +41,41 @@ public:
   itkNewMacro(Self);
 
   /** Types for discriminant values and vectors. */
-  typedef Superclass::MembershipValueType  MembershipValueType;
-  typedef Superclass::MembershipVectorType MembershipVectorType;
+  using MembershipValueType = Superclass::MembershipValueType;
+  using MembershipVectorType = Superclass::MembershipVectorType;
 
   /** Types for class identifiers. */
-  typedef Superclass::ClassIdentifierType ClassIdentifierType;
+  using ClassIdentifierType = Superclass::ClassIdentifierType;
 
   /** Evaluate membership score */
-  virtual ClassIdentifierType Evaluate(const MembershipVectorType &scoreVector) const ITK_OVERRIDE
-    {
+  ClassIdentifierType
+  Evaluate(const MembershipVectorType & scoreVector) const override
+  {
     double max = scoreVector[0];
 
     unsigned int maxIndex = 0;
     unsigned int i;
     for (i = 1; i < scoreVector.size(); i++)
-      {
+    {
       if (scoreVector[i] > max)
-        {
+      {
         max = scoreVector[i];
         maxIndex = i;
-        }
       }
-    return maxIndex;
     }
+    return maxIndex;
+  }
 };
 
-}
-}
-}
-int itkDecisionRuleTest(int, char* [] )
+} // namespace DecisionRuleTest
+} // namespace Statistics
+} // namespace itk
+int
+itkDecisionRuleTest(int, char *[])
 {
-  typedef itk::Statistics::DecisionRuleTest::MyDecisionRule DecisionRuleType;
+  using DecisionRuleType = itk::Statistics::DecisionRuleTest::MyDecisionRule;
 
-  typedef DecisionRuleType::MembershipVectorType MembershipVectorType;
+  using MembershipVectorType = DecisionRuleType::MembershipVectorType;
 
   DecisionRuleType::Pointer decisionRule = DecisionRuleType::New();
 
@@ -83,23 +88,23 @@ int itkDecisionRuleTest(int, char* [] )
 
   double membershipScore1;
   membershipScore1 = 0.1;
-  membershipScoreVector.push_back( membershipScore1 );
+  membershipScoreVector.push_back(membershipScore1);
 
   double membershipScore2;
   membershipScore2 = 0.5;
-  membershipScoreVector.push_back( membershipScore2 );
+  membershipScoreVector.push_back(membershipScore2);
 
   double membershipScore3;
   membershipScore3 = 1.9;
-  membershipScoreVector.push_back( membershipScore3 );
+  membershipScoreVector.push_back(membershipScore3);
 
   // the maximum score is the third component. The decision rule should
   // return index ( 2)
-  if( decisionRule->Evaluate( membershipScoreVector ) != 2 )
-    {
+  if (decisionRule->Evaluate(membershipScoreVector) != 2)
+  {
     std::cerr << "Decision rule computation is incorrect!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

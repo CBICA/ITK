@@ -46,14 +46,16 @@ namespace itk
  * \ingroup OSSystemObjects
  * \ingroup ITKCommon
  */
-class ITKCommon_EXPORT XMLFileOutputWindow:public FileOutputWindow
+class ITKCommon_EXPORT XMLFileOutputWindow : public FileOutputWindow
 {
 public:
-  /** Standard class typedefs. */
-  typedef XMLFileOutputWindow        Self;
-  typedef FileOutputWindow           Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(XMLFileOutputWindow);
+
+  /** Standard class type aliases. */
+  using Self = XMLFileOutputWindow;
+  using Superclass = FileOutputWindow;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,34 +64,40 @@ public:
   itkTypeMacro(XMLFileOutputWindow, FileOutputWindow);
 
   /** Send a string to the XML file. */
-  virtual void DisplayText(const char *) ITK_OVERRIDE;
+  void
+  DisplayText(const char *) override;
 
   /** Send an error string to the XML file. */
-  virtual void DisplayErrorText(const char *) ITK_OVERRIDE;
+  void
+  DisplayErrorText(const char *) override;
 
   /** Send a warning string to the XML file. */
-  virtual void DisplayWarningText(const char *) ITK_OVERRIDE;
+  void
+  DisplayWarningText(const char *) override;
 
   /** Send a generic output string to the XML file. */
-  virtual void DisplayGenericOutputText(const char *) ITK_OVERRIDE;
+  void
+  DisplayGenericOutputText(const char *) override;
 
   /** Send a debug string to the XML file. */
-  virtual void DisplayDebugText(const char *) ITK_OVERRIDE;
+  void
+  DisplayDebugText(const char *) override;
 
   /**  Put the text into the log file without processing it. */
-  virtual void DisplayTag(const char *);
+  virtual void
+  DisplayTag(const char *);
 
 protected:
   XMLFileOutputWindow();
-  virtual ~XMLFileOutputWindow() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~XMLFileOutputWindow() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void Initialize();
+  void
+  Initialize();
 
-  virtual void DisplayXML(const char *, const char *);
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(XMLFileOutputWindow);
+  virtual void
+  DisplayXML(const char *, const char *);
 };
 } // end namespace itk
 

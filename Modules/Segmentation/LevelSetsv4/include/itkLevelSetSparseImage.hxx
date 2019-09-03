@@ -24,192 +24,169 @@
 namespace itk
 {
 
-template< typename TOutput, unsigned int VDimension >
-LevelSetSparseImage< TOutput, VDimension >
-::LevelSetSparseImage()
-{}
-
-
-template< typename TOutput, unsigned int VDimension >
-LevelSetSparseImage< TOutput, VDimension >
-::~LevelSetSparseImage()
-{}
-
-
-template< typename TOutput, unsigned int VDimension >
-typename LevelSetSparseImage< TOutput, VDimension >::LayerIdType
-LevelSetSparseImage< TOutput, VDimension >
-::Status( const InputType& inputIndex ) const
+template <typename TOutput, unsigned int VDimension>
+typename LevelSetSparseImage<TOutput, VDimension>::LayerIdType
+LevelSetSparseImage<TOutput, VDimension>::Status(const InputType & inputIndex) const
 {
   InputType mapIndex = inputIndex - this->m_DomainOffset;
-  return this->m_LabelMap->GetPixel( mapIndex );
+  return this->m_LabelMap->GetPixel(mapIndex);
 }
 
 
-template< typename TOutput, unsigned int VDimension >
+template <typename TOutput, unsigned int VDimension>
 void
-LevelSetSparseImage< TOutput, VDimension >
-::SetLabelMap( LabelMapType* labelMap )
+LevelSetSparseImage<TOutput, VDimension>::SetLabelMap(LabelMapType * labelMap)
 {
   this->m_LabelMap = labelMap;
 
-  typedef typename LabelMapType::SpacingType SpacingType;
+  using SpacingType = typename LabelMapType::SpacingType;
 
   const SpacingType spacing = m_LabelMap->GetSpacing();
 
-  for( unsigned int dim = 0; dim < Dimension; ++dim )
-    {
+  for (unsigned int dim = 0; dim < Dimension; ++dim)
+  {
     this->m_NeighborhoodScales[dim] =
-        NumericTraits< OutputRealType >::OneValue() / static_cast< OutputRealType >( spacing[dim] );
-    }
+      NumericTraits<OutputRealType>::OneValue() / static_cast<OutputRealType>(spacing[dim]);
+  }
   this->Modified();
 }
 
 
-template< typename TOutput, unsigned int VDimension >
+template <typename TOutput, unsigned int VDimension>
 bool
-LevelSetSparseImage< TOutput, VDimension >
-::IsInsideDomain( const InputType& inputIndex ) const
+LevelSetSparseImage<TOutput, VDimension>::IsInsideDomain(const InputType & inputIndex) const
 {
   const RegionType largestRegion = this->m_LabelMap->GetLargestPossibleRegion();
 
   InputType mapIndex = inputIndex - this->m_DomainOffset;
 
-  return largestRegion.IsInside( mapIndex );
+  return largestRegion.IsInside(mapIndex);
 }
 
 
-template< typename TOutput, unsigned int VDimension >
+template <typename TOutput, unsigned int VDimension>
 void
-LevelSetSparseImage< TOutput, VDimension >
-::Graft( const DataObject* data )
+LevelSetSparseImage<TOutput, VDimension>::Graft(const DataObject * data)
 {
-  Superclass::Graft( data );
-  const Self *levelSet = dynamic_cast< const Self* >( data );
+  Superclass::Graft(data);
+  const auto * levelSet = dynamic_cast<const Self *>(data);
 
-  if ( !levelSet )
-    {
+  if (!levelSet)
+  {
     // pointer could not be cast back down
-    itkExceptionMacro( << "LevelSetSparseImage::Graft() cannot cast "
-                       << typeid( data ).name() << " to "
-                       << typeid( Self * ).name() );
-    }
+    itkExceptionMacro(<< "LevelSetSparseImage::Graft() cannot cast " << typeid(data).name() << " to "
+                      << typeid(Self *).name());
+  }
 
-  this->m_LabelMap->Graft( levelSet->m_LabelMap );
-  if( &m_Layers != &(levelSet->m_Layers) )
-    {
+  this->m_LabelMap->Graft(levelSet->m_LabelMap);
+  if (&m_Layers != &(levelSet->m_Layers))
+  {
     m_Layers.clear();
-    LayerMapType newLayers( levelSet->m_Layers );
-    std::swap( m_Layers, newLayers );
-    }
+    LayerMapType newLayers(levelSet->m_Layers);
+    std::swap(m_Layers, newLayers);
+  }
 }
 
 
-template< typename TOutput, unsigned int VDimension >
-const typename LevelSetSparseImage< TOutput, VDimension >::LayerType&
-LevelSetSparseImage< TOutput, VDimension >::GetLayer( LayerIdType value ) const
+template <typename TOutput, unsigned int VDimension>
+const typename LevelSetSparseImage<TOutput, VDimension>::LayerType &
+LevelSetSparseImage<TOutput, VDimension>::GetLayer(LayerIdType value) const
 {
-  LayerMapConstIterator it = m_Layers.find( value );
-  if( it == m_Layers.end() )
-    {
-    itkGenericExceptionMacro( <<"This layer does not exist" );
-    }
+  auto it = m_Layers.find(value);
+  if (it == m_Layers.end())
+  {
+    itkGenericExceptionMacro(<< "This layer does not exist");
+  }
   return it->second;
 }
 
 
-template< typename TOutput, unsigned int VDimension >
-typename LevelSetSparseImage< TOutput, VDimension >::LayerType&
-LevelSetSparseImage< TOutput, VDimension >::GetLayer( LayerIdType value )
+template <typename TOutput, unsigned int VDimension>
+typename LevelSetSparseImage<TOutput, VDimension>::LayerType &
+LevelSetSparseImage<TOutput, VDimension>::GetLayer(LayerIdType value)
 {
-  LayerMapIterator it = m_Layers.find( value );
-  if( it == m_Layers.end() )
-    {
-    itkGenericExceptionMacro( <<"This layer does not exist" );
-    }
+  auto it = m_Layers.find(value);
+  if (it == m_Layers.end())
+  {
+    itkGenericExceptionMacro(<< "This layer does not exist");
+  }
   return it->second;
 }
 
 
-template< typename TOutput, unsigned int VDimension >
+template <typename TOutput, unsigned int VDimension>
 void
-LevelSetSparseImage< TOutput, VDimension >
-::SetLayer( LayerIdType value, const LayerType& layer )
+LevelSetSparseImage<TOutput, VDimension>::SetLayer(LayerIdType value, const LayerType & layer)
 {
-  const LayerMapIterator it = m_Layers.find( value );
-  if( it != m_Layers.end() )
-    {
+  const LayerMapIterator it = m_Layers.find(value);
+  if (it != m_Layers.end())
+  {
     it->second = layer;
-    }
+  }
   else
-    {
-    itkGenericExceptionMacro( << value << "is out of bounds" );
-    }
+  {
+    itkGenericExceptionMacro(<< value << "is out of bounds");
+  }
 }
 
 
-template< typename TOutput, unsigned int VDimension >
+template <typename TOutput, unsigned int VDimension>
 void
-LevelSetSparseImage< TOutput, VDimension >
-::Initialize()
+LevelSetSparseImage<TOutput, VDimension>::Initialize()
 {
   Superclass::Initialize();
 
-  this->m_LabelMap = ITK_NULLPTR;
+  this->m_LabelMap = nullptr;
   this->InitializeLayers();
   this->InitializeInternalLabelList();
 }
 
 
-template< typename TOutput, unsigned int VDimension >
+template <typename TOutput, unsigned int VDimension>
 void
-LevelSetSparseImage< TOutput, VDimension >
-::CopyInformation( const DataObject* data )
+LevelSetSparseImage<TOutput, VDimension>::CopyInformation(const DataObject * data)
 {
-  Superclass::CopyInformation( data );
+  Superclass::CopyInformation(data);
 
-  const Self *LevelSet = dynamic_cast< const Self* >( data );
+  const auto * LevelSet = dynamic_cast<const Self *>(data);
 
-  if ( !LevelSet )
-    {
+  if (!LevelSet)
+  {
     // pointer could not be cast back down
-    itkExceptionMacro( << "itk::MalcolmSparseLevelSet::CopyInformation() cannot cast "
-                       << typeid( data ).name() << " to "
-                       << typeid( Self * ).name() );
-    }
+    itkExceptionMacro(<< "itk::MalcolmSparseLevelSet::CopyInformation() cannot cast " << typeid(data).name() << " to "
+                      << typeid(Self *).name());
+  }
 }
 
 
-template< typename TOutput, unsigned int VDimension >
-template< typename TLabel >
-typename LabelObject< TLabel, VDimension >::Pointer
-LevelSetSparseImage< TOutput, VDimension >
-::GetAsLabelObject()
+template <typename TOutput, unsigned int VDimension>
+template <typename TLabel>
+typename LabelObject<TLabel, VDimension>::Pointer
+LevelSetSparseImage<TOutput, VDimension>::GetAsLabelObject()
 {
-  typedef LabelObject< TLabel, Dimension > OutputLabelObjectType;
+  using OutputLabelObjectType = LabelObject<TLabel, Dimension>;
   typename OutputLabelObjectType::Pointer object = OutputLabelObjectType::New();
 
-  if( this->m_InternalLabelList.empty() )
+  if (this->m_InternalLabelList.empty())
+  {
+    itkGenericExceptionMacro(<< "this->m_InternalLabelList empty");
+  }
+
+  auto lIt = this->m_InternalLabelList.begin();
+  auto lEnd = this->m_InternalLabelList.end();
+
+  while (lIt != lEnd)
+  {
+    LayerIdType        id = *lIt;
+    LabelObjectPointer labelObject = this->m_LabelMap->GetLabelObject(id);
+    SizeValueType      numberOfLines = labelObject->GetNumberOfLines();
+
+    for (SizeValueType i = 0; i < numberOfLines; ++i)
     {
-    itkGenericExceptionMacro( << "this->m_InternalLabelList empty" );
-    return object;
+      object->AddLine(labelObject->GetLine(i));
     }
-
-  typename LayerIdListType::iterator lIt = this->m_InternalLabelList.begin();
-  typename LayerIdListType::iterator lEnd = this->m_InternalLabelList.end();
-
-  while( lIt != lEnd )
-    {
-    LayerIdType id = *lIt;
-    LabelObjectPointer labelObject = this->m_LabelMap->GetLabelObject( id );
-    SizeValueType numberOfLines = labelObject->GetNumberOfLines();
-
-    for( SizeValueType i = 0; i < numberOfLines; ++i )
-      {
-      object->AddLine( labelObject->GetLine( i ) );
-      }
     ++lIt;
-    }
+  }
   object->Optimize();
 
   return object;

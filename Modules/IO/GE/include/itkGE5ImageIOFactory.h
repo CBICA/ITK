@@ -26,22 +26,26 @@
 namespace itk
 {
 /** \class GE5ImageIOFactory
-   * \brief Create instances of GE5ImageIO objects using an object factory.
-   * \ingroup ITKIOGE
-   */
-class ITKIOGE_EXPORT GE5ImageIOFactory:public ObjectFactoryBase
+ * \brief Create instances of GE5ImageIO objects using an object factory.
+ * \ingroup ITKIOGE
+ */
+class ITKIOGE_EXPORT GE5ImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef GE5ImageIOFactory          Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GE5ImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = GE5ImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -50,7 +54,8 @@ public:
   itkTypeMacro(GE5ImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     GE5ImageIOFactory::Pointer metaFactory = GE5ImageIOFactory::New();
 
@@ -59,11 +64,9 @@ public:
 
 protected:
   GE5ImageIOFactory();
-  ~GE5ImageIOFactory() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GE5ImageIOFactory);
+  ~GE5ImageIOFactory() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 

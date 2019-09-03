@@ -26,33 +26,34 @@
 
 namespace itk
 {
-  /** \class TransformFileWriterTemplate
-   *
-   * \brief TODO
-   * \ingroup ITKIOTransformBase
-   *
-   * \wiki
-   * \wikiexample{IO/TransformFileWriter,Write a transform to a file}
-   * \endwiki
-   */
-template<typename TParametersValueType>
-class ITKIOTransformBase_TEMPLATE_EXPORT TransformFileWriterTemplate:public LightProcessObject
+/** \class TransformFileWriterTemplate
+ *
+ * \brief TODO
+ * \ingroup ITKIOTransformBase
+ *
+ * \sphinx
+ * \sphinxexample{IO/TransformBase/WriteTransformToFile,Write Transform From File}
+ * \endsphinx
+ */
+template <typename TParametersValueType>
+class ITKIOTransformBase_TEMPLATE_EXPORT TransformFileWriterTemplate : public LightProcessObject
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(TransformFileWriterTemplate);
 
-  /** SmartPointer typedef support */
-  typedef TransformFileWriterTemplate Self;
-  typedef LightProcessObject          Superclass;
-  typedef SmartPointer<Self>          Pointer;
-  typedef SmartPointer<const Self>    ConstPointer;
+  /** SmartPointer type alias support */
+  using Self = TransformFileWriterTemplate;
+  using Superclass = LightProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TParametersValueType                             ParametersValueType;
-  typedef double                                           FixedParametersValueType;
-  typedef TransformBaseTemplate<ParametersValueType>       TransformType;
-  typedef TransformIOBaseTemplate<ParametersValueType>     TransformIOType;
-  typedef typename TransformIOType::TransformPointer       TransformPointer;
-  typedef typename TransformIOType::ConstTransformPointer  ConstTransformPointer;
-  typedef typename TransformIOType::ConstTransformListType ConstTransformListType;
+  using ParametersValueType = TParametersValueType;
+  using FixedParametersValueType = double;
+  using TransformType = TransformBaseTemplate<ParametersValueType>;
+  using TransformIOType = TransformIOBaseTemplate<ParametersValueType>;
+  using TransformPointer = typename TransformIOType::TransformPointer;
+  using ConstTransformPointer = typename TransformIOType::ConstTransformPointer;
+  using ConstTransformListType = typename TransformIOType::ConstTransformListType;
 
   /** Method for creation through the object factory */
   itkNewMacro(Self);
@@ -67,68 +68,81 @@ public:
   itkGetStringMacro(FileName);
 
   /** Set/Get the write mode (append/overwrite) for the Filter */
-  void SetAppendOff();
+  void
+  SetAppendOff();
 
-  void SetAppendOn();
+  void
+  SetAppendOn();
 
-  void SetAppendMode(bool mode);
+  void
+  SetAppendMode(bool mode);
 
-  bool GetAppendMode();
+  bool
+  GetAppendMode();
+
+  /** Set/Get a boolean to use the compression or not. */
+  itkSetMacro(UseCompression, bool);
+  itkGetConstMacro(UseCompression, bool);
+  itkBooleanMacro(UseCompression);
 
   /** Set/Get the input transform to write */
-  void SetInput(const Object *transform);
+  void
+  SetInput(const Object * transform);
 
-  const TransformType * GetInput();
+  const TransformType *
+  GetInput();
 
   /** Add a transform to be written */
-  void AddTransform(const Object *transform);
+  void
+  AddTransform(const Object * transform);
 
   /** Write out the transform */
-  void Update();
+  void
+  Update();
 
   /** Set/Get the TransformIO class used internally to read to transform. */
-  itkSetObjectMacro( TransformIO, TransformIOType );
-  itkGetConstObjectMacro( TransformIO, TransformIOType );
+  itkSetObjectMacro(TransformIO, TransformIOType);
+  itkGetConstObjectMacro(TransformIO, TransformIOType);
 
 protected:
   TransformFileWriterTemplate();
-  virtual ~TransformFileWriterTemplate() ITK_OVERRIDE;
+  ~TransformFileWriterTemplate() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  void PushBackTransformList(const Object *transObj);
+  void
+  PushBackTransformList(const Object * transObj);
 
-  std::string                       m_FileName;
-  ConstTransformListType            m_TransformList;
-  bool                              m_AppendMode;
+  std::string            m_FileName;
+  ConstTransformListType m_TransformList;
+  bool                   m_AppendMode;
+  /** Should we compress the data? */
+  bool                              m_UseCompression;
   typename TransformIOType::Pointer m_TransformIO;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(TransformFileWriterTemplate);
 };
 
 /** This helps to meet backward compatibility */
-typedef itk::TransformFileWriterTemplate<double> TransformFileWriter;
+using TransformFileWriter = itk::TransformFileWriterTemplate<double>;
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
 
 /** Declare specializations */
-template<> void ITKIOTransformBase_TEMPLATE_EXPORT TransformFileWriterTemplate< double >::PushBackTransformList(const Object *transObj);
-template<> void ITKIOTransformBase_TEMPLATE_EXPORT TransformFileWriterTemplate< float >::PushBackTransformList(const Object *transObj);
+template <>
+void ITKIOTransformBase_TEMPLATE_EXPORT
+     TransformFileWriterTemplate<double>::PushBackTransformList(const Object * transObj);
+template <>
+void ITKIOTransformBase_TEMPLATE_EXPORT
+     TransformFileWriterTemplate<float>::PushBackTransformList(const Object * transObj);
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+ITK_GCC_PRAGMA_DIAG_POP()
 
 } // namespace itk
 
 #ifdef ITK_IO_FACTORY_REGISTER_MANAGER
-#include "itkTransformIOFactoryRegisterManager.h"
+#  include "itkTransformIOFactoryRegisterManager.h"
 #endif
 
 // Note: Explicit instantiation is done in itkTransformFileWriterSpecializations.cxx
@@ -145,30 +159,24 @@ template<> void ITKIOTransformBase_TEMPLATE_EXPORT TransformFileWriterTemplate< 
 //            need to be considered. This code *MUST* be *OUTSIDE* the header
 //            guards.
 //
-#  if defined( ITKIOTransformBase_EXPORTS )
+#if defined(ITKIOTransformBase_EXPORTS)
 //   We are building this library
-#    define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_TEMPLATE_EXPORT
-#  else
+#  define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_TEMPLATE_EXPORT
+#else
 //   We are using this library
-#    define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_EXPORT
-#  endif
+#  define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_EXPORT
+#endif
 namespace itk
 {
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
 
-extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformFileWriterTemplate< double >;
-extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformFileWriterTemplate< float >;
+extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformFileWriterTemplate<double>;
+extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformFileWriterTemplate<float>;
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+ITK_GCC_PRAGMA_DIAG_POP()
 
 } // end namespace itk
-#  undef ITKIOTransformBase_EXPORT_EXPLICIT
+#undef ITKIOTransformBase_EXPORT_EXPLICIT
 #endif

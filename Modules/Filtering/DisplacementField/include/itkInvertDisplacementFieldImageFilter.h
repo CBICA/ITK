@@ -21,7 +21,7 @@
 #include "itkImageToImageFilter.h"
 #include "itkVectorInterpolateImageFunction.h"
 #include "itkVectorLinearInterpolateImageFunction.h"
-#include "itkSimpleFastMutexLock.h"
+#include <mutex>
 
 namespace itk
 {
@@ -38,148 +38,151 @@ namespace itk
  */
 
 template <typename TInputImage, typename TOutputImage = TInputImage>
-class ITK_TEMPLATE_EXPORT InvertDisplacementFieldImageFilter
-  : public ImageToImageFilter<TInputImage, TOutputImage>
+class ITK_TEMPLATE_EXPORT InvertDisplacementFieldImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  typedef InvertDisplacementFieldImageFilter            Self;
-  typedef ImageToImageFilter<TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(InvertDisplacementFieldImageFilter);
+
+  using Self = InvertDisplacementFieldImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Extract dimension from input image. */
-  itkStaticConstMacro( ImageDimension, unsigned int, TInputImage::ImageDimension );
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef TInputImage                          InputFieldType;
-  typedef TOutputImage                         OutputFieldType;
+  using InputFieldType = TInputImage;
+  using OutputFieldType = TOutputImage;
 
-  typedef InputFieldType                       DisplacementFieldType;
-  typedef OutputFieldType                      InverseDisplacementFieldType;
+  using DisplacementFieldType = InputFieldType;
+  using InverseDisplacementFieldType = OutputFieldType;
 
-  /** Image typedef support. */
-  typedef typename OutputFieldType::PixelType     PixelType;
-  typedef typename OutputFieldType::PixelType     VectorType;
-  typedef typename OutputFieldType::RegionType    RegionType;
-  typedef typename OutputFieldType::IndexType     IndexType;
+  /** Image type alias support */
+  using PixelType = typename OutputFieldType::PixelType;
+  using VectorType = typename OutputFieldType::PixelType;
+  using RegionType = typename OutputFieldType::RegionType;
+  using OutputImageRegionType = RegionType;
+  using IndexType = typename OutputFieldType::IndexType;
 
-  typedef typename OutputFieldType::PointType     PointType;
-  typedef typename OutputFieldType::SpacingType   SpacingType;
-  typedef typename OutputFieldType::PointType     OriginType;
-  typedef typename OutputFieldType::SizeType      SizeType;
-  typedef typename OutputFieldType::DirectionType DirectionType;
+  using PointType = typename OutputFieldType::PointType;
+  using SpacingType = typename OutputFieldType::SpacingType;
+  using OriginType = typename OutputFieldType::PointType;
+  using SizeType = typename OutputFieldType::SizeType;
+  using DirectionType = typename OutputFieldType::DirectionType;
 
-  /** Other typedef */
-  typedef typename VectorType::ComponentType                        RealType;
-  typedef Image<RealType, ImageDimension>                           RealImageType;
-  typedef VectorInterpolateImageFunction<InputFieldType, RealType>  InterpolatorType;
-  typedef VectorLinearInterpolateImageFunction <InputFieldType, RealType>
-                                                                    DefaultInterpolatorType;
+  /** Other type alias */
+  using RealType = typename VectorType::ComponentType;
+  using RealImageType = Image<RealType, ImageDimension>;
+  using InterpolatorType = VectorInterpolateImageFunction<InputFieldType, RealType>;
+  using DefaultInterpolatorType = VectorLinearInterpolateImageFunction<InputFieldType, RealType>;
 
   /** Get the interpolator. */
-  itkGetModifiableObjectMacro( Interpolator, InterpolatorType );
+  itkGetModifiableObjectMacro(Interpolator, InterpolatorType);
 
   /** Set the deformation field */
-  void SetDisplacementField( const InputFieldType *field )
+  void
+  SetDisplacementField(const InputFieldType * field)
+  {
+    itkDebugMacro("setting deformation field to " << field);
+    if (field != this->GetInput(0))
     {
-    itkDebugMacro( "setting deformation field to " << field );
-    if ( field != this->GetInput( 0 ) )
-      {
-      this->SetInput( 0, field );
+      this->SetInput(0, field);
       this->Modified();
-      if( ! this->m_Interpolator.IsNull() )
-        {
-        this->m_Interpolator->SetInputImage( field );
-        }
+      if (!this->m_Interpolator.IsNull())
+      {
+        this->m_Interpolator->SetInputImage(field);
       }
     }
+  }
 
   /**
    * Get the deformation field.
    */
-  const InputFieldType* GetDisplacementField() const
-    {
-    return this->GetInput( 0 );
-    }
+  const InputFieldType *
+  GetDisplacementField() const
+  {
+    return this->GetInput(0);
+  }
 
   /** Set/get the initial estimate for the inverse field (optional). */
-  itkSetInputMacro( InverseFieldInitialEstimate, InverseDisplacementFieldType );
-  itkGetInputMacro( InverseFieldInitialEstimate, InverseDisplacementFieldType );
+  itkSetInputMacro(InverseFieldInitialEstimate, InverseDisplacementFieldType);
+  itkGetInputMacro(InverseFieldInitialEstimate, InverseDisplacementFieldType);
 
   /* Set the interpolator. */
-  virtual void SetInterpolator( InterpolatorType* interpolator );
+  virtual void
+  SetInterpolator(InterpolatorType * interpolator);
 
   /* Set/Get the number of iterations */
-  itkSetMacro( MaximumNumberOfIterations, unsigned int );
-  itkGetConstMacro( MaximumNumberOfIterations, unsigned int );
+  itkSetMacro(MaximumNumberOfIterations, unsigned int);
+  itkGetConstMacro(MaximumNumberOfIterations, unsigned int);
 
   /* Set/Get the mean stopping criterion */
-  itkSetMacro( MeanErrorToleranceThreshold, RealType );
-  itkGetConstMacro( MeanErrorToleranceThreshold, RealType );
+  itkSetMacro(MeanErrorToleranceThreshold, RealType);
+  itkGetConstMacro(MeanErrorToleranceThreshold, RealType);
 
   /* Set/Get the max stopping criterion */
-  itkSetMacro( MaxErrorToleranceThreshold, RealType );
-  itkGetConstMacro( MaxErrorToleranceThreshold, RealType );
+  itkSetMacro(MaxErrorToleranceThreshold, RealType);
+  itkGetConstMacro(MaxErrorToleranceThreshold, RealType);
 
   /* Get the max norm */
-  itkGetConstMacro( MaxErrorNorm, RealType );
+  itkGetConstMacro(MaxErrorNorm, RealType);
 
   /* Get the mean norm */
-  itkGetConstMacro( MeanErrorNorm, RealType );
+  itkGetConstMacro(MeanErrorNorm, RealType);
 
-/* Should we force the boundary to have zero displacement? */
-  itkSetMacro( EnforceBoundaryCondition, bool );
-  itkGetMacro( EnforceBoundaryCondition, bool );
+  /* Should we force the boundary to have zero displacement? */
+  itkSetMacro(EnforceBoundaryCondition, bool);
+  itkGetMacro(EnforceBoundaryCondition, bool);
 
 protected:
-
   /** Constructor */
   InvertDisplacementFieldImageFilter();
 
   /** Deconstructor */
-  virtual ~InvertDisplacementFieldImageFilter() ITK_OVERRIDE;
+  ~InvertDisplacementFieldImageFilter() override = default;
 
   /** Standard print self function **/
-  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** preprocessing function */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Multithreaded function which generates the output field. */
-  void ThreadedGenerateData( const RegionType &, ThreadIdType ) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const RegionType &) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(InvertDisplacementFieldImageFilter);
-
   /** The interpolator. */
-  typename InterpolatorType::Pointer                m_Interpolator;
+  typename InterpolatorType::Pointer m_Interpolator;
 
-  unsigned int                                      m_MaximumNumberOfIterations;
+  unsigned int m_MaximumNumberOfIterations{ 20 };
 
-  RealType                                          m_MaxErrorToleranceThreshold;
-  RealType                                          m_MeanErrorToleranceThreshold;
+  RealType m_MaxErrorToleranceThreshold;
+  RealType m_MeanErrorToleranceThreshold;
 
   // internal ivars necessary for multithreading basic operations
 
-  typename DisplacementFieldType::Pointer           m_ComposedField;
-  typename RealImageType::Pointer                   m_ScaledNormImage;
+  typename DisplacementFieldType::Pointer m_ComposedField;
+  typename RealImageType::Pointer         m_ScaledNormImage;
 
-  RealType                                          m_MaxErrorNorm;
-  RealType                                          m_MeanErrorNorm;
-  RealType                                          m_Epsilon;
-  SpacingType                                       m_DisplacementFieldSpacing;
-  bool                                              m_DoThreadedEstimateInverse;
-  bool                                              m_EnforceBoundaryCondition;
-  SimpleFastMutexLock                               m_Mutex;
-
+  RealType    m_MaxErrorNorm;
+  RealType    m_MeanErrorNorm;
+  RealType    m_Epsilon;
+  SpacingType m_DisplacementFieldSpacing;
+  bool        m_DoThreadedEstimateInverse{ false };
+  bool        m_EnforceBoundaryCondition{ true };
+  std::mutex  m_Mutex;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkInvertDisplacementFieldImageFilter.hxx"
+#  include "itkInvertDisplacementFieldImageFilter.hxx"
 #endif
 
 #endif

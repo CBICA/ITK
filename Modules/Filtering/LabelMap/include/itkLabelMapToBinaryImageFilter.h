@@ -19,7 +19,6 @@
 #define itkLabelMapToBinaryImageFilter_h
 
 #include "itkLabelMapFilter.h"
-#include "itkBarrier.h"
 
 namespace itk
 {
@@ -42,35 +41,36 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT LabelMapToBinaryImageFilter:
-  public LabelMapFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LabelMapToBinaryImageFilter : public LabelMapFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelMapToBinaryImageFilter                 Self;
-  typedef LabelMapFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToBinaryImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::Pointer         InputImagePointer;
-  typedef typename InputImageType::ConstPointer    InputImageConstPointer;
-  typedef typename InputImageType::RegionType      InputImageRegionType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename InputImageType::LabelObjectType LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = LabelMapToBinaryImageFilter;
+  using Superclass = LabelMapFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
-  typedef typename OutputImageType::IndexType    IndexType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using LabelObjectType = typename InputImageType::LabelObjectType;
+
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using IndexType = typename OutputImageType::IndexType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int, TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -93,62 +93,75 @@ public:
   itkGetConstMacro(ForegroundValue, OutputImagePixelType);
 
   /** Set/Get the background image top be used to restore the background values
-    */
-  void SetBackgroundImage(const OutputImageType *input)
+   */
+  void
+  SetBackgroundImage(const OutputImageType * input)
   {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast< OutputImageType * >( input ) );
+    this->SetNthInput(1, const_cast<OutputImageType *>(input));
   }
 
-  OutputImageType * GetBackgroundImage()
+  OutputImageType *
+  GetBackgroundImage()
   {
-    return static_cast< OutputImageType * >( const_cast< DataObject * >( this->ProcessObject::GetInput(1) ) );
+    return static_cast<OutputImageType *>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
   }
 
   /** Set the input image */
-  void SetInput1(const InputImageType *input)
+  void
+  SetInput1(const InputImageType * input)
   {
     this->SetInput(input);
   }
 
   /** Set the marker image */
-  void SetInput2(const OutputImageType *input)
+  void
+  SetInput2(const OutputImageType * input)
   {
     this->SetBackgroundImage(input);
   }
 
 protected:
   LabelMapToBinaryImageFilter();
-  ~LabelMapToBinaryImageFilter() ITK_OVERRIDE {}
+  ~LabelMapToBinaryImageFilter() override = default;
 
   /** LabelMapToBinaryImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** LabelMapToBinaryImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 
-  virtual void ThreadedProcessLabelObject(LabelObjectType *labelObject) ITK_OVERRIDE;
+  // part of a compile error workaround for GCC 4.8.5-28 (Red Hat) from 20150623
+  void
+  SuperclassDynamicTGD(const OutputImageRegionType & outputRegion)
+  {
+    Superclass::DynamicThreadedGenerateData(outputRegion);
+  }
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
+
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToBinaryImageFilter);
-
   OutputImagePixelType m_BackgroundValue;
   OutputImagePixelType m_ForegroundValue;
-
-  typename Barrier::Pointer m_Barrier;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelMapToBinaryImageFilter.hxx"
+#  include "itkLabelMapToBinaryImageFilter.hxx"
 #endif
 
 #endif

@@ -19,57 +19,56 @@
 
 namespace itk
 {
-  Command::Command()
-    {}
+Command::Command() = default;
 
-  Command::~Command()
-    {}
+Command::~Command() = default;
 
-  CStyleCommand::CStyleCommand() :
-    m_ClientData( ITK_NULLPTR ),
-    m_Callback( ITK_NULLPTR ),
-    m_ConstCallback( ITK_NULLPTR ),
-    m_ClientDataDeleteCallback( ITK_NULLPTR )
-  {}
+CStyleCommand::CStyleCommand() = default;
 
-  CStyleCommand::~CStyleCommand()
-    {
-    if ( m_ClientDataDeleteCallback )
-      {
-      m_ClientDataDeleteCallback(m_ClientData);
-      }
-    }
-
-  void CStyleCommand::SetClientData(void *cd)
-    {
-    m_ClientData = cd;
-    }
-  void CStyleCommand::SetCallback(FunctionPointer f)
-    {
-    m_Callback = f;
-    }
-  void CStyleCommand::SetConstCallback(ConstFunctionPointer f)
-    {
-    m_ConstCallback = f;
-    }
-  void CStyleCommand::SetClientDataDeleteCallback(DeleteDataFunctionPointer f)
-    {
-    m_ClientDataDeleteCallback = f;
-    }
-
-  void CStyleCommand::Execute(Object *caller, const EventObject & event)
-    {
-    if ( m_Callback )
-      {
-      m_Callback(caller, event, m_ClientData);
-      }
-    }
-
-  void CStyleCommand::Execute(const Object *caller, const EventObject & event)
-    {
-    if ( m_ConstCallback )
-      {
-      m_ConstCallback(caller, event, m_ClientData);
-      }
-    }
+CStyleCommand::~CStyleCommand()
+{
+  if (m_ClientDataDeleteCallback)
+  {
+    m_ClientDataDeleteCallback(m_ClientData);
+  }
 }
+
+void
+CStyleCommand::SetClientData(void * cd)
+{
+  m_ClientData = cd;
+}
+void
+CStyleCommand::SetCallback(FunctionPointer f)
+{
+  m_Callback = f;
+}
+void
+CStyleCommand::SetConstCallback(ConstFunctionPointer f)
+{
+  m_ConstCallback = f;
+}
+void
+CStyleCommand::SetClientDataDeleteCallback(DeleteDataFunctionPointer f)
+{
+  m_ClientDataDeleteCallback = f;
+}
+
+void
+CStyleCommand::Execute(Object * caller, const EventObject & event)
+{
+  if (m_Callback)
+  {
+    m_Callback(caller, event, m_ClientData);
+  }
+}
+
+void
+CStyleCommand::Execute(const Object * caller, const EventObject & event)
+{
+  if (m_ConstCallback)
+  {
+    m_ConstCallback(caller, event, m_ClientData);
+  }
+}
+} // namespace itk

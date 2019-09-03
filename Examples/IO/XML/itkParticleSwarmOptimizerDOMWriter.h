@@ -17,13 +17,15 @@
  *=========================================================================*/
 
 /**
- * This is a fully working example of DOM-based writer for the ITK object itk::ParticleSwarmOptimizer.
- * To demonstrate the power and flexibility of the new DOM-based object writing/reading, we formulate our XML
- * format for the PSO object in a special way, e.g. using children and text nodes (instead of attributes)
- * for some data fields. This may not be the favouriate way for some users, but users can always
+ * This is a fully working example of DOM-based writer for the ITK object
+ * itk::ParticleSwarmOptimizer. To demonstrate the power and flexibility of the new
+ * DOM-based object writing/reading, we formulate our XML format for the PSO object in a
+ * special way, e.g. using children and text nodes (instead of attributes) for some data
+ * fields. This may not be the favouriate way for some users, but users can always
  * define their own XML format, and customize this implementation.
  *
- * Please see [ITK_HOME]/Testing/Data/InputXML/test.pso.xml for an example of our XML format for the PSO object.
+ * Please see [ITK_HOME]/Testing/Data/InputXML/test.pso.xml for an example of our XML
+ * format for the PSO object.
  */
 
 #ifndef itkParticleSwarmOptimizerDOMWriter_h
@@ -38,11 +40,13 @@ namespace itk
 class ParticleSwarmOptimizerDOMWriter : public DOMWriter<ParticleSwarmOptimizer>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ParticleSwarmOptimizerDOMWriter     Self;
-  typedef DOMWriter<ParticleSwarmOptimizer>   Superclass;
-  typedef SmartPointer< Self >                Pointer;
-  typedef SmartPointer< const Self >          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ParticleSwarmOptimizerDOMWriter);
+
+  /** Standard class type aliases. */
+  using Self = ParticleSwarmOptimizerDOMWriter;
+  using Superclass = DOMWriter<ParticleSwarmOptimizer>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -51,16 +55,15 @@ public:
   itkTypeMacro(ParticleSwarmOptimizerDOMWriter, DOMWriter);
 
 protected:
-  ParticleSwarmOptimizerDOMWriter() {}
+  ParticleSwarmOptimizerDOMWriter() = default;
 
   /**
    * This function is called automatically when update functions are performed.
-   * It should fill the contents of the intermediate DOM object by pulling information from the input object.
+   * It should fill the contents of the intermediate DOM object by pulling information
+   * from the input object.
    */
-  virtual void GenerateData( DOMNodeType* outputdom, const void* ) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ParticleSwarmOptimizerDOMWriter);
+  void
+  GenerateData(DOMNodeType * outputdom, const void *) const override;
 };
 
 } // namespace itk

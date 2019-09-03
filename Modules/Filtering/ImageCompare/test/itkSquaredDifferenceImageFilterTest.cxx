@@ -20,39 +20,40 @@
 #include "itkImageRegionIteratorWithIndex.h"
 
 
-int itkSquaredDifferenceImageFilterTest(int, char* [] )
+int
+itkSquaredDifferenceImageFilterTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int myDimension = 3;
+  constexpr unsigned int myDimension = 3;
 
   // Define the values of the input images
-  const float input1Value = 3.0;
-  const float input2Value = 4.0;
+  constexpr float input1Value = 3.0;
+  constexpr float input2Value = 4.0;
 
   // Define the values of the output images
-  const float outputValue = 1.0;
+  constexpr float outputValue = 1.0;
 
   // Define the precision for output comparison
   const float epsilon = 1e-6;
 
   // Declare the types of the images
-  typedef itk::Image<float, myDimension>  myImageType1;
-  typedef itk::Image<float, myDimension>  myImageType2;
-  typedef itk::Image<float, myDimension>  myImageType4;
+  using myImageType1 = itk::Image<float, myDimension>;
+  using myImageType2 = itk::Image<float, myDimension>;
+  using myImageType4 = itk::Image<float, myDimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<myDimension>         myIndexType;
+  using myIndexType = itk::Index<myDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<myDimension>          mySizeType;
+  using mySizeType = itk::Size<myDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<myDimension>        myRegionType;
+  using myRegionType = itk::ImageRegion<myDimension>;
 
   // Create two images
-  myImageType1::Pointer inputImageA  = myImageType1::New();
-  myImageType2::Pointer inputImageB  = myImageType2::New();
+  myImageType1::Pointer inputImageA = myImageType1::New();
+  myImageType2::Pointer inputImageB = myImageType2::New();
 
   // Define their size, and start index
   mySizeType size;
@@ -66,56 +67,53 @@ int itkSquaredDifferenceImageFilterTest(int, char* [] )
   start[2] = 0;
 
   myRegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImageA->SetLargestPossibleRegion( region );
-  inputImageA->SetBufferedRegion( region );
-  inputImageA->SetRequestedRegion( region );
+  inputImageA->SetLargestPossibleRegion(region);
+  inputImageA->SetBufferedRegion(region);
+  inputImageA->SetRequestedRegion(region);
   inputImageA->Allocate();
 
   // Initialize Image B
-  inputImageB->SetLargestPossibleRegion( region );
-  inputImageB->SetBufferedRegion( region );
-  inputImageB->SetRequestedRegion( region );
+  inputImageB->SetLargestPossibleRegion(region);
+  inputImageB->SetBufferedRegion(region);
+  inputImageB->SetRequestedRegion(region);
   inputImageB->Allocate();
 
   // Declare Iterator types apropriated for each image
-  typedef itk::ImageRegionIteratorWithIndex<myImageType1>  myIteratorType1;
-  typedef itk::ImageRegionIteratorWithIndex<myImageType2>  myIteratorType2;
-  typedef itk::ImageRegionIteratorWithIndex<myImageType4>  myIteratorType4;
+  using myIteratorType1 = itk::ImageRegionIteratorWithIndex<myImageType1>;
+  using myIteratorType2 = itk::ImageRegionIteratorWithIndex<myImageType2>;
+  using myIteratorType4 = itk::ImageRegionIteratorWithIndex<myImageType4>;
 
   // Create one iterator for Image A (this is a light object)
-  myIteratorType1 it1( inputImageA, inputImageA->GetBufferedRegion() );
+  myIteratorType1 it1(inputImageA, inputImageA->GetBufferedRegion());
 
   // Initialize the content of Image A
   std::cout << "First operand " << std::endl;
-  while( !it1.IsAtEnd() )
+  while (!it1.IsAtEnd())
   {
-    it1.Set( input1Value );
+    it1.Set(input1Value);
     std::cout << it1.Get() << std::endl;
     ++it1;
   }
 
   // Create one iterator for Image B (this is a light object)
-  myIteratorType2 it2( inputImageB, inputImageB->GetBufferedRegion() );
+  myIteratorType2 it2(inputImageB, inputImageB->GetBufferedRegion());
 
   // Initialize the content of Image B
   std::cout << "Second operand " << std::endl;
-  while( !it2.IsAtEnd() )
+  while (!it2.IsAtEnd())
   {
-    it2.Set( input2Value );
+    it2.Set(input2Value);
     std::cout << it2.Get() << std::endl;
     ++it2;
   }
 
 
   // Declare the type for the Magnitude Filter
-  typedef itk::SquaredDifferenceImageFilter<
-                                myImageType1,
-                                myImageType2,
-                                myImageType4  >       myFilterType;
+  using myFilterType = itk::SquaredDifferenceImageFilter<myImageType1, myImageType2, myImageType4>;
 
 
   // Create a MagnitudeImageFilter
@@ -123,8 +121,8 @@ int itkSquaredDifferenceImageFilterTest(int, char* [] )
 
 
   // Connect the input images
-  filter->SetInput1( inputImageA );
-  filter->SetInput2( inputImageB );
+  filter->SetInput1(inputImageA);
+  filter->SetInput2(inputImageB);
 
   // Get the Smart Pointer to the Filter Output
   myImageType4::Pointer outputImage = filter->GetOutput();
@@ -132,21 +130,20 @@ int itkSquaredDifferenceImageFilterTest(int, char* [] )
 
   // Execute the filter
   filter->Update();
-  filter->SetFunctor(filter->GetFunctor());
 
   // Create an iterator for going through the image output
   myIteratorType4 it4(outputImage, outputImage->GetBufferedRegion());
 
   //  Print the content of the result image
   std::cout << " Result " << std::endl;
-  while( !it4.IsAtEnd() )
+  while (!it4.IsAtEnd())
   {
     std::cout << it4.Get() << std::endl;
-    if( std::fabs( it4.Get() - outputValue ) > epsilon )
+    if (std::fabs(it4.Get() - outputValue) > epsilon)
     {
       std::cerr << "Error in the output" << std::endl;
       std::cerr << "Value should be  " << outputValue << std::endl;
-      std::cerr << "but is           " << it4.Get()  << std::endl;
+      std::cerr << "but is           " << it4.Get() << std::endl;
       return EXIT_FAILURE;
     }
 

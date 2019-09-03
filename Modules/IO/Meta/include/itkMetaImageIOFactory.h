@@ -28,19 +28,23 @@ namespace itk
  * \brief Create instances of MetaImageIO objects using an object factory.
  * \ingroup ITKIOMeta
  */
-class ITKIOMeta_EXPORT MetaImageIOFactory:public ObjectFactoryBase
+class ITKIOMeta_EXPORT MetaImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef MetaImageIOFactory         Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MetaImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = MetaImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion() const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription() const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -49,7 +53,8 @@ public:
   itkTypeMacro(MetaImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory()
+  static void
+  RegisterOneFactory()
   {
     MetaImageIOFactory::Pointer metaFactory = MetaImageIOFactory::New();
 
@@ -58,10 +63,7 @@ public:
 
 protected:
   MetaImageIOFactory();
-  ~MetaImageIOFactory() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MetaImageIOFactory);
+  ~MetaImageIOFactory() override;
 };
 } // end namespace itk
 

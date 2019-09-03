@@ -39,58 +39,54 @@ namespace itk
  * \ingroup ITKMathematicalMorphology
  */
 
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class MovingHistogramDilateImageFilter:
-  public MovingHistogramMorphologyImageFilter< TInputImage, TOutputImage, TKernel,
-                                               typename Function::MorphologyHistogram< typename TInputImage::PixelType,
-                                                                                       typename std::greater< typename
-                                                                                                              TInputImage
-                                                                                                              ::PixelType > > >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class MovingHistogramDilateImageFilter
+  : public MovingHistogramMorphologyImageFilter<
+      TInputImage,
+      TOutputImage,
+      TKernel,
+      typename Function::MorphologyHistogram<typename TInputImage::PixelType,
+                                             typename std::greater<typename TInputImage ::PixelType>>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MovingHistogramDilateImageFilter Self;
-  typedef MovingHistogramMorphologyImageFilter< TInputImage, TOutputImage, TKernel,
-                                                typename Function::MorphologyHistogram< typename TInputImage::PixelType,
-                                                                                        typename std::greater< typename
-                                                                                                               TInputImage
-                                                                                                               ::PixelType > > >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MovingHistogramDilateImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = MovingHistogramDilateImageFilter;
+  using Superclass = MovingHistogramMorphologyImageFilter<
+    TInputImage,
+    TOutputImage,
+    TKernel,
+    typename Function::MorphologyHistogram<typename TInputImage::PixelType,
+                                           typename std::greater<typename TInputImage ::PixelType>>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(MovingHistogramDilateImageFilter,
-               MovingHistogramMorphologyImageFilter);
+  itkTypeMacro(MovingHistogramDilateImageFilter, MovingHistogramMorphologyImageFilter);
 
-  /** Image related typedefs. */
-  typedef TInputImage                                InputImageType;
-  typedef TOutputImage                               OutputImageType;
-  typedef typename TInputImage::RegionType           RegionType;
-  typedef typename TInputImage::SizeType             SizeType;
-  typedef typename TInputImage::IndexType            IndexType;
-  typedef typename TInputImage::PixelType            PixelType;
-  typedef typename TInputImage::OffsetType           OffsetType;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename TOutputImage::PixelType           OutputPixelType;
+  /** Image related type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
 protected:
-  MovingHistogramDilateImageFilter()
-  {
-    this->m_Boundary = NumericTraits< PixelType >::NonpositiveMin();
-  }
+  MovingHistogramDilateImageFilter() { this->m_Boundary = NumericTraits<PixelType>::NonpositiveMin(); }
 
-  ~MovingHistogramDilateImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MovingHistogramDilateImageFilter);
-};                                                // end of class
+  ~MovingHistogramDilateImageFilter() override = default;
+}; // end of class
 } // end namespace itk
 
 #endif

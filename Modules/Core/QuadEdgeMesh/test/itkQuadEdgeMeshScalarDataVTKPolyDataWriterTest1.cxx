@@ -22,105 +22,102 @@
 
 #include <iostream>
 
-int itkQuadEdgeMeshScalarDataVTKPolyDataWriterTest1( int argc, char * argv [] )
+int
+itkQuadEdgeMeshScalarDataVTKPolyDataWriterTest1(int argc, char * argv[])
 {
-  if( argc < 2 )
-    {
+  if (argc < 2)
+  {
     std::cerr << "Missing Arguments" << std::endl;
     std::cerr << "Usage" << std::endl;
     std::cerr << argv[0] << " outputFileName.vtk" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::QuadEdgeMesh<float, 3>   MeshType;
+  using MeshType = itk::QuadEdgeMesh<float, 3>;
 
-  typedef itk::RegularSphereMeshSource< MeshType >  SphereMeshSourceType;
+  using SphereMeshSourceType = itk::RegularSphereMeshSource<MeshType>;
 
-  SphereMeshSourceType::Pointer  mySphereMeshSource = SphereMeshSourceType::New();
+  SphereMeshSourceType::Pointer mySphereMeshSource = SphereMeshSourceType::New();
 
-  typedef SphereMeshSourceType::PointType   PointType;
-  typedef SphereMeshSourceType::VectorType  VectorType;
+  using PointType = SphereMeshSourceType::PointType;
+  using VectorType = SphereMeshSourceType::VectorType;
 
   PointType center;
-  center.Fill( 0.0 );
+  center.Fill(0.0);
 
   VectorType scale;
-  scale.Fill( 1.0 );
+  scale.Fill(1.0);
 
-  mySphereMeshSource->SetCenter( center );
-  mySphereMeshSource->SetResolution( 1 );
-  mySphereMeshSource->SetScale( scale );
+  mySphereMeshSource->SetCenter(center);
+  mySphereMeshSource->SetResolution(1);
+  mySphereMeshSource->SetScale(scale);
 
   mySphereMeshSource->Modified();
 
   try
-    {
+  {
     mySphereMeshSource->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error during source Update() " << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "mySphereMeshSource: " << mySphereMeshSource;
 
   MeshType::Pointer myMesh = mySphereMeshSource->GetOutput();
 
   PointType pt;
-  pt.Fill( 0. );
+  pt.Fill(0.);
 
-  std::cout << "Testing itk::RegularSphereMeshSource "<< std::endl;
+  std::cout << "Testing itk::RegularSphereMeshSource " << std::endl;
 
-  myMesh->Print( std::cout );
+  myMesh->Print(std::cout);
 
-  for( unsigned int i=0; i < myMesh->GetNumberOfPoints(); i++ )
-    {
+  for (unsigned int i = 0; i < myMesh->GetNumberOfPoints(); i++)
+  {
     myMesh->GetPoint(i, &pt);
     std::cout << "Point[" << i << "]: " << pt << std::endl;
-    }
+  }
 
-  typedef MeshType::CellsContainerPointer  CellsContainerPointer;
-  typedef MeshType::CellType               CellType;
+  using CellsContainerPointer = MeshType::CellsContainerPointer;
+  using CellType = MeshType::CellType;
 
   CellsContainerPointer cells = myMesh->GetCells();
 
   unsigned faceId = 0;
 
-  for( MeshType::CellsContainerIterator cells_it = cells->Begin();
-       cells_it != cells->End();
-       ++cells_it, faceId++ )
+  for (MeshType::CellsContainerIterator cells_it = cells->Begin(); cells_it != cells->End(); ++cells_it, faceId++)
+  {
+    CellType * cellPointer = cells_it.Value();
+    if (cellPointer->GetType() != 1)
     {
-    CellType* cellPointer = cells_it.Value();
-    if( cellPointer->GetType() != 1 )
-      {
-      std::cout <<"Face " << faceId << " has " << cellPointer->GetNumberOfPoints()
-                <<" points" << std::endl;
-      }
+      std::cout << "Face " << faceId << " has " << cellPointer->GetNumberOfPoints() << " points" << std::endl;
     }
+  }
 
-  std::cout << "Test End "<< std::endl;
+  std::cout << "Test End " << std::endl;
 
-  typedef itk::QuadEdgeMeshScalarDataVTKPolyDataWriter< MeshType >   WriterType;
+  using WriterType = itk::QuadEdgeMeshScalarDataVTKPolyDataWriter<MeshType>;
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetInput( mySphereMeshSource->GetOutput() );
-  writer->SetFileName( argv[1] );
+  writer->SetInput(mySphereMeshSource->GetOutput());
+  writer->SetFileName(argv[1]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error during writer Update() " << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   return EXIT_SUCCESS;
-
 }

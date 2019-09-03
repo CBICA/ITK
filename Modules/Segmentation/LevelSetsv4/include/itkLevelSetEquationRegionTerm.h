@@ -22,36 +22,33 @@
 
 namespace itk
 {
-template< typename TInput,
-          typename TLevelSetContainer >
-class LevelSetEquationRegionTerm :
-    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
+template <typename TInput, typename TLevelSetContainer>
+class LevelSetEquationRegionTerm : public LevelSetEquationTermBase<TInput, TLevelSetContainer>
 {
 public:
-  typedef LevelSetEquationRegionTerm                             Self;
-  typedef SmartPointer< Self >                                   Pointer;
-  typedef SmartPointer< const Self >                             ConstPointer;
-  typedef LevelSetEquationTermBase< TInput, TLevelSetContainer > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationRegionTerm);
 
-  typedef TInput                      InputType;
-  typedef typename InputType::Pointer InputPointer;
+  using Self = LevelSetEquationRegionTerm;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = LevelSetEquationTermBase<TInput, TLevelSetContainer>;
 
-  typedef TLevelSetContainer                           LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer      LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::OutputType   LevelSetOutputType;
-  typedef typename LevelSetContainerType::InputType    LevelSetInputType;
-  typedef typename LevelSetContainerType::GradientType GradientType;
-  typedef typename LevelSetContainerType::HessianType  HessianType;
+  using InputType = TInput;
+  using InputPointer = typename InputType::Pointer;
+
+  using LevelSetContainerType = TLevelSetContainer;
+  using LevelSetContainerPointer = typename LevelSetContainerType::Pointer;
+  using LevelSetOutputType = typename LevelSetContainerType::OutputType;
+  using LevelSetInputType = typename LevelSetContainerType::InputType;
+  using GradientType = typename LevelSetContainerType::GradientType;
+  using HessianType = typename LevelSetContainerType::HessianType;
 
 protected:
-  LevelSetEquationRegionTerm() : Superclass()
+  LevelSetEquationRegionTerm()
+    : Superclass()
   {}
 
-  virtual ~LevelSetEquationRegionTerm() {}
-
-private:
-  LevelSetEquationRegionTerm( const Self& );
-  void operator = ( const Self& );
+  virtual ~LevelSetEquationRegionTerm() = default;
 };
-}
+} // namespace itk
 #endif // itkLevelSetEquationRegionTerm_h

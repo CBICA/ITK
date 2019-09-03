@@ -37,35 +37,36 @@ namespace itk
  *
  * \ingroup ITKVideoIO
  */
-template< typename TOutputVideoStream >
-class ITK_TEMPLATE_EXPORT VideoFileReader : public VideoSource< TOutputVideoStream >
+template <typename TOutputVideoStream>
+class ITK_TEMPLATE_EXPORT VideoFileReader : public VideoSource<TOutputVideoStream>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(VideoFileReader);
 
-  /** Standard class typedefs. */
-  typedef VideoFileReader                          Self;
-  typedef VideoSource< TOutputVideoStream >        Superclass;
-  typedef SmartPointer<Self>                       Pointer;
-  typedef TOutputVideoStream                       VideoStreamType;
-  typedef typename VideoStreamType::Pointer        VideoStreamPointer;
+  /** Standard class type aliases. */
+  using Self = VideoFileReader;
+  using Superclass = VideoSource<TOutputVideoStream>;
+  using Pointer = SmartPointer<Self>;
+  using VideoStreamType = TOutputVideoStream;
+  using VideoStreamPointer = typename VideoStreamType::Pointer;
 
-  typedef typename VideoStreamType::FrameType      FrameType;
-  typedef typename FrameType::PixelType            PixelType;
-  typedef typename FrameType::RegionType           RegionType;
-  typedef typename FrameType::SizeType             SizeType;
-  typedef typename FrameType::IndexType            IndexType;
-  typedef typename FrameType::PointType            PointType;
-  typedef typename FrameType::SpacingType          SpacingType;
-  typedef typename FrameType::DirectionType        DirectionType;
+  using FrameType = typename VideoStreamType::FrameType;
+  using PixelType = typename FrameType::PixelType;
+  using RegionType = typename FrameType::RegionType;
+  using SizeType = typename FrameType::SizeType;
+  using IndexType = typename FrameType::IndexType;
+  using PointType = typename FrameType::PointType;
+  using SpacingType = typename FrameType::SpacingType;
+  using DirectionType = typename FrameType::DirectionType;
 
-  typedef typename VideoIOBase::TemporalOffsetType TemporalOffsetType;
-  typedef typename VideoIOBase::FrameOffsetType    FrameOffsetType;
-  typedef typename VideoIOBase::TemporalRatioType  TemporalRatioType;
+  using TemporalOffsetType = typename VideoIOBase::TemporalOffsetType;
+  using FrameOffsetType = typename VideoIOBase::FrameOffsetType;
+  using TemporalRatioType = typename VideoIOBase::TemporalRatioType;
 
-  itkStaticConstMacro(FrameDimension,unsigned int,FrameType::ImageDimension);
+  static constexpr unsigned int FrameDimension = FrameType::ImageDimension;
 
-  /** Pixel conversion typedefs */
-  typedef DefaultConvertPixelTraits<PixelType> ConvertPixelTraits;
+  /** Pixel conversion type alias */
+  using ConvertPixelTraits = DefaultConvertPixelTraits<PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -84,46 +85,54 @@ public:
   itkGetMacro(IFrameSafe, bool);
 
   /** Set up the output information */
-  virtual void UpdateOutputInformation() ITK_OVERRIDE;
+  void
+  UpdateOutputInformation() override;
 
   /** Set the internal VideoIOBase pointer. This will generally be called by
    * the object that creates the RingBuffer (e.g. itk::VideoFileReader) */
-  void SetVideoIO(VideoIOBase* videoIO);
+  void
+  SetVideoIO(VideoIOBase * videoIO);
 
   /** Get the current position as frame, ratio, or MSec */
-  FrameOffsetType GetCurrentPositionFrame();
+  FrameOffsetType
+  GetCurrentPositionFrame();
 
-  TemporalRatioType GetCurrentPositionRatio();
+  TemporalRatioType
+  GetCurrentPositionRatio();
 
-  TemporalOffsetType GetCurrentPositionMSec();
+  TemporalOffsetType
+  GetCurrentPositionMSec();
 
   /** Get number of frames */
-  FrameOffsetType GetNumberOfFrames();
+  FrameOffsetType
+  GetNumberOfFrames();
 
   /** Get framerate */
-  TemporalRatioType GetFramesPerSecond();
+  TemporalRatioType
+  GetFramesPerSecond();
 
 protected:
-
   VideoFileReader();
-  virtual ~VideoFileReader() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~VideoFileReader() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Override TemporalStreamingGenerateData to generate output a single frame.
    * We don't override ThreadedGenerateData because we read whole frames one at
    * a time. As such, we have to handle the allocation of the frames here. */
-  virtual void TemporalStreamingGenerateData() ITK_OVERRIDE;
+  void
+  TemporalStreamingGenerateData() override;
 
   /** Convert buffer for output */
-  void DoConvertBuffer(void* inputData, FrameOffsetType frameNumber);
+  void
+  DoConvertBuffer(void * inputData, FrameOffsetType frameNumber);
 
   /** Set up the VideoIO using VideoIOFactory
    * Warning: this will overwrite any currently set VideoIO */
-  void InitializeVideoIO();
+  void
+  InitializeVideoIO();
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VideoFileReader);
-
   /** The file to read */
   std::string m_FileName;
 
@@ -142,7 +151,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVideoFileReader.hxx"
+#  include "itkVideoFileReader.hxx"
 #endif
 
 #endif

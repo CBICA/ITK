@@ -33,22 +33,22 @@ namespace itk
  *
  * \ingroup ITKTransform
  *
- * \wiki
- * \wikiexample{ImageProcessing/ScaleTransform,Scale an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Transform/ScaleAnImage,Scale An Image}
+ * \endsphinx
  */
-template<typename TParametersValueType=float,
-          unsigned int NDimensions=3>
-class ITK_TEMPLATE_EXPORT ScaleTransform : public MatrixOffsetTransformBase<TParametersValueType,
-                                                        NDimensions,
-                                                        NDimensions>
+template <typename TParametersValueType = float, unsigned int NDimensions = 3>
+class ITK_TEMPLATE_EXPORT ScaleTransform
+  : public MatrixOffsetTransformBase<TParametersValueType, NDimensions, NDimensions>
 {
 public:
-  /** Standard class typedefs.   */
-  typedef ScaleTransform                                                            Self;
-  typedef MatrixOffsetTransformBase<TParametersValueType, NDimensions, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                                        Pointer;
-  typedef SmartPointer<const Self>                                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ScaleTransform);
+
+  /** Standard class type aliases.   */
+  using Self = ScaleTransform;
+  using Superclass = MatrixOffsetTransformBase<TParametersValueType, NDimensions, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a smart pointer. */
   itkNewMacro(Self);
@@ -57,82 +57,72 @@ public:
   itkTypeMacro(ScaleTransform, Transform);
 
   /** Dimension of the domain space. */
-  itkStaticConstMacro(SpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro(ParametersDimension, unsigned int, NDimensions);
+  static constexpr unsigned int SpaceDimension = NDimensions;
+  static constexpr unsigned int ParametersDimension = NDimensions;
 
   /** Scalar type. */
-  typedef typename Superclass::ScalarType ScalarType;
+  using ScalarType = typename Superclass::ScalarType;
 
   /** Parameters type. */
-  typedef typename Superclass::FixedParametersType FixedParametersType;
-  typedef typename Superclass::ParametersType      ParametersType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using ParametersType = typename Superclass::ParametersType;
 
-  /** Jacobian type. */
-  typedef typename Superclass::JacobianType JacobianType;
+  /** Jacobian types. */
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
 
   /** Standard vector type for this class. */
-  typedef FixedArray<TParametersValueType, NDimensions> ScaleType;
+  using ScaleType = FixedArray<TParametersValueType, NDimensions>;
 
   /** Standard vector type for this class. */
-  typedef Vector<TParametersValueType, NDimensions> InputVectorType;
-  typedef Vector<TParametersValueType, NDimensions> OutputVectorType;
+  using InputVectorType = Vector<TParametersValueType, NDimensions>;
+  using OutputVectorType = Vector<TParametersValueType, NDimensions>;
 
   /** Standard covariant vector type for this class. */
-  typedef CovariantVector<TParametersValueType, NDimensions> InputCovariantVectorType;
-  typedef CovariantVector<TParametersValueType, NDimensions> OutputCovariantVectorType;
+  using InputCovariantVectorType = CovariantVector<TParametersValueType, NDimensions>;
+  using OutputCovariantVectorType = CovariantVector<TParametersValueType, NDimensions>;
 
   /** Standard vnl_vector type for this class. */
-  typedef vnl_vector_fixed<TParametersValueType, NDimensions> InputVnlVectorType;
-  typedef vnl_vector_fixed<TParametersValueType, NDimensions> OutputVnlVectorType;
+  using InputVnlVectorType = vnl_vector_fixed<TParametersValueType, NDimensions>;
+  using OutputVnlVectorType = vnl_vector_fixed<TParametersValueType, NDimensions>;
 
   /** Standard coordinate point type for this class. */
-  typedef Point<TParametersValueType, NDimensions> InputPointType;
-  typedef Point<TParametersValueType, NDimensions> OutputPointType;
+  using InputPointType = Point<TParametersValueType, NDimensions>;
+  using OutputPointType = Point<TParametersValueType, NDimensions>;
 
   /** Base inverse transform type. This type should not be changed to the
    * concrete inverse transform type or inheritance would be lost.*/
-  typedef typename Superclass::InverseTransformBaseType InverseTransformBaseType;
-  typedef typename InverseTransformBaseType::Pointer    InverseTransformBasePointer;
+  using InverseTransformBaseType = typename Superclass::InverseTransformBaseType;
+  using InverseTransformBasePointer = typename InverseTransformBaseType::Pointer;
 
-  typedef typename Superclass::MatrixType MatrixType;
+  using MatrixType = typename Superclass::MatrixType;
 
   /** Set parameters.  This method sets the parameters for the transform value
    *  specified by the user. The parameters are organized as scale[i] =
    *  parameter[i]. That means that in 3D the scale parameters for the coordinates
    *  {x,y,z} are {parameter[0], parameter[1], parameter[2]} respectively */
-  virtual void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType & parameters) override;
 
   /** Get the parameters that uniquely define the transform This is typically
    * used by optimizers during the process of image registration.  The parameters
    * are organized as {scale X, scale Y, scale Z } = { parameter[0],
    * parameter[1], parameter[2] } respectively */
-  virtual const ParametersType & GetParameters() const ITK_OVERRIDE;
-
-
-#if !defined( ITK_LEGACY_REMOVE )
-  /** Set the fixed parameters and update internal
-   * transformation. This transform has the center point as it's fixed
-   * parameters.
-   */
-  virtual void SetFixedParameters(const FixedParametersType &params) ITK_OVERRIDE
-    {
-      if (params.GetSize() != NDimensions)
-        {
-        itkWarningMacro(<< "The ScaleTransform now has " << NDimensions << " fixed parameters for the Center. Ignoring fixed parameters provided.");
-        return;
-        }
-      Superclass::SetFixedParameters(params);
-    }
-#endif
+  const ParametersType &
+  GetParameters() const override;
 
   /** Get the Jacobian matrix. */
-  virtual void ComputeJacobianWithRespectToParameters(const InputPointType & point, JacobianType & j) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToParameters(const InputPointType & point, JacobianType & j) const override;
 
   /** Get the jacobian with respect to position, which simply is the
    *  matrix because the transform is position-invariant.
    *  jac will be resized as needed, but it will be more efficient if
    *  it is already properly sized. */
-  virtual void ComputeJacobianWithRespectToPosition(const InputPointType  & x, JacobianType & jac) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToPosition(const InputPointType & x, JacobianPositionType & jac) const override;
+  using Superclass::ComputeJacobianWithRespectToPosition;
 
   /** Set the factors of an Scale Transform
    * This method sets the factors of an ScaleTransform to a
@@ -142,57 +132,72 @@ public:
    * to be applied to each one of the coordinaates. For example, in 3D,
    * scale[0] corresponds to X, scale[1] corresponds to Y and scale[2]
    * corresponds to Z. */
-  void SetScale(const ScaleType & scale);
+  void
+  SetScale(const ScaleType & scale);
 
-  virtual void ComputeMatrix(void) ITK_OVERRIDE;
+  void
+  ComputeMatrix() override;
 
   /** Compose with another ScaleTransform. */
-  void Compose(const Self *other, bool pre = false);
+  void
+  Compose(const Self * other, bool pre = false);
 
   /** Compose this transform transformation with another scaling.
    * The pre argument is irrelevant here since scale transforms are commutative,
    * pre and postcomposition are therefore equivalent. */
-  void Scale(const ScaleType & scale, bool pre = false);
+  void
+  Scale(const ScaleType & scale, bool pre = false);
 
   /** Transform by a scale transformation
    * This method applies the scale transform given by self to a
    * given point or vector, returning the transformed point or
    * vector. */
-  OutputPointType     TransformPoint(const InputPointType  & point) const ITK_OVERRIDE;
+  OutputPointType
+  TransformPoint(const InputPointType & point) const override;
 
   using Superclass::TransformVector;
-  OutputVectorType    TransformVector(const InputVectorType & vector) const ITK_OVERRIDE;
+  OutputVectorType
+  TransformVector(const InputVectorType & vector) const override;
 
-  OutputVnlVectorType TransformVector(const InputVnlVectorType & vector) const ITK_OVERRIDE;
+  OutputVnlVectorType
+  TransformVector(const InputVnlVectorType & vector) const override;
 
   using Superclass::TransformCovariantVector;
-  OutputCovariantVectorType TransformCovariantVector(const InputCovariantVectorType & vector) const ITK_OVERRIDE;
+  OutputCovariantVectorType
+  TransformCovariantVector(const InputCovariantVectorType & vector) const override;
 
   /** Back transform by a scale transformation
    * This method finds the point or vector that maps to a given
    * point or vector under the scale transformation defined by
    * self.  If no such point exists, an exception is thrown. */
-  inline InputPointType     BackTransform(const OutputPointType  & point) const;
+  inline InputPointType
+  BackTransform(const OutputPointType & point) const;
 
-  inline InputVectorType    BackTransform(const OutputVectorType & vector) const;
+  inline InputVectorType
+  BackTransform(const OutputVectorType & vector) const;
 
-  inline InputVnlVectorType BackTransform(const OutputVnlVectorType & vector) const;
+  inline InputVnlVectorType
+  BackTransform(const OutputVnlVectorType & vector) const;
 
-  inline InputCovariantVectorType BackTransform(const OutputCovariantVectorType & vector) const;
+  inline InputCovariantVectorType
+  BackTransform(const OutputCovariantVectorType & vector) const;
 
   /** Find inverse of a scale transformation
    * This method creates and returns a new ScaleTransform object
    * which is the inverse of self.  If self is not invertible,
    * false is returned. */
-  bool GetInverse(Self *inverse) const;
+  bool
+  GetInverse(Self * inverse) const;
 
   /** Return an inverse of this transform. */
-  virtual InverseTransformBasePointer GetInverseTransform() const ITK_OVERRIDE;
+  InverseTransformBasePointer
+  GetInverseTransform() const override;
 
   /** Set the transformation to an Identity
    *
    * This sets all the scales to 1.0 */
-  void SetIdentity() ITK_OVERRIDE;
+  void
+  SetIdentity() override;
 
   /** Get access to scale values */
   itkGetConstReferenceMacro(Scale, ScaleType);
@@ -202,22 +207,21 @@ protected:
   ScaleTransform();
 
   /** Destroy an ScaleTransform object. */
-  ~ScaleTransform() ITK_OVERRIDE;
+  ~ScaleTransform() override = default;
 
   /** Print contents of an ScaleTransform */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ScaleTransform);
+  ScaleType m_Scale; // Scales of the transformation
 
-  ScaleType m_Scale;    // Scales of the transformation
-
-};                         // class ScaleTransform
+}; // class ScaleTransform
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScaleTransform.hxx"
+#  include "itkScaleTransform.hxx"
 #endif
 
 #endif /* itkScaleTransform_h */

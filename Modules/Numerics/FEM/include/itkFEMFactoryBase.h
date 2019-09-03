@@ -29,6 +29,7 @@
 #define itkFEMFactoryBase_h
 
 #include "itkObjectFactoryBase.h"
+#include <mutex>
 #include "ITKFEMExport.h"
 
 namespace itk
@@ -42,16 +43,20 @@ namespace itk
 class ITKFEM_EXPORT FEMFactoryBase : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef FEMFactoryBase           Self;
-  typedef ObjectFactoryBase        Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FEMFactoryBase);
+
+  /** Standard class type aliases. */
+  using Self = FEMFactoryBase;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(FEMFactoryBase, ObjectFactoryBase);
@@ -60,57 +65,60 @@ public:
   itkFactorylessNewMacro(Self);
 
   /** Register all builtin transforms */
-  static void RegisterDefaultTypes();  //HACK: This should not have a public interface since it does nothing except during instantiation of the class.
+  static void
+  RegisterDefaultTypes(); // HACK: This should not have a public interface since it does nothing except during
+                          // instantiation of the class.
 
   /** Register this transform */
-  static FEMFactoryBase * GetFactory()
+  static FEMFactoryBase *
+  GetFactory()
   {
-    if( m_Factory == ITK_NULLPTR )
+    if (m_Factory == nullptr)
+    {
+      m_CreationLock.lock();
+      // Need to make sure that during gaining access
+      // to the lock that some other thread did not
+      // initialize the singleton.
+      if (m_Factory == nullptr)
       {
-      m_CreationLock.Lock();
-      //Need to make sure that during gaining access
-      //to the lock that some other thread did not
-      //initialize the singleton.
-      if( m_Factory == ITK_NULLPTR )
-        {
         // Make and register the factory
         FEMFactoryBase::Pointer p = FEMFactoryBase::New();
-        if( p.IsNull() )
-          {
+        if (p.IsNull())
+        {
           std::ostringstream message;
-          message << "itk::ERROR: " << "FEMFactoryBase"
-            << " instance not created";
+          message << "itk::ERROR: "
+                  << "FEMFactoryBase"
+                  << " instance not created";
           ::itk::ExceptionObject e_(__FILE__, __LINE__, message.str().c_str(), ITK_LOCATION);
           throw e_; /* Explicit naming to work around for Intel compiler bug. */
-          }
-        ObjectFactoryBase::RegisterFactory( p );
-        m_Factory = p.GetPointer();
         }
-      m_CreationLock.Unlock();
-      m_Factory->RegisterDefaultTypes(); //Not initialzie all default types.
+        ObjectFactoryBase::RegisterFactory(p);
+        m_Factory = p.GetPointer();
       }
+      m_CreationLock.unlock();
+      m_Factory->RegisterDefaultTypes(); // Not initialzie all default types.
+    }
     return m_Factory;
   }
 
-  void RegisterType(const char* classOverride,
-                    const char* overrideClassName,
-                    const char* description,
-                    bool enableFlag,
-                    CreateObjectFunctionBase* createFunction)
+  void
+  RegisterType(const char *               classOverride,
+               const char *               overrideClassName,
+               const char *               description,
+               bool                       enableFlag,
+               CreateObjectFunctionBase * createFunction)
   {
-    this->RegisterOverride( classOverride, overrideClassName, description, enableFlag, createFunction );
+    this->RegisterOverride(classOverride, overrideClassName, description, enableFlag, createFunction);
   }
 
 protected:
   FEMFactoryBase();
-  virtual ~FEMFactoryBase() ITK_OVERRIDE;
+  ~FEMFactoryBase() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FEMFactoryBase);
-
-  static SimpleFastMutexLock m_CreationLock;
-  static FEMFactoryBase*     m_Factory;
+  static std::mutex       m_CreationLock;
+  static FEMFactoryBase * m_Factory;
 };
 } // end namespace itk
 
-#endif
+#endif // itkFEMFactoryBase_h

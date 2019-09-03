@@ -43,105 +43,107 @@ namespace itk
  *
  *  \ingroup ITKLevelSetsv4
  */
-template< typename TInput, // Input image or mesh
-          typename TLevelSetContainer >
-class ITK_TEMPLATE_EXPORT LevelSetEquationChanAndVeseInternalTerm :
-    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
+template <typename TInput, // Input image or mesh
+          typename TLevelSetContainer>
+class ITK_TEMPLATE_EXPORT LevelSetEquationChanAndVeseInternalTerm
+  : public LevelSetEquationTermBase<TInput, TLevelSetContainer>
 {
 public:
-  typedef LevelSetEquationChanAndVeseInternalTerm         Self;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
-  typedef LevelSetEquationTermBase< TInput,
-                                    TLevelSetContainer >  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationChanAndVeseInternalTerm);
+
+  using Self = LevelSetEquationChanAndVeseInternalTerm;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = LevelSetEquationTermBase<TInput, TLevelSetContainer>;
 
   /** Method for creation through object factory */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationChanAndVeseInternalTerm,
-                LevelSetEquationTermBase );
+  itkTypeMacro(LevelSetEquationChanAndVeseInternalTerm, LevelSetEquationTermBase);
 
-  typedef typename Superclass::InputImageType     InputImageType;
-  typedef typename Superclass::InputImagePointer  InputImagePointer;
-  typedef typename Superclass::InputPixelType     InputPixelType;
-  typedef typename Superclass::InputPixelRealType InputPixelRealType;
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputPixelType = typename Superclass::InputPixelType;
+  using InputPixelRealType = typename Superclass::InputPixelRealType;
 
-  typedef typename Superclass::LevelSetContainerType      LevelSetContainerType;
-  typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
-  typedef typename Superclass::LevelSetType               LevelSetType;
-  typedef typename Superclass::LevelSetPointer            LevelSetPointer;
-  typedef typename Superclass::LevelSetOutputPixelType    LevelSetOutputPixelType;
-  typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
-  typedef typename Superclass::LevelSetInputIndexType     LevelSetInputIndexType;
-  typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
-  typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
-  typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
+  using LevelSetContainerType = typename Superclass::LevelSetContainerType;
+  using LevelSetContainerPointer = typename Superclass::LevelSetContainerPointer;
+  using LevelSetType = typename Superclass::LevelSetType;
+  using LevelSetPointer = typename Superclass::LevelSetPointer;
+  using LevelSetOutputPixelType = typename Superclass::LevelSetOutputPixelType;
+  using LevelSetOutputRealType = typename Superclass::LevelSetOutputRealType;
+  using LevelSetInputIndexType = typename Superclass::LevelSetInputIndexType;
+  using LevelSetGradientType = typename Superclass::LevelSetGradientType;
+  using LevelSetHessianType = typename Superclass::LevelSetHessianType;
+  using LevelSetIdentifierType = typename Superclass::LevelSetIdentifierType;
 
-  typedef typename Superclass::HeavisideType              HeavisideType;
-  typedef typename Superclass::HeavisideConstPointer      HeavisideConstPointer;
+  using HeavisideType = typename Superclass::HeavisideType;
+  using HeavisideConstPointer = typename Superclass::HeavisideConstPointer;
 
-  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+  using LevelSetDataType = typename Superclass::LevelSetDataType;
 
-  typedef typename Superclass::DomainMapImageFilterType   DomainMapImageFilterType;
-  typedef typename Superclass::CacheImageType             CacheImageType;
+  using DomainMapImageFilterType = typename Superclass::DomainMapImageFilterType;
+  using CacheImageType = typename Superclass::CacheImageType;
 
-  itkSetMacro( Mean, InputPixelRealType );
-  itkGetMacro( Mean, InputPixelRealType );
+  itkSetMacro(Mean, InputPixelRealType);
+  itkGetMacro(Mean, InputPixelRealType);
 
   /** Update the term parameter values at end of iteration */
-  virtual void Update() ITK_OVERRIDE;
+  void
+  Update() override;
 
   /** Initialize parameters in the terms prior to an iteration */
-  virtual void InitializeParameters() ITK_OVERRIDE;
+  void
+  InitializeParameters() override;
 
   /** Initialize term parameters in the dense case by computing for each pixel location */
-  virtual void Initialize( const LevelSetInputIndexType& inputIndex ) ITK_OVERRIDE;
+  void
+  Initialize(const LevelSetInputIndexType & inputIndex) override;
 
   /** Compute the product of Heaviside functions in the multi-levelset cases */
-  virtual void ComputeProduct( const LevelSetInputIndexType& inputPixel,
-                              LevelSetOutputRealType& prod );
+  virtual void
+  ComputeProduct(const LevelSetInputIndexType & inputPixel, LevelSetOutputRealType & prod);
 
   /** Compute the product of Heaviside functions in the multi-levelset cases
    *  except the current levelset */
-  virtual void ComputeProductTerm( const LevelSetInputIndexType& ,
-                                  LevelSetOutputRealType& )
+  virtual void
+  ComputeProductTerm(const LevelSetInputIndexType &, LevelSetOutputRealType &)
   {}
 
   /** Supply updates at pixels to keep the term parameters always updated */
-  virtual void UpdatePixel( const LevelSetInputIndexType& inputPixel,
-                           const LevelSetOutputRealType & oldValue,
-                           const LevelSetOutputRealType & newValue ) ITK_OVERRIDE;
+  void
+  UpdatePixel(const LevelSetInputIndexType & inputPixel,
+              const LevelSetOutputRealType & oldValue,
+              const LevelSetOutputRealType & newValue) override;
 
 protected:
   LevelSetEquationChanAndVeseInternalTerm();
 
-  virtual ~LevelSetEquationChanAndVeseInternalTerm() ITK_OVERRIDE;
+  ~LevelSetEquationChanAndVeseInternalTerm() override = default;
 
   /** Returns the term contribution for a given location inputPixel, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& inputPixel ) ITK_OVERRIDE;
+  LevelSetOutputRealType
+  Value(const LevelSetInputIndexType & inputPixel) override;
 
   /** Returns the term contribution for a given location inputPixel, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& inputPixel,
-                                        const LevelSetDataType& data ) ITK_OVERRIDE;
+  LevelSetOutputRealType
+  Value(const LevelSetInputIndexType & inputPixel, const LevelSetDataType & data) override;
 
   /** Accumulate contribution to term parameters from a given pixel */
-  void Accumulate( const InputPixelType& inputPixel,
-                   const LevelSetOutputRealType& heavisideValue );
+  void
+  Accumulate(const InputPixelType & inputPixel, const LevelSetOutputRealType & heavisideValue);
 
-  InputPixelRealType      m_Mean;
-  InputPixelRealType      m_TotalValue;
-  LevelSetOutputRealType  m_TotalH;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationChanAndVeseInternalTerm);
+  InputPixelRealType     m_Mean;
+  InputPixelRealType     m_TotalValue;
+  LevelSetOutputRealType m_TotalH;
 };
 
-}
+} // namespace itk
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetEquationChanAndVeseInternalTerm.hxx"
+#  include "itkLevelSetEquationChanAndVeseInternalTerm.hxx"
 #endif
 
 #endif

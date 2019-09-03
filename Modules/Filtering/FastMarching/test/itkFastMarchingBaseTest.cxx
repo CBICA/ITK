@@ -20,15 +20,16 @@
 
 namespace itk
 {
-template< typename TInput, typename TOutput >
-class FastMarchingBaseTestHelper :
-    public FastMarchingBase< TInput, TOutput >
+template <typename TInput, typename TOutput>
+class FastMarchingBaseTestHelper : public FastMarchingBase<TInput, TOutput>
 {
 public:
-  typedef FastMarchingBaseTestHelper          Self;
-  typedef FastMarchingBase< TInput, TOutput > Superclass;
-  typedef SmartPointer< Self >                Pointer;
-  typedef SmartPointer< const Self >          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingBaseTestHelper);
+
+  using Self = FastMarchingBaseTestHelper;
+  using Superclass = FastMarchingBase<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -36,138 +37,142 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(FastMarchingBaseTestHelper, FastMarchingBase);
 
-  typedef typename Superclass::Traits           Traits;
-  typedef typename Superclass::OutputDomainType OutputDomainType;
+  using Traits = typename Superclass::Traits;
+  using OutputDomainType = typename Superclass::OutputDomainType;
 
-//  typedef typename Superclass::NodeContainerType  NodeContainerType;
-  typedef typename Superclass::NodeType         NodeType;
+  //  using NodeContainerType = typename Superclass::NodeContainerType;
+  using NodeType = typename Superclass::NodeType;
 
-  typedef typename Superclass::OutputPixelType  OutputPixelType;
-  typedef typename Superclass::LabelType        LabelType;
+  using OutputPixelType = typename Superclass::OutputPixelType;
+  using LabelType = typename Superclass::LabelType;
 
 protected:
-  FastMarchingBaseTestHelper() {}
-  ~FastMarchingBaseTestHelper() ITK_OVERRIDE {}
+  FastMarchingBaseTestHelper() = default;
+  ~FastMarchingBaseTestHelper() override = default;
 
-  IdentifierType GetTotalNumberOfNodes() const ITK_OVERRIDE
-    { return 1; }
+  IdentifierType
+  GetTotalNumberOfNodes() const override
+  {
+    return 1;
+  }
 
-  void SetOutputValue( OutputDomainType*,
-                      const NodeType&,
-                      const OutputPixelType& ) ITK_OVERRIDE
-    {
-    }
+  void
+  SetOutputValue(OutputDomainType *, const NodeType &, const OutputPixelType &) override
+  {}
 
-  const OutputPixelType GetOutputValue( OutputDomainType* ,
-                                  const NodeType& ) const ITK_OVERRIDE
-    {
-    return NumericTraits< OutputPixelType >::ZeroValue();
-    }
+  const OutputPixelType
+  GetOutputValue(OutputDomainType *, const NodeType &) const override
+  {
+    return NumericTraits<OutputPixelType>::ZeroValue();
+  }
 
-  unsigned char GetLabelValueForGivenNode( const NodeType& ) const ITK_OVERRIDE
-    {
+  unsigned char
+  GetLabelValueForGivenNode(const NodeType &) const override
+  {
     return Traits::Far;
-    }
+  }
 
-  void SetLabelValueForGivenNode( const NodeType& ,
-                                 const LabelType& ) ITK_OVERRIDE
-    {}
+  void
+  SetLabelValueForGivenNode(const NodeType &, const LabelType &) override
+  {}
 
-  void UpdateNeighbors( OutputDomainType* , const NodeType& ) ITK_OVERRIDE
-    {}
+  void
+  UpdateNeighbors(OutputDomainType *, const NodeType &) override
+  {}
 
-  void UpdateValue( OutputDomainType* , const NodeType& ) ITK_OVERRIDE
-    {}
+  void
+  UpdateValue(OutputDomainType *, const NodeType &) override
+  {}
 
-  bool CheckTopology( OutputDomainType* , const NodeType&  ) ITK_OVERRIDE
-    { return true; }
+  bool
+  CheckTopology(OutputDomainType *, const NodeType &) override
+  {
+    return true;
+  }
 
-  void InitializeOutput( OutputDomainType* ) ITK_OVERRIDE {}
-
-private:
-  FastMarchingBaseTestHelper( const Self& );
-  void operator = ( const Self& );
+  void
+  InitializeOutput(OutputDomainType *) override
+  {}
 };
-}
+} // namespace itk
 
 // -----------------------------------------------------------------------------
 
-int itkFastMarchingBaseTest( int argc, char* argv[] )
+int
+itkFastMarchingBaseTest(int argc, char * argv[])
 {
-  if( argc != 2 )
-    {
+  if (argc != 2)
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef float PixelType;
+  using PixelType = float;
 
   bool exception_caught = false;
 
-  if( atoi( argv[1] ) == 0 )
-    {
-    const unsigned Dimension = 3;
-    typedef itk::Image<PixelType, Dimension> ImageType;
+  if (std::stoi(argv[1]) == 0)
+  {
+    constexpr unsigned Dimension = 3;
+    using ImageType = itk::Image<PixelType, Dimension>;
 
     ImageType::Pointer input = ImageType::New();
 
-    typedef itk::FastMarchingBaseTestHelper< ImageType, ImageType >
-        ImageFastMarching;
+    using ImageFastMarching = itk::FastMarchingBaseTestHelper<ImageType, ImageType>;
     ImageFastMarching::Pointer fmm = ImageFastMarching::New();
-    fmm->SetInput( input );
+    fmm->SetInput(input);
 
     try
-      {
+    {
       fmm->Update();
-      }
-    catch( itk::ExceptionObject & excep )
-      {
+    }
+    catch (itk::ExceptionObject & excep)
+    {
       std::cerr << "Exception caught !" << std::endl;
       std::cerr << excep << std::endl;
       exception_caught = true;
-      }
+    }
 
-    typedef ImageFastMarching::OutputDomainType OutputImageType;
+    using OutputImageType = ImageFastMarching::OutputDomainType;
     OutputImageType::Pointer output = fmm->GetOutput();
 
-    (void) output;
-    }
+    (void)output;
+  }
   else
+  {
+    if (std::stoi(argv[1]) == 1)
     {
-    if( atoi( argv[1] ) == 1 )
-      {
-      typedef itk::QuadEdgeMesh<PixelType, 3, itk::QuadEdgeMeshTraits< PixelType, 3, bool, bool > > MeshType;
+      using MeshType = itk::QuadEdgeMesh<PixelType, 3, itk::QuadEdgeMeshTraits<PixelType, 3, bool, bool>>;
 
       MeshType::Pointer input = MeshType::New();
 
-      typedef itk::FastMarchingBaseTestHelper< MeshType, MeshType >
-          MeshFastMarching;
+      using MeshFastMarching = itk::FastMarchingBaseTestHelper<MeshType, MeshType>;
       MeshFastMarching::Pointer fmm = MeshFastMarching::New();
-      fmm->SetInput( input );
+      fmm->SetInput(input);
 
       try
-        {
+      {
         fmm->Update();
-        }
-      catch( itk::ExceptionObject & excep )
-        {
+      }
+      catch (itk::ExceptionObject & excep)
+      {
         std::cerr << "Exception caught !" << std::endl;
         std::cerr << excep << std::endl;
         exception_caught = true;
-        }
+      }
 
-      typedef MeshFastMarching::OutputDomainType OutputMeshType;
+      using OutputMeshType = MeshFastMarching::OutputDomainType;
       OutputMeshType::Pointer output = fmm->GetOutput();
 
-      (void) output;
-      }
+      (void)output;
     }
+  }
 
-  if( exception_caught )
-    {
+  if (exception_caught)
+  {
     return EXIT_SUCCESS;
-    }
+  }
   else
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 }

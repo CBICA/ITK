@@ -37,50 +37,40 @@ namespace itk
  *
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Utilities/TimeProbe,Time probe}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/ComputeTimeBetweenPoints,Compute Time Between Points}
+ * \endsphinx
  */
-class ITKCommon_EXPORT TimeProbe:public
-  ResourceProbe< RealTimeClock::TimeStampType, RealTimeClock::TimeStampType >
+class ITKCommon_EXPORT TimeProbe : public ResourceProbe<RealTimeClock::TimeStampType, RealTimeClock::TimeStampType>
 {
 public:
-
   /** Type for counting how many times the probe has been started and stopped.
-    */
-  typedef unsigned long CountType;
+   */
+  using CountType = unsigned long;
 
   /** Type for measuring time. See the RealTimeClock class for details on the
    * precision and units of this clock signal */
-  typedef RealTimeClock::TimeStampType TimeStampType;
+  using TimeStampType = RealTimeClock::TimeStampType;
 
 public:
-
   /** Constructor */
   TimeProbe();
 
   /** Destructor */
-  virtual ~TimeProbe() ITK_OVERRIDE;
+  ~TimeProbe() override;
 
   /** Get the current time.
    *  Warning: the returned value is not the elapsed time since the last Start() call.
    */
-  virtual TimeStampType GetInstantValue(void) const ITK_OVERRIDE;
-
-  /** Returns the average times passed between the starts and stops of the
-   *  probe. See the RealTimeClock for details on the precision and units of
-   *  this time value. Obsolete method kept for backward compatibility,
-   *  use Probe::GetMean() instead.
-   *  \deprecated
-   */
-  itkLegacyMacro(TimeStampType GetMeanTime(void) const);
+  TimeStampType
+  GetInstantValue() const override;
 
   /** Get a handle to m_RealTimeClock. */
-  itkGetConstObjectMacro( RealTimeClock, RealTimeClock );
+  itkGetConstObjectMacro(RealTimeClock, RealTimeClock);
 
 private:
   RealTimeClock::Pointer m_RealTimeClock;
 };
 } // end namespace itk
 
-#endif //itkTimeProbe_h
+#endif // itkTimeProbe_h

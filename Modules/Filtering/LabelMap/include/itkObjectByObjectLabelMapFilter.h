@@ -27,10 +27,12 @@
 #include "itkPadLabelMapFilter.h"
 
 
-namespace itk {
+namespace itk
+{
 
 /** \class ObjectByObjectLabelMapFilter
- * \brief ObjectByObjectLabelMapFilter applies an image pipeline to all the objects of a label map and produce a new label map
+ * \brief ObjectByObjectLabelMapFilter applies an image pipeline to all the objects of a label map and produce a new
+ * label map
  *
  * The image pipeline can simply produce a modified object or produce several objects
  * from the single input object. Several options are provided to handle the different
@@ -70,86 +72,88 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  *
- * \wiki
- * \wikiexample{ImageProcessing/ObjectByObjectLabelMapFilter,Apply an operation to every label object in a label map}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/LabelMap/ApplyMorphologicalClosingOnAllLabelObjects,Apply Morphological Closing On All Label
+ * Objects} \endsphinx
  */
-template<typename TInputImage, typename TOutputImage=TInputImage,
-  typename TInputFilter=ImageToImageFilter<
-    Image< unsigned char, TInputImage::ImageDimension >,
-    Image< unsigned char, TOutputImage::ImageDimension > >,
-  class TOutputFilter=typename TInputFilter::Superclass,
-  class TInternalInputImage=typename TInputFilter::InputImageType,
-  class TInternalOutputImage=typename TOutputFilter::OutputImageType >
-class ITK_TEMPLATE_EXPORT ObjectByObjectLabelMapFilter :
-    public LabelMapFilter<TInputImage, TOutputImage>
+template <typename TInputImage,
+          typename TOutputImage = TInputImage,
+          typename TInputFilter = ImageToImageFilter<Image<unsigned char, TInputImage::ImageDimension>,
+                                                     Image<unsigned char, TOutputImage::ImageDimension>>,
+          class TOutputFilter = typename TInputFilter::Superclass,
+          class TInternalInputImage = typename TInputFilter::InputImageType,
+          class TInternalOutputImage = typename TOutputFilter::OutputImageType>
+class ITK_TEMPLATE_EXPORT ObjectByObjectLabelMapFilter : public LabelMapFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ObjectByObjectLabelMapFilter              Self;
-  typedef LabelMapFilter<TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer<Self>                        Pointer;
-  typedef SmartPointer<const Self>                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ObjectByObjectLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::Pointer         InputImagePointer;
-  typedef typename InputImageType::ConstPointer    InputImageConstPointer;
-  typedef typename InputImageType::RegionType      InputImageRegionType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename OutputImageType::Pointer        OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer   OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType     OutputImageRegionType;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename OutputImageType::SizeType       SizeType;
-  typedef OutputImageType                          LabelMapType;
-  typedef typename LabelMapType::LabelObjectType   LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = ObjectByObjectLabelMapFilter;
+  using Superclass = LabelMapFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TInputFilter                          InputFilterType;
-  typedef TOutputFilter                         OutputFilterType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using SizeType = typename OutputImageType::SizeType;
+  using LabelMapType = OutputImageType;
+  using LabelObjectType = typename LabelMapType::LabelObjectType;
 
-  typedef TInternalInputImage                         InternalInputImageType;
-  typedef typename InternalInputImageType::RegionType InternalRegionType;
-  typedef typename InternalInputImageType::SizeType   InternalSizeType;
-  typedef typename InternalInputImageType::IndexType  InternalIndexType;
-  typedef typename InternalInputImageType::OffsetType InternalOffsetType;
-  typedef typename InternalInputImageType::PixelType  InternalInputPixelType;
+  using InputFilterType = TInputFilter;
+  using OutputFilterType = TOutputFilter;
 
-  typedef TInternalOutputImage                        InternalOutputImageType;
-  typedef typename InternalOutputImageType::PixelType InternalOutputPixelType;
+  using InternalInputImageType = TInternalInputImage;
+  using InternalRegionType = typename InternalInputImageType::RegionType;
+  using InternalSizeType = typename InternalInputImageType::SizeType;
+  using InternalIndexType = typename InternalInputImageType::IndexType;
+  using InternalOffsetType = typename InternalInputImageType::OffsetType;
+  using InternalInputPixelType = typename InternalInputImageType::PixelType;
+
+  using InternalOutputImageType = TInternalOutputImage;
+  using InternalOutputPixelType = typename InternalOutputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ObjectByObjectLabelMapFilter,
-               LabelMapFilter);
+  itkTypeMacro(ObjectByObjectLabelMapFilter, LabelMapFilter);
 
-  void SetFilter(InputFilterType * filter);
-  InputFilterType * GetFilter()
-    {
+  void
+  SetFilter(InputFilterType * filter);
+  InputFilterType *
+  GetFilter()
+  {
     return this->m_InputFilter;
-    }
+  }
 
-  const InputFilterType * GetFilter() const
-    {
+  const InputFilterType *
+  GetFilter() const
+  {
     return this->m_InputFilter;
-    }
+  }
 
-  void SetInputFilter( InputFilterType * filter );
-  itkGetModifiableObjectMacro(InputFilter, InputFilterType );
+  void
+  SetInputFilter(InputFilterType * filter);
+  itkGetModifiableObjectMacro(InputFilter, InputFilterType);
 
-  void SetOutputFilter( OutputFilterType * filter );
-  itkGetModifiableObjectMacro(OutputFilter, OutputFilterType );
+  void
+  SetOutputFilter(OutputFilterType * filter);
+  itkGetModifiableObjectMacro(OutputFilter, OutputFilterType);
 
   /** If KeepLabels is set to true, the filter will do its best to reuse the labels
    * of the input objects in the output ones. However, this is possible only if the
@@ -163,8 +167,8 @@ public:
   itkBooleanMacro(KeepLabels);
 
   /** If PadSize is not zero, the image produce for each object will be padded.
-    * The default value is 1 on all the dimensions.
-    */
+   * The default value is 1 on all the dimensions.
+   */
   itkSetMacro(PadSize, SizeType);
   itkGetMacro(PadSize, SizeType);
 
@@ -200,52 +204,52 @@ public:
 
 protected:
   ObjectByObjectLabelMapFilter();
-  ~ObjectByObjectLabelMapFilter() ITK_OVERRIDE {};
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  ~ObjectByObjectLabelMapFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ObjectByObjectLabelMapFilter);
-
   bool     m_ConstrainPaddingToImage;
   SizeType m_PadSize;
   bool     m_BinaryInternalOutput;
 
-  bool     m_KeepLabels;
+  bool m_KeepLabels;
 
   InternalOutputPixelType m_InternalForegroundValue;
 
-  typedef itk::LabelSelectionLabelMapFilter< LabelMapType >                        SelectType;
+  using SelectType = itk::LabelSelectionLabelMapFilter<LabelMapType>;
   typename SelectType::Pointer m_Select;
 
-  typedef itk::AutoCropLabelMapFilter< LabelMapType >                              CropType;
-  typename CropType::Pointer   m_Crop;
+  using CropType = itk::AutoCropLabelMapFilter<LabelMapType>;
+  typename CropType::Pointer m_Crop;
 
-  typedef itk::PadLabelMapFilter< LabelMapType >                                   PadType;
-  typename PadType::Pointer    m_Pad;
+  using PadType = itk::PadLabelMapFilter<LabelMapType>;
+  typename PadType::Pointer m_Pad;
 
-  typedef itk::LabelMapToBinaryImageFilter< LabelMapType, InternalInputImageType>  LM2BIType;
-  typename LM2BIType::Pointer  m_LM2BI;
+  using LM2BIType = itk::LabelMapToBinaryImageFilter<LabelMapType, InternalInputImageType>;
+  typename LM2BIType::Pointer m_LM2BI;
 
-  typedef itk::LabelImageToLabelMapFilter< InternalOutputImageType, LabelMapType>  LI2LMType;
-  typename LI2LMType::Pointer  m_LI2LM;
+  using LI2LMType = itk::LabelImageToLabelMapFilter<InternalOutputImageType, LabelMapType>;
+  typename LI2LMType::Pointer m_LI2LM;
 
-  typedef itk::BinaryImageToLabelMapFilter< InternalOutputImageType, LabelMapType> BI2LMType;
-  typename BI2LMType::Pointer  m_BI2LM;
+  using BI2LMType = itk::BinaryImageToLabelMapFilter<InternalOutputImageType, LabelMapType>;
+  typename BI2LMType::Pointer m_BI2LM;
 
-  typename InputFilterType::Pointer       m_InputFilter;
-  typename OutputFilterType::Pointer      m_OutputFilter;
+  typename InputFilterType::Pointer  m_InputFilter;
+  typename OutputFilterType::Pointer m_OutputFilter;
 
 
-  InputImagePixelType          m_Label;
+  InputImagePixelType m_Label;
 
 }; // end of class
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkObjectByObjectLabelMapFilter.hxx"
+#  include "itkObjectByObjectLabelMapFilter.hxx"
 #endif
 
 #endif

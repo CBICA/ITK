@@ -36,11 +36,26 @@ itkLabelOverlapMeasuresImageFilterTest.cxx
 
 CreateTestDriver(ITKImageStatistics  "${ITKImageStatistics-Test_LIBRARIES}" "${ITKImageStatisticsTests}")
 
-itk_add_test(NAME itkStatisticsImageFilterTest
+itk_add_test(NAME itkStatisticsImageFilterTest_1
       COMMAND ITKImageStatisticsTestDriver itkStatisticsImageFilterTest)
-itk_add_test(NAME itkLabelStatisticsImageFilterTest
+itk_add_test(NAME itkStatisticsImageFilterTest_2
+      COMMAND ITKImageStatisticsTestDriver itkStatisticsImageFilterTest 1)
+itk_add_test(NAME itkStatisticsImageFilterTest_3
+      COMMAND ITKImageStatisticsTestDriver itkStatisticsImageFilterTest 63)
+itk_add_test(NAME itkLabelStatisticsImageFilterTest_1
       COMMAND ITKImageStatisticsTestDriver itkLabelStatisticsImageFilterTest
-              DATA{${ITK_DATA_ROOT}/Input/peppers.png} DATA{${ITK_DATA_ROOT}/Baseline/Algorithms/OtsuMultipleThresholdsImageFilterTest.png})
+              DATA{${ITK_DATA_ROOT}/Input/peppers.png}
+              DATA{${ITK_DATA_ROOT}/Baseline/Algorithms/OtsuMultipleThresholdsImageFilterTest.png})
+itk_add_test(NAME itkLabelStatisticsImageFilterTest_2
+      COMMAND ITKImageStatisticsTestDriver itkLabelStatisticsImageFilterTest
+              DATA{${ITK_DATA_ROOT}/Input/peppers.png}
+              DATA{${ITK_DATA_ROOT}/Baseline/Algorithms/OtsuMultipleThresholdsImageFilterTest.png}
+      10 )
+itk_add_test(NAME itkLabelStatisticsImageFilterTest_3
+      COMMAND ITKImageStatisticsTestDriver itkLabelStatisticsImageFilterTest
+              DATA{${ITK_DATA_ROOT}/Input/peppers.png}
+              DATA{${ITK_DATA_ROOT}/Baseline/Algorithms/OtsuMultipleThresholdsImageFilterTest.png}
+      20 )
 itk_add_test(NAME itkSumProjectionImageFilterTest
       COMMAND ITKImageStatisticsTestDriver
     --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/HeadMRVolumeSumProjection.tif}
@@ -51,8 +66,10 @@ itk_add_test(NAME itkStandardDeviationProjectionImageFilterTest
     --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/HeadMRVolumeStandardDeviationProjection.tif}
               ${ITK_TEST_OUTPUT_DIR}/HeadMRVolumeStandardDeviationProjection.tif
     itkStandardDeviationProjectionImageFilterTest DATA{${ITK_DATA_ROOT}/Input/HeadMRVolume.mhd,HeadMRVolume.raw} ${ITK_TEST_OUTPUT_DIR}/HeadMRVolumeStandardDeviationProjection.tif)
-itk_add_test(NAME itkImageMomentsTest
-      COMMAND ITKImageStatisticsTestDriver itkImageMomentsTest)
+itk_add_test(NAME itkImageMomentsNoMaskTest
+      COMMAND ITKImageStatisticsTestDriver itkImageMomentsTest nomask)
+itk_add_test(NAME itkImageMomentsWithMaskTest
+      COMMAND ITKImageStatisticsTestDriver itkImageMomentsTest mask)
 itk_add_test(NAME itkImageToHistogramFilterTest
       COMMAND ITKImageStatisticsTestDriver itkImageToHistogramFilterTest)
 itk_add_test(NAME itkImageToHistogramFilterTest2
@@ -173,3 +190,8 @@ itk_add_test( NAME itkLabelOverlapMeasuresImageFilterTest
       itkLabelOverlapMeasuresImageFilterTest 2
           DATA{Input/sourceImage.nii.gz}
           DATA{Input/targetImage.nii.gz} )
+
+set(ITKImageStatisticsGTests
+  itkMinimumMaximumImageFilterGTest.cxx)
+
+CreateGoogleTestDriver(ITKImageStatistics "${ITKImageStatistics-Test_LIBRARIES}" "${ITKImageStatisticsGTests}")

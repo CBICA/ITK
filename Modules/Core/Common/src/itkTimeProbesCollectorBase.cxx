@@ -20,11 +20,7 @@
 
 namespace itk
 {
-TimeProbesCollectorBase
-::TimeProbesCollectorBase()
-{}
+TimeProbesCollectorBase ::TimeProbesCollectorBase() = default;
 
-TimeProbesCollectorBase
-::~TimeProbesCollectorBase()
-{}
+TimeProbesCollectorBase ::~TimeProbesCollectorBase() = default;
 } // end namespace itk

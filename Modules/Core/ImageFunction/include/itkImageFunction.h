@@ -50,81 +50,79 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  */
-template<
-  typename TInputImage,
-  typename TOutput,
-  typename TCoordRep = float
-  >
-class ITK_TEMPLATE_EXPORT ImageFunction:
-    public FunctionBase< Point< TCoordRep, TInputImage::ImageDimension >, TOutput >
+template <typename TInputImage, typename TOutput, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT ImageFunction : public FunctionBase<Point<TCoordRep, TInputImage::ImageDimension>, TOutput>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFunction);
+
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  /** Standard class typedefs. */
-  typedef ImageFunction Self;
+  /** Standard class type aliases. */
+  using Self = ImageFunction;
 
-  typedef FunctionBase<
-    Point< TCoordRep,
-           itkGetStaticConstMacro(ImageDimension) >,
-           TOutput >                 Superclass;
+  using Superclass = FunctionBase<Point<TCoordRep, Self::ImageDimension>, TOutput>;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageFunction, FunctionBase);
 
-  /** InputImageType typedef support. */
-  typedef TInputImage InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = TInputImage;
 
-  /** InputPixel typedef support */
-  typedef typename InputImageType::PixelType InputPixelType;
+  /** InputPixel type alias support */
+  using InputPixelType = typename InputImageType::PixelType;
 
-  /** InputImagePointer typedef support */
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
+  /** InputImagePointer type alias support */
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
 
-  /** OutputType typedef support. */
-  typedef TOutput OutputType;
+  /** OutputType type alias support */
+  using OutputType = TOutput;
 
-  /** CoordRepType typedef support. */
-  typedef TCoordRep CoordRepType;
+  /** CoordRepType type alias support */
+  using CoordRepType = TCoordRep;
 
   /** Index Type. */
-  typedef typename InputImageType::IndexType      IndexType;
-  typedef typename InputImageType::IndexValueType IndexValueType;
+  using IndexType = typename InputImageType::IndexType;
+  using IndexValueType = typename InputImageType::IndexValueType;
 
   /** ContinuousIndex Type. */
-  typedef ContinuousIndex< TCoordRep,
-                           itkGetStaticConstMacro(ImageDimension) > ContinuousIndexType;
+  using ContinuousIndexType = ContinuousIndex<TCoordRep, Self::ImageDimension>;
 
   /** Point Type. */
-  typedef Point< TCoordRep, itkGetStaticConstMacro(ImageDimension) > PointType;
+  using PointType = Point<TCoordRep, Self::ImageDimension>;
 
   /** Set the input image.
    * \warning this method caches BufferedRegion information.
    * If the BufferedRegion has changed, user must call
    * SetInputImage again to update cached values. */
-  virtual void SetInputImage(const InputImageType *ptr);
+  virtual void
+  SetInputImage(const InputImageType * ptr);
 
   /** Get the input image. */
-  const InputImageType * GetInputImage() const
-  { return m_Image.GetPointer(); }
+  const InputImageType *
+  GetInputImage() const
+  {
+    return m_Image.GetPointer();
+  }
 
   /** Evaluate the function at specified Point position.
    * Subclasses must provide this method. */
-  virtual TOutput Evaluate(const PointType & point) const ITK_OVERRIDE = 0;
+  TOutput
+  Evaluate(const PointType & point) const override = 0;
 
   /** Evaluate the function at specified Index position.
    * Subclasses must provide this method. */
-  virtual TOutput EvaluateAtIndex(const IndexType & index) const = 0;
+  virtual TOutput
+  EvaluateAtIndex(const IndexType & index) const = 0;
 
   /** Evaluate the function at specified ContinuousIndex position.
    * Subclasses must provide this method. */
-  virtual TOutput EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const = 0;
+  virtual TOutput
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const = 0;
 
   /** Check if an index is inside the image buffer.
    * We take into account the fact that each voxel has its
@@ -132,56 +130,58 @@ public:
    * to the next integer coordinate.
    * \warning For efficiency, no validity checking of
    * the input image is done. */
-  virtual bool IsInsideBuffer(const IndexType & index) const
+  virtual bool
+  IsInsideBuffer(const IndexType & index) const
   {
-    for ( unsigned int j = 0; j < ImageDimension; j++ )
+    for (unsigned int j = 0; j < ImageDimension; j++)
+    {
+      if (index[j] < m_StartIndex[j])
       {
-      if ( index[j] < m_StartIndex[j] )
-        {
         return false;
-        }
-      if ( index[j] > m_EndIndex[j] )
-        {
-        return false;
-        }
       }
+      if (index[j] > m_EndIndex[j])
+      {
+        return false;
+      }
+    }
     return true;
   }
 
   /** Check if a continuous index is inside the image buffer.
    * \warning For efficiency, no validity checking of
    * the input image is done. */
-  virtual bool IsInsideBuffer(const ContinuousIndexType & index) const
+  virtual bool
+  IsInsideBuffer(const ContinuousIndexType & index) const
   {
-    for ( unsigned int j = 0; j < ImageDimension; j++ )
-      {
+    for (unsigned int j = 0; j < ImageDimension; j++)
+    {
       /* Test for negative of a positive so we can catch NaN's. */
-      if ( ! (index[j] >= m_StartContinuousIndex[j] &&
-             index[j] < m_EndContinuousIndex[j] ) )
-        {
+      if (!(index[j] >= m_StartContinuousIndex[j] && index[j] < m_EndContinuousIndex[j]))
+      {
         return false;
-        }
       }
+    }
     return true;
   }
 
   /** Check if a point is inside the image buffer.
    * \warning For efficiency, no validity checking of
    * the input image pointer is done. */
-  virtual bool IsInsideBuffer(const PointType & point) const
+  virtual bool
+  IsInsideBuffer(const PointType & point) const
   {
     ContinuousIndexType index;
     m_Image->TransformPhysicalPointToContinuousIndex(point, index);
     /* Call IsInsideBuffer to test against BufferedRegion bounds.
      * TransformPhysicalPointToContinuousIndex tests against
      * LargestPossibleRegion */
-    bool isInside = IsInsideBuffer( index );
+    bool isInside = IsInsideBuffer(index);
     return isInside;
   }
 
   /** Convert point to nearest index. */
-  void ConvertPointToNearestIndex(const PointType & point,
-                                  IndexType & index) const
+  void
+  ConvertPointToNearestIndex(const PointType & point, IndexType & index) const
   {
     ContinuousIndexType cindex;
 
@@ -190,16 +190,15 @@ public:
   }
 
   /** Convert point to continuous index */
-  void ConvertPointToContinuousIndex(const PointType & point,
-                                     ContinuousIndexType & cindex) const
+  void
+  ConvertPointToContinuousIndex(const PointType & point, ContinuousIndexType & cindex) const
   {
     m_Image->TransformPhysicalPointToContinuousIndex(point, cindex);
   }
 
   /** Convert continuous index to nearest index. */
-  inline void ConvertContinuousIndexToNearestIndex(
-                                  const ContinuousIndexType & cindex,
-                                  IndexType &                 index) const
+  inline void
+  ConvertContinuousIndexToNearestIndex(const ContinuousIndexType & cindex, IndexType & index) const
   {
     index.CopyWithRound(cindex);
   }
@@ -212,8 +211,9 @@ public:
 
 protected:
   ImageFunction();
-  ~ImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Const pointer to the input image. */
   InputImageConstPointer m_Image;
@@ -224,14 +224,11 @@ protected:
 
   ContinuousIndexType m_StartContinuousIndex;
   ContinuousIndexType m_EndContinuousIndex;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFunction);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageFunction.hxx"
+#  include "itkImageFunction.hxx"
 #endif
 
 #endif

@@ -19,9 +19,9 @@
 #define itkLabelMapMaskImageFilter_h
 
 #include "itkLabelMapFilter.h"
-#include "itkBarrier.h"
 
-namespace itk {
+namespace itk
+{
 
 /** \class LabelMapMaskImageFilter
  * \brief Mask and image with a LabelMap
@@ -43,44 +43,42 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template<typename TInputImage, typename TOutputImage>
-class ITK_TEMPLATE_EXPORT LabelMapMaskImageFilter :
-    public LabelMapFilter<TInputImage, TOutputImage>
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LabelMapMaskImageFilter : public LabelMapFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelMapMaskImageFilter                   Self;
-  typedef LabelMapFilter<TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer<Self>                        Pointer;
-  typedef SmartPointer<const Self>                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapMaskImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::Pointer         InputImagePointer;
-  typedef typename InputImageType::ConstPointer    InputImageConstPointer;
-  typedef typename InputImageType::RegionType      InputImageRegionType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename InputImageType::LabelObjectType LabelObjectType;
-  typedef typename LabelObjectType::LabelType      LabelType;
-  typedef typename LabelObjectType::LengthType     LengthType;
+  /** Standard class type aliases. */
+  using Self = LabelMapMaskImageFilter;
+  using Superclass = LabelMapFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename OutputImageType::Pointer        OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer   OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType     OutputImageRegionType;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename OutputImageType::IndexType      IndexType;
-  typedef typename OutputImageType::SizeType       SizeType;
-  typedef typename OutputImageType::RegionType     RegionType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using LabelObjectType = typename InputImageType::LabelObjectType;
+  using LabelType = typename LabelObjectType::LabelType;
+  using LengthType = typename LabelObjectType::LengthType;
+
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using IndexType = typename OutputImageType::IndexType;
+  using SizeType = typename OutputImageType::SizeType;
+  using RegionType = typename OutputImageType::RegionType;
 
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -88,30 +86,34 @@ public:
   /** Runtime information support. */
   itkTypeMacro(LabelMapMaskImageFilter, LabelMapFilter);
 
-   /** Set the feature image */
-  void SetFeatureImage(const TOutputImage *input)
-    {
+  /** Set the feature image */
+  void
+  SetFeatureImage(const TOutputImage * input)
+  {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast<TOutputImage *>(input) );
-    }
+    this->SetNthInput(1, const_cast<TOutputImage *>(input));
+  }
 
   /** Get the feature image */
-  const OutputImageType * GetFeatureImage()
-    {
-    return static_cast<OutputImageType*>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
-    }
+  const OutputImageType *
+  GetFeatureImage()
+  {
+    return static_cast<OutputImageType *>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
+  }
 
   /** Set the input image */
-  void SetInput1(const TInputImage *input)
-    {
-    this->SetInput( input );
-    }
+  void
+  SetInput1(const TInputImage * input)
+  {
+    this->SetInput(input);
+  }
 
   /** Set the feature image */
-  void SetInput2(const TOutputImage *input)
-    {
-    this->SetFeatureImage( input );
-    }
+  void
+  SetInput2(const TOutputImage * input)
+  {
+    this->SetFeatureImage(input);
+  }
 
   /**
    * Set/Get the value used as "background" in the output image.
@@ -149,45 +151,54 @@ public:
 
 protected:
   LabelMapMaskImageFilter();
-  ~LabelMapMaskImageFilter() ITK_OVERRIDE {};
+  ~LabelMapMaskImageFilter() override = default;
 
   /** LabelMapMaskImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** LabelMapMaskImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output)) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId ) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 
-  virtual void ThreadedProcessLabelObject( LabelObjectType * labelObject ) ITK_OVERRIDE;
+  // part of a compile error workaround for GCC 4.8.5-28 (Red Hat) from 20150623
+  void
+  SuperclassDynamicTGD(const OutputImageRegionType & outputRegion)
+  {
+    Superclass::DynamicThreadedGenerateData(outputRegion);
+  }
 
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
+
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapMaskImageFilter);
+  InputImagePixelType  m_Label;
+  OutputImagePixelType m_BackgroundValue;
+  bool                 m_Negated{ false };
+  bool                 m_Crop{ false };
+  SizeType             m_CropBorder;
 
-  InputImagePixelType       m_Label;
-  OutputImagePixelType      m_BackgroundValue;
-  bool                      m_Negated;
-  bool                      m_Crop;
-  SizeType                  m_CropBorder;
-
-  TimeStamp                 m_CropTimeStamp;
-
-  typename Barrier::Pointer m_Barrier;
-
+  TimeStamp m_CropTimeStamp;
 }; // end of class
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelMapMaskImageFilter.hxx"
+#  include "itkLabelMapMaskImageFilter.hxx"
 #endif
 
 #endif

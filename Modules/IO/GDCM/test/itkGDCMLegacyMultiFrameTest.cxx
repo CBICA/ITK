@@ -19,45 +19,48 @@
 #include "itkGDCMImageIO.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkTestingMacros.h"
 
 // This test verifies that we obtain the correct origin and spacing for a
 // Legacy MultiFrame DICOM file with IOD
 // LegacyConvertedEnhancedMRImageStorage.
 
-int itkGDCMLegacyMultiFrameTest(int argc, char *argv[])
+int
+itkGDCMLegacyMultiFrameTest(int argc, char * argv[])
 {
-  if(argc < 3)
-    {
-    std::cerr << "Usage: " << argv[0] << " <InputLegacyMultiFrameDICOM> <OutputFile>" << std::endl;
+  if (argc < 3)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv) << " <InputLegacyMultiFrameDICOM> <OutputFile>"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   const char * inputFileName = argv[1];
   const char * outputFileName = argv[2];
 
-  typedef unsigned short PixelType;
-  const unsigned int Dimension = 3;
-  typedef itk::Image<PixelType, Dimension> ImageType;
+  using PixelType = unsigned short;
+  constexpr unsigned int Dimension = 3;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::ImageFileReader<ImageType> ReaderType;
-  ReaderType::Pointer reader = ReaderType::New();
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  ReaderType::Pointer       reader = ReaderType::New();
   itk::GDCMImageIO::Pointer imageIO = itk::GDCMImageIO::New();
-  reader->SetImageIO( imageIO );
-  reader->SetFileName( inputFileName );
+  reader->SetImageIO(imageIO);
+  reader->SetFileName(inputFileName);
 
-  typedef itk::ImageFileWriter<ImageType> WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( reader->GetOutput() );
-  writer->SetFileName( outputFileName );
+  writer->SetInput(reader->GetOutput());
+  writer->SetFileName(outputFileName);
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & error )
-    {
+  }
+  catch (itk::ExceptionObject & error)
+  {
     std::cerr << "Error when running pipeline: " << error << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

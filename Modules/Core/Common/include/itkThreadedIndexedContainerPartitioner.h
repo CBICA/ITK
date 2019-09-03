@@ -19,6 +19,7 @@
 #define itkThreadedIndexedContainerPartitioner_h
 
 #include "itkThreadedDomainPartitioner.h"
+#include "itkObjectFactory.h"
 #include "itkIndex.h"
 
 namespace itk
@@ -41,15 +42,16 @@ namespace itk
  * \sa IndexedContainerInterface
  * \ingroup ITKCommon
  */
-class ITKCommon_EXPORT ThreadedIndexedContainerPartitioner
-  : public ThreadedDomainPartitioner< Index<2> >
+class ITKCommon_EXPORT ThreadedIndexedContainerPartitioner : public ThreadedDomainPartitioner<Index<2>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ThreadedIndexedContainerPartitioner   Self;
-  typedef ThreadedDomainPartitioner< Index<2> > Superclass;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedIndexedContainerPartitioner);
+
+  /** Standard class type aliases. */
+  using Self = ThreadedIndexedContainerPartitioner;
+  using Superclass = ThreadedDomainPartitioner<Index<2>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -58,10 +60,10 @@ public:
   itkTypeMacro(ThreadedIndexedContainerPartitioner, ThreadedDomainPartitioner);
 
   /** Type for convenience of base class methods */
-  typedef Superclass::DomainType  DomainType;
+  using DomainType = Superclass::DomainType;
 
   /** Synonym for the domain that is more descriptive. */
-  typedef DomainType                       IndexRangeType;
+  using IndexRangeType = DomainType;
 
   /** Split the index range \c completeIndexRange into up to \c requestedTotal
    * non-overlapping subranges, setting subrange number \c threadId as
@@ -75,19 +77,16 @@ public:
    * If \c threadId is greater than the return value, the contents of
    * \c subIndexRange are undefined.
    */
-  virtual
-  ThreadIdType PartitionDomain(const ThreadIdType threadId,
-                           const ThreadIdType requestedTotal,
-                           const DomainType& completeIndexRange,
-                           DomainType& subIndexRange) const ITK_OVERRIDE;
+
+  ThreadIdType
+  PartitionDomain(const ThreadIdType threadId,
+                  const ThreadIdType requestedTotal,
+                  const DomainType & completeIndexRange,
+                  DomainType &       subIndexRange) const override;
 
 protected:
   ThreadedIndexedContainerPartitioner();
-  virtual ~ThreadedIndexedContainerPartitioner() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedIndexedContainerPartitioner);
-
+  ~ThreadedIndexedContainerPartitioner() override;
 };
 
 } // end namespace itk

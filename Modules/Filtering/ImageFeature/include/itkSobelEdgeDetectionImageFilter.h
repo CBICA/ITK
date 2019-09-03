@@ -41,47 +41,46 @@ namespace itk
  *
  * \ingroup ITKImageFeature
  *
- * \wiki
- * \wikiexample{EdgesAndGradients/SobelEdgeDetectionImageFilter,SobelEdgeDetectionImageFilter}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageFeature/SobelEdgeDetectionImageFilter,Sobel Edge Detection Image Filter}
+ * \endsphinx
  */
 
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT SobelEdgeDetectionImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT SobelEdgeDetectionImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(SobelEdgeDetectionImageFilter);
+
   /**
-   * Standard "Self" & Superclass typedef.
+   * Standard "Self" & Superclass type alias.
    */
-  typedef SobelEdgeDetectionImageFilter                   Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
+  using Self = SobelEdgeDetectionImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
 
   /**
    * Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same.
    */
-  typedef typename TOutputImage::PixelType         OutputPixelType;
-  typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
-  typedef typename TInputImage::PixelType          InputPixelType;
-  typedef typename TInputImage::InternalPixelType  InputInternalPixelType;
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using OutputInternalPixelType = typename TOutputImage::InternalPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputInternalPixelType = typename TInputImage::InternalPixelType;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
 
   /**
-   * Image typedef support
+   * Image type alias support
    */
-  typedef TInputImage                      InputImageType;
-  typedef TOutputImage                     OutputImageType;
-  typedef typename InputImageType::Pointer InputImagePointer;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
 
   /**
-   * Smart pointer typedef support
+   * Smart pointer type alias support
    */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**
    * Run-time type information (and related methods)
@@ -102,26 +101,20 @@ public:
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion()
    */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, ImageDimension > ) );
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< OutputPixelType > ) );
-
-#ifdef ITK_USE_STRICT_CONCEPT_CHECKING
-  itkConceptMacro( OutputPixelIsFloatingPointCheck,
-                   ( Concept::IsFloatingPoint< OutputPixelType > ) );
-#endif
-
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, ImageDimension>));
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<OutputPixelType>));
+  itkConceptMacro(OutputPixelIsFloatingPointCheck, (Concept::IsFloatingPoint<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  SobelEdgeDetectionImageFilter() {}
-  virtual ~SobelEdgeDetectionImageFilter() ITK_OVERRIDE {}
+  SobelEdgeDetectionImageFilter() = default;
+  ~SobelEdgeDetectionImageFilter() override = default;
 
   /**
    * Standard pipeline method. While this class does not implement a
@@ -130,21 +123,19 @@ protected:
    * NeighborhoodOperatorImageFilter is multithreaded, this filter is
    * multithreaded by default.
    */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     Superclass::PrintSelf(os, indent);
   }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SobelEdgeDetectionImageFilter);
-
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSobelEdgeDetectionImageFilter.hxx"
+#  include "itkSobelEdgeDetectionImageFilter.hxx"
 #endif
 
 #endif

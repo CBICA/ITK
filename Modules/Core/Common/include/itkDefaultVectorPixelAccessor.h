@@ -46,53 +46,58 @@ namespace itk
  * \ingroup ImageAdaptors
  * \ingroup ITKCommon
  */
-template< typename TType >
+template <typename TType>
 class ITK_TEMPLATE_EXPORT DefaultVectorPixelAccessor
 {
 public:
+  using VectorLengthType = unsigned int;
 
-  typedef unsigned int VectorLengthType;
-
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. Here it is an VariableLengthVector. The container does not
    * manage the memory. In other words it is an array reference with the contents
    * pointing to the actual data in the image. */
-  typedef VariableLengthVector< TType > ExternalType;
+  using ExternalType = VariableLengthVector<TType>;
 
-  /** Internal typedef. It defines the internal real representation of data. */
-  typedef TType InternalType;
+  /** Internal type alias. It defines the internal real representation of data. */
+  using InternalType = TType;
 
   /** Set output using the value in input */
-  inline void Set(InternalType & output, const ExternalType & input,
-                  const unsigned long offset) const
+  inline void
+  Set(InternalType & output, const ExternalType & input, const unsigned long offset) const
   {
-    InternalType *truePixel = ( &output ) + offset * m_OffsetMultiplier;
+    InternalType * truePixel = (&output) + offset * m_OffsetMultiplier;
 
-    for ( VectorLengthType i = 0; i < m_VectorLength; i++ )
-      {
+    for (VectorLengthType i = 0; i < m_VectorLength; i++)
+    {
       truePixel[i] = input[i];
-      }
+    }
   }
 
   /** Get the value from input */
-  inline ExternalType Get(const InternalType & input, const SizeValueType offset) const
+  inline ExternalType
+  Get(const InternalType & input, const SizeValueType offset) const
   {
     // Do not create a local for this method, to use return value
     // optimization.
-    return ExternalType( ( &input ) + ( offset * m_OffsetMultiplier ), m_VectorLength );
+    return ExternalType((&input) + (offset * m_OffsetMultiplier), m_VectorLength);
   }
 
   /** Set the length of each vector in the VectorImage */
-  void SetVectorLength(VectorLengthType l)
+  void
+  SetVectorLength(VectorLengthType l)
   {
     m_VectorLength = l;
-    m_OffsetMultiplier = ( l - 1 );
+    m_OffsetMultiplier = (l - 1);
   }
 
   /** Get Vector lengths */
-  VectorLengthType GetVectorLength() const { return m_VectorLength; }
+  VectorLengthType
+  GetVectorLength() const
+  {
+    return m_VectorLength;
+  }
 
-  DefaultVectorPixelAccessor() : m_VectorLength(0), m_OffsetMultiplier(0) {}
+  DefaultVectorPixelAccessor() = default;
 
   /** Constructor to initialize VectorLength at construction time */
   DefaultVectorPixelAccessor(VectorLengthType l)
@@ -101,11 +106,11 @@ public:
     m_OffsetMultiplier = l - 1;
   }
 
-  virtual ~DefaultVectorPixelAccessor() {}
+  ~DefaultVectorPixelAccessor() = default;
 
 private:
-  VectorLengthType m_VectorLength;
-  VectorLengthType m_OffsetMultiplier;
+  VectorLengthType m_VectorLength{ 0 };
+  VectorLengthType m_OffsetMultiplier{ 0 };
 };
 } // end namespace itk
 

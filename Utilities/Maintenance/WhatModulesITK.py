@@ -29,7 +29,7 @@ NOTE: The modules list is created by looking at the itk include
       they reference will reference the required includes. For
       example, many applications do not include itkImage.h because
       the itk files they do include reference itkImage.h. itkImage.h is
-      in the module ITKCommon and my not be listed.
+      in the module ITKCommon and may not be listed.
 
 NOTE: IO modules, other than ITKIOImageBase, are not discovered
       unless their include file is present in the application
@@ -115,6 +115,8 @@ for module in sorted(allModules):
     print("  " + module)
 if "ITKIOImageBase" in allModules:
     print(r"  ITKImageIO")
+if "ITKIOMeshBase" in allModules:
+    print(r"  ITKMeshIO")
 if "ITKIOTransformBase" in allModules:
     print(r"  ITKTransformIO")
 print(")")

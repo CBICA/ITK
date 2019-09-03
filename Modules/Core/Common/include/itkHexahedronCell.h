@@ -24,9 +24,9 @@
 namespace itk
 {
 /** \class HexahedronCell
- *  \brief Represents a hexahedron for a Mesh.
+ *  \brief Represents a hexahedron (cuboid) for a Mesh.
  *
- * HexahedronCell represents a hexahedron for a Mesh.
+ * HexahedronCell represents a hexahedron, more precisely, a cuboid, for a Mesh.
  *
  * \tparam TPixelType The type associated with a point, cell, or boundary
  * for use in storing its data.
@@ -40,11 +40,15 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TCellInterface >
-class ITK_TEMPLATE_EXPORT HexahedronCell:public TCellInterface, private HexahedronCellTopology
+template <typename TCellInterface>
+class ITK_TEMPLATE_EXPORT HexahedronCell
+  : public TCellInterface
+  , private HexahedronCellTopology
 {
 public:
-  /** Standard class typedefs. */
+  ITK_DISALLOW_COPY_AND_ASSIGN(HexahedronCell);
+
+  /** Standard class type aliases. */
   itkCellCommonTypedefs(HexahedronCell);
   itkCellInheritedTypedefs(TCellInterface);
 
@@ -52,67 +56,89 @@ public:
   itkTypeMacro(HexahedronCell, CellInterface);
 
   /** The type of boundary for this triangle's vertices. */
-  typedef VertexCell< TCellInterface >         VertexType;
-  typedef typename VertexType::SelfAutoPointer VertexAutoPointer;
+  using VertexType = VertexCell<TCellInterface>;
+  using VertexAutoPointer = typename VertexType::SelfAutoPointer;
 
   /** The type of boundary for this triangle's edges. */
-  typedef LineCell< TCellInterface >         EdgeType;
-  typedef typename EdgeType::SelfAutoPointer EdgeAutoPointer;
+  using EdgeType = LineCell<TCellInterface>;
+  using EdgeAutoPointer = typename EdgeType::SelfAutoPointer;
 
   /** The type of boundary for this hexahedron's faces. */
-  typedef QuadrilateralCell< TCellInterface > FaceType;
-  typedef typename FaceType::SelfAutoPointer  FaceAutoPointer;
+  using FaceType = QuadrilateralCell<TCellInterface>;
+  using FaceAutoPointer = typename FaceType::SelfAutoPointer;
 
   /** Hexahedron-specific topology numbers. */
-  itkStaticConstMacro(NumberOfPoints, unsigned int, 8);
-  itkStaticConstMacro(NumberOfVertices, unsigned int, 8);
-  itkStaticConstMacro(NumberOfEdges, unsigned int, 12);
-  itkStaticConstMacro(NumberOfFaces, unsigned int, 6);
-  itkStaticConstMacro(CellDimension, unsigned int, 3);
+  static constexpr unsigned int NumberOfPoints = 8;
+  static constexpr unsigned int NumberOfVertices = 8;
+  static constexpr unsigned int NumberOfEdges = 12;
+  static constexpr unsigned int NumberOfFaces = 6;
+  static constexpr unsigned int CellDimension = 3;
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::HEXAHEDRON_CELL; }
-  virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
+  CellGeometry
+  GetType() const override
+  {
+    return Superclass::HEXAHEDRON_CELL;
+  }
+  void
+  MakeCopy(CellAutoPointer &) const override;
 
-  virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
+  unsigned int
+  GetDimension() const override;
 
-  virtual unsigned int GetNumberOfPoints(void) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfPoints() const override;
 
-  virtual CellFeatureCount GetNumberOfBoundaryFeatures(int dimension) const ITK_OVERRIDE;
+  CellFeatureCount
+  GetNumberOfBoundaryFeatures(int dimension) const override;
 
-  virtual bool GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) ITK_OVERRIDE;
-  virtual void SetPointIds(PointIdConstIterator first) ITK_OVERRIDE;
+  bool
+  GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) override;
+  void
+  SetPointIds(PointIdConstIterator first) override;
 
-  virtual void SetPointIds(PointIdConstIterator first, PointIdConstIterator last) ITK_OVERRIDE;
+  void
+  SetPointIds(PointIdConstIterator first, PointIdConstIterator last) override;
 
-  virtual void SetPointId(int localId, PointIdentifier) ITK_OVERRIDE;
-  virtual PointIdIterator      PointIdsBegin(void) ITK_OVERRIDE;
+  void
+  SetPointId(int localId, PointIdentifier) override;
+  PointIdIterator
+  PointIdsBegin() override;
 
-  virtual PointIdConstIterator PointIdsBegin(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsBegin() const override;
 
-  virtual PointIdIterator      PointIdsEnd(void) ITK_OVERRIDE;
+  PointIdIterator
+  PointIdsEnd() override;
 
-  virtual PointIdConstIterator PointIdsEnd(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsEnd() const override;
 
   /** Hexahedron-specific interface. */
-  virtual CellFeatureCount GetNumberOfVertices() const;
+  virtual CellFeatureCount
+  GetNumberOfVertices() const;
 
-  virtual CellFeatureCount GetNumberOfEdges() const;
+  virtual CellFeatureCount
+  GetNumberOfEdges() const;
 
-  virtual CellFeatureCount GetNumberOfFaces() const;
+  virtual CellFeatureCount
+  GetNumberOfFaces() const;
 
-  virtual bool GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
-  virtual bool GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
-  virtual bool GetFace(CellFeatureIdentifier, FaceAutoPointer &);
+  virtual bool
+  GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
+  virtual bool
+  GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
+  virtual bool
+  GetFace(CellFeatureIdentifier, FaceAutoPointer &);
 
   /** Evaluate the position inside the cell */
-  virtual bool EvaluatePosition(CoordRepType *,
-                                PointsContainer *,
-                                CoordRepType *,
-                                CoordRepType[],
-                                double *,
-                                InterpolationWeightType *) ITK_OVERRIDE;
+  bool
+  EvaluatePosition(CoordRepType *,
+                   PointsContainer *,
+                   CoordRepType *,
+                   CoordRepType[],
+                   double *,
+                   InterpolationWeightType *) override;
 
   /** Visitor interface */
   itkCellVisitMacro(Superclass::HEXAHEDRON_CELL);
@@ -121,29 +147,33 @@ protected:
   /** Store the number of points needed for a hexahedron. */
   PointIdentifier m_PointIds[NumberOfPoints];
 
-  void InterpolationDerivs(CoordRepType pcoords[3], CoordRepType derivs[24]);
-  void InterpolationFunctions(CoordRepType pcoords[3], InterpolationWeightType sf[8]);
-  void EvaluateLocation(int &itkNotUsed(subId), PointsContainer * points, CoordRepType pcoords[3],
-                        CoordRepType x[3], InterpolationWeightType * weights);
+  void
+  InterpolationDerivs(CoordRepType pcoords[Self::CellDimension],
+                      CoordRepType derivs[Self::CellDimension * Self::NumberOfPoints]);
+  void
+  InterpolationFunctions(CoordRepType pcoords[Self::CellDimension], InterpolationWeightType sf[Self::NumberOfPoints]);
+  void
+  EvaluateLocation(int &                     itkNotUsed(subId),
+                   PointsContainer *         points,
+                   CoordRepType              pcoords[Self::CellDimension],
+                   CoordRepType              x[Self::CellDimension],
+                   InterpolationWeightType * weights);
 
 public:
   HexahedronCell()
   {
-    for ( unsigned int i = 0; i < itkGetStaticConstMacro(NumberOfPoints); i++ )
-      {
-      m_PointIds[i] = NumericTraits< PointIdentifier >::max();
-      }
+    for (unsigned int i = 0; i < Self::NumberOfPoints; i++)
+    {
+      m_PointIds[i] = NumericTraits<PointIdentifier>::max();
+    }
   }
 
-  ~HexahedronCell() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HexahedronCell);
+  ~HexahedronCell() override = default;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHexahedronCell.hxx"
+#  include "itkHexahedronCell.hxx"
 #endif
 
 #endif

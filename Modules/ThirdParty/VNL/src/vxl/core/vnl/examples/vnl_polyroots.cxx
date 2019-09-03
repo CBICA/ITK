@@ -8,8 +8,6 @@
 //-----------------------------------------------------------------------------
 
 #include <iostream>
-#include <cstdlib>
-#include <vcl_compiler.h>
 #include <vnl/vnl_vector.h>
 #include <vnl/algo/vnl_rpoly_roots.h>
 
@@ -25,7 +23,7 @@ int main(int argc, char* argv[])
   }
   else
     for (int i=0; i<argc; ++i)
-      pts[i] = std::atof(argv[i]);
+      pts[i] = std::stod(argv[i]);
 
   std::cout << "Coefficients = [ " << pts << " ]\n"
            << "Polynomial = ";

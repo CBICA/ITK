@@ -21,7 +21,8 @@
 #include "itkImageToImageFilter.h"
 #include "itkAttributeLabelObject.h"
 
-namespace itk {
+namespace itk
+{
 
 /** \class LabelMapToAttributeImageFilter
  * \brief Convert a LabelMap to a labeled image
@@ -39,46 +40,46 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template<typename TInputImage, typename TOutputImage, typename TAttributeAccessor=
-    typename Functor::AttributeLabelObjectAccessor< typename TInputImage::LabelObjectType > >
-class ITK_TEMPLATE_EXPORT LabelMapToAttributeImageFilter :
-    public ImageToImageFilter<TInputImage, TOutputImage>
+template <typename TInputImage,
+          typename TOutputImage,
+          typename TAttributeAccessor =
+            typename Functor::AttributeLabelObjectAccessor<typename TInputImage::LabelObjectType>>
+class ITK_TEMPLATE_EXPORT LabelMapToAttributeImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelMapToAttributeImageFilter                Self;
-  typedef ImageToImageFilter<TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToAttributeImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::Pointer         InputImagePointer;
-  typedef typename InputImageType::ConstPointer    InputImageConstPointer;
-  typedef typename InputImageType::RegionType      InputImageRegionType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename OutputImageType::Pointer        OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer   OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType     OutputImageRegionType;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename OutputImageType::IndexType      IndexType;
+  /** Standard class type aliases. */
+  using Self = LabelMapToAttributeImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TAttributeAccessor                                  AttributeAccessorType;
-  typedef typename AttributeAccessorType::AttributeValueType  AttributeValueType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using IndexType = typename OutputImageType::IndexType;
+
+  using AttributeAccessorType = TAttributeAccessor;
+  using AttributeValueType = typename AttributeAccessorType::AttributeValueType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(LabelMapToAttributeImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(LabelMapToAttributeImageFilter, ImageToImageFilter);
 
   /**
    * Set/Get the value used as "background" in the output image, if the input
@@ -90,24 +91,26 @@ public:
 
 protected:
   LabelMapToAttributeImageFilter();
-  ~LabelMapToAttributeImageFilter() ITK_OVERRIDE {};
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  ~LabelMapToAttributeImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** LabelMapToAttributeImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** LabelMapToAttributeImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion(DataObject *itkNotUsed(output)) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /** Single-threaded version of GenerateData.  This filter delegates
    * to GrayscaleGeodesicErodeImageFilter. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToAttributeImageFilter);
-
   OutputImagePixelType m_BackgroundValue;
 
 }; // end of class
@@ -115,7 +118,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelMapToAttributeImageFilter.hxx"
+#  include "itkLabelMapToAttributeImageFilter.hxx"
 #endif
 
 #endif

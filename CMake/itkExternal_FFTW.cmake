@@ -3,12 +3,14 @@
 include(ITK_CheckCCompilerFlag)
 
 
-set(msg "ATTENTION: You have enabled the use of FFTW.")
-set(msg "${msg} This library is distributed under a GPL license.")
-set(msg "${msg} By enabling this option, the ITK libraries binary")
-set(msg "${msg} that is built will be covered by a GPL license")
-set(msg "${msg} and so will any executable that is linked against these libraries.")
-message("${msg}")
+if(NOT ITK_USE_MKL AND NOT ITK_USE_CUFFTW)
+  set(msg "ATTENTION: You have enabled the use of FFTW.")
+  set(msg "${msg} This library is distributed under a GPL license.")
+  set(msg "${msg} By enabling this option, the ITK libraries binary")
+  set(msg "${msg} that is built will be covered by a GPL license")
+  set(msg "${msg} and so will any executable that is linked against these libraries.")
+  message("${msg}")
+endif()
 
 #--check_c_compiler_flag(-fopenmp C_HAS_fopenmp)
 #--if(${C_HAS_fopenmp} AND FALSE)
@@ -31,7 +33,11 @@ message("${msg}")
 
 set(_additional_configure_env)
 set(_additional_external_project_args)
+set(_additional_deployment_target_flags)
 if (APPLE)
+  if(CMAKE_OSX_DEPLOYMENT_TARGET)
+     set(_additional_deployment_target_flags "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+  endif()
   list(APPEND _additional_configure_env
         "SDKROOT=${CMAKE_OSX_SYSROOT}"
         "MACOSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}"
@@ -89,18 +95,18 @@ else()
       itk_download_attempt_check(FFTW)
       ExternalProject_add(fftwf
         PREFIX fftwf
-        URL "${_fftw_url}"
+        URL ${_fftw_url}
         URL_HASH SHA512=${_fftw_url_hash}
         DOWNLOAD_NAME "fftw-${_fftw_target_version}.tar.gz"
         CONFIGURE_COMMAND
           env
             "CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}"
-            "CFLAGS=${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE} ${GCC_POSITION_INDEPENDENT_CODE_FLAG}"
+            "CFLAGS=${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE} ${GCC_POSITION_INDEPENDENT_CODE_FLAG} ${_additional_deployment_target_flags}"
             "LDFLAGS=$ENV{LDFLAGS}"
             "LIBS=$ENV{LIBS}"
             "CPP=$ENV{CPP}"
-            "CPPFLAGS=$ENV{CPPFLAGS}"
-            "CXXFLAGS=$ENV{CXXFLAGS} ${GCC_POSITION_INDEPENDENT_CODE_FLAG}"
+            "CPPFLAGS=$ENV{CPPFLAGS} ${_additional_deployment_target_flags}"
+            "CXXFLAGS=$ENV{CXXFLAGS} ${GCC_POSITION_INDEPENDENT_CODE_FLAG} ${_additional_deployment_target_flags}"
             ${_additional_configure_env}
           ${ITK_BINARY_DIR}/fftwf/src/fftwf/configure
             ${FFTW_SHARED_FLAG}
@@ -117,18 +123,18 @@ else()
       itk_download_attempt_check(FFTW)
       ExternalProject_add(fftwd
         PREFIX fftwd
-        URL "${_fftw_url}"
+        URL ${_fftw_url}
         URL_HASH SHA512=${_fftw_url_hash}
         DOWNLOAD_NAME "fftw-${_fftw_target_version}.tar.gz"
         CONFIGURE_COMMAND
           env
-           "CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}"
-           "CFLAGS=${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE} ${GCC_POSITION_INDEPENDENT_CODE_FLAG}"
-           "LDFLAGS=$ENV{LDFLAGS}"
-           "LIBS=$ENV{LIBS}"
-           "CPP=$ENV{CPP}"
-           "CPPFLAGS=$ENV{CPPFLAGS}"
-           "CXXFLAGS=$ENV{CXXFLAGS} ${GCC_POSITION_INDEPENDENT_CODE_FLAG}"
+            "CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}"
+            "CFLAGS=${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_RELEASE} ${GCC_POSITION_INDEPENDENT_CODE_FLAG} ${_additional_deployment_target_flags}"
+            "LDFLAGS=$ENV{LDFLAGS}"
+            "LIBS=$ENV{LIBS}"
+            "CPP=$ENV{CPP}"
+            "CPPFLAGS=$ENV{CPPFLAGS} ${_additional_deployment_target_flags}"
+            "CXXFLAGS=$ENV{CXXFLAGS} ${GCC_POSITION_INDEPENDENT_CODE_FLAG} ${_additional_deployment_target_flags}"
             ${_additional_configure_env}
           ${ITK_BINARY_DIR}/fftwd/src/fftwd/configure
             ${FFTW_SHARED_FLAG}
@@ -154,7 +160,7 @@ TYPE FILE FILES \${FFTW_LIBS})" COMPONENT Development)
     # copy headers into install tree
     install(CODE
       "file(GLOB FFTW_INC ${ITK_BINARY_DIR}/fftw/include/*fftw3*)
-file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/include/ITK-${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}/Algorithms\"
+file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/include/ITK-${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}\"
 TYPE FILE FILES \${FFTW_INC})" COMPONENT Development)
 
   endif()

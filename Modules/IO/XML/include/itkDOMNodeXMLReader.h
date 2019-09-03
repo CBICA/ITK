@@ -61,11 +61,13 @@ namespace itk
 class ITKIOXML_EXPORT DOMNodeXMLReader : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef DOMNodeXMLReader            Self;
-  typedef Object                      Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DOMNodeXMLReader);
+
+  /** Standard class type aliases. */
+  using Self = DOMNodeXMLReader;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,8 +75,8 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(DOMNodeXMLReader, Object);
 
-  typedef DOMNode             OutputType;
-  typedef OutputType::Pointer OutputPointer;
+  using OutputType = DOMNode;
+  using OutputPointer = OutputType::Pointer;
 
   /** Set the input XML filename. */
   itkSetStringMacro(FileName);
@@ -86,59 +88,101 @@ public:
    * Get/Set The output DOM object will be created automatically, but the user
    * can appoint a user DOM object as the output by calling this function.
    */
-  itkSetObjectMacro( Output, OutputType );
-  itkGetModifiableObjectMacro(Output, OutputType );
+  itkSetObjectMacro(DOMNodeXML, OutputType);
+#if !defined(ITK_LEGACY_REMOVE)
+  // Provide backwards compatible interface
+  virtual void
+  SetOutput(OutputType * _arg)
+  {
+    this->SetDOMNodeXML(_arg);
+  }
+#endif
+
+  /**
+   * Provide an interface to match that
+   * of other ProcessObjects
+   * for this source generation object
+   * by returning a non-const pointer
+   * for the generated Object.
+   */
+  // NOTE:  The m_DOMNodeXML is only
+  //       exposed via the Source generation interface
+  //       by the GetOutput() method that mimics
+  //       a process object.
+  virtual const OutputType *
+  GetOutput() const
+  {
+    return this->m_DOMNodeXML.GetPointer();
+  }
+  virtual OutputType *
+  GetOutput()
+  {
+    return this->m_DOMNodeXML.GetPointer();
+  }
+
+#if !defined(ITK_LEGACY_REMOVE)
+  // This interface was exposed in ITKv4 when the itkGetModifiableObjectMacro was used
+  virtual OutputType *
+  GetModifiedOutput()
+  {
+    return this->m_DOMNodeXML.GetPointer();
+  }
+#endif
 
   /**
    * Function called by Update() or end-users to generate the output DOM object
    * from an input stream such as file, string, etc.
    */
-  void Update( std::istream& is );
+  void
+  Update(std::istream & is);
 
   /**
    * Function called by end-users to generate the output DOM object from the input XML file.
    */
-  virtual void Update();
+  virtual void
+  Update();
 
   /** Callback function -- called from XML parser with start-of-element
    * information.
    */
-  virtual void StartElement( const char* name, const char** atts );
+  virtual void
+  StartElement(const char * name, const char ** atts);
 
   /** Callback function -- called from XML parser when ending tag
    * encountered.
    */
-  virtual void EndElement( const char* name );
+  virtual void
+  EndElement(const char * name);
 
   /** Callback function -- called from XML parser with the character data
    * for an XML element.
    */
-  virtual void CharacterDataHandler( const char* text, int len );
+  virtual void
+  CharacterDataHandler(const char * text, int len);
 
 protected:
   DOMNodeXMLReader();
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DOMNodeXMLReader);
-
   /** Variable to hold the input XML file name. */
   std::string m_FileName;
 
   /** Variable to hold the output DOM object, created internally or supplied by the user. */
-  OutputPointer m_Output;
+  OutputPointer m_DOMNodeXML;
 
   /** Variable to keep the current context during XML parsing. */
-  OutputType* m_Context;
+  OutputType * m_Context{ nullptr };
 };
 
 } // namespace itk
 
 /** The operator ">>" is overloaded such that a DOM object can be conveniently read from an input stream. */
-inline std::istream& operator>>( std::istream& is, itk::DOMNode& object )
+inline std::istream &
+operator>>(std::istream & is, itk::DOMNode & object)
 {
   itk::DOMNodeXMLReader::Pointer reader = itk::DOMNodeXMLReader::New();
-  reader->SetOutput( &object );
-  reader->Update( is );
+  reader->SetDOMNodeXML(&object);
+  reader->Update(is);
   return is;
 }
 

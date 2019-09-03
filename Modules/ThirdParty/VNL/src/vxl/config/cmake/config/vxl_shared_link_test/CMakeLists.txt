@@ -1,12 +1,16 @@
 # vxl/config/cmake/config/vxl_shared_link_test/CMakeLists.txt
 #
-cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
-if(POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW)
+
+# Set policies consistent with newer versions of cmake
+# to ease integration with projects that require newer
+# cmake versions.
+cmake_minimum_required(VERSION 3.10.2)
+if(CMAKE_VERSION VERSION_LESS 3.12.0)
+  cmake_policy(VERSION ${CMAKE_VERSION})
+else()
+  cmake_policy(VERSION 3.10.2...3.13.2)
 endif()
-if(POLICY CMP0042)
-  cmake_policy(SET CMP0042 NEW)
-endif()
+
 project(vxl_pic_compatible)
 
 add_library(cmTryCompileStaticLib STATIC static_src.cxx)

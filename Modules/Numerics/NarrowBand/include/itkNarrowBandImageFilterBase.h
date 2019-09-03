@@ -19,10 +19,11 @@
 #define itkNarrowBandImageFilterBase_h
 
 #include "itkFiniteDifferenceImageFilter.h"
-#include "itkMultiThreader.h"
+#include "itkMultiThreaderBase.h"
 #include "itkNarrowBand.h"
-#include "itkBarrier.h"
 #include "itkObjectStore.h"
+#include "itkPlatformMultiThreader.h"
+
 
 namespace itk
 {
@@ -64,51 +65,52 @@ namespace itk
  *
  * \ingroup ITKNarrowBand
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT NarrowBandImageFilterBase:
-  public FiniteDifferenceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT NarrowBandImageFilterBase : public FiniteDifferenceImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs */
-  typedef NarrowBandImageFilterBase                                Self;
-  typedef FiniteDifferenceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                     Pointer;
-  typedef SmartPointer< const Self >                               ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NarrowBandImageFilterBase);
+
+  /** Standard class type aliases */
+  using Self = NarrowBandImageFilterBase;
+  using Superclass = FiniteDifferenceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(NarrowBandImageFilterBase, ImageToImageFilter);
 
   /**Typedefs from the superclass */
-  typedef typename Superclass::InputImageType               InputImageType;
-  typedef typename Superclass::OutputImageType              OutputImageType;
-  typedef typename Superclass::FiniteDifferenceFunctionType FiniteDifferenceFunctionType;
+  using InputImageType = typename Superclass::InputImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using FiniteDifferenceFunctionType = typename Superclass::FiniteDifferenceFunctionType;
 
   /** Dimensionality of input and output data is assumed to be the same.
    * It is inherited from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** The pixel type of the output image will be used in computations.
    * Inherited from the superclass. */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** The value type of a time step.  Inherited from the superclass. */
-  typedef typename Superclass::TimeStepType TimeStepType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
   /** The index type for the output image. */
-  typedef typename OutputImageType::IndexType IndexType;
+  using IndexType = typename OutputImageType::IndexType;
 
   /** The data type used in numerical computations.  Derived from the output
    *  image type. */
-  typedef typename OutputImageType::ValueType ValueType;
+  using ValueType = typename OutputImageType::ValueType;
 
   /** This is the storage type for the nodes on the narrow band. */
-  typedef BandNode< IndexType, PixelType > BandNodeType;
+  using BandNodeType = BandNode<IndexType, PixelType>;
 
   /** The list type for storing the narrow band. */
-  typedef NarrowBand< BandNodeType >          NarrowBandType;
-  typedef typename NarrowBandType::Pointer    NarrowBandPointer;
-  typedef typename NarrowBandType::RegionType RegionType;
-  typedef typename NarrowBandType::Iterator   NarrowBandIterator;
+  using NarrowBandType = NarrowBand<BandNodeType>;
+  using NarrowBandPointer = typename NarrowBandType::Pointer;
+  using RegionType = typename NarrowBandType::RegionType;
+  using NarrowBandIterator = typename NarrowBandType::Iterator;
 
   /** Set/Get IsoSurfaceValue to use in the input image */
   itkSetMacro(IsoSurfaceValue, ValueType);
@@ -121,13 +123,15 @@ public:
    *   entire narrow band can be constructed using this method.  Usually,
    *   however, the narrow band is initialized and reinitialized automatically
    *   by the subclass. */
-  void InsertNarrowBandNode(const BandNodeType & node)
+  void
+  InsertNarrowBandNode(const BandNodeType & node)
   {
     m_NarrowBand->PushBack(node); // add new node
     this->Modified();
   }
 
-  void InsertNarrowBandNode(const IndexType & index)
+  void
+  InsertNarrowBandNode(const IndexType & index)
   {
     BandNodeType tmpnode;
 
@@ -136,9 +140,8 @@ public:
     this->Modified();
   }
 
-  void InsertNarrowBandNode(const IndexType & index,
-                            const PixelType & value,
-                            const signed char & nodestate)
+  void
+  InsertNarrowBandNode(const IndexType & index, const PixelType & value, const signed char & nodestate)
   {
     BandNodeType tmpnode;
 
@@ -153,34 +156,38 @@ public:
   /** Set the narrow band total radius. The narrow band width will be
    * twice this value (positive and negative distance to the zero level
    * set). The default value is 3. */
-  void SetNarrowBandTotalRadius(const float& val)
+  void
+  SetNarrowBandTotalRadius(const float & val)
   {
-    if ( m_NarrowBand->GetTotalRadius() != val )
-      {
+    if (m_NarrowBand->GetTotalRadius() != val)
+    {
       m_NarrowBand->SetTotalRadius(val);
       this->Modified();
-      }
+    }
   }
 
   /** Get the narrow band total radius. */
-  float GetNarrowBandTotalRadius() const
+  float
+  GetNarrowBandTotalRadius() const
   {
     return m_NarrowBand->GetTotalRadius();
   }
 
   /** Set the narrow band inner radius. The inner radius is the safe
    * are where the level set can be computed. The default value is 1. */
-  void SetNarrowBandInnerRadius(const float& val)
+  void
+  SetNarrowBandInnerRadius(const float & val)
   {
-    if ( m_NarrowBand->GetInnerRadius() != val )
-      {
+    if (m_NarrowBand->GetInnerRadius() != val)
+    {
       m_NarrowBand->SetInnerRadius(val);
       this->Modified();
-      }
+    }
   }
 
   /** Get the narrow band inner radius. */
-  float GetNarrowBandInnerRadius() const
+  float
+  GetNarrowBandInnerRadius() const
   {
     return m_NarrowBand->GetInnerRadius();
   }
@@ -190,18 +197,22 @@ public:
    *  This function can make use of above InsertNarrowBandNode function to create a
    *  band.
    */
-  virtual void CreateNarrowBand(){}
+  virtual void
+  CreateNarrowBand()
+  {}
 
-  virtual void SetNarrowBand(NarrowBandType *ptr)
+  virtual void
+  SetNarrowBand(NarrowBandType * ptr)
   {
-    if ( m_NarrowBand != ptr )
-      {
+    if (m_NarrowBand != ptr)
+    {
       m_NarrowBand = ptr;
       this->Modified();
-      }
+    }
   }
 
-  virtual void CopyInputToOutput() ITK_OVERRIDE;
+  void
+  CopyInputToOutput() override;
 
 protected:
   NarrowBandImageFilterBase()
@@ -211,20 +222,21 @@ protected:
     m_NarrowBand->SetInnerRadius(2);
     m_ReinitializationFrequency = 6;
     m_IsoSurfaceValue = 0.0;
-    m_Step    = 0;
+    m_Step = 0;
     m_Touched = false;
-    m_Barrier = Barrier::New();
   }
 
-  virtual ~NarrowBandImageFilterBase() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~NarrowBandImageFilterBase() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   NarrowBandPointer m_NarrowBand;
 
   /** \struct ThreadRegionType
   The type of region used in multithreading.
   Defines a subregion of the narrowband. */
-  struct ThreadRegionType {
+  struct ThreadRegionType
+  {
     /** this is the actual first element */
     NarrowBandIterator first;
 
@@ -234,38 +246,45 @@ protected:
 
   /** A list of subregions of the narrowband which are passed to each thread
    * for parallel processing. */
-  std::vector< RegionType > m_RegionList;
+  std::vector<RegionType> m_RegionList;
 
   /** This function returns a single region (of the narrow band list) for use
       in multi-threading */
-  void GetSplitRegion(const size_t& i, ThreadRegionType & splitRegion);
+  void
+  GetSplitRegion(const size_t & i, ThreadRegionType & splitRegion);
 
   /** This function clears the existing narrow band, calls CreateNarrowBand to create
    *  a band, and calls the SplitRegions function of NarrowBand to pre-partition
    *  the band for multi-threading.
    */
-  virtual void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /** This method check the narrow band state each iteration and reinitialize
       the narrow band if it is appropriate calling CreateNarrowBand and
       SplitRegions to pre-partion the band for multi-threading.
   */
-  virtual void InitializeIteration() ITK_OVERRIDE;
+  void
+  InitializeIteration() override;
 
   /** This method allows deallocation of data and further post processing
-  */
-  virtual void PostProcessOutput() ITK_OVERRIDE;
+   */
+  void
+  PostProcessOutput() override;
 
   /* This function clears all pixels from the narrow band */
-  void ClearNarrowBand();
-
-  /** Thread synchronization methods. */
-  void WaitForAll();
+  void
+  ClearNarrowBand();
 
   /** This is the default, high-level algorithm for calculating finite
-    * difference solutions.  It calls virtual methods in its subclasses
-    * to implement the major steps of the algorithm. */
-  virtual void GenerateData() ITK_OVERRIDE;
+   * difference solutions.  It calls virtual methods in its subclasses
+   * to implement the major steps of the algorithm.
+   *
+   * This method is a thread implementation of the iterative scheme implemented
+   * in itkFiniteDifferenceImageFilter::GenerateData. It relies on ThreadedApplyUpdate
+   * and ThreadedCalculateChange to update the solution at every iteration. */
+  void
+  GenerateData() override;
 
   /* Variables to control reinitialization */
   IdentifierType m_ReinitializationFrequency;
@@ -273,60 +292,46 @@ protected:
 
   bool m_Touched;
 
-  std::vector< bool > m_TouchedForThread;
+  std::vector<bool> m_TouchedForThread;
 
   ValueType m_IsoSurfaceValue;
 
-  typename Barrier::Pointer m_Barrier;
-
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NarrowBandImageFilterBase);
-
-  /** Structure for passing information into static callback methods.  Used in
-   * the subclasses' threading mechanisms. */
-  struct NarrowBandImageFilterBaseThreadStruct {
-    NarrowBandImageFilterBase *Filter;
-    TimeStepType TimeStep;
-    std::vector< TimeStepType > TimeStepList;
-    std::vector< bool > ValidTimeStepList;
-  };
-
   /* This class does not use AllocateUpdateBuffer to allocate memory for its
    * narrow band. This is taken care of in SetNarrowBand, and InsertNarrowBandNode
    * functions. This function is here for compatibility with the
    * FiniteDifferenceSolver framework.
    */
-  virtual void AllocateUpdateBuffer() ITK_OVERRIDE {}
-
-  /** This method gives support for a multithread iterative scheme. */
-  static ITK_THREAD_RETURN_TYPE IterateThreaderCallback(void *arg);
-
-  /** This method is a thread implementation of the iterative scheme implemented
-   * in itkFiniteDifferenceImageFilter::GenerateData. It relies on ThreadedApplyUpdate
-   * and ThreadedCalculateChange to update the solution at every iteration. */
-  virtual void ThreadedIterate(void *arg, ThreadIdType threadId);
+  void
+  AllocateUpdateBuffer() override
+  {}
 
   /** This method applies changes from the m_NarrowBand to the output using
    * the ThreadedApplyUpdate() method and a multithreading mechanism.  "dt" is
    * the time step to use for the update of each pixel. */
-  virtual void ThreadedApplyUpdate(const TimeStepType& dt,
-                                   const ThreadRegionType & regionToProcess,
-                                   ThreadIdType threadId);
+  virtual void
+  ThreadedApplyUpdate(const TimeStepType & dt, const ThreadRegionType & regionToProcess, ThreadIdType threadId);
 
-  virtual void ApplyUpdate(const TimeStepType&) ITK_OVERRIDE {}
+  void
+  ApplyUpdate(const TimeStepType &) override
+  {}
 
   /** This method populates m_NarrowBand with changes for each pixel in the
    * output using the ThreadedCalculateChange() method and a multithreading
    * mechanism. Returns value is a time step to be used for the update. */
-  virtual TimeStepType ThreadedCalculateChange(const ThreadRegionType & regionToProcess,
-                                               ThreadIdType threadId);
+  virtual TimeStepType
+  ThreadedCalculateChange(const ThreadRegionType & regionToProcess);
 
-  virtual TimeStepType CalculateChange() ITK_OVERRIDE { return 0; }
+  TimeStepType
+  CalculateChange() override
+  {
+    return 0;
+  }
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkNarrowBandImageFilterBase.hxx"
+#  include "itkNarrowBandImageFilterBase.hxx"
 #endif
 
 #endif

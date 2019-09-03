@@ -40,16 +40,17 @@ namespace itk
  *
  * \ingroup ITKSignedDistanceFunction
  */
-template< typename TCoordRep, unsigned int VSpaceDimension >
-class ITK_TEMPLATE_EXPORT SphereSignedDistanceFunction:
-  public ShapeSignedDistanceFunction< TCoordRep, VSpaceDimension >
+template <typename TCoordRep, unsigned int VSpaceDimension>
+class ITK_TEMPLATE_EXPORT SphereSignedDistanceFunction : public ShapeSignedDistanceFunction<TCoordRep, VSpaceDimension>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SphereSignedDistanceFunction                              Self;
-  typedef ShapeSignedDistanceFunction< TCoordRep, VSpaceDimension > Superclass;
-  typedef SmartPointer< Self >                                      Pointer;
-  typedef SmartPointer< const Self >                                ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SphereSignedDistanceFunction);
+
+  /** Standard class type aliases. */
+  using Self = SphereSignedDistanceFunction;
+  using Superclass = ShapeSignedDistanceFunction<TCoordRep, VSpaceDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SphereSignedDistanceFunction, ShapeSignedDistancFunction);
@@ -57,46 +58,53 @@ public:
   /** New macro for creation of through the object factory. */
   itkNewMacro(Self);
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
+  /** OutputType type alias support */
+  using OutputType = typename Superclass::OutputType;
 
-  /** InputeType typedef support. */
-  typedef typename Superclass::InputType InputType;
+  /** InputeType type alias support */
+  using InputType = typename Superclass::InputType;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(SpaceDimension, unsigned int, Superclass::SpaceDimension);
+  static constexpr unsigned int SpaceDimension = Superclass::SpaceDimension;
 
-  /** CoordRep typedef support. */
-  typedef typename Superclass::CoordRepType CoordRepType;
+  /** CoordRep type alias support */
+  using CoordRepType = typename Superclass::CoordRepType;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
   /** Type of the shape parameters. */
-  typedef typename Superclass::ParametersType ParametersType;
+  using ParametersType = typename Superclass::ParametersType;
 
   /** A sphere is defined by a set of shape parameters. The first parameter
    * is the radius and the next SpaceDimension parameters represent the center. */
-  virtual void SetParameters(const ParametersType &) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType &) override;
 
-  virtual unsigned int GetNumberOfShapeParameters(void) const ITK_OVERRIDE
-  { return 1; }
-  virtual unsigned int GetNumberOfPoseParameters(void) const ITK_OVERRIDE
-  { return SpaceDimension; }
+  unsigned int
+  GetNumberOfShapeParameters() const override
+  {
+    return 1;
+  }
+  unsigned int
+  GetNumberOfPoseParameters() const override
+  {
+    return SpaceDimension;
+  }
 
   /** Evaluate the signed distance from a shape at a given position. */
-  virtual OutputType Evaluate(const PointType & point) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const PointType & point) const override;
 
 protected:
   SphereSignedDistanceFunction();
-  ~SphereSignedDistanceFunction() ITK_OVERRIDE {}
+  ~SphereSignedDistanceFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SphereSignedDistanceFunction);
-
-  typedef Vector< CoordRepType, itkGetStaticConstMacro(SpaceDimension) > VectorType;
+  using VectorType = Vector<CoordRepType, Self::SpaceDimension>;
 
   VectorType m_Translation;
   double     m_Radius;
@@ -104,7 +112,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSphereSignedDistanceFunction.hxx"
+#  include "itkSphereSignedDistanceFunction.hxx"
 #endif
 
 #endif

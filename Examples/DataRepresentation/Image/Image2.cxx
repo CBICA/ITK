@@ -29,7 +29,8 @@
 #include "itkImageFileReader.h"
 // Software Guide : EndCodeSnippet
 
-int main( int , char * argv[])
+int
+main(int, char * argv[])
 {
   // Software Guide : BeginLatex
   //
@@ -39,10 +40,10 @@ int main( int , char * argv[])
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef unsigned char          PixelType;
-  const unsigned int             Dimension = 3;
+  using PixelType = unsigned char;
+  constexpr unsigned int Dimension = 3;
 
-  typedef itk::Image< PixelType, Dimension >   ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -64,7 +65,7 @@ int main( int , char * argv[])
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::ImageFileReader< ImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -99,7 +100,7 @@ int main( int , char * argv[])
 
   // Software Guide : BeginCodeSnippet
   const char * filename = argv[1];
-  reader->SetFileName( filename );
+  reader->SetFileName(filename);
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex

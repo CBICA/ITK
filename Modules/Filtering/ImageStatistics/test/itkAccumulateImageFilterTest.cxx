@@ -21,123 +21,120 @@
 #include "itkImageSeriesWriter.h"
 #include "itkGDCMImageIO.h"
 #include "itkGDCMSeriesFileNames.h"
+#include "itkTestingMacros.h"
 
-int itkAccumulateImageFilterTest(int argc, char *argv[] )
+int
+itkAccumulateImageFilterTest(int argc, char * argv[])
 {
-  typedef short PixelType;
-  static ITK_CONSTEXPR_VAR int ImageDimension = 3;
+  using PixelType = short;
+  static constexpr int ImageDimension = 3;
 
-  typedef itk::Image<PixelType,ImageDimension>     InputImageType;
-  typedef itk::Image<PixelType,ImageDimension>     OutputImageType;
-  typedef itk::Image<unsigned char,ImageDimension> WriteImageType;
-  typedef itk::ImageSeriesReader< InputImageType > ReaderType;
-  typedef itk::AccumulateImageFilter<InputImageType,OutputImageType>
-                                                   AccumulaterType;
-  typedef itk::ImageSeriesWriter<OutputImageType,WriteImageType>
-                                                   WriterType;
-  typedef itk::GDCMSeriesFileNames                 SeriesFileNames;
-  typedef itk::GDCMImageIO                         ImageIOType;
+  using InputImageType = itk::Image<PixelType, ImageDimension>;
+  using OutputImageType = itk::Image<PixelType, ImageDimension>;
+  using WriteImageType = itk::Image<unsigned char, ImageDimension>;
+  using ReaderType = itk::ImageSeriesReader<InputImageType>;
+  using AccumulaterType = itk::AccumulateImageFilter<InputImageType, OutputImageType>;
+  using WriterType = itk::ImageSeriesWriter<OutputImageType, WriteImageType>;
+  using SeriesFileNames = itk::GDCMSeriesFileNames;
+  using ImageIOType = itk::GDCMImageIO;
 
   if (argc < 3)
-    {
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputDICOMDirectory outputFile" << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << "  inputDICOMDirectory outputFile" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Get the input filenames
   SeriesFileNames::Pointer names = SeriesFileNames::New();
 
   // Get the DICOM filenames from the directory
-  names->SetInputDirectory( argv[1] );
+  names->SetInputDirectory(argv[1]);
 
   // Create the reader
   ImageIOType::Pointer gdcmIO = ImageIOType::New();
-  ReaderType::Pointer reader = ReaderType::New();
-  reader->SetImageIO( gdcmIO );
+  ReaderType::Pointer  reader = ReaderType::New();
+  reader->SetImageIO(gdcmIO);
   try
-    {
-    reader->SetFileNames( names->GetInputFileNames() );
+  {
+    reader->SetFileNames(names->GetInputFileNames());
     reader->Update();
-    }
-  catch (itk::ExceptionObject &excp)
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error reading the series" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Accumulate the input images
   AccumulaterType::Pointer accumulate = AccumulaterType::New();
-  accumulate->SetInput( reader->GetOutput() );
-  accumulate->SetAccumulateDimension( 2 );
+  accumulate->SetInput(reader->GetOutput());
+  accumulate->SetAccumulateDimension(2);
 
   try
-    {
+  {
     accumulate->Update();
-    }
-  catch ( itk::ExceptionObject &excp)
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error running the accumulate filter" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   accumulate->GetOutput()->Print(std::cout);
 
-  accumulate->Print( std::cout );
+  accumulate->Print(std::cout);
 
   // Now turn averaging off
   accumulate->AverageOff();
   try
-    {
+  {
     WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName ( argv[2] );
+    writer->SetFileName(argv[2]);
 
     writer->SetInput(accumulate->GetOutput());
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error writing the series" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-
-    }
+  }
 
   // Now turn averaging on
   accumulate->AverageOn();
   std::cout << "Average: " << accumulate->GetAverage() << std::endl;
 
   try
-    {
+  {
     WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName ( argv[2] );
+    writer->SetFileName(argv[2]);
 
     writer->SetInput(accumulate->GetOutput());
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error writing the series" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-
-    }
+  }
 
   // Test dimension check exception.
   try
-    {
-    accumulate->SetAccumulateDimension( 5 );
+  {
+    accumulate->SetAccumulateDimension(5);
     accumulate->Update();
     std::cout << "Failed to catch expected exception." << std::endl;
     return EXIT_FAILURE;
-    }
-  catch ( itk::ExceptionObject &excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cout << "Caught expected exception." << std::endl;
     std::cout << excp << std::endl;
-    }
+  }
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;
-
 }

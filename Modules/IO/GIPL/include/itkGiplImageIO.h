@@ -36,13 +36,15 @@ class GiplImageIOInternals;
  *
  * \ingroup ITKIOGIPL
  */
-class ITKIOGIPL_EXPORT GiplImageIO:public ImageIOBase
+class ITKIOGIPL_EXPORT GiplImageIO : public ImageIOBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef GiplImageIO          Self;
-  typedef ImageIOBase          Superclass;
-  typedef SmartPointer< Self > Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GiplImageIO);
+
+  /** Standard class type aliases. */
+  using Self = GiplImageIO;
+  using Superclass = ImageIOBase;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -54,43 +56,50 @@ public:
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanReadFile(const char *) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char *) override;
 
   /** Set the spacing and dimension information for the set filename. */
-  virtual void ReadImageInformation() ITK_OVERRIDE;
+  void
+  ReadImageInformation() override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read(void *buffer) ITK_OVERRIDE;
+  void
+  Read(void * buffer) override;
 
   /*-------- This part of the interfaces deals with writing data. ----- */
 
   /** Determine the file type. Returns true if this ImageIO can write the
    * file specified. */
-  virtual bool CanWriteFile(const char *) ITK_OVERRIDE;
+  bool
+  CanWriteFile(const char *) override;
 
   /** Set the spacing and dimension information for the set filename. */
-  virtual void WriteImageInformation() ITK_OVERRIDE;
+  void
+  WriteImageInformation() override;
 
   /** Writes the data to disk from the memory buffer provided. Make sure
    * that the IORegions has been set properly. */
-  virtual void Write(const void *buffer) ITK_OVERRIDE;
+  void
+  Write(const void * buffer) override;
 
   GiplImageIO();
-  ~GiplImageIO() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GiplImageIO() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GiplImageIO);
+  void
+  SwapBytesIfNecessary(void * buffer, SizeValueType numberOfPixels);
 
-  void SwapBytesIfNecessary(void *buffer, SizeValueType numberOfPixels);
-
-  bool CheckExtension(const char *);
+  bool
+  CheckExtension(const char *);
 
   std::ifstream m_Ifstream;
   std::ofstream m_Ofstream;
   bool          m_IsCompressed;
 
-  GiplImageIOInternals *m_Internal;
+  GiplImageIOInternals * m_Internal;
 };
 } // end namespace itk
 

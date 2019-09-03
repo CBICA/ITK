@@ -48,45 +48,46 @@ namespace itk
  * \ingroup ImageObjects
  * \ingroup ITKCommon
  */
-template< typename TInputImage, typename TOutputImage = TInputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
 class ITK_TEMPLATE_EXPORT ImageBoundaryCondition
 {
 public:
   /** Extract information from the image type */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  /** Standard typedefs. */
-  typedef ImageBoundaryCondition Self;
+  /** Standard type alias. */
+  using Self = ImageBoundaryCondition;
 
   /** Extract information from the image type */
-  typedef typename TInputImage::PixelType                       PixelType;
-  typedef typename TInputImage::InternalPixelType *             PixelPointerType;
-  typedef typename TOutputImage::PixelType                      OutputPixelType;
-  typedef Index< itkGetStaticConstMacro(ImageDimension) >       IndexType;
-  typedef Size< itkGetStaticConstMacro(ImageDimension) >        SizeType;
-  typedef Offset< itkGetStaticConstMacro(ImageDimension) >      OffsetType;
-  typedef ImageRegion< itkGetStaticConstMacro(ImageDimension) > RegionType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using PixelType = typename TInputImage::PixelType;
+  using PixelPointerType = typename TInputImage::InternalPixelType *;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using IndexType = Index<ImageDimension>;
+  using SizeType = Size<ImageDimension>;
+  using OffsetType = Offset<ImageDimension>;
+  using RegionType = ImageRegion<ImageDimension>;
 
   /** Type of the data container passed to this function object. */
-  typedef Neighborhood< PixelPointerType,
-                        itkGetStaticConstMacro(ImageDimension) > NeighborhoodType;
+  using NeighborhoodType = Neighborhood<PixelPointerType, ImageDimension>;
 
   /** Functor used to access pixels from a neighborhood of pixel pointers */
-  typedef typename TInputImage::NeighborhoodAccessorFunctorType
-  NeighborhoodAccessorFunctorType;
+  using NeighborhoodAccessorFunctorType = typename TInputImage::NeighborhoodAccessorFunctorType;
 
   /** Default constructor. */
-  ImageBoundaryCondition() {}
+  ImageBoundaryCondition() = default;
 
   /** Runtime information support. */
-  virtual const char * GetNameOfClass() const
+  virtual const char *
+  GetNameOfClass() const
   {
     return "itkImageBoundaryCondition";
   }
 
   /** Utility for printing the boundary condition. */
-  virtual void Print( std::ostream & os, Indent i = 0 ) const
+  virtual void
+  Print(std::ostream & os, Indent i = 0) const
   {
     os << i << this->GetNameOfClass() << " (" << this << ")" << std::endl;
   }
@@ -95,27 +96,32 @@ public:
    * phantom pixel (ND) index within the neighborhood, the pixel's offset from
    * the nearest image border pixel, and a neighborhood of pointers to pixel
    * values in the image.  */
-  virtual OutputPixelType operator()(const OffsetType & point_index,
-                                     const OffsetType & boundary_offset,
-                                     const NeighborhoodType *data) const = 0;
+  virtual OutputPixelType
+  operator()(const OffsetType &       point_index,
+             const OffsetType &       boundary_offset,
+             const NeighborhoodType * data) const = 0;
 
   /** Computes and returns the appropriate pixel value from
    * neighborhood iterator data, using the functor. */
-  virtual OutputPixelType operator()(
-    const OffsetType & point_index,
-    const OffsetType & boundary_offset,
-    const NeighborhoodType *data,
-    const NeighborhoodAccessorFunctorType & neighborhoodAccessorFunctor) const = 0;
+  virtual OutputPixelType
+  operator()(const OffsetType &                      point_index,
+             const OffsetType &                      boundary_offset,
+             const NeighborhoodType *                data,
+             const NeighborhoodAccessorFunctorType & neighborhoodAccessorFunctor) const = 0;
 
-  virtual ~ImageBoundaryCondition() {}
+  virtual ~ImageBoundaryCondition() = default;
 
   /** Tell if the boundary condition can index to any location within
-    * the associated iterator's neighborhood or if it has some limited
-    * subset (such as none) that it relies upon.
-    * Subclasses should override this method if they can safely limit
-    * indexes to active pixels (or no pixels).
-    */
-  virtual bool RequiresCompleteNeighborhood() { return true; }
+   * the associated iterator's neighborhood or if it has some limited
+   * subset (such as none) that it relies upon.
+   * Subclasses should override this method if they can safely limit
+   * indexes to active pixels (or no pixels).
+   */
+  virtual bool
+  RequiresCompleteNeighborhood()
+  {
+    return true;
+  }
 
   /** Determines the necessary input region for an output region given
    * the largest possible region of the input image. Subclasses should
@@ -126,10 +132,10 @@ public:
    * \return The necessary input region required to determine the
    * pixel values in the outputRequestedRegion.
    */
-  virtual RegionType GetInputRequestedRegion( const RegionType & inputLargestPossibleRegion,
-                                              const RegionType & outputRequestedRegion ) const
+  virtual RegionType
+  GetInputRequestedRegion(const RegionType & inputLargestPossibleRegion, const RegionType & outputRequestedRegion) const
   {
-    (void) outputRequestedRegion;
+    (void)outputRequestedRegion;
     return inputLargestPossibleRegion;
   }
 
@@ -141,9 +147,8 @@ public:
    * \param index The index of the desired pixel.
    * \param image The image from which pixel values should be determined.
    */
-  virtual OutputPixelType GetPixel( const IndexType & index,
-                                    const TInputImage * image ) const = 0;
-
+  virtual OutputPixelType
+  GetPixel(const IndexType & index, const TInputImage * image) const = 0;
 };
 } // end namespace itk
 

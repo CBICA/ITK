@@ -34,57 +34,59 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-template< typename TInternalComputationValueType=double >
+template <typename TInternalComputationValueType = double>
 class OptimizerParameterScalesEstimatorTemplate : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef OptimizerParameterScalesEstimatorTemplate     Self;
-  typedef Object                                        Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
-
-  /** Run-time type information (and related methods). */
-  itkTypeMacro( OptimizerParameterScalesEstimatorTemplate, Object );
-
-  /** Type of scales */
-  typedef OptimizerParameters<TInternalComputationValueType> ScalesType;
-  /** Type of parameters of the optimizer */
-  typedef OptimizerParameters<TInternalComputationValueType> ParametersType;
-
-  /** Type of float */
-  typedef TInternalComputationValueType FloatType;
-
-  /** Estimate parameter scales. */
-  virtual void EstimateScales(ScalesType &scales) = 0;
-
-  /** Estimate the scale of a step. */
-  virtual FloatType EstimateStepScale(const ParametersType &step) = 0;
-
-  /** Estimate the scales of local steps. */
-  virtual void EstimateLocalStepScales(const ParametersType &step,
-    ScalesType &localStepScales) = 0;
-
-  /** Estimate the maximum size for steps. */
-  virtual FloatType EstimateMaximumStepSize() = 0;
-
-protected:
-  OptimizerParameterScalesEstimatorTemplate(){};
-  ~OptimizerParameterScalesEstimatorTemplate() ITK_OVERRIDE {};
-
-  virtual void PrintSelf(std::ostream &os, Indent indent) const ITK_OVERRIDE
-    {
-    Superclass::PrintSelf(os,indent);
-    }
-
-private:
   ITK_DISALLOW_COPY_AND_ASSIGN(OptimizerParameterScalesEstimatorTemplate);
 
-}; //class OptimizerParameterScalesEstimatorTemplate
+  /** Standard class type aliases. */
+  using Self = OptimizerParameterScalesEstimatorTemplate;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(OptimizerParameterScalesEstimatorTemplate, Object);
+
+  /** Type of scales */
+  using ScalesType = OptimizerParameters<TInternalComputationValueType>;
+  /** Type of parameters of the optimizer */
+  using ParametersType = OptimizerParameters<TInternalComputationValueType>;
+
+  /** Type of float */
+  using FloatType = TInternalComputationValueType;
+
+  /** Estimate parameter scales. */
+  virtual void
+  EstimateScales(ScalesType & scales) = 0;
+
+  /** Estimate the scale of a step. */
+  virtual FloatType
+  EstimateStepScale(const ParametersType & step) = 0;
+
+  /** Estimate the scales of local steps. */
+  virtual void
+  EstimateLocalStepScales(const ParametersType & step, ScalesType & localStepScales) = 0;
+
+  /** Estimate the maximum size for steps. */
+  virtual FloatType
+  EstimateMaximumStepSize() = 0;
+
+protected:
+  OptimizerParameterScalesEstimatorTemplate() = default;
+  ~OptimizerParameterScalesEstimatorTemplate() override = default;
+
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
+  }
+}; // class OptimizerParameterScalesEstimatorTemplate
 
 /** This helps to meet backward compatibility */
-typedef OptimizerParameterScalesEstimatorTemplate<double> OptimizerParameterScalesEstimator;
+using OptimizerParameterScalesEstimator = OptimizerParameterScalesEstimatorTemplate<double>;
 
-}  // namespace itk
+} // namespace itk
 
 #endif

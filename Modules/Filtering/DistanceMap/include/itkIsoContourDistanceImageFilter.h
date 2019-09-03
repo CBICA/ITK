@@ -21,9 +21,8 @@
 #include "itkImageToImageFilter.h"
 #include "itkNarrowBand.h"
 #include "itkNeighborhoodIterator.h"
-#include "itkBarrier.h"
 #include "itkNumericTraits.h"
-#include "itkSimpleFastMutexLock.h"
+#include <mutex>
 
 namespace itk
 {
@@ -55,16 +54,17 @@ namespace itk
  *
  * \ingroup ITKDistanceMap
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT IsoContourDistanceImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT IsoContourDistanceImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef IsoContourDistanceImageFilter                   Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(IsoContourDistanceImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = IsoContourDistanceImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,47 +73,45 @@ public:
   itkTypeMacro(IsoContourDistanceImageFilter, ImageToImageFilter);
 
   /**Typedefs from the superclass */
-  typedef typename Superclass::InputImageType  InputImageType;
-  typedef typename Superclass::OutputImageType OutputImageType;
+  using InputImageType = typename Superclass::InputImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
 
   /** Dimensionality of input and output data is assumed to be the same.
    * It is inherited from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** The pixel type of the output image will be used in computations.
    * Inherited from the superclass. */
-  typedef typename OutputImageType::PixelType                 PixelType;
-  typedef typename InputImageType::PixelType                  InputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType  PixelRealType;
+  using PixelType = typename OutputImageType::PixelType;
+  using InputPixelType = typename InputImageType::PixelType;
+  using PixelRealType = typename NumericTraits<InputPixelType>::RealType;
 
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
 
-  typedef typename InputImageType::SizeType   InputSizeType;
-  typedef typename OutputImageType::SizeType  SizeType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using SizeType = typename OutputImageType::SizeType;
 
-  typedef typename InputImageType::IndexType  InputIndexType;
-  typedef typename OutputImageType::IndexType IndexType;
+  using InputIndexType = typename InputImageType::IndexType;
+  using IndexType = typename OutputImageType::IndexType;
 
-  typedef typename InputImageType::SpacingType InputSpacingType;
+  using InputSpacingType = typename InputImageType::SpacingType;
 
-  /** NarrowBand typedef support. */
-  typedef BandNode< IndexType, PixelType >       BandNodeType;
-  typedef NarrowBand< BandNodeType >             NarrowBandType;
-  typedef typename NarrowBandType::Pointer       NarrowBandPointer;
-  typedef typename NarrowBandType::RegionType    RegionType;
-  typedef typename NarrowBandType::ConstIterator ConstBandIterator;
-  typedef typename NarrowBandType::Iterator      BandIterator;
+  /** NarrowBand type alias support */
+  using BandNodeType = BandNode<IndexType, PixelType>;
+  using NarrowBandType = NarrowBand<BandNodeType>;
+  using NarrowBandPointer = typename NarrowBandType::Pointer;
+  using RegionType = typename NarrowBandType::RegionType;
+  using ConstBandIterator = typename NarrowBandType::ConstIterator;
+  using BandIterator = typename NarrowBandType::Iterator;
 
   /** Set/Get the value of the level set to be located. The default value is
-    *  0. */
+   *  0. */
   itkSetMacro(LevelSetValue, PixelRealType);
   itkGetConstMacro(LevelSetValue, PixelRealType);
 
   /** Set/Get the value of the level set to be located. The default value is
-  *  0. */
+   *  0. */
   itkSetMacro(FarValue, PixelType);
   itkGetConstMacro(FarValue, PixelType);
 
@@ -124,81 +122,89 @@ public:
   itkBooleanMacro(NarrowBanding);
 
   /** Set/Get the narrowband. */
-  void SetNarrowBand(NarrowBandType *ptr);
+  void
+  SetNarrowBand(NarrowBandType * ptr);
 
-  NarrowBandPointer GetNarrowBand() const
-  { return m_NarrowBand; }
+  NarrowBandPointer
+  GetNarrowBand() const
+  {
+    return m_NarrowBand;
+  }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputPixelType > ) );
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< PixelType > ) );
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< ImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, PixelType > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputPixelType, PixelType > ) );
-  itkConceptMacro( OutputAdditiveOperatorsCheck,
-                   ( Concept::AdditiveOperators< PixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputPixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< PixelType > ) );
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputPixelType>));
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<PixelType>));
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<ImageDimension, OutputImageDimension>));
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, PixelType>));
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputPixelType, PixelType>));
+  itkConceptMacro(OutputAdditiveOperatorsCheck, (Concept::AdditiveOperators<PixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<InputPixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<PixelType>));
   // End concept checking
 #endif
 
 protected:
   IsoContourDistanceImageFilter();
-  ~IsoContourDistanceImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~IsoContourDistanceImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) override;
 
-  void ThreadedGenerateDataFull(const OutputImageRegionType & outputRegionForThread,
-                                ThreadIdType threadId);
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType &) override
+  {
+    itkExceptionMacro("This class requires threadId so it must use classic multi-threading model");
+  }
 
-  void ThreadedGenerateDataBand(const OutputImageRegionType & outputRegionForThread,
-                                ThreadIdType threadId);
+  void
+  GenerateData() override;
 
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  static ITK_THREAD_RETURN_FUNCTION_CALL_CONVENTION
+  ThreaderFullCallback(void * arg);
 
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  ThreadedGenerateDataFull(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId);
 
-  virtual void EnlargeOutputRequestedRegion(DataObject *) ITK_OVERRIDE;
+  void
+  ThreadedGenerateDataBand(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId);
 
-  typedef ConstNeighborhoodIterator< InputImageType > InputNeighbordIteratorType;
-  typedef NeighborhoodIterator< OutputImageType >     OutputNeighborhoodIteratorType;
+  void
+  BeforeThreadedGenerateData() override;
 
-  void ComputeValue( const InputNeighbordIteratorType& inNeigIt,
-                     OutputNeighborhoodIteratorType& outNeigIt,
-                     unsigned int center,
-                     const std::vector< OffsetValueType >& stride );
+  void
+  GenerateInputRequestedRegion() override;
+
+  void
+  EnlargeOutputRequestedRegion(DataObject *) override;
+
+  using InputNeighbordIteratorType = ConstNeighborhoodIterator<InputImageType>;
+  using OutputNeighborhoodIteratorType = NeighborhoodIterator<OutputImageType>;
+
+  void
+  ComputeValue(const InputNeighbordIteratorType &   inNeigIt,
+               OutputNeighborhoodIteratorType &     outNeigIt,
+               unsigned int                         center,
+               const std::vector<OffsetValueType> & stride);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(IsoContourDistanceImageFilter);
-
-  PixelRealType  m_LevelSetValue;
-  PixelType      m_FarValue;
+  PixelRealType m_LevelSetValue;
+  PixelType     m_FarValue;
 
   InputSpacingType m_Spacing;
 
-  bool                      m_NarrowBanding;
-  NarrowBandPointer         m_NarrowBand;
-  std::vector< RegionType > m_NarrowBandRegion;
+  bool                    m_NarrowBanding;
+  NarrowBandPointer       m_NarrowBand;
+  std::vector<RegionType> m_NarrowBandRegion;
 
-  /** A global barrier used for synchronization between all threads. */
-  typename Barrier::Pointer m_Barrier;
-
-  SimpleFastMutexLock m_Mutex;
+  std::mutex m_Mutex;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkIsoContourDistanceImageFilter.hxx"
+#  include "itkIsoContourDistanceImageFilter.hxx"
 #endif
 
 #endif

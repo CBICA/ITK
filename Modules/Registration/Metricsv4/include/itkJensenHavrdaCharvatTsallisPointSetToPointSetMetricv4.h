@@ -22,7 +22,8 @@
 
 #include "itkManifoldParzenWindowsPointSetFunction.h"
 
-namespace itk {
+namespace itk
+{
 
 /** \class JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4
  *
@@ -67,59 +68,60 @@ namespace itk {
  * \ingroup ITKMetricsv4
  */
 
-template<typename TPointSet, class TInternalComputationValueType = double>
-class ITK_TEMPLATE_EXPORT JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4 :
-    public PointSetToPointSetMetricv4<TPointSet, TPointSet, TInternalComputationValueType>
+template <typename TPointSet, class TInternalComputationValueType = double>
+class ITK_TEMPLATE_EXPORT JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4
+  : public PointSetToPointSetMetricv4<TPointSet, TPointSet, TInternalComputationValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4 Self;
-  typedef PointSetToPointSetMetricv4<TPointSet, TPointSet,
-    TInternalComputationValueType>                             Superclass;
-  typedef SmartPointer<Self>                                   Pointer;
-  typedef SmartPointer<const Self>                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4);
+
+  /** Standard class type aliases. */
+  using Self = JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4;
+  using Superclass = PointSetToPointSetMetricv4<TPointSet, TPointSet, TInternalComputationValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
-  itkSimpleNewMacro( Self );
+  itkSimpleNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro( JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4, PointSetToPointSetMetricv4 );
+  itkTypeMacro(JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4, PointSetToPointSetMetricv4);
 
-  typedef TPointSet                                 PointSetType;
-  typedef typename PointSetType::PointsContainer    PointsContainer;
-  typedef typename PointsContainer::ConstIterator   PointsContainerConstIterator;
+  using PointSetType = TPointSet;
+  using PointsContainer = typename PointSetType::PointsContainer;
+  using PointsContainerConstIterator = typename PointsContainer::ConstIterator;
 
-  itkStaticConstMacro( PointDimension, unsigned int, TPointSet::PointDimension );
+  static constexpr unsigned int PointDimension = TPointSet::PointDimension;
 
   /** Types transferred from the base class */
-  typedef typename Superclass::MeasureType              MeasureType;
-  typedef typename Superclass::DerivativeType           DerivativeType;
-  typedef typename Superclass::DerivativeValueType      DerivativeValueType;
-  typedef typename Superclass::LocalDerivativeType      LocalDerivativeType;
-  typedef typename Superclass::PointType                PointType;
-  typedef typename Superclass::PixelType                PixelType;
-  typedef typename Superclass::CoordRepType             CoordRepType;
-  typedef typename Superclass::PointIdentifier          PointIdentifier;
-  typedef typename Superclass::NeighborsIdentifierType  NeighborsIdentifierType;
-  typedef typename Superclass::NumberOfParametersType   NumberOfParametersType;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using DerivativeValueType = typename Superclass::DerivativeValueType;
+  using LocalDerivativeType = typename Superclass::LocalDerivativeType;
+  using PointType = typename Superclass::PointType;
+  using PixelType = typename Superclass::PixelType;
+  using CoordRepType = typename Superclass::CoordRepType;
+  using PointIdentifier = typename Superclass::PointIdentifier;
+  using NeighborsIdentifierType = typename Superclass::NeighborsIdentifierType;
+  using NumberOfParametersType = typename Superclass::NumberOfParametersType;
 
-  typedef typename Superclass::JacobianType                   JacobianType;
-  typedef typename Superclass::FixedTransformJacobianType     FixedTransformJacobianType;
-  typedef typename Superclass::MovingTransformJacobianType    MovingTransformJacobianType;
+  using JacobianType = typename Superclass::JacobianType;
+  using FixedTransformJacobianType = typename Superclass::FixedTransformJacobianType;
+  using MovingTransformJacobianType = typename Superclass::MovingTransformJacobianType;
 
-  typedef MeasureType                                   RealType;
+  using RealType = MeasureType;
 
   /**
    * Other typedefs
    */
-  typedef ManifoldParzenWindowsPointSetFunction
-    <PointSetType, RealType>                            DensityFunctionType;
-  typedef typename DensityFunctionType::GaussianType    GaussianType;
-  typedef typename DensityFunctionType::Pointer         DensityFunctionPointer;
+  using DensityFunctionType = ManifoldParzenWindowsPointSetFunction<PointSetType, RealType>;
+  using GaussianType = typename DensityFunctionType::GaussianType;
+  using DensityFunctionPointer = typename DensityFunctionType::Pointer;
 
   /** Initialize the Metric by making sure that all the components
    *  are present and plugged together correctly     */
-  virtual void Initialize( void ) ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /**
    * Set the alpha parameter used to tune the point-set metric from
@@ -130,66 +132,66 @@ public:
    * an alpha value close to 1, in general, provides better performance.
    * Only values between 1 and 2 are convex.
    */
-  itkSetClampMacro( Alpha, RealType, 1.0, 2.0 );
+  itkSetClampMacro(Alpha, RealType, 1.0, 2.0);
 
   /**
    * Get the alpha parameter used to tune the point-set metric.
    */
-  itkGetConstMacro( Alpha, RealType );
+  itkGetConstMacro(Alpha, RealType);
 
   /**
    * Each point is associated with a Gaussian characterized by m_PointSetSigma
    * which provides a sense of scale for determining the similarity between two
    * point sets.  Default = 1.0.
    */
-  itkSetMacro( PointSetSigma, RealType );
+  itkSetMacro(PointSetSigma, RealType);
 
   /** Get the point set sigma function */
-  itkGetConstMacro( PointSetSigma, RealType );
+  itkGetConstMacro(PointSetSigma, RealType);
 
   /**
    * Set the neighborhood size used to evaluate the measurement at each
    * point.  Default = 50.
    */
-  itkSetMacro( EvaluationKNeighborhood, unsigned int );
+  itkSetMacro(EvaluationKNeighborhood, unsigned int);
 
   /**
    * Get the neighborhood size used to evaluate the measurement at each
    * point.  Default = 50.
    */
-  itkGetConstMacro( EvaluationKNeighborhood, unsigned int );
+  itkGetConstMacro(EvaluationKNeighborhood, unsigned int);
 
   /**
    * Set whether or not anisotropic covariances are determined for each
    * Gaussian.  Default = false.
    */
-  itkSetMacro( UseAnisotropicCovariances, bool );
+  itkSetMacro(UseAnisotropicCovariances, bool);
 
   /**
    * Get whether or not anisotropic covariances are determined for each
    * Gaussian.  Default = false.
    */
-  itkGetConstMacro( UseAnisotropicCovariances, bool );
+  itkGetConstMacro(UseAnisotropicCovariances, bool);
 
   /**
    * Get/set whether or not anisotropic covariances are determined for each
    * Gaussian.  Default = false.
    */
-  itkBooleanMacro( UseAnisotropicCovariances );
+  itkBooleanMacro(UseAnisotropicCovariances);
 
   /**
    * Set the size of the covariance neighborhood used to construct the
    * anisotropic covariances.  Only relevant if m_UseAnisotropicCovariances =
    * true.  Default = 5.
    */
-  itkSetMacro( CovarianceKNeighborhood, unsigned int );
+  itkSetMacro(CovarianceKNeighborhood, unsigned int);
 
   /**
    * Get the size of the covariance neighborhood used to construct the
    * anisotropic covariances.  Only relevant if m_UseAnisotropicCovariances =
    * true.  Default = 5.
    */
-  itkGetConstMacro( CovarianceKNeighborhood, unsigned int );
+  itkGetConstMacro(CovarianceKNeighborhood, unsigned int);
 
   /**
    * Set the size of the noise kernel used to construct each covariance image.
@@ -198,56 +200,74 @@ public:
    * diagonal represented by this variable.  Only relevant if
    * m_UseAnisotropicCovariances = true.  Default = 10.0.
    */
-  itkSetMacro( KernelSigma, RealType );
+  itkSetMacro(KernelSigma, RealType);
 
   /** Get the noise kernel sigma for the anistropic covariances. */
-  itkGetConstMacro( KernelSigma, RealType );
+  itkGetConstMacro(KernelSigma, RealType);
 
-  virtual MeasureType GetLocalNeighborhoodValue( const PointType & point,
-    const PixelType & pixel = 0 ) const ITK_OVERRIDE;
+  MeasureType
+  GetLocalNeighborhoodValue(const PointType & point, const PixelType & pixel = 0) const override;
 
-  virtual void GetLocalNeighborhoodValueAndDerivative( const PointType &, MeasureType &,
-    LocalDerivativeType &, const PixelType & pixel = 0 ) const ITK_OVERRIDE;
+  void
+  GetLocalNeighborhoodValueAndDerivative(const PointType &,
+                                         MeasureType &,
+                                         LocalDerivativeType &,
+                                         const PixelType & pixel = 0) const override;
 
   /** Clone method will clone the existing instance of this type,
    *  including its internal member variables. */
-  virtual typename LightObject::Pointer InternalClone() const ITK_OVERRIDE;
+  typename LightObject::Pointer
+  InternalClone() const override;
 
 protected:
   JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4();
-  ~JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4() ITK_OVERRIDE;
+  ~JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4() override = default;
 
-  void ComputeValueAndDerivative( const PointType & samplePoint, MeasureType & value,
-    LocalDerivativeType &derivativeReturn, bool calcValue, bool calcDerivative ) const;
+  void
+  ComputeValueAndDerivative(const PointType &     samplePoint,
+                            MeasureType &         value,
+                            LocalDerivativeType & derivativeReturn,
+                            bool                  calcValue,
+                            bool                  calcDerivative) const;
 
-  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  bool
+  RequiresFixedPointsLocator() const override
+  {
+    return false;
+  }
+
+  bool
+  RequiresMovingPointsLocator() const override
+  {
+    return false;
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(JensenHavrdaCharvatTsallisPointSetToPointSetMetricv4);
+  DensityFunctionPointer m_MovingDensityFunction;
 
-  DensityFunctionPointer                   m_MovingDensityFunction;
-  DensityFunctionPointer                   m_FixedDensityFunction;
+  bool m_UseAnisotropicCovariances{ false };
 
-  bool                                     m_UseAnisotropicCovariances;
+  RealType     m_PointSetSigma;
+  RealType     m_KernelSigma;
+  unsigned int m_CovarianceKNeighborhood;
+  unsigned int m_EvaluationKNeighborhood;
 
-  RealType                                 m_PointSetSigma;
-  RealType                                 m_KernelSigma;
-  unsigned int                             m_CovarianceKNeighborhood;
-  unsigned int                             m_EvaluationKNeighborhood;
-
-  RealType                                 m_Alpha;
+  RealType m_Alpha;
 
   /** Precomputed cached values */
-  mutable RealType                         m_TotalNumberOfPoints;
-  mutable RealType                         m_Prefactor0;
-  mutable RealType                         m_Prefactor1;
+  mutable RealType m_TotalNumberOfPoints;
+  mutable RealType m_Prefactor0;
+  mutable RealType m_Prefactor1;
 };
 
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkJensenHavrdaCharvatTsallisPointSetToPointSetMetricv4.hxx"
+#  include "itkJensenHavrdaCharvatTsallisPointSetToPointSetMetricv4.hxx"
 #endif
 
 #endif

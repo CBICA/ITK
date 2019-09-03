@@ -20,64 +20,73 @@
 
 namespace itk
 {
-template< typename TInput, typename TOutput >
-class FastMarchingStoppingCriterionBaseHelperTest :
-public FastMarchingStoppingCriterionBase< TInput, TOutput >
+template <typename TInput, typename TOutput>
+class FastMarchingStoppingCriterionBaseHelperTest : public FastMarchingStoppingCriterionBase<TInput, TOutput>
 {
 public:
-  typedef FastMarchingStoppingCriterionBaseHelperTest           Self;
-  typedef FastMarchingStoppingCriterionBase< TInput, TOutput >  Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingStoppingCriterionBaseHelperTest);
 
-  typedef typename Superclass::NodeType NodeType;
+  using Self = FastMarchingStoppingCriterionBaseHelperTest;
+  using Superclass = FastMarchingStoppingCriterionBase<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using NodeType = typename Superclass::NodeType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(FastMarchingStoppingCriterionBaseHelperTest,
-                FastMarchingStoppingCriterionBase );
+  itkTypeMacro(FastMarchingStoppingCriterionBaseHelperTest, FastMarchingStoppingCriterionBase);
 
-  bool IsSatisfied() const ITK_OVERRIDE { return true; }
-  std::string GetDescription() const ITK_OVERRIDE { return "Description"; }
+  bool
+  IsSatisfied() const override
+  {
+    return true;
+  }
+  std::string
+  GetDescription() const override
+  {
+    return "Description";
+  }
 
 protected:
-  FastMarchingStoppingCriterionBaseHelperTest() : Superclass() {}
-  ~FastMarchingStoppingCriterionBaseHelperTest() ITK_OVERRIDE {}
+  FastMarchingStoppingCriterionBaseHelperTest()
+    : Superclass()
+  {}
+  ~FastMarchingStoppingCriterionBaseHelperTest() override = default;
 
-  void SetCurrentNode( const NodeType& ) ITK_OVERRIDE {}
+  void
+  SetCurrentNode(const NodeType &) override
+  {}
 
-  void Reset() ITK_OVERRIDE {}
-
-private:
-  FastMarchingStoppingCriterionBaseHelperTest( const Self& );
-  void operator = ( const Self& );
+  void
+  Reset() override
+  {}
 };
-}
+} // namespace itk
 
-int itkFastMarchingStoppingCriterionBaseTest( int , char *[] )
+int
+itkFastMarchingStoppingCriterionBaseTest(int, char *[])
 {
-  typedef itk::Image< float, 2> ImageType;
+  using ImageType = itk::Image<float, 2>;
 
-  typedef itk::FastMarchingStoppingCriterionBaseHelperTest< ImageType, ImageType >
-    ImageStoppingCriterionType;
+  using ImageStoppingCriterionType = itk::FastMarchingStoppingCriterionBaseHelperTest<ImageType, ImageType>;
 
   ImageStoppingCriterionType::Pointer image_criterion = ImageStoppingCriterionType::New();
-  if( image_criterion.IsNull() )
-    {
+  if (image_criterion.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::QuadEdgeMesh< float, 3 > MeshType;
+  using MeshType = itk::QuadEdgeMesh<float, 3>;
 
-  typedef itk::FastMarchingStoppingCriterionBaseHelperTest< MeshType, MeshType >
-      MeshStoppingCriterionType;
+  using MeshStoppingCriterionType = itk::FastMarchingStoppingCriterionBaseHelperTest<MeshType, MeshType>;
 
   MeshStoppingCriterionType::Pointer mesh_criterion = MeshStoppingCriterionType::New();
-  if( mesh_criterion.IsNull() )
-    {
+  if (mesh_criterion.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

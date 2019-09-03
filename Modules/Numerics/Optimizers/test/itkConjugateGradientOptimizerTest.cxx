@@ -41,30 +41,31 @@
 class conjugateCostFunction : public itk::SingleValuedCostFunction
 {
 public:
+  using Self = conjugateCostFunction;
+  using Superclass = itk::SingleValuedCostFunction;
+  using Pointer = itk::SmartPointer<Self>;
+  using ConstPointer = itk::SmartPointer<const Self>;
+  itkNewMacro(Self);
+  itkTypeMacro(conjugateCostFunction, SingleValuedCostFunction);
 
-  typedef conjugateCostFunction             Self;
-  typedef itk::SingleValuedCostFunction     Superclass;
-  typedef itk::SmartPointer<Self>           Pointer;
-  typedef itk::SmartPointer<const Self>     ConstPointer;
-  itkNewMacro( Self );
-  itkTypeMacro( conjugateCostFunction, SingleValuedCostFunction );
-
-  enum { SpaceDimension=2 };
-
-  typedef Superclass::ParametersType              ParametersType;
-  typedef Superclass::DerivativeType              DerivativeType;
-
-  typedef vnl_vector<double>                      VectorType;
-  typedef vnl_matrix<double>                      MatrixType;
-
-  typedef double MeasureType;
-
-
-  conjugateCostFunction()
+  enum
   {
-  }
+    SpaceDimension = 2
+  };
 
-  virtual double GetValue( const ParametersType & position ) const ITK_OVERRIDE
+  using ParametersType = Superclass::ParametersType;
+  using DerivativeType = Superclass::DerivativeType;
+
+  using VectorType = vnl_vector<double>;
+  using MatrixType = vnl_matrix<double>;
+
+  using MeasureType = double;
+
+
+  conjugateCostFunction() = default;
+
+  double
+  GetValue(const ParametersType & position) const override
   {
 
     double x = position[0];
@@ -74,15 +75,15 @@ public:
     std::cout << x << " , " << y;
     std::cout << ") = ";
 
-    double val = 0.5*(3*x*x+4*x*y+6*y*y) - 2*x + 8*y;
+    double val = 0.5 * (3 * x * x + 4 * x * y + 6 * y * y) - 2 * x + 8 * y;
 
     std::cout << val << std::endl;
 
     return val;
   }
 
-  void GetDerivative( const ParametersType & position,
-                            DerivativeType & derivative ) const ITK_OVERRIDE
+  void
+  GetDerivative(const ParametersType & position, DerivativeType & derivative) const override
   {
 
     double x = position[0];
@@ -93,61 +94,58 @@ public:
     std::cout << ") = ";
 
     derivative = DerivativeType(SpaceDimension);
-    derivative[0] = 3*x + 2*y -2;
-    derivative[1] = 2*x + 6*y +8;
+    derivative[0] = 3 * x + 2 * y - 2;
+    derivative[1] = 2 * x + 6 * y + 8;
     std::cout << "(";
-    std::cout << derivative[0] <<" , ";
+    std::cout << derivative[0] << " , ";
     std::cout << derivative[1] << ")" << std::endl;
   }
 
-  virtual unsigned int GetNumberOfParameters(void) const ITK_OVERRIDE
-    {
+  unsigned int
+  GetNumberOfParameters() const override
+  {
     return SpaceDimension;
-    }
+  }
 
 private:
-
-
 };
 
 class CommandIterationUpdateConjugateGradient : public itk::Command
 {
 public:
-  typedef  CommandIterationUpdateConjugateGradient   Self;
-  typedef  itk::Command                              Superclass;
-  typedef itk::SmartPointer<Self>                    Pointer;
-  itkNewMacro( Self );
+  using Self = CommandIterationUpdateConjugateGradient;
+  using Superclass = itk::Command;
+  using Pointer = itk::SmartPointer<Self>;
+  itkNewMacro(Self);
 
 protected:
-  CommandIterationUpdateConjugateGradient()
-  {
-    m_IterationNumber=0;
-  }
+  CommandIterationUpdateConjugateGradient() { m_IterationNumber = 0; }
 
 public:
-  typedef itk::ConjugateGradientOptimizer   OptimizerType;
-  typedef   const OptimizerType   *         OptimizerPointer;
+  using OptimizerType = itk::ConjugateGradientOptimizer;
+  using OptimizerPointer = const OptimizerType *;
 
-  virtual void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(itk::Object * caller, const itk::EventObject & event) override
+  {
+    Execute((const itk::Object *)caller, event);
+  }
+
+  void
+  Execute(const itk::Object * object, const itk::EventObject & event) override
+  {
+    auto optimizer = static_cast<OptimizerPointer>(object);
+    if (m_FunctionEvent.CheckEvent(&event))
     {
-      Execute( (const itk::Object *)caller, event);
+      std::cout << m_IterationNumber++ << "   ";
+      std::cout << optimizer->GetCachedValue() << "   ";
+      std::cout << optimizer->GetCachedCurrentPosition() << std::endl;
     }
-
-  virtual void Execute(const itk::Object * object, const itk::EventObject & event) ITK_OVERRIDE
+    else if (m_GradientEvent.CheckEvent(&event))
     {
-      OptimizerPointer optimizer = static_cast< OptimizerPointer >( object );
-      if( m_FunctionEvent.CheckEvent( &event ) )
-        {
-        std::cout << m_IterationNumber++ << "   ";
-        std::cout << optimizer->GetCachedValue() << "   ";
-        std::cout << optimizer->GetCachedCurrentPosition() << std::endl;
-        }
-      else if( m_GradientEvent.CheckEvent( &event ) )
-        {
-        std::cout << "Gradient " << optimizer->GetCachedDerivative() << "   ";
-        }
-
+      std::cout << "Gradient " << optimizer->GetCachedDerivative() << "   ";
     }
+  }
 
 private:
   unsigned long m_IterationNumber;
@@ -156,45 +154,46 @@ private:
   itk::GradientEvaluationIterationEvent m_GradientEvent;
 };
 
-int itkConjugateGradientOptimizerTest(int, char* [] )
+int
+itkConjugateGradientOptimizerTest(int, char *[])
 {
   std::cout << "Conjugate Gradient Optimizer Test \n \n";
 
-  typedef  itk::ConjugateGradientOptimizer  OptimizerType;
+  using OptimizerType = itk::ConjugateGradientOptimizer;
 
-  typedef  OptimizerType::InternalOptimizerType  vnlOptimizerType;
+  using vnlOptimizerType = OptimizerType::InternalOptimizerType;
 
   // Declaration of a itkOptimizer
-  OptimizerType::Pointer  itkOptimizer = OptimizerType::New();
+  OptimizerType::Pointer itkOptimizer = OptimizerType::New();
 
 
   // Declaration of the CostFunction adaptor
   conjugateCostFunction::Pointer costFunction = conjugateCostFunction::New();
 
 
-  itkOptimizer->SetCostFunction( costFunction.GetPointer() );
+  itkOptimizer->SetCostFunction(costFunction);
 
 
   vnlOptimizerType * vnlOptimizer = itkOptimizer->GetOptimizer();
 
-  const double F_Tolerance      = 1e-3;  // Function value tolerance
-  const double G_Tolerance      = 1e-4;  // Gradient magnitude tolerance
-  const double X_Tolerance      = 1e-8;  // Search space tolerance
-  const double Epsilon_Function = 1e-10; // Step
-  const int    Max_Iterations   =   100; // Maximum number of iterations
+  const double  F_Tolerance = 1e-3;       // Function value tolerance
+  const double  G_Tolerance = 1e-4;       // Gradient magnitude tolerance
+  const double  X_Tolerance = 1e-8;       // Search space tolerance
+  const double  Epsilon_Function = 1e-10; // Step
+  constexpr int Max_Iterations = 100;     // Maximum number of iterations
 
-  vnlOptimizer->set_f_tolerance( F_Tolerance );
-  vnlOptimizer->set_g_tolerance( G_Tolerance );
-  vnlOptimizer->set_x_tolerance( X_Tolerance );
-  vnlOptimizer->set_epsilon_function( Epsilon_Function );
-  vnlOptimizer->set_max_function_evals( Max_Iterations );
+  vnlOptimizer->set_f_tolerance(F_Tolerance);
+  vnlOptimizer->set_g_tolerance(G_Tolerance);
+  vnlOptimizer->set_x_tolerance(X_Tolerance);
+  vnlOptimizer->set_epsilon_function(Epsilon_Function);
+  vnlOptimizer->set_max_function_evals(Max_Iterations);
 
-  vnlOptimizer->set_check_derivatives( 3 );
+  vnlOptimizer->set_check_derivatives(3);
 
 
-  OptimizerType::ParametersType initialValue(2);       // constructor requires vector size
+  OptimizerType::ParametersType initialValue(2); // constructor requires vector size
   // We start not so far from  | 2 -2 |
-  initialValue[0] =  100;
+  initialValue[0] = 100;
   initialValue[1] = -100;
 
 
@@ -202,29 +201,28 @@ int itkConjugateGradientOptimizerTest(int, char* [] )
 
   currentValue = initialValue;
 
-  itkOptimizer->SetInitialPosition( currentValue );
+  itkOptimizer->SetInitialPosition(currentValue);
 
-  CommandIterationUpdateConjugateGradient::Pointer observer =
-    CommandIterationUpdateConjugateGradient::New();
-  itkOptimizer->AddObserver( itk::IterationEvent(), observer );
-  itkOptimizer->AddObserver( itk::FunctionEvaluationIterationEvent(), observer );
+  CommandIterationUpdateConjugateGradient::Pointer observer = CommandIterationUpdateConjugateGradient::New();
+  itkOptimizer->AddObserver(itk::IterationEvent(), observer);
+  itkOptimizer->AddObserver(itk::FunctionEvaluationIterationEvent(), observer);
 
 
   try
-    {
+  {
     itkOptimizer->StartOptimization();
-    }
-  catch( itk::ExceptionObject & e )
-    {
+  }
+  catch (itk::ExceptionObject & e)
+  {
     std::cout << "Exception thrown ! " << std::endl;
     std::cout << "An error occurred during Optimization" << std::endl;
-    std::cout << "Location    = " << e.GetLocation()    << std::endl;
+    std::cout << "Location    = " << e.GetLocation() << std::endl;
     std::cout << "Description = " << e.GetDescription() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  std::cout << "Number of iters = " << itkOptimizer->GetCurrentIteration()  << std::endl;
+  std::cout << "Number of iters = " << itkOptimizer->GetCurrentIteration() << std::endl;
   std::cout << "Number of evals = " << vnlOptimizer->get_num_evaluations() << std::endl;
 
   std::cout << "Report from vnl optimizer: " << std::endl;
@@ -243,35 +241,33 @@ int itkConjugateGradientOptimizerTest(int, char* [] )
   std::cout << finalPosition[0] << ",";
   std::cout << finalPosition[1] << ")" << std::endl;
 
-  bool pass = true;
+  bool   pass = true;
   double trueParameters[2] = { 2, -2 };
-  for( unsigned int j = 0; j < 2; j++ )
-    {
-    if( itk::Math::abs( finalPosition[j] - trueParameters[j] ) > 0.01 )
+  for (unsigned int j = 0; j < 2; j++)
+  {
+    if (itk::Math::abs(finalPosition[j] - trueParameters[j]) > 0.01)
       pass = false;
-    }
+  }
 
-  if( !pass )
-    {
+  if (!pass)
+  {
     std::cout << "Test failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Get the final value of the optimizer
   std::cout << "Testing GetValue() : ";
   OptimizerType::MeasureType finalValue = itkOptimizer->GetValue();
-  if(std::fabs(finalValue+10.0)>0.01)
-    {
+  if (std::fabs(finalValue + 10.0) > 0.01)
+  {
     std::cout << "[FAILURE]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     std::cout << "[SUCCESS]" << std::endl;
-    }
+  }
 
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;
-
-
 }

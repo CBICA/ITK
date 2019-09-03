@@ -18,7 +18,7 @@
 #ifndef itkExpImageFilter_h
 #define itkExpImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 #include "itkMath.h"
 
 namespace itk
@@ -30,28 +30,32 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class Exp
 {
 public:
-  Exp() {}
-  ~Exp() {}
-  bool operator!=(const Exp &) const
+  Exp() = default;
+  ~Exp() = default;
+  bool
+  operator!=(const Exp &) const
   {
     return false;
   }
 
-  bool operator==(const Exp & other) const
+  bool
+  operator==(const Exp & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    return static_cast<TOutput>( std::exp( static_cast<double>( A ) ) );
+    return static_cast<TOutput>(std::exp(static_cast<double>(A)));
   }
 };
-}
+} // namespace Functor
+
 /** \class ExpImageFilter
  * \brief Computes the exponential function of each pixel.
  *
@@ -62,47 +66,41 @@ public:
  *
  * \ingroup ITKImageIntensity
  */
-template< typename TInputImage, typename TOutputImage >
-class ExpImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::Exp<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TOutputImage>
+class ExpImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ExpImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::Exp< typename TInputImage::PixelType,
-                   typename TOutputImage::PixelType > >  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ExpImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ExpImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::Exp<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ExpImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(ExpImageFilter, UnaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToDoubleCheck,
-                   ( Concept::Convertible< typename TInputImage::PixelType, double > ) );
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, typename TOutputImage::PixelType > ) );
+  itkConceptMacro(InputConvertibleToDoubleCheck, (Concept::Convertible<typename TInputImage::PixelType, double>));
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  ExpImageFilter() {}
-  virtual ~ExpImageFilter() ITK_OVERRIDE {}
+  ExpImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ExpImageFilter);
+  ~ExpImageFilter() override = default;
 };
 } // end namespace itk
 

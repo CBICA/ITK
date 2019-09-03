@@ -20,43 +20,42 @@
 #include "itkHistogram.h"
 #include "itkMahalanobisDistanceMetric.h"
 
-int itkMeanSampleFilterTest3(int, char* [] )
+int
+itkMeanSampleFilterTest3(int, char *[])
 {
   std::cout << "CovarianceSampleFilter test \n \n";
 
-  typedef double                      MeasurementType;
-  const unsigned int                  MeasurementVectorSize = 3;
+  using MeasurementType = double;
+  constexpr unsigned int MeasurementVectorSize = 3;
 
-  typedef itk::Statistics::Histogram< MeasurementType,
-          itk::Statistics::DenseFrequencyContainer2 > HistogramType;
+  using HistogramType = itk::Statistics::Histogram<MeasurementType, itk::Statistics::DenseFrequencyContainer2>;
 
-  typedef HistogramType    SampleType;
+  using SampleType = HistogramType;
 
   HistogramType::Pointer histogram = HistogramType::New();
 
-  HistogramType::SizeType                 size( MeasurementVectorSize );
-  HistogramType::MeasurementVectorType    lowerBound( MeasurementVectorSize );
-  HistogramType::MeasurementVectorType    upperBound( MeasurementVectorSize );
+  HistogramType::SizeType              size(MeasurementVectorSize);
+  HistogramType::MeasurementVectorType lowerBound(MeasurementVectorSize);
+  HistogramType::MeasurementVectorType upperBound(MeasurementVectorSize);
 
   size.Fill(50);
   lowerBound.Fill(-350);
   upperBound.Fill(450);
 
-  histogram->SetMeasurementVectorSize( MeasurementVectorSize );
-  histogram->Initialize( size, lowerBound, upperBound );
+  histogram->SetMeasurementVectorSize(MeasurementVectorSize);
+  histogram->Initialize(size, lowerBound, upperBound);
   histogram->SetToZero();
 
-  typedef itk::Statistics::MahalanobisDistanceMetric<
-    HistogramType::MeasurementVectorType >                    MembershipFunctionType;
+  using MembershipFunctionType = itk::Statistics::MahalanobisDistanceMetric<HistogramType::MeasurementVectorType>;
 
   MembershipFunctionType::Pointer memberFunction = MembershipFunctionType::New();
 
 
-  typedef MembershipFunctionType::MeanVectorType            MeanVectorType;
-  typedef MembershipFunctionType::CovarianceMatrixType      CovarianceMatrixType;
+  using MeanVectorType = MembershipFunctionType::MeanVectorType;
+  using CovarianceMatrixType = MembershipFunctionType::CovarianceMatrixType;
 
-  MeanVectorType mean( MeasurementVectorSize );
-  CovarianceMatrixType covariance( MeasurementVectorSize, MeasurementVectorSize );
+  MeanVectorType       mean(MeasurementVectorSize);
+  CovarianceMatrixType covariance(MeasurementVectorSize, MeasurementVectorSize);
 
   mean[0] = 50;
   mean[1] = 52;
@@ -68,72 +67,71 @@ int itkMeanSampleFilterTest3(int, char* [] )
   covariance[2][2] = 6000.0;
 
 
-  for( unsigned int i=0; i < MeasurementVectorSize; i++ )
+  for (unsigned int i = 0; i < MeasurementVectorSize; i++)
+  {
+    for (unsigned int j = i; j < MeasurementVectorSize; j++)
     {
-    for( unsigned int j=i; j < MeasurementVectorSize; j++ )
-      {
       covariance[j][i] = covariance[i][j];
-      }
     }
+  }
 
   std::cout << "Initial Mean = " << std::endl << mean << std::endl;
   std::cout << "Initial Covariance = " << std::endl << covariance << std::endl;
 
-  memberFunction->SetMean( mean );
-  memberFunction->SetCovariance( covariance );
+  memberFunction->SetMean(mean);
+  memberFunction->SetCovariance(covariance);
 
   HistogramType::Iterator itr = histogram->Begin();
   HistogramType::Iterator end = histogram->End();
 
-  typedef HistogramType::AbsoluteFrequencyType  AbsoluteFrequencyType;
+  using AbsoluteFrequencyType = HistogramType::AbsoluteFrequencyType;
 
-  while( itr != end )
-    {
-    const double MahalanobisDistance =
-      memberFunction->Evaluate( itr.GetMeasurementVector() );
+  while (itr != end)
+  {
+    const double MahalanobisDistance = memberFunction->Evaluate(itr.GetMeasurementVector());
 
     const double MahalanobisDistance2 = MahalanobisDistance * MahalanobisDistance;
 
-    AbsoluteFrequencyType frequency = (AbsoluteFrequencyType) std::floor( 1e5 * std::exp( -0.5 * MahalanobisDistance2 ) );
+    auto frequency = (AbsoluteFrequencyType)std::floor(1e5 * std::exp(-0.5 * MahalanobisDistance2));
 
-    itr.SetFrequency( frequency );
+    itr.SetFrequency(frequency);
     ++itr;
-    }
+  }
 
 
-  typedef itk::Statistics::MeanSampleFilter< SampleType > FilterType;
+  using FilterType = itk::Statistics::MeanSampleFilter<SampleType>;
 
   FilterType::Pointer filter = FilterType::New();
 
-  filter->SetInput( histogram );
+  filter->SetInput(histogram);
 
   try
-    {
+  {
     filter->Update();
-    }
-  catch ( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Exception caught: " << excp << std::endl;
-    }
+  }
 
   FilterType::MeasurementVectorRealType meanOutput = filter->GetMean();
 
-  std::cout << "Mean: "              << meanOutput << std::endl;
+  std::cout << "Mean: " << meanOutput << std::endl;
 
   std::cout << "GetMeasurementVectorSize = " << filter->GetMeasurementVectorSize() << std::endl;
 
   double epsilon = 1;
 
-  for ( unsigned int i = 0; i < MeasurementVectorSize; i++ )
+  for (unsigned int i = 0; i < MeasurementVectorSize; i++)
+  {
+    if (std::fabs(meanOutput[i] - mean[i]) > epsilon)
     {
-    if ( std::fabs( meanOutput[i] - mean[i] ) > epsilon )
-      {
       std::cerr << "The computed mean value is incorrect" << std::endl;
       std::cerr << "computed mean = " << meanOutput << std::endl;
       std::cerr << "expected mean = " << mean << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;

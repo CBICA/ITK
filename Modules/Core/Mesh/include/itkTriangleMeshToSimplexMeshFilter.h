@@ -41,19 +41,21 @@ namespace itk
  *
  * \ingroup ITKMesh
  */
-template< typename TInputMesh, typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT TriangleMeshToSimplexMeshFilter:public MeshToMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT TriangleMeshToSimplexMeshFilter : public MeshToMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef TriangleMeshToSimplexMeshFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TriangleMeshToSimplexMeshFilter);
 
-  /** Standard "Superclass" typedef. */
-  typedef MeshToMeshFilter< TInputMesh, TOutputMesh > Superclass;
+  /** Standard "Self" type alias. */
+  using Self = TriangleMeshToSimplexMeshFilter;
 
-  /** Smart pointer typedef support */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard "Superclass" type alias. */
+  using Superclass = MeshToMeshFilter<TInputMesh, TOutputMesh>;
+
+  /** Smart pointer type alias support */
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method of creation through the object factory. */
   itkNewMacro(Self);
@@ -61,118 +63,123 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(TriangleMeshToSimplexMeshFilter, MeshToMeshFilter);
 
-  typedef TInputMesh                     InputMeshType;
-  typedef typename TInputMesh::Pointer   InputMeshPointer;
-  typedef typename TInputMesh::PointType InputPointType;
+  using InputMeshType = TInputMesh;
+  using InputMeshPointer = typename TInputMesh::Pointer;
+  using InputPointType = typename TInputMesh::PointType;
 
-  typedef typename TInputMesh::BoundaryAssignmentsContainerPointer InputBoundaryAssignmentsContainerPointer;
+  using InputBoundaryAssignmentsContainerPointer = typename TInputMesh::BoundaryAssignmentsContainerPointer;
 
-  typedef typename TInputMesh::PointsContainer         InputPointsContainer;
-  typedef typename InputPointsContainer::Pointer       InputPointsContainerPointer;
-  typedef typename InputPointsContainer::Iterator      InputPointsContainerIterator;
-  typedef typename InputPointsContainer::ConstIterator InputPointsContainerConstIterator;
+  using InputPointsContainer = typename TInputMesh::PointsContainer;
+  using InputPointsContainerPointer = typename InputPointsContainer::Pointer;
+  using InputPointsContainerIterator = typename InputPointsContainer::Iterator;
+  using InputPointsContainerConstIterator = typename InputPointsContainer::ConstIterator;
 
-  typedef typename TOutputMesh::Pointer                   OutputMeshPointer;
-  typedef typename TOutputMesh::PointType                 OutputPointType;
-  typedef typename TOutputMesh::PixelType                 OutputPixelType;
-  typedef typename TOutputMesh::PointsContainer           OutputPointsContainer;
-  typedef typename OutputPointsContainer::Pointer         OutputPointsContainerPointer;
-  typedef typename TOutputMesh::PointsContainer::Iterator OutputPointsContainerIterator;
+  using OutputMeshPointer = typename TOutputMesh::Pointer;
+  using OutputPointType = typename TOutputMesh::PointType;
+  using OutputPixelType = typename TOutputMesh::PixelType;
+  using OutputPointsContainer = typename TOutputMesh::PointsContainer;
+  using OutputPointsContainerPointer = typename OutputPointsContainer::Pointer;
+  using OutputPointsContainerIterator = typename TOutputMesh::PointsContainer::Iterator;
 
-  typedef typename TInputMesh::BoundaryAssignmentIdentifier InputBoundnaryAssignmentIdentifier;
+  using InputBoundnaryAssignmentIdentifier = typename TInputMesh::BoundaryAssignmentIdentifier;
 
-  typedef typename TInputMesh::CellType               InputCellType;
-  typedef typename InputCellType::CellAutoPointer     InputCellAutoPointer;
-  typedef typename TInputMesh::CellAutoPointer        CellAutoPointer;
-  typedef          itk::LineCell< InputCellType >     LineType;
-  typedef          itk::PolygonCell< InputCellType >  PolygonType;
-  typedef          itk::TriangleCell< InputCellType > TriangleType;
-  typedef          itk::VertexCell< InputCellType >   VertexType;
+  using InputCellType = typename TInputMesh::CellType;
+  using InputCellAutoPointer = typename InputCellType::CellAutoPointer;
+  using CellAutoPointer = typename TInputMesh::CellAutoPointer;
+  using LineType = itk::LineCell<InputCellType>;
+  using PolygonType = itk::PolygonCell<InputCellType>;
+  using TriangleType = itk::TriangleCell<InputCellType>;
+  using VertexType = itk::VertexCell<InputCellType>;
 
-  typedef typename TOutputMesh::CellIdentifier        CellIdentifier;
-  typedef typename TOutputMesh::PointIdentifier       PointIdentifier;
-  typedef typename TOutputMesh::CellFeatureIdentifier CellFeatureIdentifier;
+  using CellIdentifier = typename TOutputMesh::CellIdentifier;
+  using PointIdentifier = typename TOutputMesh::PointIdentifier;
+  using CellFeatureIdentifier = typename TOutputMesh::CellFeatureIdentifier;
 
-  typedef          std::pair< CellIdentifier, CellIdentifier >     EdgeIdentifierType;
-  typedef          std::set< CellIdentifier >                      IndexSetType;
+  using EdgeIdentifierType = std::pair<CellIdentifier, CellIdentifier>;
+  using IndexSetType = std::set<CellIdentifier>;
 
-  typedef          itk::MapContainer< CellIdentifier, EdgeIdentifierType > EdgeNeighborListType;
-  typedef          itk::MapContainer< EdgeIdentifierType, CellIdentifier > LineCellIndexType;
+  using EdgeNeighborListType = itk::MapContainer<CellIdentifier, EdgeIdentifierType>;
+  using LineCellIndexType = itk::MapContainer<EdgeIdentifierType, CellIdentifier>;
 
-  typedef          itk::MapContainer< PointIdentifier, IndexSetType >       VertexNeighborListType;
-  typedef          itk::MapContainer< EdgeIdentifierType, CellIdentifier >  EdgeMapType;
-  typedef typename EdgeMapType::Pointer                                     EdgeMapPointer;
+  using VertexNeighborListType = itk::MapContainer<PointIdentifier, IndexSetType>;
+  using EdgeMapType = itk::MapContainer<EdgeIdentifierType, CellIdentifier>;
+  using EdgeMapPointer = typename EdgeMapType::Pointer;
 
-  typedef          itk::VectorContainer< CellIdentifier, CellIdentifier >   IdVectorType;
-  typedef typename IdVectorType::Pointer                                    IdVectorPointer;
+  using IdVectorType = itk::VectorContainer<CellIdentifier, CellIdentifier>;
+  using IdVectorPointer = typename IdVectorType::Pointer;
 
-  typedef typename TOutputMesh::CellType              OutputCellType;
-  typedef typename TOutputMesh::CellAutoPointer       OutputCellAutoPointer;
-  typedef          itk::LineCell< OutputCellType >    OutputLineType;
-  typedef          itk::PolygonCell< OutputCellType > OutputPolygonType;
+  using OutputCellType = typename TOutputMesh::CellType;
+  using OutputCellAutoPointer = typename TOutputMesh::CellAutoPointer;
+  using OutputLineType = itk::LineCell<OutputCellType>;
+  using OutputPolygonType = itk::PolygonCell<OutputCellType>;
 
 protected:
-
   TriangleMeshToSimplexMeshFilter();
-  ~TriangleMeshToSimplexMeshFilter() ITK_OVERRIDE;
-  TriangleMeshToSimplexMeshFilter(const Self &) {}
+  ~TriangleMeshToSimplexMeshFilter() override;
 
-  void operator=(const Self &) {}
-
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Override from ProcessObject
    */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /**
    * Initializes all necessary datastructures
    */
-  void Initialize();
+  void
+  Initialize();
 
   /**
    * Method inserts the new computed simplex points into the output mesh
    */
-  void CreateSimplexPoints();
+  void
+  CreateSimplexPoints();
 
   /**
    * Method creates a new edge, which from the centers of
    * two neighboring triangles of the input mesh over the
    * edge the both triangles have in common.
    */
-  void CreateEdgeForTrianglePair(CellIdentifier pointIndex,
-                                 CellIdentifier boundaryId,
-                                 TOutputMesh *outputMesh);
+  void
+  CreateEdgeForTrianglePair(CellIdentifier pointIndex, CellIdentifier boundaryId, TOutputMesh * outputMesh);
 
   /**
    * Constructs the neighborhood relations for all simplex mesh points
    * It also reorders the neighbors for easy normals computation
    */
-  void CreateSimplexNeighbors();
+  void
+  CreateSimplexNeighbors();
 
   /**
    * This method creates all the cells of the dual simplex mesh
    */
-  void CreateCells();
+  void
+  CreateCells();
 
   /**
    * \brief add edge cells to the input mesh
    */
-  void CreateNewEdge(CellIdentifier currentCellId, CellFeatureIdentifier featureId,
-                     PointIdentifier startPointId, PointIdentifier endPointId,
-                     const InputMeshType *input);
+  void
+  CreateNewEdge(CellIdentifier        currentCellId,
+                CellFeatureIdentifier featureId,
+                PointIdentifier       startPointId,
+                PointIdentifier       endPointId,
+                const InputMeshType * input);
 
 
   /**
    *  Computes the center of a face
    */
-  InputPointType ComputeFaceCenter(CellIdentifier faceId, const InputMeshType *inputMesh);
+  InputPointType
+  ComputeFaceCenter(CellIdentifier faceId, const InputMeshType * inputMesh);
 
   /**
    * \brief stores all faces (triangles) of the input mesh
    */
-  IndexSetType *m_FaceSet;
+  IndexSetType * m_FaceSet;
 
   /**
    * \brief stores all edges of the input mesh.
@@ -227,10 +234,10 @@ protected:
    */
   OutputCellAutoPointer m_NewSimplexCellPointer;
 };
-} //end of namespace
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTriangleMeshToSimplexMeshFilter.hxx"
+#  include "itkTriangleMeshToSimplexMeshFilter.hxx"
 #endif
 
 #endif

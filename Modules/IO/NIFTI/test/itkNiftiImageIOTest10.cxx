@@ -19,9 +19,10 @@
 #include "itkNiftiImageIOTest.h"
 
 
-#define SPECIFIC_IMAGEIO_MODULE_TEST
+// Specific ImageIO test
 
-int itkNiftiImageIOTest10(int ac, char *av[])
+int
+itkNiftiImageIOTest10(int ac, char * av[])
 {
-  return RGBTest<itk::RGBAPixel<unsigned char> >(ac,av);
+  return RGBTest<itk::RGBAPixel<unsigned char>>(ac, av);
 }

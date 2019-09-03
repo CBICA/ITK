@@ -37,69 +37,69 @@ namespace itk
  *
  *  \ingroup ITKQuadEdgeMeshFiltering
  */
-template< class TInputMesh, class TOutputMesh, class TSolverTraits >
-class ITK_TEMPLATE_EXPORT LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints:
-  public LaplacianDeformationQuadEdgeMeshFilter< TInputMesh, TOutputMesh, TSolverTraits >
+template <class TInputMesh, class TOutputMesh, class TSolverTraits>
+class ITK_TEMPLATE_EXPORT LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints
+  : public LaplacianDeformationQuadEdgeMeshFilter<TInputMesh, TOutputMesh, TSolverTraits>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints);
+
   /** Basic types. */
-  typedef LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints       Self;
-  typedef LaplacianDeformationQuadEdgeMeshFilter< TInputMesh,
-                                            TOutputMesh, TSolverTraits >  Superclass;
-  typedef SmartPointer< Self >                                            Pointer;
-  typedef SmartPointer< const Self >                                      ConstPointer;
+  using Self = LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints;
+  using Superclass = LaplacianDeformationQuadEdgeMeshFilter<TInputMesh, TOutputMesh, TSolverTraits>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Input types. */
-  typedef TInputMesh                              InputMeshType;
+  using InputMeshType = TInputMesh;
 
-  itkStaticConstMacro(InputPointDimension, unsigned int, InputMeshType::PointDimension);
+  static constexpr unsigned int InputPointDimension = InputMeshType::PointDimension;
 
   /** Output types. */
-  typedef TOutputMesh                                         OutputMeshType;
-  typedef typename Superclass::OutputPointType                OutputPointType;
-  typedef typename Superclass::OutputCoordRepType             OutputCoordRepType;
-  typedef typename Superclass::OutputPointIdentifier          OutputPointIdentifier;
+  using OutputMeshType = TOutputMesh;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using OutputCoordRepType = typename Superclass::OutputCoordRepType;
+  using OutputPointIdentifier = typename Superclass::OutputPointIdentifier;
 
-  itkStaticConstMacro(OutputPointDimension, unsigned int, OutputMeshType::PointDimension);
+  static constexpr unsigned int OutputPointDimension = OutputMeshType::PointDimension;
 
-  typedef TSolverTraits                     SolverTraits;
-  typedef typename Superclass::ValueType    ValueType;
-  typedef typename Superclass::MatrixType   MatrixType;
-  typedef typename Superclass::VectorType   VectorType;
+  using SolverTraits = TSolverTraits;
+  using ValueType = typename Superclass::ValueType;
+  using MatrixType = typename Superclass::MatrixType;
+  using VectorType = typename Superclass::VectorType;
 
   itkNewMacro(Self);
-  itkTypeMacro(LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints,
-               LaplacianDeformationQuadEdgeMeshFilter);
+  itkTypeMacro(LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints, LaplacianDeformationQuadEdgeMeshFilter);
 
 protected:
+  LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints() = default;
+  ~LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints();
-  virtual ~LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  using OutputMapPointIdentifier = typename Superclass::OutputMapPointIdentifier;
+  using OutputMapPointIdentifierIterator = typename Superclass::OutputMapPointIdentifierIterator;
+  using OutputMapPointIdentifierConstIterator = typename Superclass::OutputMapPointIdentifierConstIterator;
 
-  typedef typename Superclass::OutputMapPointIdentifier               OutputMapPointIdentifier;
-  typedef typename Superclass::OutputMapPointIdentifierIterator       OutputMapPointIdentifierIterator;
-  typedef typename Superclass::OutputMapPointIdentifierConstIterator  OutputMapPointIdentifierConstIterator;
+  using ConstraintMapType = typename Superclass::ConstraintMapType;
+  using ConstraintMapConstIterator = typename Superclass::ConstraintMapConstIterator;
 
-  typedef typename Superclass::ConstraintMapType            ConstraintMapType;
-  typedef typename Superclass::ConstraintMapConstIterator   ConstraintMapConstIterator;
+  using RowType = typename Superclass::RowType;
+  using RowConstIterator = typename Superclass::RowConstIterator;
+  using RowIterator = typename Superclass::RowIterator;
 
-  typedef typename Superclass::RowType          RowType;
-  typedef typename Superclass::RowConstIterator RowConstIterator;
-  typedef typename Superclass::RowIterator      RowIterator;
-
-  virtual void ComputeVertexIdMapping() ITK_OVERRIDE;
+  void
+  ComputeVertexIdMapping() override;
 
   /**
    *  \brief Fill matrix iM and vectors Bx and m_By depending on if one
    *  vertex is on the border or not.
    */
-  void FillMatrix(MatrixType & iM, VectorType & iBx, VectorType & iBy, VectorType & iBz);
+  void
+  FillMatrix(MatrixType & iM, VectorType & iBx, VectorType & iBy, VectorType & iBz);
 
-  virtual void GenerateData() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianDeformationQuadEdgeMeshFilterWithHardConstraints);
+  void
+  GenerateData() override;
 };
 } // end namespace itk
 

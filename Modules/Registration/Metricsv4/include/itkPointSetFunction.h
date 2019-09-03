@@ -52,83 +52,85 @@ namespace itk
  *
  * \ingroup ITKMetricsv4
  */
-template <
-typename TInputPointSet,
-typename TOutput,
-typename TCoordRep = float
->
-class ITK_TEMPLATE_EXPORT PointSetFunction :
-    public FunctionBase<typename TInputPointSet::PointType, TOutput>
+template <typename TInputPointSet, typename TOutput, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT PointSetFunction : public FunctionBase<typename TInputPointSet::PointType, TOutput>
 {
 public:
-  /** Dimension underlying input point set. */
-  itkStaticConstMacro(Dimension, unsigned int,
-                      TInputPointSet::PointDimension);
+  ITK_DISALLOW_COPY_AND_ASSIGN(PointSetFunction);
 
-  /** Standard class typedefs. */
-  typedef PointSetFunction                              Self;
-  typedef FunctionBase
-    <typename TInputPointSet::PointType, TOutput>       Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
+  /** Dimension underlying input point set. */
+  static constexpr unsigned int Dimension = TInputPointSet::PointDimension;
+
+  /** Standard class type aliases. */
+  using Self = PointSetFunction;
+  using Superclass = FunctionBase<typename TInputPointSet::PointType, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( PointSetFunction, FunctionBase );
+  itkTypeMacro(PointSetFunction, FunctionBase);
 
-  /** InputPointSetType typedef support. */
-  typedef TInputPointSet InputPointSetType;
+  /** InputPointSetType type alias support */
+  using InputPointSetType = TInputPointSet;
 
-  /** InputPixel typedef support */
-  typedef typename InputPointSetType::PointType         InputPointType;
-  typedef typename InputPointSetType::PixelType         InputPixelType;
+  /** InputPixel type alias support */
+  using InputPointType = typename InputPointSetType::PointType;
+  using InputPixelType = typename InputPointSetType::PixelType;
 
-  /** InputPointSetPointer typedef support */
-  typedef typename InputPointSetType::ConstPointer InputPointSetConstPointer;
+  /** InputPointSetPointer type alias support */
+  using InputPointSetConstPointer = typename InputPointSetType::ConstPointer;
 
-  /** OutputType typedef support. */
-  typedef TOutput                                       OutputType;
+  /** OutputType type alias support */
+  using OutputType = TOutput;
 
-  /** CoordRepType typedef support. */
-  typedef TCoordRep                                     CoordRepType;
+  /** CoordRepType type alias support */
+  using CoordRepType = TCoordRep;
 
   /** Set the input point set.
    * \warning this method caches BufferedRegion information.
    * If the BufferedRegion has changed, user must call
    * SetInputPointSet again to update cached values. */
-  virtual void SetInputPointSet( const InputPointSetType * ptr );
+  virtual void
+  SetInputPointSet(const InputPointSetType * ptr);
 
   /** Get the input image. */
-  const InputPointSetType * GetInputPointSet() const
-    { return m_PointSet.GetPointer(); }
+  const InputPointSetType *
+  GetInputPointSet() const
+  {
+    return m_PointSet.GetPointer();
+  }
 
   /** Evaluate the function at specified Point position.
    * Subclasses must provide this method. */
-  virtual TOutput Evaluate( const InputPointType& point ) const ITK_OVERRIDE = 0;
+  TOutput
+  Evaluate(const InputPointType & point) const override = 0;
 
 protected:
   PointSetFunction();
-  virtual ~PointSetFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  ~PointSetFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Const pointer to the input image. */
-  InputPointSetConstPointer                             m_PointSet;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PointSetFunction);
-
+  InputPointSetConstPointer m_PointSet;
 };
 
 } // end namespace itk
 
 // Define instantiation macro for this template.
-#define ITK_TEMPLATE_PointSetFunction(_, EXPORT, x, y) namespace itk { \
-  _(3(class EXPORT PointSetFunction< ITK_TEMPLATE_3 x >)) \
-  namespace Templates { typedef PointSetFunction< ITK_TEMPLATE_3 x > PointSetFunction##y; } \
+#define ITK_TEMPLATE_PointSetFunction(_, EXPORT, x, y)                                                                 \
+  namespace itk                                                                                                        \
+  {                                                                                                                    \
+  _(3(class EXPORT PointSetFunction<ITK_TEMPLATE_3 x>))                                                                \
+  namespace Templates                                                                                                  \
+  {                                                                                                                    \
+  using PointSetFunction##y = PointSetFunction<ITK_TEMPLATE_3 x>;                                                      \
+  }                                                                                                                    \
   }
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkPointSetFunction.hxx"
+#  include "itkPointSetFunction.hxx"
 #endif
 
 

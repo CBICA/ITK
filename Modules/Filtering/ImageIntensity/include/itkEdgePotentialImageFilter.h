@@ -18,7 +18,7 @@
 #ifndef itkEdgePotentialImageFilter_h
 #define itkEdgePotentialImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 
 namespace itk
 {
@@ -33,72 +33,72 @@ namespace itk
  * number of dimensions, and the output to be of a scalar image type.
  *
  * \ingroup ITKImageIntensity
+ * \sphinx
+ * \sphinxexample{,}
+ * \endsphinx
  */
 namespace Functor
 {
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class EdgePotential
 {
 public:
-  EdgePotential() {}
-  ~EdgePotential() {}
-  bool operator!=(const EdgePotential &) const
+  EdgePotential() = default;
+  ~EdgePotential() = default;
+  bool
+  operator!=(const EdgePotential &) const
   {
     return false;
   }
 
-  bool operator==(const EdgePotential & other) const
+  bool
+  operator==(const EdgePotential & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    return static_cast< TOutput >( std::exp( -1.0 * A.GetNorm() ) );
+    return static_cast<TOutput>(std::exp(-1.0 * A.GetNorm()));
   }
 };
-}
+} // namespace Functor
 
-template< typename TInputImage, typename TOutputImage >
-class EdgePotentialImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::EdgePotential<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType > >
+template <typename TInputImage, typename TOutputImage>
+class EdgePotentialImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef EdgePotentialImageFilter Self;
-  typedef UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                                   Functor::EdgePotential<
-                                     typename TInputImage::PixelType,
-                                     typename TOutputImage::PixelType >
-                                   >                                 Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(EdgePotentialImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = EdgePotentialImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::EdgePotential<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(EdgePotentialImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(EdgePotentialImageFilter, UnaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename TInputImage::PixelType::ValueType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<typename TInputImage::PixelType::ValueType>));
   // End concept checking
 #endif
 
 protected:
-  EdgePotentialImageFilter() {}
-  virtual ~EdgePotentialImageFilter() ITK_OVERRIDE {}
+  EdgePotentialImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(EdgePotentialImageFilter);
+  ~EdgePotentialImageFilter() override = default;
 };
 } // end namespace itk
 

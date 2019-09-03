@@ -53,146 +53,148 @@ namespace itk
 /** Create a helper GPU Kernel class for GPUDemonsRegistrationFunction */
 itkGPUKernelClassMacro(GPUDemonsRegistrationFunctionKernel);
 
-template< typename TFixedImage, typename TMovingImage, typename TDisplacementField >
-class ITK_TEMPLATE_EXPORT GPUDemonsRegistrationFunction :
-  public GPUPDEDeformableRegistrationFunction< TFixedImage,
-                                               TMovingImage,
-                                               TDisplacementField >
+template <typename TFixedImage, typename TMovingImage, typename TDisplacementField>
+class ITK_TEMPLATE_EXPORT GPUDemonsRegistrationFunction
+  : public GPUPDEDeformableRegistrationFunction<TFixedImage, TMovingImage, TDisplacementField>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUDemonsRegistrationFunction Self;
-  typedef GPUPDEDeformableRegistrationFunction< TFixedImage, TMovingImage,
-                                                TDisplacementField>                  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUDemonsRegistrationFunction);
+
+  /** Standard class type aliases. */
+  using Self = GPUDemonsRegistrationFunction;
+  using Superclass = GPUPDEDeformableRegistrationFunction<TFixedImage, TMovingImage, TDisplacementField>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(GPUDemonsRegistrationFunction,
-               DemonsRegistrationFunction);
+  itkTypeMacro(GPUDemonsRegistrationFunction, DemonsRegistrationFunction);
 
   /** MovingImage image type. */
-  typedef typename Superclass::MovingImageType    MovingImageType;
-  typedef typename Superclass::MovingImagePointer MovingImagePointer;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using MovingImagePointer = typename Superclass::MovingImagePointer;
 
   /** FixedImage image type. */
-  typedef typename Superclass::FixedImageType    FixedImageType;
-  typedef typename Superclass::FixedImagePointer FixedImagePointer;
-  typedef typename FixedImageType::IndexType     IndexType;
-  typedef typename FixedImageType::SizeType      SizeType;
-  typedef typename FixedImageType::SpacingType   SpacingType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using FixedImagePointer = typename Superclass::FixedImagePointer;
+  using IndexType = typename FixedImageType::IndexType;
+  using SizeType = typename FixedImageType::SizeType;
+  using SpacingType = typename FixedImageType::SpacingType;
 
   /** Deformation field type. */
-  typedef typename Superclass::DisplacementFieldType DisplacementFieldType;
-  typedef typename Superclass::DisplacementFieldTypePointer
-  DisplacementFieldTypePointer;
+  using DisplacementFieldType = typename Superclass::DisplacementFieldType;
+  using DisplacementFieldTypePointer = typename Superclass::DisplacementFieldTypePointer;
 
   /** Inherit some enums from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned
-                      int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Inherit some enums from the superclass. */
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::FloatOffsetType  FloatOffsetType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
+  using PixelType = typename Superclass::PixelType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
   /** Interpolator type. */
-  typedef double                                                          CoordRepType;
-  typedef InterpolateImageFunction< MovingImageType, CoordRepType >       InterpolatorType;
-  typedef typename InterpolatorType::Pointer                              InterpolatorPointer;
-  typedef typename InterpolatorType::PointType                            PointType;
-  typedef LinearInterpolateImageFunction< MovingImageType, CoordRepType > DefaultInterpolatorType;
+  using CoordRepType = double;
+  using InterpolatorType = InterpolateImageFunction<MovingImageType, CoordRepType>;
+  using InterpolatorPointer = typename InterpolatorType::Pointer;
+  using PointType = typename InterpolatorType::PointType;
+  using DefaultInterpolatorType = LinearInterpolateImageFunction<MovingImageType, CoordRepType>;
 
   /** Covariant vector type. */
-  typedef CovariantVector< double, itkGetStaticConstMacro(ImageDimension) > CovariantVectorType;
+  using CovariantVectorType = CovariantVector<double, Self::ImageDimension>;
 
   /** Fixed image gradient calculator type. */
-  typedef CentralDifferenceImageFunction< FixedImageType > GradientCalculatorType;
-  typedef typename GradientCalculatorType::Pointer         GradientCalculatorPointer;
+  using GradientCalculatorType = CentralDifferenceImageFunction<FixedImageType>;
+  using GradientCalculatorPointer = typename GradientCalculatorType::Pointer;
 
   /** Moving image gradient calculator type. */
-  typedef CentralDifferenceImageFunction< MovingImageType, CoordRepType >
-  MovingImageGradientCalculatorType;
-  typedef typename MovingImageGradientCalculatorType::Pointer
-  MovingImageGradientCalculatorPointer;
+  using MovingImageGradientCalculatorType = CentralDifferenceImageFunction<MovingImageType, CoordRepType>;
+  using MovingImageGradientCalculatorPointer = typename MovingImageGradientCalculatorType::Pointer;
 
   /** GPU data pointer type. */
-  typedef GPUDataManager::Pointer GPUDataPointer;
+  using GPUDataPointer = GPUDataManager::Pointer;
 
   /** Get OpenCL Kernel source as a string, creates a GetOpenCLSource method */
   itkGetOpenCLSourceFromKernelMacro(GPUDemonsRegistrationFunctionKernel);
 
   /** Set the moving image interpolator. */
-  void SetMovingImageInterpolator(InterpolatorType *ptr)
+  void
+  SetMovingImageInterpolator(InterpolatorType * ptr)
   {
     m_MovingImageInterpolator = ptr;
   }
 
   /** Get the moving image interpolator. */
-  InterpolatorType * GetMovingImageInterpolator(void)
+  InterpolatorType *
+  GetMovingImageInterpolator()
   {
     return m_MovingImageInterpolator;
   }
 
   /** This class uses a constant timestep of 1. */
-  virtual TimeStepType ComputeGlobalTimeStep( void *itkNotUsed(GlobalData) )
-  const ITK_OVERRIDE
+  virtual TimeStepType
+  ComputeGlobalTimeStep(void * itkNotUsed(GlobalData)) const override
   {
     return m_TimeStep;
   }
 
   /** Return a pointer to a global data structure that is passed to
    * this object from the solver at each calculation.  */
-  virtual void * GetGlobalDataPointer() const ITK_OVERRIDE
+  void *
+  GetGlobalDataPointer() const override
   {
-    GlobalDataStruct *global = new GlobalDataStruct();
+    GlobalDataStruct * global = new GlobalDataStruct();
 
-    global->m_SumOfSquaredDifference  = 0.0;
+    global->m_SumOfSquaredDifference = 0.0;
     global->m_NumberOfPixelsProcessed = 0L;
-    global->m_SumOfSquaredChange      = 0;
+    global->m_SumOfSquaredChange = 0;
     return global;
   }
 
   /** Release memory for global data structure. */
-  virtual void ReleaseGlobalDataPointer(void *GlobalData) const ITK_OVERRIDE;
+  void
+  ReleaseGlobalDataPointer(void * GlobalData) const override;
 
   /** Allocate GPU buffers for computing metric statitics
    * */
-  virtual void GPUAllocateMetricData(unsigned int numPixels) ITK_OVERRIDE;
+  void
+  GPUAllocateMetricData(unsigned int numPixels) override;
 
   /** Release GPU buffers for computing metric statitics
    * */
-  virtual void GPUReleaseMetricData() ITK_OVERRIDE;
+  void
+  GPUReleaseMetricData() override;
 
   /** Set the object's state before each iteration. */
-  virtual void InitializeIteration() ITK_OVERRIDE;
+  void
+  InitializeIteration() override;
 
   /** This method is called by a finite difference solver image filter at
    * each pixel that does not lie on a data set boundary */
-  virtual PixelType  ComputeUpdate( const NeighborhoodType & neighborhood,
-                                    void *globalData,
-                                    const FloatOffsetType & offset =
-                                      FloatOffsetType(0.0) ) ITK_OVERRIDE;
+  virtual PixelType
+  ComputeUpdate(const NeighborhoodType & neighborhood,
+                void *                   globalData,
+                const FloatOffsetType &  offset = FloatOffsetType(0.0)) override;
 
-  virtual void GPUComputeUpdate( const DisplacementFieldTypePointer output,
-                                 DisplacementFieldTypePointer update,
-                                 void *gd) ITK_OVERRIDE;
+  virtual void
+  GPUComputeUpdate(const DisplacementFieldTypePointer output, DisplacementFieldTypePointer update, void * gd) override;
 
   /** Get the metric value. The metric value is the mean square difference
    * in intensity between the fixed image and transforming moving image
    * computed over the the overlapping region between the two images. */
-  virtual double GetMetric() const
+  virtual double
+  GetMetric() const
   {
     return m_Metric;
   }
 
   /** Get the rms change in deformation field. */
-  virtual double GetRMSChange() const
+  virtual double
+  GetRMSChange() const
   {
     return m_RMSChange;
   }
@@ -200,11 +202,13 @@ public:
   /** Select if the fixed image or moving image gradient is used for
    * the computating the demon forces. The fixed image gradient is used
    * by default. */
-  virtual void SetUseMovingImageGradient(bool flag)
+  virtual void
+  SetUseMovingImageGradient(bool flag)
   {
     m_UseMovingImageGradient = flag;
   }
-  virtual bool GetUseMovingImageGradient() const
+  virtual bool
+  GetUseMovingImageGradient() const
   {
     return m_UseMovingImageGradient;
   }
@@ -213,37 +217,38 @@ public:
    * intensity yields a match. When the intensities match between a
    * moving and fixed image pixel, the update vector (for that
    * iteration) will be the zero vector. Default is 0.001. */
-  virtual void SetIntensityDifferenceThreshold(double);
+  virtual void
+  SetIntensityDifferenceThreshold(double);
 
-  virtual double GetIntensityDifferenceThreshold() const;
+  virtual double
+  GetIntensityDifferenceThreshold() const;
 
 protected:
   GPUDemonsRegistrationFunction();
-  ~GPUDemonsRegistrationFunction() ITK_OVERRIDE {}
+  ~GPUDemonsRegistrationFunction() override {}
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** FixedImage image neighborhood iterator type. */
-  typedef ConstNeighborhoodIterator< FixedImageType >
-  FixedImageNeighborhoodIteratorType;
+  using FixedImageNeighborhoodIteratorType = ConstNeighborhoodIterator<FixedImageType>;
 
   /** A global data type for this class of equation. Used to store
    * information for computing the metric. */
-  struct GlobalDataStruct {
-    double m_SumOfSquaredDifference;
+  struct GlobalDataStruct
+  {
+    double        m_SumOfSquaredDifference;
     SizeValueType m_NumberOfPixelsProcessed;
-    double m_SumOfSquaredChange;
-    };
+    double        m_SumOfSquaredChange;
+  };
 
   /* GPU kernel handle for GPUComputeUpdate */
   int m_ComputeUpdateGPUKernelHandle;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUDemonsRegistrationFunction);
-
   /** Cache fixed image information. */
-  //SpacingType                  m_FixedImageSpacing;
-  //PointType                    m_FixedImageOrigin;
+  // SpacingType                  m_FixedImageSpacing;
+  // PointType                    m_FixedImageOrigin;
   PixelType m_ZeroUpdateReturn;
   double    m_Normalizer;
 
@@ -280,13 +285,12 @@ private:
   mutable GPUReduction<float>::Pointer m_GPUSquaredDifference;
 
   /** Mutex lock to protect modification to metric. */
-  mutable SimpleFastMutexLock m_MetricCalculationLock;
-
+  mutable std::mutex m_MetricCalculationLock;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUDemonsRegistrationFunction.hxx"
+#  include "itkGPUDemonsRegistrationFunction.hxx"
 #endif
 
 #endif

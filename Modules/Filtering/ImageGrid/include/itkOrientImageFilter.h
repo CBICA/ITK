@@ -74,106 +74,105 @@ namespace itk
  * orientation corresponding to the Analyze file format's 'CORONAL' orientation
  * you could do something like the following
  *
- * \code
- * // DEPRECATED -- using metadata for orientation is no longer supported
- * //
- * #include "itkAnalyzeImageIO.h"
- * #include "itkMetaDataObject.h"
- * #include "itkImage.h"
- * #include "itkOrientImageFilter.h"
- * typedef itk::Image<unsigned char,3> ImageType;
- * typedef itk::ImageFileReader< TstImageType > ImageReaderType;
- * ImageType::Pointer ReadAnalyzeFile(const char *path)
- * {
- *   itk::AnalyzeImageIO::Pointer io = itk::AnalyzeImageIO::New();
- *   ImageReaderType::Pointer fileReader = ImageReaderType::New();
- *   fileReader->SetImageIO(io);
- *   fileReader->SetFileName(path);
- *   fileReader->Update();
- *   ImageType::Pointer rval = fileReader->GetOutput();
- *
- * // DEPRECATED -- use direction cosines
- * //
- *  itk::SpatialOrientation::ValidCoordinateOrientationFlags fileOrientation;
- *  itk::ExposeMetaData<itk::SpatialOrientation::ValidCoordinateOrientationFlags>
- *    (rval->GetMetaDataDictionary(),itk::ITK_CoordinateOrientation,fileOrientation);
- *   itk::OrientImageFilter<ImageType,ImageType>::Pointer orienter =
- *     itk::OrientImageFilter<ImageType,ImageType>::New();
- *   orienter->SetGivenCoordinateOrientation(fileOrientation); // deprecated
- *
- *   orienter->SetDesiredCoordinateOrientation(itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP);
- *   orienter->SetInput(rval);
- *   orienter->Update();
- *   rval = orienter->GetOutput();
- *   return rval;
- * }
- * \endcode
+   \code
+   // DEPRECATED -- using metadata for orientation is no longer supported
+   //
+   #include "itkAnalyzeImageIO.h"
+   #include "itkMetaDataObject.h"
+   #include "itkImage.h"
+   #include "itkOrientImageFilter.h"
+   using ImageType = itk::Image<unsigned char,3>;
+   using ImageReaderType = itk::ImageFileReader< TstImageType >;
+   ImageType::Pointer ReadAnalyzeFile(const char *path)
+   {
+     itk::AnalyzeImageIO::Pointer io = itk::AnalyzeImageIO::New();
+     ImageReaderType::Pointer fileReader = ImageReaderType::New();
+     fileReader->SetImageIO(io);
+     fileReader->SetFileName(path);
+     fileReader->Update();
+     ImageType::Pointer rval = fileReader->GetOutput();
+
+   // DEPRECATED -- use direction cosines
+   //
+    itk::SpatialOrientation::ValidCoordinateOrientationFlags fileOrientation;
+    itk::ExposeMetaData<itk::SpatialOrientation::ValidCoordinateOrientationFlags>
+      (rval->GetMetaDataDictionary(),itk::ITK_CoordinateOrientation,fileOrientation);
+     itk::OrientImageFilter<ImageType,ImageType>::Pointer orienter =
+       itk::OrientImageFilter<ImageType,ImageType>::New();
+     orienter->SetGivenCoordinateOrientation(fileOrientation); // deprecated
+
+     orienter->SetDesiredCoordinateOrientation(itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP);
+     orienter->SetInput(rval);
+     orienter->Update();
+     rval = orienter->GetOutput();
+     return rval;
+   }
+   \endcode
  *
  * Or, using the direction cosines of the image,
- * \code
- * #include "itkAnalyzeImageIO.h"
- * #include "itkImage.h"
- * #include "itkOrientImageFilter.h"
- * typedef itk::Image<unsigned char,3> ImageType;
- * typedef itk::ImageFileReader< TstImageType > ImageReaderType;
- * ImageType::Pointer ReadAnalyzeFile(const char *path)
- * {
- *   itk::AnalyzeImageIO::Pointer io = itk::AnalyzeImageIO::New();
- *   ImageReaderType::Pointer fileReader = ImageReaderType::New();
- *   fileReader->SetImageIO(io);
- *   fileReader->SetFileName(path);
- *   fileReader->Update();
- *   ImageType::Pointer rval = fileReader->GetOutput();
- *
- *   itk::OrientImageFilter<ImageType,ImageType>::Pointer orienter =
- *     itk::OrientImageFilter<ImageType,ImageType>::New();
- *   orienter->UseImageDirectionOn();
- *   orienter->SetDesiredCoordinateOrientation(itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP);
- *   orienter->SetInput(rval);
- *   orienter->Update();
- *   rval = orienter->GetOutput();
- *   return rval;
- * }
- * \endcode
+   \code
+   #include "itkAnalyzeImageIO.h"
+   #include "itkImage.h"
+   #include "itkOrientImageFilter.h"
+   using ImageType = itk::Image<unsigned char,3>;
+   using ImageReaderType = itk::ImageFileReader< ImageType >;
+   ImageType::Pointer ReadAnalyzeFile(const char *path)
+   {
+     itk::AnalyzeImageIO::Pointer io = itk::AnalyzeImageIO::New();
+     ImageReaderType::Pointer fileReader = ImageReaderType::New();
+     fileReader->SetImageIO(io);
+     fileReader->SetFileName(path);
+     fileReader->Update();
+     ImageType::Pointer rval = fileReader->GetOutput();
+
+     itk::OrientImageFilter<ImageType,ImageType>::Pointer orienter =
+       itk::OrientImageFilter<ImageType,ImageType>::New();
+     orienter->UseImageDirectionOn();
+     orienter->SetDesiredCoordinateOrientation(itk::SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP);
+     orienter->SetInput(rval);
+     orienter->Update();
+     rval = orienter->GetOutput();
+     return rval;
+   }
+   \endcode
  * \ingroup ITKImageGrid
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT OrientImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT OrientImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef OrientImageFilter                               Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OrientImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                            InputImageType;
-  typedef typename InputImageType::Pointer       InputImagePointer;
-  typedef typename InputImageType::ConstPointer  InputImageConstPointer;
-  typedef typename InputImageType::RegionType    InputImageRegionType;
-  typedef typename InputImageType::PixelType     InputImagePixelType;
-  typedef TOutputImage                           OutputImageType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
-  typedef SpatialOrientation::ValidCoordinateOrientationFlags
-  CoordinateOrientationCode;
+  /** Standard class type aliases. */
+  using Self = OrientImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using CoordinateOrientationCode = SpatialOrientation::ValidCoordinateOrientationFlags;
+
   /** Axes permuter type. */
-  typedef PermuteAxesImageFilter< TInputImage >        PermuterType;
-  typedef typename PermuterType::PermuteOrderArrayType PermuteOrderArrayType;
+  using PermuterType = PermuteAxesImageFilter<TInputImage>;
+  using PermuteOrderArrayType = typename PermuterType::PermuteOrderArrayType;
 
   /** Axes flipper type. */
-  typedef FlipImageFilter< TInputImage >          FlipperType;
-  typedef typename FlipperType::FlipAxesArrayType FlipAxesArrayType;
+  using FlipperType = FlipImageFilter<TInputImage>;
+  using FlipAxesArrayType = typename FlipperType::FlipAxesArrayType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -183,21 +182,23 @@ public:
 
   /** Set/Get the orientation codes to define the coordinate transform. */
   itkGetEnumMacro(GivenCoordinateOrientation, CoordinateOrientationCode);
-  void SetGivenCoordinateOrientation(CoordinateOrientationCode newCode);
+  void
+  SetGivenCoordinateOrientation(CoordinateOrientationCode newCode);
 
-  inline void SetGivenCoordinateDirection(const typename TInputImage::DirectionType & GivenDirection)
+  inline void
+  SetGivenCoordinateDirection(const typename TInputImage::DirectionType & GivenDirection)
   {
-    SetGivenCoordinateOrientation(
-      itk::SpatialOrientationAdapter().FromDirectionCosines(GivenDirection) );
+    SetGivenCoordinateOrientation(itk::SpatialOrientationAdapter().FromDirectionCosines(GivenDirection));
   }
 
   itkGetEnumMacro(DesiredCoordinateOrientation, CoordinateOrientationCode);
-  void SetDesiredCoordinateOrientation(CoordinateOrientationCode newCode);
+  void
+  SetDesiredCoordinateOrientation(CoordinateOrientationCode newCode);
 
-  inline void SetDesiredCoordinateDirection(const typename TOutputImage::DirectionType & DesiredDirection)
+  inline void
+  SetDesiredCoordinateDirection(const typename TOutputImage::DirectionType & DesiredDirection)
   {
-    SetDesiredCoordinateOrientation(
-      itk::SpatialOrientationAdapter().FromDirectionCosines(DesiredDirection) );
+    SetDesiredCoordinateOrientation(itk::SpatialOrientationAdapter().FromDirectionCosines(DesiredDirection));
   }
 
   /** Controls how the GivenCoordinateOrientation is determined.
@@ -229,19 +230,22 @@ public:
    *  SetDesiredCoordinateOrientationToSagittal is equivalent to
    *  SetDesiredCoordinateOrientation (ITK_COORDINATE_ORIENTATION_ASL).
    */
-  void SetDesiredCoordinateOrientationToAxial()
+  void
+  SetDesiredCoordinateOrientationToAxial()
   {
-    this->SetDesiredCoordinateOrientation (SpatialOrientation::ITK_COORDINATE_ORIENTATION_RAI);
+    this->SetDesiredCoordinateOrientation(SpatialOrientation::ITK_COORDINATE_ORIENTATION_RAI);
   }
 
-  void SetDesiredCoordinateOrientationToCoronal()
+  void
+  SetDesiredCoordinateOrientationToCoronal()
   {
-    this->SetDesiredCoordinateOrientation (SpatialOrientation::ITK_COORDINATE_ORIENTATION_RSA);
+    this->SetDesiredCoordinateOrientation(SpatialOrientation::ITK_COORDINATE_ORIENTATION_RSA);
   }
 
-  void SetDesiredCoordinateOrientationToSagittal()
+  void
+  SetDesiredCoordinateOrientationToSagittal()
   {
-    this->SetDesiredCoordinateOrientation (SpatialOrientation::ITK_COORDINATE_ORIENTATION_ASL);
+    this->SetDesiredCoordinateOrientation(SpatialOrientation::ITK_COORDINATE_ORIENTATION_ASL);
   }
 
   /** OrientImageFilter produces an image which is a different
@@ -251,66 +255,69 @@ public:
    * execution model. The original documentation of this method is
    * below.
    * \sa ProcessObject::GenerateOutputInformaton() */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutput,
-                   ( Concept::Convertible< InputImagePixelType, OutputImagePixelType > ) );
-  itkConceptMacro( SameDimension,
-                   ( Concept::SameDimension< itkGetStaticConstMacro(InputImageDimension),
-                                             itkGetStaticConstMacro(OutputImageDimension) > ) );
-  itkConceptMacro( DimensionShouldBe3,
-                   ( Concept::SameDimension< itkGetStaticConstMacro(InputImageDimension), 3 > ) );
+  itkConceptMacro(InputConvertibleToOutput, (Concept::Convertible<InputImagePixelType, OutputImagePixelType>));
+  itkConceptMacro(SameDimension, (Concept::SameDimension<Self::InputImageDimension, Self::OutputImageDimension>));
+  itkConceptMacro(DimensionShouldBe3, (Concept::SameDimension<Self::InputImageDimension, 3>));
   // End concept checking
 #endif
 
 protected:
   OrientImageFilter();
-  ~OrientImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~OrientImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** OrientImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** OrientImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /*** Member functions used by GenerateData: */
-  void DeterminePermutationsAndFlips(const SpatialOrientation::ValidCoordinateOrientationFlags fixed_orient,
-                                     const SpatialOrientation::ValidCoordinateOrientationFlags moving_orient);
+  void
+  DeterminePermutationsAndFlips(const SpatialOrientation::ValidCoordinateOrientationFlags fixed_orient,
+                                const SpatialOrientation::ValidCoordinateOrientationFlags moving_orient);
 
   /** Returns true if a permute is required. Returns false otherwise. */
-  bool NeedToPermute();
+  bool
+  NeedToPermute();
 
   /** Returns true if flipping is required. Returns false otherwise. */
-  bool NeedToFlip();
+  bool
+  NeedToFlip();
 
   /** Single-threaded version of GenerateData. This filter delegates
    * to PermuteAxesImageFilter and FlipImageFilter. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OrientImageFilter);
+  std::string
+  GetMajorAxisFromPatientRelativeDirectionCosine(double x, double y, double z);
 
-  std::string GetMajorAxisFromPatientRelativeDirectionCosine(double x, double y, double z);
-
-  CoordinateOrientationCode m_GivenCoordinateOrientation;
-  CoordinateOrientationCode m_DesiredCoordinateOrientation;
-  bool                      m_UseImageDirection;
+  CoordinateOrientationCode m_GivenCoordinateOrientation{ SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP };
+  CoordinateOrientationCode m_DesiredCoordinateOrientation{ SpatialOrientation::ITK_COORDINATE_ORIENTATION_RIP };
+  bool                      m_UseImageDirection{ false };
 
   PermuteOrderArrayType m_PermuteOrder;
   FlipAxesArrayType     m_FlipAxes;
 
-  std::map< std::string, CoordinateOrientationCode > m_StringToCode;
-  std::map< CoordinateOrientationCode, std::string > m_CodeToString;
+  std::map<std::string, CoordinateOrientationCode> m_StringToCode;
+  std::map<CoordinateOrientationCode, std::string> m_CodeToString;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkOrientImageFilter.hxx"
+#  include "itkOrientImageFilter.hxx"
 #endif
 
 #endif

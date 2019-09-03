@@ -21,7 +21,8 @@
 #include "itkImageToImageFilter.h"
 #include "itkConceptChecking.h"
 
-namespace itk {
+namespace itk
+{
 
 /** \class NormalizeToConstantImageFilter
  *
@@ -47,45 +48,43 @@ namespace itk {
  * \ingroup MathematicalImageFilters
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/NormalizeToConstantImageFilter,Scale all pixels so that their sum is a specified constant}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/ScalePixelSumToConstant,Scale All Pixel's Sum To Constant}
+ * \endsphinx
  */
-template<typename TInputImage, typename TOutputImage>
-class ITK_TEMPLATE_EXPORT NormalizeToConstantImageFilter :
-    public ImageToImageFilter<TInputImage, TOutputImage>
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT NormalizeToConstantImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef NormalizeToConstantImageFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NormalizeToConstantImageFilter);
 
-  typedef ImageToImageFilter<TInputImage, TOutputImage> Superclass;
+  /** Standard class type aliases. */
+  using Self = NormalizeToConstantImageFilter;
 
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::Pointer         InputImagePointer;
-  typedef typename InputImageType::ConstPointer    InputImageConstPointer;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename OutputImageType::Pointer        OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer   OutputImageConstPointer;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename InputImageType::RegionType      RegionType;
-  typedef typename InputImageType::IndexType       IndexType;
-  typedef typename InputImageType::SizeType        SizeType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename NumericTraits<InputImagePixelType>::RealType RealType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using RegionType = typename InputImageType::RegionType;
+  using IndexType = typename InputImageType::IndexType;
+  using SizeType = typename InputImageType::SizeType;
+
+  using RealType = typename NumericTraits<InputImagePixelType>::RealType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -99,32 +98,31 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro(InputHasPixelTraitsCheck,
-    (Concept::HasPixelTraits<InputImagePixelType>));
-  itkConceptMacro(InputHasNumericTraitsCheck,
-    (Concept::HasNumericTraits<InputImagePixelType>));
+  itkConceptMacro(InputHasPixelTraitsCheck, (Concept::HasPixelTraits<InputImagePixelType>));
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
   NormalizeToConstantImageFilter();
-  virtual ~NormalizeToConstantImageFilter() ITK_OVERRIDE {};
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  ~NormalizeToConstantImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NormalizeToConstantImageFilter);
-
   RealType m_Constant;
 
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkNormalizeToConstantImageFilter.hxx"
+#  include "itkNormalizeToConstantImageFilter.hxx"
 #endif
 
 #endif

@@ -60,37 +60,37 @@ namespace itk
  * pixel in the row that is part of the region. This allows for simple
  * processing loops of the form:
  *
- * \code
- *
- *  IteratorType it( image, image->GetRequestedRegion() );
- *
- *  it.SetExclusionRegion( exclusionRegion );
- *  it.GoToBegin();
- *
- *  while( ! it.IsAtEnd() )
- *  {
- *    it.Set( 100.0 + it.Get() );
- *    ++it;
- *  }
- *
- * \endcode
+   \code
+
+    IteratorType it( image, image->GetRequestedRegion() );
+
+    it.SetExclusionRegion( exclusionRegion );
+    it.GoToBegin();
+
+    while( ! it.IsAtEnd() )
+    {
+      it.Set( 100.0 + it.Get() );
+      ++it;
+    }
+
+   \endcode
  *
  *  It also can be used for walking in the reverse direction like
  *
- * \code
- *
- *  IteratorType it( image, image->GetRequestedRegion() );
- *
- *  it.SetExclusionRegion( exclusionRegion );
- *  it.GoToEnd();
- *
- *  while( !it.IsAtBegin() )
- *  {
- *    it.Set( 100.0 );
- *    --it;
- *  }
- *
- * \endcode
+   \code
+
+    IteratorType it( image, image->GetRequestedRegion() );
+
+    it.SetExclusionRegion( exclusionRegion );
+    it.GoToEnd();
+
+    while( !it.IsAtBegin() )
+    {
+      it.Set( 100.0 );
+      --it;
+    }
+
+   \endcode
  *
  * \par MORE INFORMATION
  * For a complete description of the ITK Image Iterators and their API, please
@@ -123,38 +123,36 @@ namespace itk
  * \sa ImageConstIteratorWithIndex
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Iterators/ImageRegionExclusionConstIteratorWithIndex,Iterator over an image skipping a specified region}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/IterateOverSpecificRegion,Iterate Over Image While Skipping Specific Region}
+ * \endsphinx
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageRegionExclusionConstIteratorWithIndex:
-  public ImageRegionConstIteratorWithIndex< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageRegionExclusionConstIteratorWithIndex : public ImageRegionConstIteratorWithIndex<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRegionExclusionConstIteratorWithIndex  Self;
-  typedef ImageRegionConstIteratorWithIndex< TImage > Superclass;
+  /** Standard class type aliases. */
+  using Self = ImageRegionExclusionConstIteratorWithIndex;
+  using Superclass = ImageRegionConstIteratorWithIndex<TImage>;
 
   /** Types inherited from the Superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
 
   /** Default constructor. Needed since we provide a cast constructor. */
-  ImageRegionExclusionConstIteratorWithIndex();
+  ImageRegionExclusionConstIteratorWithIndex() = default;
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageRegionExclusionConstIteratorWithIndex(const ImageType *ptr,
-                                             const RegionType & region);
+  ImageRegionExclusionConstIteratorWithIndex(const ImageType * ptr, const RegionType & region);
 
   /** Constructor that can be used to cast from an ImageRegionConstIteratorWithIndex
    * to an ImageRegionExclusionConstIteratorWithIndex. Many routines return an
@@ -172,7 +170,8 @@ public:
    * tries to moves past the last pixel of the region.  Here, the iterator
    * will be set to be one pixel past the end of the region.
    * \sa operator++(int) */
-  Self & operator++();
+  Self &
+  operator++();
 
   /** Decrement (prefix) the fastest moving dimension of the iterator's index.
    * This operator will constrain the iterator within the region (i.e. the
@@ -181,7 +180,8 @@ public:
    * tries to moves past the first pixel of the region.  Here, the iterator
    * will be set to be one pixel past the beginning of the region.
    * \sa operator--(int) */
-  Self & operator--();
+  Self &
+  operator--();
 
   /** Method to define the Exclusion region. The iterator will skip pixels
    * inside this region.
@@ -189,22 +189,25 @@ public:
    * normal region used to construct the iterator. A border of at least one
    * pixel should exist between the normal region and the exclusion region.
    */
-  void SetExclusionRegion(const RegionType & region);
+  void
+  SetExclusionRegion(const RegionType & region);
 
   /** Set the exclusion region to be inset one pixel in from the
    * region the iterator walks. This configures the iterator to only
    * walk the pixels on the boundary of the region.
    */
-  void SetExclusionRegionToInsetRegion();
+  void
+  SetExclusionRegionToInsetRegion();
 
   /** Move an iterator to the beginning of the non-excluded region. */
-  void GoToBegin();
+  void
+  GoToBegin();
 
   /** Move an iterator to the End of the region. */
-  void GoToReverseBegin();
+  void
+  GoToReverseBegin();
 
 private:
-
   RegionType m_ExclusionRegion;
 
   IndexType m_ExclusionBegin;
@@ -213,7 +216,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRegionExclusionConstIteratorWithIndex.hxx"
+#  include "itkImageRegionExclusionConstIteratorWithIndex.hxx"
 #endif
 
 #endif

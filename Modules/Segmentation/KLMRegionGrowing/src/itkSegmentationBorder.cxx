@@ -19,21 +19,15 @@
 
 namespace itk
 {
-SegmentationBorder
-::SegmentationBorder(void):
-  m_BorderLength(0)
-{}
+SegmentationBorder ::SegmentationBorder(void) {}
 
-SegmentationBorder
-::~SegmentationBorder()
-{}
+SegmentationBorder ::~SegmentationBorder() = default;
 
 /**
  * PrintSelf
  */
 void
-SegmentationBorder
-::PrintSelf(std::ostream & os, Indent indent) const
+SegmentationBorder ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
   os << indent << "Segmentation border object" << std::endl;

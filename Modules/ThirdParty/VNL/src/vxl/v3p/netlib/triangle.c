@@ -6958,7 +6958,7 @@ struct badtriang *badtri;
     length *= multiplier;
   }
   /* `length' is approximately squareroot(2.0) to what exponent? */
-  exponent = 2.0 * exponent + (length > SQUAREROOTTWO);
+  exponent = (int) ( 2.0 * exponent + (length > SQUAREROOTTWO) );
   /* `exponent' is now in the range 0...2047 for IEEE double precision.   */
   /*   Choose a queue in the range 0...4095.  The shortest edges have the */
   /*   highest priority (queue 4095).                                     */
@@ -9232,6 +9232,8 @@ int arraysize;
   }
   /* Choose a random pivot to split the array. */
   pivot = (int) randomnation((unsigned int) arraysize);
+  if (pivot == arraysize)//JLM without this test, pivot can equal arraysize and segfault
+	  pivot--;
   pivotx = sortarray[pivot][0];
   pivoty = sortarray[pivot][1];
   /* Split the array. */
@@ -9308,6 +9310,8 @@ int axis;
   }
   /* Choose a random pivot to split the array. */
   pivot = (int) randomnation((unsigned int) arraysize);
+  if (pivot == arraysize)//JLM/SES without this test, pivot can equal arraysize and segfault
+	  pivot--;
   pivot1 = sortarray[pivot][axis];
   pivot2 = sortarray[pivot][1 - axis];
   /* Split the array. */
@@ -11709,7 +11713,6 @@ vertex endpoint2;
   vertex leftvertex, rightvertex;
   vertex newvertex;
   enum insertvertexresult success;
-  enum finddirectionresult collinear;
   REAL ex, ey;
   REAL tx, ty;
   REAL etx, ety;
@@ -13186,7 +13189,6 @@ struct behavior *b;
 
 {
   struct osub subsegloop;
-  int dummy;
 
   traversalinit(&m->subsegs);
   subsegloop.ssorient = 0;
@@ -13259,7 +13261,6 @@ int triflaws;
   REAL split;
   REAL multiplier, divisor;
   int acuteorg, acuteorg2, acutedest, acutedest2;
-  int dummy;
   int i;
   triangle ptr;                     /* Temporary variable used by stpivot(). */
   subseg sptr;                        /* Temporary variable used by snext(). */

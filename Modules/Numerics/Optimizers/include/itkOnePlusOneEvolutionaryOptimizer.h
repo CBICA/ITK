@@ -68,15 +68,14 @@ namespace itk
  * \ingroup ITKOptimizers
  */
 
-class ITKOptimizers_EXPORT OnePlusOneEvolutionaryOptimizer:
-  public SingleValuedNonLinearOptimizer
+class ITKOptimizers_EXPORT OnePlusOneEvolutionaryOptimizer : public SingleValuedNonLinearOptimizer
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef OnePlusOneEvolutionaryOptimizer Self;
-  typedef SingleValuedNonLinearOptimizer  Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  /** Standard "Self" type alias. */
+  using Self = OnePlusOneEvolutionaryOptimizer;
+  using Superclass = SingleValuedNonLinearOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -85,25 +84,37 @@ public:
   itkTypeMacro(OnePlusOneEvolutionaryOptimizer, SingleValuedNonLinearOptimizer);
 
   /** Type of the Cost Function   */
-  typedef  SingleValuedCostFunction  CostFunctionType;
-  typedef  CostFunctionType::Pointer CostFunctionPointer;
+  using CostFunctionType = SingleValuedCostFunction;
+  using CostFunctionPointer = CostFunctionType::Pointer;
 
   /** Normal random variate generator type. */
-  typedef Statistics::RandomVariateGeneratorBase NormalVariateGeneratorType;
+  using NormalVariateGeneratorType = Statistics::RandomVariateGeneratorBase;
 
   /** Set if the Optimizer should Maximize the metric */
   itkSetMacro(Maximize, bool);
   itkBooleanMacro(Maximize);
   itkGetConstReferenceMacro(Maximize, bool);
 
-  bool GetMinimize() const
-  { return !m_Maximize; }
-  void SetMinimize(bool v)
-  { this->SetMaximize(!v); }
-  void    MinimizeOn(void)
-  { SetMaximize(false); }
-  void    MinimizeOff(void)
-  { SetMaximize(true); }
+  bool
+  GetMinimize() const
+  {
+    return !m_Maximize;
+  }
+  void
+  SetMinimize(bool v)
+  {
+    this->SetMaximize(!v);
+  }
+  void
+  MinimizeOn()
+  {
+    SetMaximize(false);
+  }
+  void
+  MinimizeOff()
+  {
+    SetMaximize(true);
+  }
 
   /** Set/Get maximum iteration limit. */
   itkSetMacro(MaximumIteration, unsigned int);
@@ -129,7 +140,8 @@ public:
   /** Get the current Frobenius norm of covariance matrix */
   itkGetConstReferenceMacro(FrobeniusNorm, double);
 
-  void SetNormalVariateGenerator(NormalVariateGeneratorType *generator);
+  void
+  SetNormalVariateGenerator(NormalVariateGeneratorType * generator);
 
   /** Initializes the optimizer.
    * Before running this optimizer, this function should have been called.
@@ -137,11 +149,16 @@ public:
    * initialRadius: search radius in parameter space
    * grow: search radius grow factor
    * shrink: searhc radius shrink factor */
-  void Initialize(double initialRadius, double grow = -1, double shrink = -1);
+  void
+  Initialize(double initialRadius, double grow = -1, double shrink = -1);
 
   /** Return Current Value */
   itkGetConstReferenceMacro(CurrentCost, MeasureType);
-  MeasureType GetValue() const { return this->GetCurrentCost(); }
+  MeasureType
+  GetValue() const
+  {
+    return this->GetCurrentCost();
+  }
 
   /** Return Current Iteration */
   itkGetConstReferenceMacro(CurrentIteration, unsigned int);
@@ -152,13 +169,17 @@ public:
   /** Start optimization.
    * Optimization will stop when it meets either of two termination conditions,
    * the maximum iteration limit or epsilon (minimal search radius)  */
-  virtual void StartOptimization() ITK_OVERRIDE;
+  void
+  StartOptimization() override;
 
   /** when users call StartOptimization, this value will be set false.
    * By calling StopOptimization, this flag will be set true, and
    * optimization will stop at the next iteration. */
-  void StopOptimization()
-  { m_Stop = true; }
+  void
+  StopOptimization()
+  {
+    m_Stop = true;
+  }
 
   itkGetConstReferenceMacro(CatchGetValueException, bool);
   itkSetMacro(CatchGetValueException, bool);
@@ -166,16 +187,17 @@ public:
   itkGetConstReferenceMacro(MetricWorstPossibleValue, double);
   itkSetMacro(MetricWorstPossibleValue, double);
 
-  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
+  const std::string
+  GetStopConditionDescription() const override;
 
 protected:
   OnePlusOneEvolutionaryOptimizer();
   OnePlusOneEvolutionaryOptimizer(const OnePlusOneEvolutionaryOptimizer &);
-  virtual ~OnePlusOneEvolutionaryOptimizer() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~OnePlusOneEvolutionaryOptimizer() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
   /** Smart pointer to the normal random variate generator. */
   NormalVariateGeneratorType::Pointer m_RandomGenerator;
 

@@ -18,32 +18,32 @@
 
 #include "itkImageRegionSplitterSlowDimension.h"
 #include "itkImageSourceCommon.h"
-#include "itkSimpleFastMutexLock.h"
-#include "itkMutexLockHolder.h"
+#include <mutex>
 
 namespace itk
 {
 
 namespace
 {
-SimpleFastMutexLock globalDefaultSplitterLock;
+std::mutex                       globalDefaultSplitterLock;
 ImageRegionSplitterBase::Pointer globalDefaultSplitter;
-}
+} // namespace
 
-const ImageRegionSplitterBase*  ImageSourceCommon::GetGlobalDefaultSplitter(void)
+const ImageRegionSplitterBase *
+ImageSourceCommon::GetGlobalDefaultSplitter()
 {
-  if ( globalDefaultSplitter.IsNull() )
-    {
+  if (globalDefaultSplitter.IsNull())
+  {
     // thread safe lazy initialization, prevent race condition on
     // setting, with an atomic set if null.
-    MutexLockHolder< SimpleFastMutexLock > lock(globalDefaultSplitterLock);
-    if ( globalDefaultSplitter.IsNull() )
-      {
+    std::lock_guard<std::mutex> lock(globalDefaultSplitterLock);
+    if (globalDefaultSplitter.IsNull())
+    {
       globalDefaultSplitter = ImageRegionSplitterSlowDimension::New().GetPointer();
-      }
     }
+  }
   return globalDefaultSplitter;
 }
 
 
-}
+} // namespace itk

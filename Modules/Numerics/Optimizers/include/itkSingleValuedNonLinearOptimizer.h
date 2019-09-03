@@ -32,57 +32,57 @@ namespace itk
  *
  * \ingroup ITKOptimizers
  */
-class ITKOptimizers_EXPORT SingleValuedNonLinearOptimizer:
-  public NonLinearOptimizer
+class ITKOptimizers_EXPORT SingleValuedNonLinearOptimizer : public NonLinearOptimizer
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef SingleValuedNonLinearOptimizer Self;
-  typedef NonLinearOptimizer             Superclass;
-  typedef SmartPointer< Self >           Pointer;
-  typedef SmartPointer< const Self >     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SingleValuedNonLinearOptimizer);
+
+  /** Standard "Self" type alias. */
+  using Self = SingleValuedNonLinearOptimizer;
+  using Superclass = NonLinearOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(SingleValuedNonLinearOptimizer,
-               NonLinearOptimizer);
+  itkTypeMacro(SingleValuedNonLinearOptimizer, NonLinearOptimizer);
 
   /**  Parameters type.
    *  It defines a position in the optimization search space. */
-  typedef Superclass::ParametersType ParametersType;
+  using ParametersType = Superclass::ParametersType;
 
   /** Type of the Cost Function   */
-  typedef  SingleValuedCostFunction  CostFunctionType;
-  typedef  CostFunctionType::Pointer CostFunctionPointer;
+  using CostFunctionType = SingleValuedCostFunction;
+  using CostFunctionPointer = CostFunctionType::Pointer;
 
   /**  Measure type.
    *  It defines a type used to return the cost function value.  */
-  typedef CostFunctionType::MeasureType MeasureType;
+  using MeasureType = CostFunctionType::MeasureType;
 
   /**  Derivative type.
    *  It defines a type used to return the cost function derivative. */
-  typedef CostFunctionType::DerivativeType DerivativeType;
+  using DerivativeType = CostFunctionType::DerivativeType;
 
   /** Set the cost function. */
-  virtual void SetCostFunction(CostFunctionType *costFunction);
+  virtual void
+  SetCostFunction(CostFunctionType * costFunction);
 
   /** Get the cost function. */
   itkGetModifiableObjectMacro(CostFunction, CostFunctionType);
 
   /** Get the cost function value at the given parameters. */
-  MeasureType GetValue(const ParametersType & parameters) const;
+  MeasureType
+  GetValue(const ParametersType & parameters) const;
 
 protected:
   SingleValuedNonLinearOptimizer();
-  virtual ~SingleValuedNonLinearOptimizer() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SingleValuedNonLinearOptimizer() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   CostFunctionPointer m_CostFunction;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SingleValuedNonLinearOptimizer);
 };
 } // end namespace itk
 

@@ -29,28 +29,37 @@ namespace itk
  * \brief Create instances of PNGImageIO objects using an object factory.
  * \ingroup ITKIOPNG
  */
-class ITKIOPNG_EXPORT PNGImageIOFactory:public ObjectFactoryBase
+class ITKIOPNG_EXPORT PNGImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef PNGImageIOFactory          Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PNGImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = PNGImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
-  static PNGImageIOFactory * FactoryNew() { return new PNGImageIOFactory; }
+  static PNGImageIOFactory *
+  FactoryNew()
+  {
+    return new PNGImageIOFactory;
+  }
   /** Run-time type information (and related methods). */
   itkTypeMacro(PNGImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     PNGImageIOFactory::Pointer pngFactory = PNGImageIOFactory::New();
 
@@ -59,10 +68,7 @@ public:
 
 protected:
   PNGImageIOFactory();
-  ~PNGImageIOFactory() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PNGImageIOFactory);
+  ~PNGImageIOFactory() override;
 };
 } // end namespace itk
 

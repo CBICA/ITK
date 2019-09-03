@@ -18,6 +18,7 @@
 
 #ifndef itkFEMLinearSystemWrapperVNL_h
 #define itkFEMLinearSystemWrapperVNL_h
+
 #include "itkFEMLinearSystemWrapper.h"
 #include "vnl/vnl_sparse_matrix.h"
 #include "vnl/vnl_vector.h"
@@ -38,124 +39,145 @@ namespace fem
 class ITKFEM_EXPORT LinearSystemWrapperVNL : public LinearSystemWrapper
 {
 public:
-
   /* values stored in matrices & vectors */
-  typedef LinearSystemWrapper::Float Float;
+  using Float = LinearSystemWrapper::Float;
 
   /* superclass */
-  typedef LinearSystemWrapper Superclass;
+  using Superclass = LinearSystemWrapper;
 
-  /* matrix typedef */
-  typedef vnl_sparse_matrix<Float> MatrixRepresentation;
+  /* matrix type alias */
+  using MatrixRepresentation = vnl_sparse_matrix<Float>;
 
-  /* matrix holder typedef */
-  typedef std::vector<MatrixRepresentation *> MatrixHolder;
+  /* matrix holder type alias */
+  using MatrixHolder = std::vector<MatrixRepresentation *>;
 
   /* constructor & destructor */
-  LinearSystemWrapperVNL() : LinearSystemWrapper(), m_Matrices(ITK_NULLPTR), m_Vectors(ITK_NULLPTR), m_Solutions(ITK_NULLPTR)
-  {
-  }
-  virtual ~LinearSystemWrapperVNL() ITK_OVERRIDE;
+  LinearSystemWrapperVNL()
+    : LinearSystemWrapper()
+    , m_Matrices(nullptr)
+    , m_Vectors(nullptr)
+    , m_Solutions(nullptr)
+  {}
+  ~LinearSystemWrapperVNL() override;
 
   /* memory management routines */
-  virtual void  InitializeMatrix(unsigned int matrixIndex) ITK_OVERRIDE;
+  void
+  InitializeMatrix(unsigned int matrixIndex) override;
 
-  virtual bool  IsMatrixInitialized(unsigned int matrixIndex) ITK_OVERRIDE;
+  bool
+  IsMatrixInitialized(unsigned int matrixIndex) override;
 
-  virtual void  DestroyMatrix(unsigned int matrixIndex) ITK_OVERRIDE;
+  void
+  DestroyMatrix(unsigned int matrixIndex) override;
 
-  virtual void  InitializeVector(unsigned int vectorIndex) ITK_OVERRIDE;
+  void
+  InitializeVector(unsigned int vectorIndex) override;
 
-  virtual bool  IsVectorInitialized(unsigned int vectorIndex) ITK_OVERRIDE;
+  bool
+  IsVectorInitialized(unsigned int vectorIndex) override;
 
-  virtual void  DestroyVector(unsigned int vectorIndex) ITK_OVERRIDE;
+  void
+  DestroyVector(unsigned int vectorIndex) override;
 
-  virtual void  InitializeSolution(unsigned int solutionIndex) ITK_OVERRIDE;
+  void
+  InitializeSolution(unsigned int solutionIndex) override;
 
-  virtual bool  IsSolutionInitialized(unsigned int solutionIndex) ITK_OVERRIDE;
+  bool
+  IsSolutionInitialized(unsigned int solutionIndex) override;
 
-  virtual void  DestroySolution(unsigned int solutionIndex) ITK_OVERRIDE;
+  void
+  DestroySolution(unsigned int solutionIndex) override;
 
-  virtual void  SetMaximumNonZeroValuesInMatrix(unsigned int, unsigned int)
-  {
-  }
+  virtual void
+  SetMaximumNonZeroValuesInMatrix(unsigned int, unsigned int)
+  {}
 
   /* assembly & solving routines */
-  virtual Float GetMatrixValue(unsigned int i, unsigned int j,
-                               unsigned int matrixIndex) const ITK_OVERRIDE
+  Float
+  GetMatrixValue(unsigned int i, unsigned int j, unsigned int matrixIndex) const override
   {
-    return ( *( ( *m_Matrices )[matrixIndex] ) )(i, j);
+    return (*((*m_Matrices)[matrixIndex]))(i, j);
   }
-  virtual void  SetMatrixValue(unsigned int i, unsigned int j, Float value,
-                               unsigned int matrixIndex) ITK_OVERRIDE
+  void
+  SetMatrixValue(unsigned int i, unsigned int j, Float value, unsigned int matrixIndex) override
   {
-    ( *( ( *m_Matrices )[matrixIndex] ) )(i, j) =  value;
+    (*((*m_Matrices)[matrixIndex]))(i, j) = value;
   }
-  virtual void  AddMatrixValue(unsigned int i, unsigned int j, Float value,
-                               unsigned int matrixIndex) ITK_OVERRIDE
+  void
+  AddMatrixValue(unsigned int i, unsigned int j, Float value, unsigned int matrixIndex) override
   {
-    ( *( ( *m_Matrices )[matrixIndex] ) )(i, j) += value;
+    (*((*m_Matrices)[matrixIndex]))(i, j) += value;
   }
-  virtual Float GetVectorValue(unsigned int i,
-                               unsigned int vectorIndex) const ITK_OVERRIDE
+  Float
+  GetVectorValue(unsigned int i, unsigned int vectorIndex) const override
   {
-    return ( *( ( *m_Vectors )[vectorIndex] ) )[i];
+    return (*((*m_Vectors)[vectorIndex]))[i];
   }
-  virtual void  SetVectorValue(unsigned int i, Float value,
-                               unsigned int vectorIndex) ITK_OVERRIDE
+  void
+  SetVectorValue(unsigned int i, Float value, unsigned int vectorIndex) override
   {
-    ( *( ( *m_Vectors )[vectorIndex] ) )(i) =  value;
+    (*((*m_Vectors)[vectorIndex]))(i) = value;
   }
-  virtual void  AddVectorValue(unsigned int i, Float value,
-                               unsigned int vectorIndex) ITK_OVERRIDE
+  void
+  AddVectorValue(unsigned int i, Float value, unsigned int vectorIndex) override
   {
-    ( *( ( *m_Vectors )[vectorIndex] ) )(i) += value;
+    (*((*m_Vectors)[vectorIndex]))(i) += value;
   }
-  virtual Float GetSolutionValue(unsigned int i, unsigned int solutionIndex) const ITK_OVERRIDE;
+  Float
+  GetSolutionValue(unsigned int i, unsigned int solutionIndex) const override;
 
-  virtual void  SetSolutionValue(unsigned int i, Float value,
-                                 unsigned int solutionIndex) ITK_OVERRIDE
+  void
+  SetSolutionValue(unsigned int i, Float value, unsigned int solutionIndex) override
   {
-    ( *( ( *m_Solutions )[solutionIndex] ) )(i) =  value;
+    (*((*m_Solutions)[solutionIndex]))(i) = value;
   }
-  virtual void  AddSolutionValue(unsigned int i, Float value,
-                                 unsigned int solutionIndex) ITK_OVERRIDE
+  void
+  AddSolutionValue(unsigned int i, Float value, unsigned int solutionIndex) override
   {
-    ( *( ( *m_Solutions )[solutionIndex] ) )(i) += value;
+    (*((*m_Solutions)[solutionIndex]))(i) += value;
   }
-  virtual void  Solve(void) ITK_OVERRIDE;
+  void
+  Solve() override;
 
   /* matrix & vector manipulation routines */
-  virtual void  ScaleMatrix(Float scale, unsigned int matrixIndex) ITK_OVERRIDE;
+  void
+  ScaleMatrix(Float scale, unsigned int matrixIndex) override;
 
-  virtual void  SwapMatrices(unsigned int matrixIndex1, unsigned int matrixIndex2) ITK_OVERRIDE;
+  void
+  SwapMatrices(unsigned int matrixIndex1, unsigned int matrixIndex2) override;
 
-  virtual void  SwapVectors(unsigned int vectorIndex1, unsigned int vectorIndex2) ITK_OVERRIDE;
+  void
+  SwapVectors(unsigned int vectorIndex1, unsigned int vectorIndex2) override;
 
-  virtual void  SwapSolutions(unsigned int solutionIndex1, unsigned int solutionIndex2) ITK_OVERRIDE;
+  void
+  SwapSolutions(unsigned int solutionIndex1, unsigned int solutionIndex2) override;
 
-  virtual void  CopySolution2Vector(unsigned solutionIndex, unsigned int vectorIndex) ITK_OVERRIDE;
+  void
+  CopySolution2Vector(unsigned solutionIndex, unsigned int vectorIndex) override;
 
-  virtual void  CopyVector2Solution(unsigned int vectorIndex, unsigned int solutionIndex) ITK_OVERRIDE;
+  void
+  CopyVector2Solution(unsigned int vectorIndex, unsigned int solutionIndex) override;
 
-  virtual void  MultiplyMatrixMatrix(unsigned int resultMatrixIndex, unsigned int leftMatrixIndex,
-                                     unsigned int rightMatrixIndex) ITK_OVERRIDE;
+  void
+  MultiplyMatrixMatrix(unsigned int resultMatrixIndex,
+                       unsigned int leftMatrixIndex,
+                       unsigned int rightMatrixIndex) override;
 
-  virtual void  MultiplyMatrixVector(unsigned int resultVectorIndex, unsigned int matrixIndex, unsigned int vectorIndex) ITK_OVERRIDE;
+  void
+  MultiplyMatrixVector(unsigned int resultVectorIndex, unsigned int matrixIndex, unsigned int vectorIndex) override;
 
 private:
-
   /** vector of pointers to VNL sparse matrices */
   // std::vector< vnl_sparse_matrix<Float>* > *m_Matrices;
-  MatrixHolder *m_Matrices;
+  MatrixHolder * m_Matrices;
 
   /** vector of pointers to VNL vectors  */
-  std::vector<vnl_vector<Float> *> *m_Vectors;
+  std::vector<vnl_vector<Float> *> * m_Vectors;
 
   /** vector of pointers to VNL vectors */
-  std::vector<vnl_vector<Float> *> *m_Solutions;
+  std::vector<vnl_vector<Float> *> * m_Solutions;
 };
-}
-}  // end namespace itk::fem
+} // end namespace fem
+} // end namespace itk
 
-#endif
+#endif // itkFEMLinearSystemWrapperVNL_h

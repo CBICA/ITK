@@ -1,9 +1,7 @@
 // This is core/vnl/tests/test_sym_matrix.cxx
 #include <iostream>
-#include <exception>
 #include <vnl/vnl_sym_matrix.h>
 #include <testlib/testlib_test.h>
-#include <vcl_compiler.h>
 
 static
 void test_int()
@@ -83,7 +81,7 @@ void test_int()
   try { sm1.get(0,25); }  // Raise out of bounds exception.
   catch(...) { exceptionThrownAndCaught = true; }
   TEST("Out of bounds get(0,25)", exceptionThrownAndCaught, true);
-  
+
   exceptionThrownAndCaught = false;
   try { sm1.get(25,0); }  // Raise out of bounds exception.
   catch(...) { exceptionThrownAndCaught = true; }

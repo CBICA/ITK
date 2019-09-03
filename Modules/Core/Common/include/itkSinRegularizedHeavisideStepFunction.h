@@ -49,41 +49,41 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TInput = float, typename TOutput = double >
-class ITK_TEMPLATE_EXPORT SinRegularizedHeavisideStepFunction:
-  public RegularizedHeavisideStepFunction< TInput, TOutput >
+template <typename TInput = float, typename TOutput = double>
+class ITK_TEMPLATE_EXPORT SinRegularizedHeavisideStepFunction : public RegularizedHeavisideStepFunction<TInput, TOutput>
 {
 public:
-  typedef SinRegularizedHeavisideStepFunction                 Self;
-  typedef RegularizedHeavisideStepFunction< TInput, TOutput > Superclass;
-  typedef SmartPointer< Self >                                Pointer;
-  typedef SmartPointer< const Self >                          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SinRegularizedHeavisideStepFunction);
+
+  using Self = SinRegularizedHeavisideStepFunction;
+  using Superclass = RegularizedHeavisideStepFunction<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkNewMacro(Self);
 
   itkTypeMacro(SinRegularizedHeavisideStepFunction, RegularizedHeavisideStepFunction);
 
-  typedef typename Superclass::InputType  InputType;
-  typedef typename Superclass::OutputType OutputType;
-  typedef typename Superclass::RealType   RealType;
+  using InputType = typename Superclass::InputType;
+  using OutputType = typename Superclass::OutputType;
+  using RealType = typename Superclass::RealType;
 
   /** Evaluate at the specified input position */
-  OutputType Evaluate(const InputType & input) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & input) const override;
 
   /** Evaluate the derivative at the specified input position */
-  OutputType EvaluateDerivative(const InputType & input) const ITK_OVERRIDE;
+  OutputType
+  EvaluateDerivative(const InputType & input) const override;
 
 protected:
-  SinRegularizedHeavisideStepFunction();
-  ~SinRegularizedHeavisideStepFunction() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SinRegularizedHeavisideStepFunction);
+  SinRegularizedHeavisideStepFunction() = default;
+  ~SinRegularizedHeavisideStepFunction() override = default;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSinRegularizedHeavisideStepFunction.hxx"
+#  include "itkSinRegularizedHeavisideStepFunction.hxx"
 #endif
 
 #endif

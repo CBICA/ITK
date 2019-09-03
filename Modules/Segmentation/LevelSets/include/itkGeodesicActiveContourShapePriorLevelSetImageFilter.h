@@ -107,78 +107,77 @@ namespace itk
  * \ingroup LevelSetSegmentation
  * \ingroup ITKLevelSets
  */
-template< typename TInputImage,
-          typename TFeatureImage,
-          typename TOutputPixelType = float >
-class ITK_TEMPLATE_EXPORT GeodesicActiveContourShapePriorLevelSetImageFilter:
-  public ShapePriorSegmentationLevelSetImageFilter< TInputImage, TFeatureImage,
-                                                    TOutputPixelType >
+template <typename TInputImage, typename TFeatureImage, typename TOutputPixelType = float>
+class ITK_TEMPLATE_EXPORT GeodesicActiveContourShapePriorLevelSetImageFilter
+  : public ShapePriorSegmentationLevelSetImageFilter<TInputImage, TFeatureImage, TOutputPixelType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GeodesicActiveContourShapePriorLevelSetImageFilter
-  Self;
-  typedef ShapePriorSegmentationLevelSetImageFilter< TInputImage, TFeatureImage,
-                                                     TOutputPixelType > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GeodesicActiveContourShapePriorLevelSetImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = GeodesicActiveContourShapePriorLevelSetImageFilter<TInputImage, TFeatureImage, TOutputPixelType>;
+  using Superclass = ShapePriorSegmentationLevelSetImageFilter<TInputImage, TFeatureImage, TOutputPixelType>;
 
-  /** Inherited typedef from the superclass. */
-  typedef typename Superclass::ValueType        ValueType;
-  typedef typename Superclass::OutputImageType  OutputImageType;
-  typedef typename Superclass::FeatureImageType FeatureImageType;
-  typedef typename Superclass::OutputPixelType  OutputPixelType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Inherited type alias from the superclass. */
+  using ValueType = typename Superclass::ValueType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using FeatureImageType = typename Superclass::FeatureImageType;
+  using OutputPixelType = typename Superclass::OutputPixelType;
 
   /** Type of the segmentation function */
-  typedef GeodesicActiveContourShapePriorLevelSetFunction< OutputImageType,
-                                                           FeatureImageType >
-  GeodesicActiveContourFunctionType;
-  typedef typename GeodesicActiveContourFunctionType::Pointer
-  GeodesicActiveContourFunctionPointer;
+  using GeodesicActiveContourFunctionType =
+    GeodesicActiveContourShapePriorLevelSetFunction<OutputImageType, FeatureImageType>;
+  using GeodesicActiveContourFunctionPointer = typename GeodesicActiveContourFunctionType::Pointer;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(GeodesicActiveContourShapePriorLevelSetImageFilter,
-               ShapePriorSegmentationLevelSetImageFilter);
+  itkTypeMacro(GeodesicActiveContourShapePriorLevelSetImageFilter, ShapePriorSegmentationLevelSetImageFilter);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Set the value of sigma used to compute the edge potential map derivatives.
-    */
-  void SetDerivativeSigma(float value)
+   */
+  void
+  SetDerivativeSigma(float value)
   {
-    if ( value != m_GeodesicActiveContourFunction->GetDerivativeSigma() )
-      {
+    if (value != m_GeodesicActiveContourFunction->GetDerivativeSigma())
+    {
       m_GeodesicActiveContourFunction->SetDerivativeSigma(value);
       this->Modified();
-      }
+    }
   }
 
   /** Get the value of sigma used to compute the edge potential map derivatives.
-    */
-  float GetDerivativeSigma() const
-  { return m_GeodesicActiveContourFunction->GetDerivativeSigma(); }
+   */
+  float
+  GetDerivativeSigma() const
+  {
+    return m_GeodesicActiveContourFunction->GetDerivativeSigma();
+  }
 
 protected:
-  ~GeodesicActiveContourShapePriorLevelSetImageFilter() ITK_OVERRIDE {}
+  ~GeodesicActiveContourShapePriorLevelSetImageFilter() override = default;
   GeodesicActiveContourShapePriorLevelSetImageFilter();
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 
   /** Overridden from Superclass to handle the case when PropagationScaling is zero
    * and CurvatureScaling is non-zero.*/
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GeodesicActiveContourShapePriorLevelSetImageFilter);
   GeodesicActiveContourFunctionPointer m_GeodesicActiveContourFunction;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGeodesicActiveContourShapePriorLevelSetImageFilter.hxx"
+#  include "itkGeodesicActiveContourShapePriorLevelSetImageFilter.hxx"
 #endif
 
 #endif

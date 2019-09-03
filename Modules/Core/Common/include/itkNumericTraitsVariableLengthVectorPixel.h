@@ -50,195 +50,183 @@ namespace itk
  * \ingroup DataRepresentation
  * \ingroup ITKCommon
  */
-template< typename T >
-class NumericTraits< VariableLengthVector< T > >
+template <typename T>
+class NumericTraits<VariableLengthVector<T>>
 {
 public:
-
-  typedef typename NumericTraits< T >::AbsType        ElementAbsType;
-  typedef typename NumericTraits< T >::AccumulateType ElementAccumulateType;
-  typedef typename NumericTraits< T >::FloatType      ElementFloatType;
-  typedef typename NumericTraits< T >::PrintType      ElementPrintType;
-  typedef typename NumericTraits< T >::RealType       ElementRealType;
+  using ElementAbsType = typename NumericTraits<T>::AbsType;
+  using ElementAccumulateType = typename NumericTraits<T>::AccumulateType;
+  using ElementFloatType = typename NumericTraits<T>::FloatType;
+  using ElementPrintType = typename NumericTraits<T>::PrintType;
+  using ElementRealType = typename NumericTraits<T>::RealType;
 
   /** Return the type of the native component type. */
-  typedef T ValueType;
+  using ValueType = T;
 
-  typedef VariableLengthVector< T > Self;
+  using Self = VariableLengthVector<T>;
 
   /** Unsigned component type */
-  typedef VariableLengthVector< ElementAbsType > AbsType;
+  using AbsType = VariableLengthVector<ElementAbsType>;
 
   /** Accumulation of addition and multiplication. */
-  typedef VariableLengthVector< ElementAccumulateType > AccumulateType;
+  using AccumulateType = VariableLengthVector<ElementAccumulateType>;
 
   /** Typedef for operations that use floating point instead of real precision
-    */
-  typedef VariableLengthVector< ElementFloatType > FloatType;
+   */
+  using FloatType = VariableLengthVector<ElementFloatType>;
 
   /** Return the type that can be printed. */
-  typedef VariableLengthVector< ElementPrintType > PrintType;
+  using PrintType = VariableLengthVector<ElementPrintType>;
 
   /** Type for real-valued scalar operations. */
-  typedef VariableLengthVector< ElementRealType > RealType;
+  using RealType = VariableLengthVector<ElementRealType>;
 
   /** Type for real-valued scalar operations. */
-  typedef ElementRealType ScalarRealType;
+  using ScalarRealType = ElementRealType;
 
   /** Measurement vector type */
-  typedef Self MeasurementVectorType;
+  using MeasurementVectorType = Self;
 
   /** Component wise defined element
    *
    * \note minimum value for floating pointer types is defined as
    * minimum positive normalize value.
    */
-  static const Self max(const Self & a)
+  static const Self
+  max(const Self & a)
   {
-    Self b( a.Size() );
+    Self b(a.Size());
 
-    b.Fill( NumericTraits< T >::max() );
+    b.Fill(NumericTraits<T>::max());
     return b;
   }
 
-  static const Self min(const Self & a)
+  static const Self
+  min(const Self & a)
   {
-    Self b( a.Size() );
+    Self b(a.Size());
 
-    b.Fill( NumericTraits< T >::min() );
+    b.Fill(NumericTraits<T>::min());
     return b;
   }
 
-  static const Self ZeroValue(const Self  & a)
+  static const Self
+  ZeroValue(const Self & a)
   {
-    Self b( a.Size() );
+    Self b(a.Size());
 
-    b.Fill(NumericTraits< T >::ZeroValue());
+    b.Fill(NumericTraits<T>::ZeroValue());
     return b;
   }
 
-  static const Self OneValue(const Self & a)
+  static const Self
+  OneValue(const Self & a)
   {
-    Self b( a.Size() );
+    Self b(a.Size());
 
-    b.Fill(NumericTraits< T >::OneValue());
+    b.Fill(NumericTraits<T>::OneValue());
     return b;
   }
 
-  static const Self NonpositiveMin(const Self & a)
+  static const Self
+  NonpositiveMin(const Self & a)
   {
-    Self b( a.Size() );
-    b.Fill( NumericTraits< T >::NonpositiveMin() );
+    Self b(a.Size());
+    b.Fill(NumericTraits<T>::NonpositiveMin());
     return b;
   }
 
-  static bool IsPositive( const Self & a)
+  static bool
+  IsPositive(const Self & a)
   {
     bool flag = false;
-    for (unsigned int i=0; i < GetLength( a ); i++)
+    for (unsigned int i = 0; i < GetLength(a); i++)
+    {
+      if (a[i] > NumericTraits<ValueType>::ZeroValue())
       {
-      if ( a[i] > NumericTraits< ValueType >::ZeroValue() )
-        {
         flag = true;
-        }
       }
+    }
     return flag;
   }
 
-  static bool IsNonpositive( const Self & a)
+  static bool
+  IsNonpositive(const Self & a)
   {
     bool flag = false;
-    for (unsigned int i=0; i < GetLength( a ); i++)
+    for (unsigned int i = 0; i < GetLength(a); i++)
+    {
+      if (!(a[i] > 0.0))
       {
-      if ( ! (a[i] > 0.0 ) )
-        {
         flag = true;
-        }
       }
+    }
     return flag;
   }
 
-  static bool IsNegative( const Self & a)
+  static bool
+  IsNegative(const Self & a)
   {
     bool flag = false;
-    for (unsigned int i=0; i < GetLength( a ); i++)
+    for (unsigned int i = 0; i < GetLength(a); i++)
+    {
+      if (a[i] < NumericTraits<ValueType>::ZeroValue())
       {
-      if ( a[i] < NumericTraits< ValueType >::ZeroValue() )
-        {
         flag = true;
-        }
       }
+    }
     return flag;
   }
 
-  static bool IsNonnegative( const Self & a)
+  static bool
+  IsNonnegative(const Self & a)
   {
     bool flag = false;
-    for (unsigned int i=0; i < GetLength( a ); i++)
+    for (unsigned int i = 0; i < GetLength(a); i++)
+    {
+      if (!(a[i] < 0.0))
       {
-      if ( ! (a[i] < 0.0 ))
-        {
         flag = true;
-        }
       }
+    }
     return flag;
   }
 
-  static ITK_CONSTEXPR_VAR bool IsSigned = NumericTraits< ValueType >::IsSigned;
-  static ITK_CONSTEXPR_VAR bool IsInteger = NumericTraits< ValueType >::IsInteger;
-  static ITK_CONSTEXPR_VAR bool IsComplex = NumericTraits< ValueType >::IsComplex;
+  static constexpr bool IsSigned = NumericTraits<ValueType>::IsSigned;
+  static constexpr bool IsInteger = NumericTraits<ValueType>::IsInteger;
+  static constexpr bool IsComplex = NumericTraits<ValueType>::IsComplex;
 
 
   /** Resize the input vector to the specified size. */
-  static void SetLength(VariableLengthVector< T > & m, const unsigned int s)
+  static void
+  SetLength(VariableLengthVector<T> & m, const unsigned int s)
   {
     m.SetSize(s);
-    m.Fill(NumericTraits< T >::ZeroValue());
+    m.Fill(NumericTraits<T>::ZeroValue());
   }
 
   /** Return the size of the vector. */
-  static unsigned int GetLength(const VariableLengthVector< T > & m)
+  static unsigned int
+  GetLength(const VariableLengthVector<T> & m)
   {
     return m.GetSize();
   }
 
-  static void AssignToArray( const Self & v, MeasurementVectorType & mv )
+  static void
+  AssignToArray(const Self & v, MeasurementVectorType & mv)
   {
     mv = v;
   }
 
-  template<typename TArray>
-  static void AssignToArray( const Self & v, TArray & mv )
+  template <typename TArray>
+  static void
+  AssignToArray(const Self & v, TArray & mv)
   {
-    for( unsigned int i=0; i<GetLength(v); i++ )
-      {
+    for (unsigned int i = 0; i < GetLength(v); i++)
+    {
       mv[i] = v[i];
-      }
+    }
   }
-
-#if !defined(ITK_LEGACY_REMOVE)
-  //The extra #ifdef is need because the itkLegacyMacro
-  //can not format a static const member function properly
-  //in the case of removing the code.
-
-  /** \deprecated use ZeroValue() instead */
-  itkLegacyMacro(static const Self Zero(const Self  & a))
-  {
-    Self b( a.Size() );
-
-    b.Fill(NumericTraits< T >::ZeroValue());
-    return b;
-  }
-  /** \deprecated use OneValue() instead */
-  itkLegacyMacro(static const Self One(const Self & a))
-  {
-    Self b( a.Size() );
-
-    b.Fill(NumericTraits< T >::OneValue());
-    return b;
-  }
-#endif
-
 };
 } // end namespace itk
 

@@ -34,74 +34,72 @@ namespace itk
 {
 namespace Functor
 {
-template< typename TLabelObject >
+template <typename TLabelObject>
 class LabelLabelObjectAccessor
 {
 public:
-  typedef TLabelObject                        LabelObjectType;
-  typedef typename LabelObjectType::LabelType AttributeValueType;
+  using LabelObjectType = TLabelObject;
+  using AttributeValueType = typename LabelObjectType::LabelType;
 
-  inline AttributeValueType operator()(const LabelObjectType *labelObject) const
+  inline AttributeValueType
+  operator()(const LabelObjectType * labelObject) const
   {
     return labelObject->GetLabel();
   }
 };
 
-template< typename TLabelObject >
+template <typename TLabelObject>
 class NumberOfLinesLabelObjectAccessor
 {
 public:
-  typedef TLabelObject LabelObjectType;
-  typedef int          AttributeValueType;
+  using LabelObjectType = TLabelObject;
+  using AttributeValueType = int;
 
-  inline AttributeValueType operator()(const LabelObjectType *labelObject) const
+  inline AttributeValueType
+  operator()(const LabelObjectType * labelObject) const
   {
     return labelObject->GetNumberOfLines();
   }
 };
 
-template< typename TLabelObject, typename TAttributeAccessor >
+template <typename TLabelObject, typename TAttributeAccessor>
 class LabelObjectComparator
 {
 public:
-  typedef TLabelObject       LabelObjectType;
-  typedef TAttributeAccessor AttributeAccessorType;
-  bool operator()(const LabelObjectType *a, const LabelObjectType *b) const
+  using LabelObjectType = TLabelObject;
+  using AttributeAccessorType = TAttributeAccessor;
+  bool
+  operator()(const LabelObjectType * a, const LabelObjectType * b) const
   {
     return m_Accessor(a) > m_Accessor(b);
   }
 
-  LabelObjectComparator() {}
-  LabelObjectComparator(LabelObjectComparator const & from)
-  {
-    m_Accessor = from.m_Accessor;
-  }
+  LabelObjectComparator() = default;
+  LabelObjectComparator(LabelObjectComparator const & from) { m_Accessor = from.m_Accessor; }
 
 private:
   AttributeAccessorType m_Accessor;
 };
 
-template< typename TLabelObject, typename TAttributeAccessor >
+template <typename TLabelObject, typename TAttributeAccessor>
 class LabelObjectReverseComparator
 {
 public:
-  typedef TLabelObject       LabelObjectType;
-  typedef TAttributeAccessor AttributeAccessorType;
-  bool operator()(const LabelObjectType *a, const LabelObjectType *b) const
+  using LabelObjectType = TLabelObject;
+  using AttributeAccessorType = TAttributeAccessor;
+  bool
+  operator()(const LabelObjectType * a, const LabelObjectType * b) const
   {
     return m_Accessor(a) < m_Accessor(b);
   }
 
-  LabelObjectReverseComparator() {}
-  LabelObjectReverseComparator(LabelObjectReverseComparator const & from)
-  {
-    m_Accessor = from.m_Accessor;
-  }
+  LabelObjectReverseComparator() = default;
+  LabelObjectReverseComparator(LabelObjectReverseComparator const & from) { m_Accessor = from.m_Accessor; }
 
 private:
   AttributeAccessorType m_Accessor;
 };
-}
+} // namespace Functor
 } // end namespace itk
 
 #endif

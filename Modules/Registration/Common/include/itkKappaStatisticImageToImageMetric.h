@@ -50,17 +50,17 @@ namespace itk
  * \ingroup RegistrationMetrics
  * \ingroup ITKRegistrationCommon
  */
-template< typename TFixedImage, typename TMovingImage >
-class ITK_TEMPLATE_EXPORT KappaStatisticImageToImageMetric:
-  public ImageToImageMetric< TFixedImage, TMovingImage >
+template <typename TFixedImage, typename TMovingImage>
+class ITK_TEMPLATE_EXPORT KappaStatisticImageToImageMetric : public ImageToImageMetric<TFixedImage, TMovingImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(KappaStatisticImageToImageMetric);
 
-  /** Standard class typedefs. */
-  typedef KappaStatisticImageToImageMetric                Self;
-  typedef ImageToImageMetric< TFixedImage, TMovingImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  /** Standard class type aliases. */
+  using Self = KappaStatisticImageToImageMetric;
+  using Superclass = ImageToImageMetric<TFixedImage, TMovingImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -69,42 +69,46 @@ public:
   itkTypeMacro(KappaStatisticImageToImageMetric, ImageToImageMetric);
 
   /** Types transferred from the base class */
-  typedef typename Superclass::RealType                RealType;
-  typedef typename Superclass::TransformType           TransformType;
-  typedef typename Superclass::TransformPointer        TransformPointer;
-  typedef typename Superclass::TransformParametersType TransformParametersType;
-  typedef typename Superclass::TransformJacobianType   TransformJacobianType;
-  typedef typename Superclass::GradientImageType       GradientImageType;
-  typedef typename Superclass::GradientPixelType       GradientPixelType;
-  typedef typename Superclass::InputPointType          InputPointType;
-  typedef typename Superclass::OutputPointType         OutputPointType;
+  using RealType = typename Superclass::RealType;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformParametersType = typename Superclass::TransformParametersType;
+  using TransformJacobianType = typename Superclass::TransformJacobianType;
+  using GradientImageType = typename Superclass::GradientImageType;
+  using GradientPixelType = typename Superclass::GradientPixelType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
 
-  typedef typename Superclass::MeasureType             MeasureType;
-  typedef typename Superclass::DerivativeType          DerivativeType;
-  typedef typename Superclass::FixedImageType          FixedImageType;
-  typedef typename Superclass::MovingImageType         MovingImageType;
-  typedef typename Superclass::FixedImageConstPointer  FixedImageConstPointer;
-  typedef typename Superclass::MovingImageConstPointer MovingImageConstPointer;
-  typedef typename Superclass::FixedImageRegionType    FixedImageRegionType;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using FixedImageConstPointer = typename Superclass::FixedImageConstPointer;
+  using MovingImageConstPointer = typename Superclass::MovingImageConstPointer;
+  using FixedImageRegionType = typename Superclass::FixedImageRegionType;
 
   /** Computes the gradient image and assigns it to m_GradientImage */
-  void ComputeGradient() ITK_OVERRIDE;
+  void
+  ComputeGradient() override;
 
   /** Get the derivatives of the match measure. */
-  void GetDerivative(const TransformParametersType &,
-                     DerivativeType & derivative) const ITK_OVERRIDE;
+  void
+  GetDerivative(const TransformParametersType &, DerivativeType & derivative) const override;
 
   /** Get the value of the metric at a particular parameter
    *  setting. The metric value is given by 2*|A&B|/(|A|+|B|), where A
    *  is the moving image, B is the fixed image, & is intersection,
    *  and |.| indicates the area of the enclosed set. If ComplementOn has
    *  been set, the metric value is 1.0-2*|A&B|/(|A|+|B|). */
-  MeasureType GetValue(const TransformParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  GetValue(const TransformParametersType & parameters) const override;
 
   /** Get both the value and derivative. This method internally calls the
     \c GetValue() and the \c GetDerivative() method. */
-  void GetValueAndDerivative(const TransformParametersType & parameters,
-                             MeasureType & Value, DerivativeType & Derivative) const ITK_OVERRIDE;
+  void
+  GetValueAndDerivative(const TransformParametersType & parameters,
+                        MeasureType &                   Value,
+                        DerivativeType &                Derivative) const override;
 
   /** This method allows the user to set the foreground value. The default
    *  value is 255. */
@@ -121,19 +125,18 @@ public:
 
 protected:
   KappaStatisticImageToImageMetric();
-  virtual ~KappaStatisticImageToImageMetric() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~KappaStatisticImageToImageMetric() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(KappaStatisticImageToImageMetric);
-
   RealType m_ForegroundValue;
-  bool     m_Complement;
+  bool     m_Complement{ false };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkKappaStatisticImageToImageMetric.hxx"
+#  include "itkKappaStatisticImageToImageMetric.hxx"
 #endif
 
 #endif

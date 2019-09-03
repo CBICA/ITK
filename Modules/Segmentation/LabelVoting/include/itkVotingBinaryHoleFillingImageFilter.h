@@ -37,26 +37,25 @@ namespace itk
  * \ingroup IntensityImageFilters
  * \ingroup ITKLabelVoting
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT VotingBinaryHoleFillingImageFilter:
-  public VotingBinaryImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT VotingBinaryHoleFillingImageFilter : public VotingBinaryImageFilter<TInputImage, TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(VotingBinaryHoleFillingImageFilter);
+
   /** Extract dimension from input and output image. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
-  /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage  InputImageType;
-  typedef TOutputImage OutputImageType;
+  /** Convenient type alias for simplifying declarations. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
 
-  /** Standard class typedefs. */
-  typedef VotingBinaryHoleFillingImageFilter                         Self;
-  typedef VotingBinaryImageFilter< InputImageType, OutputImageType > Superclass;
-  typedef SmartPointer< Self >                                       Pointer;
-  typedef SmartPointer< const Self >                                 ConstPointer;
+  /** Standard class type aliases. */
+  using Self = VotingBinaryHoleFillingImageFilter;
+  using Superclass = VotingBinaryImageFilter<InputImageType, OutputImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -64,15 +63,15 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(VotingBinaryHoleFillingImageFilter, VotingBinaryImageFilter);
 
-  /** Image typedef support. */
-  typedef typename InputImageType::PixelType  InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  /** Image type alias support */
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
 
-  typedef typename InputImageType::SizeType      InputSizeType;
-  typedef typename InputImageType::SizeValueType SizeValueType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using SizeValueType = typename InputImageType::SizeValueType;
 
   /** Majority threshold. It is the number of pixels over 50% that will decide
    * whether an OFF pixel will become ON or not. For example, if the
@@ -88,25 +87,30 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( IntConvertibleToInputCheck,
-                   ( Concept::Convertible< int, InputPixelType > ) );
-  itkConceptMacro( UnsignedIntConvertibleToInputCheck,
-                   ( Concept::Convertible< unsigned int, InputPixelType > ) );
+  itkConceptMacro(IntConvertibleToInputCheck, (Concept::Convertible<int, InputPixelType>));
+  itkConceptMacro(UnsignedIntConvertibleToInputCheck, (Concept::Convertible<unsigned int, InputPixelType>));
   // End concept checking
 #endif
 
 protected:
   VotingBinaryHoleFillingImageFilter();
-  virtual ~VotingBinaryHoleFillingImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~VotingBinaryHoleFillingImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Make protected the methods SetBirthThreshold() and
    * SetSurvivalThreshold() so users of this filter do not have access to
    * them. */
-  void SetBirthThreshold(const unsigned int value) ITK_OVERRIDE
-  { this->Superclass::SetBirthThreshold(value);  }
-  void SetSurvivalThreshold(const unsigned int value) ITK_OVERRIDE
-  { this->Superclass::SetSurvivalThreshold(value);  }
+  void
+  SetBirthThreshold(const unsigned int value) override
+  {
+    this->Superclass::SetBirthThreshold(value);
+  }
+  void
+  SetSurvivalThreshold(const unsigned int value) override
+  {
+    this->Superclass::SetSurvivalThreshold(value);
+  }
 
   /** VotingBinaryHoleFillingImageFilter can be implemented as a multithreaded filter.
    * Therefore, this implementation provides a ThreadedGenerateData()
@@ -118,29 +122,35 @@ protected:
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData() */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) override;
+
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType &) override
+  {
+    itkExceptionMacro("This class requires threadId so it must use classic multi-threading model");
+  }
 
   /** Methods to be called before and after the invokation of
    * ThreadedGenerateData(). */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  AfterThreadedGenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VotingBinaryHoleFillingImageFilter);
-
   unsigned int m_MajorityThreshold;
 
   SizeValueType m_NumberOfPixelsChanged;
 
   // Auxiliary array for multi-threading
-  Array< SizeValueType > m_Count;
+  Array<SizeValueType> m_Count;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVotingBinaryHoleFillingImageFilter.hxx"
+#  include "itkVotingBinaryHoleFillingImageFilter.hxx"
 #endif
 
 #endif

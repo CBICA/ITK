@@ -38,11 +38,13 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TCellInterface >
-class ITK_TEMPLATE_EXPORT LineCell:public TCellInterface
+template <typename TCellInterface>
+class ITK_TEMPLATE_EXPORT LineCell : public TCellInterface
 {
 public:
-  /** Standard class typedefs. */
+  ITK_DISALLOW_COPY_AND_ASSIGN(LineCell);
+
+  /** Standard class type aliases. */
   itkCellCommonTypedefs(LineCell);
   itkCellInheritedTypedefs(TCellInterface);
 
@@ -50,69 +52,82 @@ public:
   itkTypeMacro(LineCell, CellInterface);
 
   /** The type of boundary for this lines's vertices. */
-  typedef VertexCell< TCellInterface >         VertexType;
-  typedef typename VertexType::SelfAutoPointer VertexAutoPointer;
+  using VertexType = VertexCell<TCellInterface>;
+  using VertexAutoPointer = typename VertexType::SelfAutoPointer;
 
   /** Line-specific topology numbers. */
-  itkStaticConstMacro(NumberOfPoints, unsigned int, 2);
-  itkStaticConstMacro(NumberOfVertices, unsigned int, 2);
-  itkStaticConstMacro(CellDimension, unsigned int, 1);
+  static constexpr unsigned int NumberOfPoints = 2;
+  static constexpr unsigned int NumberOfVertices = 2;
+  static constexpr unsigned int CellDimension = 1;
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::LINE_CELL; }
-  virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
+  CellGeometry
+  GetType() const override
+  {
+    return Superclass::LINE_CELL;
+  }
+  void
+  MakeCopy(CellAutoPointer &) const override;
 
-  virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
+  unsigned int
+  GetDimension() const override;
 
-  virtual unsigned int GetNumberOfPoints(void) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfPoints() const override;
 
-  virtual CellFeatureCount GetNumberOfBoundaryFeatures(int dimension) const ITK_OVERRIDE;
+  CellFeatureCount
+  GetNumberOfBoundaryFeatures(int dimension) const override;
 
-  virtual bool GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) ITK_OVERRIDE;
-  virtual void SetPointIds(PointIdConstIterator first) ITK_OVERRIDE;
+  bool
+  GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) override;
+  void
+  SetPointIds(PointIdConstIterator first) override;
 
-  virtual void SetPointIds(PointIdConstIterator first,
-                           PointIdConstIterator last) ITK_OVERRIDE;
+  void
+  SetPointIds(PointIdConstIterator first, PointIdConstIterator last) override;
 
-  virtual void SetPointId(int localId, PointIdentifier) ITK_OVERRIDE;
-  virtual PointIdIterator      PointIdsBegin(void) ITK_OVERRIDE;
+  void
+  SetPointId(int localId, PointIdentifier) override;
+  PointIdIterator
+  PointIdsBegin() override;
 
-  virtual PointIdConstIterator PointIdsBegin(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsBegin() const override;
 
-  virtual PointIdIterator      PointIdsEnd(void) ITK_OVERRIDE;
+  PointIdIterator
+  PointIdsEnd() override;
 
-  virtual PointIdConstIterator PointIdsEnd(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsEnd() const override;
 
   /** Line-specific interface. */
-  virtual CellFeatureCount GetNumberOfVertices() const;
+  virtual CellFeatureCount
+  GetNumberOfVertices() const;
 
-  virtual bool GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
+  virtual bool
+  GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
 
   /** Visitor interface */
   itkCellVisitMacro(Superclass::LINE_CELL);
 
   LineCell()
   {
-    for ( unsigned int i = 0; i < itkGetStaticConstMacro(NumberOfPoints); i++ )
-      {
-      m_PointIds[i] = NumericTraits< PointIdentifier >::max();
-      }
+    for (unsigned int i = 0; i < Self::NumberOfPoints; i++)
+    {
+      m_PointIds[i] = NumericTraits<PointIdentifier>::max();
+    }
   }
 
-  ~LineCell() ITK_OVERRIDE {}
+  ~LineCell() override = default;
 
 protected:
   /** Store number of points needed for a line segment. */
   PointIdentifier m_PointIds[NumberOfPoints];
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LineCell);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLineCell.hxx"
+#  include "itkLineCell.hxx"
 #endif
 
 #endif

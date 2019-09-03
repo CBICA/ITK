@@ -32,68 +32,68 @@
 #include "itkGradientMagnitudeRecursiveGaussianImageFilter.h"
 
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
 
 
-  if( argc < 5 )
-    {
+  if (argc < 5)
+  {
     std::cerr << "Missing Parameters " << std::endl;
     std::cerr << "Usage: " << argv[0];
-    std::cerr << " inputImage  outputImage lowerThreshold  outputScaleLevel" << std::endl;
+    std::cerr << " inputImage  outputImage lowerThreshold  outputScaleLevel"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef float                             InternalPixelType;
-  typedef itk::RGBPixel<unsigned char>      RGBPixelType;
+  using InternalPixelType = float;
+  using RGBPixelType = itk::RGBPixel<unsigned char>;
 
-  const   unsigned int                      Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
-  typedef itk::Image< InternalPixelType,  Dimension >  InternalImageType;
-  typedef itk::Image< RGBPixelType,       Dimension >  RGBImageType;
+  using InternalImageType = itk::Image<InternalPixelType, Dimension>;
+  using RGBImageType = itk::Image<RGBPixelType, Dimension>;
 
 
   //
   // We instantiate reader and writer types
   //
-  typedef  itk::ImageFileReader< InternalImageType   >  ReaderType;
-  typedef  itk::ImageFileWriter< RGBImageType  >        WriterType;
+  using ReaderType = itk::ImageFileReader<InternalImageType>;
+  using WriterType = itk::ImageFileWriter<RGBImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
   WriterType::Pointer writer = WriterType::New();
 
-  reader->SetFileName( argv[1] );
-  writer->SetFileName( argv[2] );
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
 
 
   //
   //  Instantiate the GradientMagnitude image filter
   //
-  typedef   itk::GradientMagnitudeRecursiveGaussianImageFilter<
-                                                     InternalImageType,
-                                                     InternalImageType
-                                                          > GradientMagnitudeFilterType;
+  using GradientMagnitudeFilterType =
+    itk::GradientMagnitudeRecursiveGaussianImageFilter<InternalImageType,
+                                                       InternalImageType>;
 
-  GradientMagnitudeFilterType::Pointer gradienMagnitudeFilter = GradientMagnitudeFilterType::New();
+  GradientMagnitudeFilterType::Pointer gradienMagnitudeFilter =
+    GradientMagnitudeFilterType::New();
 
-  gradienMagnitudeFilter->SetInput( reader->GetOutput() );
-  gradienMagnitudeFilter->SetSigma( 1.0 );
+  gradienMagnitudeFilter->SetInput(reader->GetOutput());
+  gradienMagnitudeFilter->SetSigma(1.0);
 
 
   //
   //  Instantiate the Watershed filter
   //
 
-  typedef  itk::WatershedImageFilter<
-                              InternalImageType
-                                            > WatershedFilterType;
+  using WatershedFilterType = itk::WatershedImageFilter<InternalImageType>;
 
   WatershedFilterType::Pointer watershedFilter = WatershedFilterType::New();
 
-  watershedFilter->SetInput( gradienMagnitudeFilter->GetOutput() );
+  watershedFilter->SetInput(gradienMagnitudeFilter->GetOutput());
 
-  watershedFilter->SetThreshold( atof( argv[3] ) );
-  watershedFilter->SetLevel(     atof( argv[4] ) );
+  watershedFilter->SetThreshold(std::stod(argv[3]));
+  watershedFilter->SetLevel(std::stod(argv[4]));
 
 
   //
@@ -101,36 +101,30 @@ int main( int argc, char *argv[] )
   //  into a color image (random color attribution).
   //
 
-  typedef itk::Functor::ScalarToRGBPixelFunctor<
-                                           unsigned long
-                                                    > ColorMapFunctorType;
+  using ColormapFunctorType = itk::Functor::ScalarToRGBPixelFunctor<unsigned long>;
 
-  typedef WatershedFilterType::OutputImageType  LabeledImageType;
+  using LabeledImageType = WatershedFilterType::OutputImageType;
 
-  typedef itk::UnaryFunctorImageFilter<
-                                LabeledImageType,
-                                RGBImageType,
-                                ColorMapFunctorType
-                                                > ColorMapFilterType;
+  using ColormapFilterType =
+    itk::UnaryFunctorImageFilter<LabeledImageType, RGBImageType, ColormapFunctorType>;
 
-  ColorMapFilterType::Pointer colorMapFilter = ColorMapFilterType::New();
+  ColormapFilterType::Pointer colorMapFilter = ColormapFilterType::New();
 
-  colorMapFilter->SetInput(  watershedFilter->GetOutput() );
+  colorMapFilter->SetInput(watershedFilter->GetOutput());
 
-  writer->SetInput( colorMapFilter->GetOutput() );
+  writer->SetInput(colorMapFilter->GetOutput());
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
+  }
+  catch (itk::ExceptionObject & excep)
+  {
     std::cerr << "Exception caught !" << std::endl;
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   return EXIT_SUCCESS;
-
 }

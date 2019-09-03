@@ -63,32 +63,32 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageLinearIteratorWithIndex:public ImageLinearConstIteratorWithIndex< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageLinearIteratorWithIndex : public ImageLinearConstIteratorWithIndex<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageLinearIteratorWithIndex                Self;
-  typedef ImageLinearConstIteratorWithIndex< TImage > Superclass;
+  /** Standard class type aliases. */
+  using Self = ImageLinearIteratorWithIndex;
+  using Superclass = ImageLinearConstIteratorWithIndex<TImage>;
 
   /** Types inherited from the Superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
 
   /** Default constructor. Needed since we provide a cast constructor. */
-  ImageLinearIteratorWithIndex();
+  ImageLinearIteratorWithIndex() = default;
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageLinearIteratorWithIndex(ImageType *ptr, const RegionType & region);
+  ImageLinearIteratorWithIndex(ImageType * ptr, const RegionType & region);
 
   /** Constructor that can be used to cast from an ImageIterator to an
    * ImageLinearIteratorWithIndex. Many routines return an ImageIterator, but for a
@@ -96,28 +96,35 @@ public:
    * provide overloaded APIs that return different types of Iterators, itk
    * returns ImageIterators and uses constructors to cast from an
    * ImageIterator to a ImageLinearIteratorWithIndex. */
-  ImageLinearIteratorWithIndex(const ImageIteratorWithIndex< TImage > & it);
+  ImageLinearIteratorWithIndex(const ImageIteratorWithIndex<TImage> & it);
 
   /** Set the pixel value */
-  void Set(const PixelType & value) const
-  { this->m_PixelAccessorFunctor.Set(*( const_cast< InternalPixelType * >( this->m_Position ) ), value); }
+  void
+  Set(const PixelType & value) const
+  {
+    this->m_PixelAccessorFunctor.Set(*(const_cast<InternalPixelType *>(this->m_Position)), value);
+  }
 
   /** Return a reference to the pixel.
    * This method will provide the fastest access to pixel
    * data, but it will NOT support ImageAdaptors. */
-  PixelType & Value(void)
-  { return *( const_cast< InternalPixelType * >( this->m_Position ) ); }
+  PixelType &
+  Value()
+  {
+    return *(const_cast<InternalPixelType *>(this->m_Position));
+  }
 
 protected:
   /** the construction from a const iterator is declared protected
       in order to enforce const correctness. */
-  ImageLinearIteratorWithIndex(const ImageLinearConstIteratorWithIndex< TImage > & it);
-  Self & operator=(const ImageLinearConstIteratorWithIndex< TImage > & it);
+  ImageLinearIteratorWithIndex(const ImageLinearConstIteratorWithIndex<TImage> & it);
+  Self &
+  operator=(const ImageLinearConstIteratorWithIndex<TImage> & it);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageLinearIteratorWithIndex.hxx"
+#  include "itkImageLinearIteratorWithIndex.hxx"
 #endif
 
 #endif

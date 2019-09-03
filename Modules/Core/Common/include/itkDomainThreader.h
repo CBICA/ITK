@@ -19,7 +19,7 @@
 #define itkDomainThreader_h
 
 #include "itkObject.h"
-#include "itkMultiThreader.h"
+#include "itkMultiThreaderBase.h"
 
 namespace itk
 {
@@ -48,9 +48,9 @@ namespace itk
  *  Since a threaded operation is relatively complex compared to a simple serial
  *  operation, a class instead of a simple method is required.  Inside this
  *  class, the method to partition the data is handled, the logic for
- *  determining the number of threads is determined, and operations surrounding
+ *  deciding the number of work units is determined, and operations surrounding
  *  the threading are encapsulated into the class with the
- *  \c DetermineNumberOfThreadsToUse, \c BeforeThreadedExecution, \c ThreadedExecution,
+ *  \c DetermineNumberOfWorkUnitsToUse, \c BeforeThreadedExecution, \c ThreadedExecution,
  *  and \c AfterThreadedExecution virtual methods.
  *
  *  \tparam TDomainPartitioner A class that inherits from
@@ -62,61 +62,80 @@ namespace itk
  *
  *  \ingroup ITKCommon
  */
-template< typename TDomainPartitioner, typename TAssociate >
-class ITK_TEMPLATE_EXPORT DomainThreader: public Object
+template <typename TDomainPartitioner, typename TAssociate>
+class ITK_TEMPLATE_EXPORT DomainThreader : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef DomainThreader             Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DomainThreader);
 
-  typedef TDomainPartitioner                         DomainPartitionerType;
-  typedef typename DomainPartitionerType::DomainType DomainType;
+  /** Standard class type aliases. */
+  using Self = DomainThreader;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TAssociate AssociateType;
+  using DomainPartitionerType = TDomainPartitioner;
+  using DomainType = typename DomainPartitionerType::DomainType;
+
+  using AssociateType = TAssociate;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( DomainThreader, Object );
+  itkTypeMacro(DomainThreader, Object);
 
   /** Run the multi-threaded operation on the given domain.
    *
    * The domain is first partitioned by the ThreadedDomainPartitioner, then
    * the virtual methods \c BeforeThreadedExecution, \c ThreadedExecution, and
    * \c AfterThreadedExecution. are run, in order. */
-  void Execute( AssociateType * enclosingClass, const DomainType & domain );
+  void
+  Execute(AssociateType * enclosingClass, const DomainType & domain);
 
   /** Set/Get the DomainPartitioner. */
-  itkSetObjectMacro(       DomainPartitioner, DomainPartitionerType );
-  itkGetModifiableObjectMacro(DomainPartitioner, DomainPartitionerType );
+  itkSetObjectMacro(DomainPartitioner, DomainPartitionerType);
+  itkGetModifiableObjectMacro(DomainPartitioner, DomainPartitionerType);
 
-  /** Accessor for number of threads that were actually used in the last
+  /** Accessor for number of work units that were actually used in the last
    * ThreadedExecution. */
-  itkGetConstMacro( NumberOfThreadsUsed, ThreadIdType );
+  itkGetConstMacro(NumberOfWorkUnitsUsed, ThreadIdType);
 
   /** Return the multithreader used by this class. */
-  MultiThreader * GetMultiThreader() const;
+  MultiThreaderBase *
+  GetMultiThreader() const;
+
+  /** Convenience methods to set/get the desired number of work units to use.
+   * \warning When setting the desired number of work units, it might be clamped by
+   * itk::MultiThreaderBase::GetGlobalMaximumNumberOfThreads().
+   * */
+  itkSetClampMacro(NumberOfWorkUnits, ThreadIdType, 1, ITK_MAX_THREADS);
+  itkGetConstMacro(NumberOfWorkUnits, ThreadIdType);
 
   /** Convenience methods to set/get the maximum number of threads to use.
    * \warning When setting the maximum number of threads, it will be clamped by
-   * itk::MultiThreader::GetGlobalMaximumNumberOfThreads() and ITK_MAX_THREADS.
+   * itk::MultiThreaderBase::GetGlobalMaximumNumberOfThreads().
    * */
-  ThreadIdType GetMaximumNumberOfThreads() const;
-  void SetMaximumNumberOfThreads( const ThreadIdType threads );
+  ThreadIdType
+  GetMaximumNumberOfThreads() const
+  {
+    return this->m_MultiThreader->GetMaximumNumberOfThreads();
+  }
+  void
+  SetMaximumNumberOfThreads(const ThreadIdType threads);
 
 protected:
   DomainThreader();
-  virtual ~DomainThreader() ITK_OVERRIDE;
+  ~DomainThreader() override = default;
 
   /** This is evauated at the beginning of Execute() so that it can be used in
    * BeforeThreadedExecution(). */
-  virtual void DetermineNumberOfThreadsUsed();
+  virtual void
+  DetermineNumberOfWorkUnitsUsed();
 
   /** When \c Execute is run, this method is run singled-threaded before \c
    * ThreadedExecution.  Inside this method optional operations such as
    * creating instance variables needed per thread may be performed. */
-  virtual void BeforeThreadedExecution(){}
+  virtual void
+  BeforeThreadedExecution()
+  {}
 
   /** Do the threaded operation, somewhat like \c ThreadedGenerateData in an
    * ImageSource.
@@ -126,48 +145,51 @@ protected:
    * this->m_Associate, which has direct access to private and protected
    * members the enclosing class.
    */
-  virtual void ThreadedExecution( const DomainType& subdomain,
-                                  const ThreadIdType threadId ) = 0;
+  virtual void
+  ThreadedExecution(const DomainType & subdomain, const ThreadIdType threadId) = 0;
 
   /** When \c Execute in run, this method is run single-threaded after \c
    * ThreadedExecution.  Optionally collect results, etc. E.g. calculate the
    * global minimum from the minimums calculated per thread. */
-  virtual void AfterThreadedExecution(){}
+  virtual void
+  AfterThreadedExecution()
+  {}
 
-  itkSetObjectMacro( MultiThreader, MultiThreader );
+  itkSetObjectMacro(MultiThreader, MultiThreaderBase);
 
-  /** Static function used as a "callback" by the MultiThreader.  The threading
+  /** Static function used as a "callback" by the MultiThreaderBase.  The threading
    * library will call this routine for each thread, which will delegate the
    * control to the ThreadFunctor. */
-  static ITK_THREAD_RETURN_TYPE ThreaderCallback( void *arg );
+  static ITK_THREAD_RETURN_FUNCTION_CALL_CONVENTION
+  ThreaderCallback(void * arg);
 
   AssociateType * m_Associate;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DomainThreader);
-
-  void StartThreadingSequence();
+  void
+  StartThreadingSequence();
 
   /** This contains the object passed to the threading library. */
   struct ThreadStruct
-    {
-    DomainThreader     * domainThreader;
-    };
+  {
+    DomainThreader * domainThreader;
+  };
 
-  /** Store the actual number of threads used, which may be less than
+  /** Store the actual number of work units used, which may be less than
    * the number allocated by the threader if the object does not split
    * well into that number.
    * This value is determined at the beginning of \c Execute(). */
-  ThreadIdType                             m_NumberOfThreadsUsed;
-  typename DomainPartitionerType::Pointer  m_DomainPartitioner;
-  DomainType                               m_CompleteDomain;
-  MultiThreader::Pointer                   m_MultiThreader;
+  ThreadIdType                            m_NumberOfWorkUnitsUsed{ 0 };
+  ThreadIdType                            m_NumberOfWorkUnits;
+  typename DomainPartitionerType::Pointer m_DomainPartitioner;
+  DomainType                              m_CompleteDomain;
+  MultiThreaderBase::Pointer              m_MultiThreader;
 };
 
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDomainThreader.hxx"
+#  include "itkDomainThreader.hxx"
 #endif
 
 #endif

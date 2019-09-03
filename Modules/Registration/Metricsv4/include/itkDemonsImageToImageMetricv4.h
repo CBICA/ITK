@@ -51,20 +51,24 @@ namespace itk
  * \sa itkImageToImageMetricv4
  * \ingroup ITKMetricsv4
  */
-template <typename TFixedImage, typename TMovingImage, typename TVirtualImage = TFixedImage,
+template <typename TFixedImage,
+          typename TMovingImage,
+          typename TVirtualImage = TFixedImage,
           typename TInternalComputationValueType = double,
-          typename TMetricTraits = DefaultImageToImageMetricTraitsv4<TFixedImage,TMovingImage,TVirtualImage,TInternalComputationValueType>
-          >
-class ITK_TEMPLATE_EXPORT DemonsImageToImageMetricv4 :
-  public ImageToImageMetricv4<TFixedImage, TMovingImage, TVirtualImage, TInternalComputationValueType, TMetricTraits>
+          typename TMetricTraits =
+            DefaultImageToImageMetricTraitsv4<TFixedImage, TMovingImage, TVirtualImage, TInternalComputationValueType>>
+class ITK_TEMPLATE_EXPORT DemonsImageToImageMetricv4
+  : public ImageToImageMetricv4<TFixedImage, TMovingImage, TVirtualImage, TInternalComputationValueType, TMetricTraits>
 {
 public:
-  /** Standard class typedefs. */
-  typedef DemonsImageToImageMetricv4                                       Self;
-  typedef ImageToImageMetricv4<TFixedImage, TMovingImage, TVirtualImage,
-                             TInternalComputationValueType,TMetricTraits>  Superclass;
-  typedef SmartPointer<Self>                                               Pointer;
-  typedef SmartPointer<const Self>                                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DemonsImageToImageMetricv4);
+
+  /** Standard class type aliases. */
+  using Self = DemonsImageToImageMetricv4;
+  using Superclass =
+    ImageToImageMetricv4<TFixedImage, TMovingImage, TVirtualImage, TInternalComputationValueType, TMetricTraits>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,39 +77,37 @@ public:
   itkTypeMacro(DemonsImageToImageMetricv4, ImageToImageMetricv4);
 
   /** Superclass types */
-  typedef typename Superclass::MeasureType             MeasureType;
-  typedef typename Superclass::DerivativeType          DerivativeType;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
 
-  typedef typename Superclass::FixedImagePointType     FixedImagePointType;
-  typedef typename Superclass::FixedImagePixelType     FixedImagePixelType;
-  typedef typename Superclass::FixedImageGradientType  FixedImageGradientType;
+  using FixedImagePointType = typename Superclass::FixedImagePointType;
+  using FixedImagePixelType = typename Superclass::FixedImagePixelType;
+  using FixedImageGradientType = typename Superclass::FixedImageGradientType;
 
-  typedef typename Superclass::MovingImagePointType    MovingImagePointType;
-  typedef typename Superclass::MovingImagePixelType    MovingImagePixelType;
-  typedef typename Superclass::MovingImageGradientType MovingImageGradientType;
+  using MovingImagePointType = typename Superclass::MovingImagePointType;
+  using MovingImagePixelType = typename Superclass::MovingImagePixelType;
+  using MovingImageGradientType = typename Superclass::MovingImageGradientType;
 
-  typedef typename Superclass::MovingTransformType     MovingTransformType;
-  typedef typename Superclass::JacobianType            JacobianType;
-  typedef typename Superclass::VirtualImageType        VirtualImageType;
-  typedef typename Superclass::VirtualIndexType        VirtualIndexType;
-  typedef typename Superclass::VirtualPointType        VirtualPointType;
-  typedef typename Superclass::VirtualPointSetType     VirtualSPointSetType;
-  typedef typename Superclass::NumberOfParametersType  NumberOfParametersType;
+  using MovingTransformType = typename Superclass::MovingTransformType;
+  using JacobianType = typename Superclass::JacobianType;
+  using VirtualImageType = typename Superclass::VirtualImageType;
+  using VirtualIndexType = typename Superclass::VirtualIndexType;
+  using VirtualPointType = typename Superclass::VirtualPointType;
+  using VirtualSPointSetType = typename Superclass::VirtualPointSetType;
+  using NumberOfParametersType = typename Superclass::NumberOfParametersType;
 
   /** It should be possible to derive the internal computation type from the class object. */
-  typedef TInternalComputationValueType                InternalComputationValueType;
+  using InternalComputationValueType = TInternalComputationValueType;
 
-  typedef typename Superclass::ImageDimensionType      ImageDimensionType;
+  using ImageDimensionType = typename Superclass::ImageDimensionType;
 
   /* Image dimension accessors */
-  itkStaticConstMacro(VirtualImageDimension, ImageDimensionType,
-      TVirtualImage::ImageDimension);
-  itkStaticConstMacro(FixedImageDimension, ImageDimensionType,
-      TFixedImage::ImageDimension);
-  itkStaticConstMacro(MovingImageDimension, ImageDimensionType,
-      TMovingImage::ImageDimension);
+  static constexpr ImageDimensionType VirtualImageDimension = TVirtualImage::ImageDimension;
+  static constexpr ImageDimensionType FixedImageDimension = TFixedImage::ImageDimension;
+  static constexpr ImageDimensionType MovingImageDimension = TMovingImage::ImageDimension;
 
-  virtual void Initialize(void) ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /** Accessors for the image intensity difference threshold use
    *  in derivative calculation */
@@ -119,36 +121,41 @@ protected:
   itkGetConstMacro(Normalizer, TInternalComputationValueType);
 
   DemonsImageToImageMetricv4();
-  virtual ~DemonsImageToImageMetricv4() ITK_OVERRIDE;
+  ~DemonsImageToImageMetricv4() override = default;
 
-  friend class DemonsImageToImageMetricv4GetValueAndDerivativeThreader< ThreadedImageRegionPartitioner< Superclass::VirtualImageDimension >, Superclass, Self >;
-  friend class DemonsImageToImageMetricv4GetValueAndDerivativeThreader< ThreadedIndexedContainerPartitioner, Superclass, Self >;
-  typedef DemonsImageToImageMetricv4GetValueAndDerivativeThreader< ThreadedImageRegionPartitioner< Superclass::VirtualImageDimension >, Superclass, Self >
-    DemonsDenseGetValueAndDerivativeThreaderType;
-  typedef DemonsImageToImageMetricv4GetValueAndDerivativeThreader< ThreadedIndexedContainerPartitioner, Superclass, Self >
-    DemonsSparseGetValueAndDerivativeThreaderType;
+  friend class DemonsImageToImageMetricv4GetValueAndDerivativeThreader<
+    ThreadedImageRegionPartitioner<Superclass::VirtualImageDimension>,
+    Superclass,
+    Self>;
+  friend class DemonsImageToImageMetricv4GetValueAndDerivativeThreader<ThreadedIndexedContainerPartitioner,
+                                                                       Superclass,
+                                                                       Self>;
+  using DemonsDenseGetValueAndDerivativeThreaderType = DemonsImageToImageMetricv4GetValueAndDerivativeThreader<
+    ThreadedImageRegionPartitioner<Superclass::VirtualImageDimension>,
+    Superclass,
+    Self>;
+  using DemonsSparseGetValueAndDerivativeThreaderType =
+    DemonsImageToImageMetricv4GetValueAndDerivativeThreader<ThreadedIndexedContainerPartitioner, Superclass, Self>;
 
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
   /** Threshold below which the denominator term is considered zero.
    *  Fixed programatically in constructor. */
-  TInternalComputationValueType   m_DenominatorThreshold;
+  TInternalComputationValueType m_DenominatorThreshold;
 
   /** Threshold below which two intensity value are assumed to match. */
-  TInternalComputationValueType   m_IntensityDifferenceThreshold;
+  TInternalComputationValueType m_IntensityDifferenceThreshold;
 
   /* Used to normalize derivative calculation. Automatically calculated */
-  TInternalComputationValueType   m_Normalizer;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(DemonsImageToImageMetricv4);
+  TInternalComputationValueType m_Normalizer;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDemonsImageToImageMetricv4.hxx"
+#  include "itkDemonsImageToImageMetricv4.hxx"
 #endif
 
 #endif

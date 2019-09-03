@@ -41,38 +41,36 @@ namespace Function
  *
  * \ingroup ITKColormap
  */
-template< typename TScalar, typename TRGBPixel >
-class ITK_TEMPLATE_EXPORT HotColormapFunction:
-  public ColormapFunction< TScalar, TRGBPixel >
+template <typename TScalar, typename TRGBPixel>
+class ITK_TEMPLATE_EXPORT HotColormapFunction : public ColormapFunction<TScalar, TRGBPixel>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(HotColormapFunction);
 
-  typedef HotColormapFunction                    Self;
-  typedef ColormapFunction< TScalar, TRGBPixel > Superclass;
-  typedef SmartPointer< Self >                   Pointer;
-  typedef SmartPointer< const Self >             ConstPointer;
+  using Self = HotColormapFunction;
+  using Superclass = ColormapFunction<TScalar, TRGBPixel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  typedef typename Superclass::RGBPixelType RGBPixelType;
-  typedef typename Superclass::ScalarType   ScalarType;
-  typedef typename Superclass::RealType     RealType;
+  using RGBPixelType = typename Superclass::RGBPixelType;
+  using ScalarType = typename Superclass::ScalarType;
+  using RealType = typename Superclass::RealType;
 
-  virtual RGBPixelType operator()(const TScalar &) const ITK_OVERRIDE;
+  RGBPixelType
+  operator()(const TScalar &) const override;
 
 protected:
-  HotColormapFunction() {}
-  ~HotColormapFunction() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HotColormapFunction);
+  HotColormapFunction() = default;
+  ~HotColormapFunction() override = default;
 };
-} // end namespace functor
+} // end namespace Function
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHotColormapFunction.hxx"
+#  include "itkHotColormapFunction.hxx"
 #endif
 
 #endif

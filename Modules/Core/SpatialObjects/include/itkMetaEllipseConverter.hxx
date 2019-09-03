@@ -22,98 +22,78 @@
 
 namespace itk
 {
-/** Constructor */
-template< unsigned int NDimensions >
-MetaEllipseConverter< NDimensions >
-::MetaEllipseConverter()
-{}
 
-template< unsigned int NDimensions >
-typename MetaEllipseConverter< NDimensions >::MetaObjectType *
-MetaEllipseConverter< NDimensions>
-::CreateMetaObject()
+template <unsigned int NDimensions>
+typename MetaEllipseConverter<NDimensions>::MetaObjectType *
+MetaEllipseConverter<NDimensions>::CreateMetaObject()
 {
   return dynamic_cast<MetaObjectType *>(new EllipseMetaObjectType);
 }
 
 /** Convert a metaEllipse into an ellipse SpatialObject  */
-template< unsigned int NDimensions >
-typename MetaEllipseConverter< NDimensions >::SpatialObjectPointer
-MetaEllipseConverter< NDimensions >
-::MetaObjectToSpatialObject(const MetaObjectType *mo)
+template <unsigned int NDimensions>
+typename MetaEllipseConverter<NDimensions>::SpatialObjectPointer
+MetaEllipseConverter<NDimensions>::MetaObjectToSpatialObject(const MetaObjectType * mo)
 {
-  const EllipseMetaObjectType *ellipseMO = dynamic_cast<const EllipseMetaObjectType *>(mo);
-  if(ellipseMO == ITK_NULLPTR)
-    {
+  const auto * ellipseMO = dynamic_cast<const EllipseMetaObjectType *>(mo);
+  if (ellipseMO == nullptr)
+  {
     itkExceptionMacro(<< "Can't downcast MetaObject to EllipseMetaObject");
-    }
+  }
 
   EllipseSpatialObjectPointer ellipseSO = EllipseSpatialObjectType::New();
 
-  double spacing[NDimensions];
+  typename EllipseSpatialObjectType::ArrayType radii;
+  for (unsigned int i = 0; i < NDimensions; i++)
+  {
+    radii[i] = ellipseMO->Radius()[i];
+  }
 
-  typename EllipseSpatialObjectType::ArrayType radius;
-
-  for ( unsigned int i = 0; i < NDimensions; i++ )
-    {
-    radius[i] = ellipseMO->Radius()[i];
-    spacing[i] = ellipseMO->ElementSpacing()[i];
-    }
-
-  ellipseSO->GetIndexToObjectTransform()->SetScaleComponent(spacing);
-  ellipseSO->SetRadius(radius);
-  ellipseSO->GetProperty()->SetName( ellipseMO->Name() );
-  ellipseSO->SetId( ellipseMO->ID() );
-  ellipseSO->SetParentId( ellipseMO->ParentID() );
-  ellipseSO->GetProperty()->SetRed(ellipseMO->Color()[0]);
-  ellipseSO->GetProperty()->SetGreen(ellipseMO->Color()[1]);
-  ellipseSO->GetProperty()->SetBlue(ellipseMO->Color()[2]);
-  ellipseSO->GetProperty()->SetAlpha(ellipseMO->Color()[3]);
+  ellipseSO->SetRadiusInObjectSpace(radii);
+  ellipseSO->GetProperty().SetName(ellipseMO->Name());
+  ellipseSO->SetId(ellipseMO->ID());
+  ellipseSO->SetParentId(ellipseMO->ParentID());
+  ellipseSO->GetProperty().SetRed(ellipseMO->Color()[0]);
+  ellipseSO->GetProperty().SetGreen(ellipseMO->Color()[1]);
+  ellipseSO->GetProperty().SetBlue(ellipseMO->Color()[2]);
+  ellipseSO->GetProperty().SetAlpha(ellipseMO->Color()[3]);
 
   return ellipseSO.GetPointer();
 }
 
 /** Convert an ellipse SpatialObject into a metaEllipse */
-template< unsigned int NDimensions >
-typename MetaEllipseConverter< NDimensions>::MetaObjectType *
-MetaEllipseConverter< NDimensions >
-::SpatialObjectToMetaObject(const SpatialObjectType *so)
+template <unsigned int NDimensions>
+typename MetaEllipseConverter<NDimensions>::MetaObjectType *
+MetaEllipseConverter<NDimensions>::SpatialObjectToMetaObject(const SpatialObjectType * so)
 {
-  EllipseSpatialObjectConstPointer ellipseSO =
-    dynamic_cast<const EllipseSpatialObjectType *>(so);
-  if(ellipseSO.IsNull())
-    {
+  EllipseSpatialObjectConstPointer ellipseSO = dynamic_cast<const EllipseSpatialObjectType *>(so);
+  if (ellipseSO.IsNull())
+  {
     itkExceptionMacro(<< "Can't downcast SpatialObject to EllipseSpatialObject");
-    }
+  }
 
-  EllipseMetaObjectType *ellipseMO = new EllipseMetaObjectType(NDimensions);
+  auto * ellipseMO = new EllipseMetaObjectType(NDimensions);
 
-  float *radius = new float[NDimensions];
+  auto * radii = new float[NDimensions];
 
-  for ( unsigned int i = 0; i < NDimensions; i++ )
-    {
-    radius[i] = ellipseSO->GetRadius()[i];
-    }
+  for (unsigned int i = 0; i < NDimensions; i++)
+  {
+    radii[i] = ellipseSO->GetRadiusInObjectSpace()[i];
+  }
 
-  if ( ellipseSO->GetParent() )
-    {
-    ellipseMO->ParentID( ellipseSO->GetParent()->GetId() );
-    }
-  ellipseMO->Radius(radius);
-  ellipseMO->ID( ellipseSO->GetId() );
+  if (ellipseSO->GetParent())
+  {
+    ellipseMO->ParentID(ellipseSO->GetParent()->GetId());
+  }
+  ellipseMO->Radius(radii);
+  ellipseMO->ID(ellipseSO->GetId());
 
-  ellipseMO->Color( ellipseSO->GetProperty()->GetRed(),
-                  ellipseSO->GetProperty()->GetGreen(),
-                  ellipseSO->GetProperty()->GetBlue(),
-                  ellipseSO->GetProperty()->GetAlpha() );
+  ellipseMO->Color(ellipseSO->GetProperty().GetRed(),
+                   ellipseSO->GetProperty().GetGreen(),
+                   ellipseSO->GetProperty().GetBlue(),
+                   ellipseSO->GetProperty().GetAlpha());
 
-  for ( unsigned int i = 0; i < NDimensions; i++ )
-    {
-    ellipseMO->ElementSpacing(i, ellipseSO->GetIndexToObjectTransform()
-                            ->GetScaleComponent()[i]);
-    }
-
-  delete[] radius;
+  delete[] radii;
   return ellipseMO;
 }
 

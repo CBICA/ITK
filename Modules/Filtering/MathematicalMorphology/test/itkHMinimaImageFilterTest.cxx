@@ -18,81 +18,77 @@
 
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
 #include "itkHMinimaImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkHMinimaImageFilterTest( int argc, char * argv[] )
+int
+itkHMinimaImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 5 )
-    {
+  if (argc < 5)
+  {
     std::cerr << "Missing parameters." << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0]
-      << " inputImageFile"
-      << " outputImageFile"
-      << " height"
-      << " fullyConnected" << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << " inputImageFile"
+              << " outputImageFile"
+              << " height"
+              << " fullyConnected" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //
   // The following code defines the input and output pixel types and their
   // associated image types.
   //
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef short         InputPixelType;
-  typedef unsigned char OutputPixelType;
+  using InputPixelType = short;
+  using OutputPixelType = unsigned char;
 
-  typedef itk::Image< InputPixelType, Dimension >   InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >  OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
   // Read the input image
-  typedef itk::ImageFileReader< InputImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  TRY_EXPECT_NO_EXCEPTION( reader->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(reader->Update());
 
 
   // Define the itk::HMinimaImageFilter filter type
-  typedef itk::HMinimaImageFilter<
-                            InputImageType,
-                            OutputImageType > HMinimaFilterType;
+  using HMinimaFilterType = itk::HMinimaImageFilter<InputImageType, OutputImageType>;
 
   // Create the filter
   HMinimaFilterType::Pointer hMinimaFilter = HMinimaFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( hMinimaFilter, HMinimaImageFilter,
-    ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(hMinimaFilter, HMinimaImageFilter, ImageToImageFilter);
 
-  FilterWatcher watchHMinima( hMinimaFilter, "HMinimaImageFilter" );
+  itk::SimpleFilterWatcher watchHMinima(hMinimaFilter, "HMinimaImageFilter");
 
   // Set up the filter
-  HMinimaFilterType::InputImagePixelType height =
-    static_cast< HMinimaFilterType::InputImagePixelType >( atof( argv[3] ) );
+  auto height = static_cast<HMinimaFilterType::InputImagePixelType>(std::stod(argv[3]));
 
-  hMinimaFilter->SetHeight( height );
-  TEST_SET_GET_VALUE( height, hMinimaFilter->GetHeight() );
+  hMinimaFilter->SetHeight(height);
+  ITK_TEST_SET_GET_VALUE(height, hMinimaFilter->GetHeight());
 
-  bool fullyConnected = static_cast< bool >( atof( argv[4] ) );
-  TEST_SET_GET_BOOLEAN( hMinimaFilter, FullyConnected, fullyConnected );
+  auto fullyConnected = static_cast<bool>(std::stod(argv[4]));
+  ITK_TEST_SET_GET_BOOLEAN(hMinimaFilter, FullyConnected, fullyConnected);
 
 
-  hMinimaFilter->SetInput( reader->GetOutput() );
+  hMinimaFilter->SetInput(reader->GetOutput());
 
   // Run the filter
-  TRY_EXPECT_NO_EXCEPTION( hMinimaFilter->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(hMinimaFilter->Update());
 
 
   // Write the output
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( hMinimaFilter->GetOutput() );
+  writer->SetFileName(argv[2]);
+  writer->SetInput(hMinimaFilter->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
 
   std::cout << "Test finished." << std::endl;

@@ -47,17 +47,19 @@ namespace itk
  *
  * \ingroup ITKIOImageBase
  *
- * \wiki
- * \wikiexample{Utilities/NumericSeriesFileNames,Create a list of file names}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{IO/ImageBase/CreateAListOfFileNames,Create A List Of File Names}
+ * \endsphinx
  */
-class ITKIOImageBase_EXPORT NumericSeriesFileNames:public Object
+class ITKIOImageBase_EXPORT NumericSeriesFileNames : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef NumericSeriesFileNames Self;
-  typedef Object                 Superclass;
-  typedef SmartPointer< Self >   Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NumericSeriesFileNames);
+
+  /** Standard class type aliases. */
+  using Self = NumericSeriesFileNames;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -90,26 +92,26 @@ public:
   itkGetStringMacro(SeriesFormat);
 
   /** Returns a vector containing the series' file names. The file
-    * names are ordered by Index. */
-  const std::vector< std::string > & GetFileNames();
+   * names are ordered by Index. */
+  const std::vector<std::string> &
+  GetFileNames();
 
 protected:
   NumericSeriesFileNames();
-  ~NumericSeriesFileNames() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~NumericSeriesFileNames() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NumericSeriesFileNames);
-
-  SizeValueType m_StartIndex;
-  SizeValueType m_EndIndex;
-  SizeValueType m_IncrementIndex;
+  SizeValueType m_StartIndex{ 1 };
+  SizeValueType m_EndIndex{ 1 };
+  SizeValueType m_IncrementIndex{ 1 };
 
   /** A string for formatting the names of files in the series. */
   std::string m_SeriesFormat;
 
-  std::vector< std::string > m_FileNames;
+  std::vector<std::string> m_FileNames;
 };
-} //namespace ITK
+} // namespace itk
 
 #endif // itkNumericSeriesFileNames_h

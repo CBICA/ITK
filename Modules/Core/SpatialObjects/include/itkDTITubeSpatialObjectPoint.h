@@ -24,6 +24,17 @@
 
 namespace itk
 {
+/** \class DTITubeSpatialObjectPointFieldEnumType
+ * \ingroup ITKSpatialObjects
+ * If you add a type here you need to modify the TranslateEnumToChar
+ to translate the enum to a string */
+enum class DTITubeSpatialObjectPointFieldEnumType : uint8_t
+{
+  FA = 0,
+  ADC = 1,
+  GA = 2
+};
+
 /** \class DTITubeSpatialObjectPoint
  * \brief Point used for a tube definition
  *
@@ -33,89 +44,116 @@ namespace itk
  * \sa DTITubeSpatialObject
  * \ingroup ITKSpatialObjects
  */
-template< unsigned int TPointDimension = 3 >
-class ITK_TEMPLATE_EXPORT DTITubeSpatialObjectPoint:
-  public TubeSpatialObjectPoint< TPointDimension >
+template <unsigned int TPointDimension = 3>
+class ITK_TEMPLATE_EXPORT DTITubeSpatialObjectPoint : public TubeSpatialObjectPoint<TPointDimension>
 {
 public:
+  using Self = DTITubeSpatialObjectPoint;
+  using Superclass = SpatialObjectPoint<TPointDimension>;
+  using PointType = Point<double, TPointDimension>;
+  using VectorType = Vector<double, TPointDimension>;
+  using CovariantVectorType = CovariantVector<double, TPointDimension>;
+  using FieldType = std::pair<std::string, float>;
+  using FieldListType = std::vector<FieldType>;
 
-  typedef DTITubeSpatialObjectPoint                  Self;
-  typedef SpatialObjectPoint< TPointDimension >      Superclass;
-  typedef Point< double, TPointDimension >           PointType;
-  typedef Vector< double, TPointDimension >          VectorType;
-  typedef CovariantVector< double, TPointDimension > CovariantVectorType;
-  typedef std::pair< std::string, float >            FieldType;
-  typedef std::vector< FieldType >                   FieldListType;
-
-  // If you add a type here you need to modify the TranslateEnumToChar
-  // to translate the enum to a string
-  typedef enum { FA, ADC, GA } FieldEnumType;
+  /** Enables backwards compatibility for enum values */
+  using FieldEnumType = DTITubeSpatialObjectPointFieldEnumType;
+#if !defined(ITK_LEGACY_REMOVE)
+  // We need to expose the enum values at the class level
+  // for backwards compatibility
+  static constexpr FieldEnumType FA = FieldEnumType::FA;
+  static constexpr FieldEnumType ADC = FieldEnumType::ADC;
+  static constexpr FieldEnumType GA = FieldEnumType::GA;
+#endif
 
   /** Constructor. This one defines the number of dimensions in the
    * DTITubeSpatialObjectPoint */
   DTITubeSpatialObjectPoint();
 
   /** Default destructor. */
-  virtual ~DTITubeSpatialObjectPoint() ITK_OVERRIDE;
+  ~DTITubeSpatialObjectPoint() override = default;
 
   /** Set/Get the tensor matrix */
-  void SetTensorMatrix(const DiffusionTensor3D< double > & matrix)
+  void
+  SetTensorMatrix(const DiffusionTensor3D<double> & matrix)
   {
     std::copy(matrix.Begin(), matrix.End(), m_TensorMatrix);
   }
 
-  void SetTensorMatrix(const DiffusionTensor3D< float > & matrix)
+  void
+  SetTensorMatrix(const DiffusionTensor3D<float> & matrix)
   {
     std::copy(matrix.Begin(), matrix.End(), m_TensorMatrix);
   }
 
-  void SetTensorMatrix(const float *matrix)
+  void
+  SetTensorMatrix(const float * matrix)
   {
-    for ( unsigned int i = 0; i < 6; i++ )
-      {
+    for (unsigned int i = 0; i < 6; i++)
+    {
       m_TensorMatrix[i] = matrix[i];
-      }
+    }
   }
 
-  const float * GetTensorMatrix() const { return m_TensorMatrix; }
+  const float *
+  GetTensorMatrix() const
+  {
+    return m_TensorMatrix;
+  }
 
   /** Copy one DTITubeSpatialObjectPoint to another */
-  Self & operator=(const DTITubeSpatialObjectPoint & rhs);
+  Self &
+  operator=(const DTITubeSpatialObjectPoint & rhs);
 
   /** Add a field to the point list */
-  void AddField(const char *name, float value);
+  void
+  AddField(const char * name, float value);
 
   /** Add a field to the point list */
-  void AddField(FieldEnumType name, float value);
+  void
+  AddField(FieldEnumType name, float value);
 
   /** Set a field value */
-  void SetField(FieldEnumType name, float value);
+  void
+  SetField(FieldEnumType name, float value);
 
-  void SetField(const char *name, float value);
+  void
+  SetField(const char * name, float value);
 
   /** Return the list of extra fields */
-  const FieldListType & GetFields() const { return m_Fields; }
+  const FieldListType &
+  GetFields() const
+  {
+    return m_Fields;
+  }
 
   /** Return the value of the specific fiedls */
-  float GetField(const char *name) const;
+  float
+  GetField(const char * name) const;
 
-  float GetField(FieldEnumType name) const;
+  float
+  GetField(FieldEnumType name) const;
 
 protected:
-
   float         m_TensorMatrix[6];
   FieldListType m_Fields;
 
   /** Print the object */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Translate the enum to char */
-  std::string TranslateEnumToChar(FieldEnumType name) const;
+  std::string
+  TranslateEnumToChar(FieldEnumType name) const;
 };
+
+/** Define how to print enumerations */
+extern ITKSpatialObjects_EXPORT std::ostream &
+                                operator<<(std::ostream & out, const DTITubeSpatialObjectPointFieldEnumType value);
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDTITubeSpatialObjectPoint.hxx"
+#  include "itkDTITubeSpatialObjectPoint.hxx"
 #endif
 
 #endif // itkDTITubeSpatialObjectPoint_h

@@ -48,7 +48,7 @@ namespace itk
  * GenerateData(), the image processing will run in a single thread and the
  * implementation is responsible for allocating its output data.  If a filter
  * provides an implementation of ThreadedGenerateData() instead, the image
- * will be divided into a number of pieces, a number of threads will be
+ * will be divided into a number of work units, a number of threads will be
  * spawned, and ThreadedGenerateData() will be called in each thread.  Here,
  * the output memory will be allocated by this superclass prior to calling
  * ThreadedGenerateData().
@@ -94,55 +94,61 @@ namespace itk
  * \ingroup ImageFilters
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Developer/ImageFilter,Filter an image}
- * \wikiexample{Developer/ImageFilterMultipleInputs,Write a filter with multiple inputs of the same type.}
- * \wikiexample{Developer/ImageFilterMultipleInputsDifferentType,Write a filter with multiple inputs of different types.}
- * \wikiexample{Developer/ImageFilterMultipleOutputs,Write a filter with multiple outputs of the same type.}
- * \wikiexample{Developer/OilPaintingImageFilter,Multi-threaded oil painting image filter}
- * \wikiexample{Developer/ImageFilterMultipleOutputsDifferentType,Write a filter with multiple outputs of different types.}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/FilterImage,Filter Image}
+ * \sphinxexample{Core/Common/MultipleInputsOfSameType,Multiple Inputs Of Same Type}
+ * \sphinxexample{Core/Common/MultipleInputsOfDifferentType,Multiple Inputs Of Different Type}
+ * \sphinxexample{Core/Common/MultipleOutputsOfSameType,Multiple Outputs Of Same Type}
+ * \sphinxexample{Core/Common/MultThreadOilPainting,Mult-thread Oil Painting}
+ * \sphinxexample{Core/Common/MultipleOutputsOfDifferentType,Multiple Outputs Of Different Type}
+ * \sphinxexample{Core/Common/FilterImageUsingMultipleThreads,Filter Image Using Multiple Threads}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ImageToImageFilter:public ImageSource< TOutputImage >,
-  private ImageToImageFilterCommon
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ImageToImageFilter
+  : public ImageSource<TOutputImage>
+  , private ImageToImageFilterCommon
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageToImageFilter          Self;
-  typedef ImageSource< TOutputImage > Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ImageToImageFilter;
+  using Superclass = ImageSource<TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToImageFilter, ImageSource);
 
-  /** Superclass typedefs. */
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename Superclass::OutputImagePixelType  OutputImagePixelType;
+  /** Superclass type alias. */
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Set/Get the image input of this process object.  */
   using Superclass::SetInput;
-  virtual void SetInput(const InputImageType *image);
+  virtual void
+  SetInput(const InputImageType * image);
 
-  virtual void SetInput(unsigned int, const TInputImage *image);
+  virtual void
+  SetInput(unsigned int, const TInputImage * image);
 
-  const InputImageType * GetInput() const;
+  const InputImageType *
+  GetInput() const;
 
-  const InputImageType * GetInput(unsigned int idx) const;
+  const InputImageType *
+  GetInput(unsigned int idx) const;
 
   /** Push/Pop the input of this process object. These methods allow a
    * filter to model its input vector as a queue or stack.  These
@@ -163,29 +169,33 @@ public:
    * and popping inputs allow the application to temporarily replace
    * an input to a filter.
    */
-  virtual void PushBackInput(const InputImageType *image);
+  virtual void
+  PushBackInput(const InputImageType * image);
 
-  virtual void PopBackInput() ITK_OVERRIDE;
+  void
+  PopBackInput() override;
 
-  virtual void PushFrontInput(const InputImageType *image);
+  virtual void
+  PushFrontInput(const InputImageType * image);
 
-  virtual void PopFrontInput() ITK_OVERRIDE;
+  void
+  PopFrontInput() override;
 
   /** get/set the Coordinate tolerance
    *  This tolerance is used when comparing the space defined
-   *  by the input images.  With ITK 4.x a requirement has
-   *  been added that both input images be congruent in space.
+   *  by the input images.  ITK has a requirement that multiple input
+   *  images be congruent in space by default.
    */
-  itkSetMacro(CoordinateTolerance,double);
-  itkGetConstMacro(CoordinateTolerance,double);
+  itkSetMacro(CoordinateTolerance, double);
+  itkGetConstMacro(CoordinateTolerance, double);
 
   /** get/set the direction tolerance
    *  This tolerance is used to make sure that all input
    *  images are oriented the same before performing the filter's
    *  transformations.
    */
-  itkSetMacro(DirectionTolerance,double);
-  itkGetConstMacro(DirectionTolerance,double);
+  itkSetMacro(DirectionTolerance, double);
+  itkGetConstMacro(DirectionTolerance, double);
 
   /** get/set the global default direction tolerance
    *
@@ -209,9 +219,10 @@ public:
 
 protected:
   ImageToImageFilter();
-  ~ImageToImageFilter() ITK_OVERRIDE;
+  ~ImageToImageFilter() override{};
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** \brief Verifies that the input images occupy the same physical
    * space and the each index is at the same physical location.
@@ -232,7 +243,8 @@ protected:
    *
    * \sa ProcessObject::VerifyInputInformation
    */
-  virtual void VerifyInputInformation() ITK_OVERRIDE;
+  void
+  VerifyInputInformation() ITKv5_CONST override;
 
   /** What is the input requested region that is required to produce
    * the output requested region? The base assumption for image
@@ -258,19 +270,18 @@ protected:
    *
    * \sa ProcessObject::GenerateInputRequestedRegion(),
    *     ImageSource::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** Typedef for the region copier function object that converts an
    * input region to an output region. */
-  typedef ImageToImageFilterDetail::ImageRegionCopier< itkGetStaticConstMacro(OutputImageDimension),
-                                                       itkGetStaticConstMacro(InputImageDimension) >
-  InputToOutputRegionCopierType;
+  using InputToOutputRegionCopierType =
+    ImageToImageFilterDetail::ImageRegionCopier<Self::OutputImageDimension, Self::InputImageDimension>;
 
   /** Typedef for the region copier function object that converts an
    * output region to an input region. */
-  typedef ImageToImageFilterDetail::ImageRegionCopier< itkGetStaticConstMacro(InputImageDimension),
-                                                       itkGetStaticConstMacro(OutputImageDimension) >
-  OutputToInputRegionCopierType;
+  using OutputToInputRegionCopierType =
+    ImageToImageFilterDetail::ImageRegionCopier<Self::InputImageDimension, Self::OutputImageDimension>;
 
   /** This function calls the actual region copier to do the mapping
    * from output image space to input image space.  It uses a Function
@@ -307,8 +318,8 @@ protected:
    * output image, the filter can control "where" in the input image
    * the output subimage is extracted (as opposed to mapping to first
    * few dimensions of the input). */
-  virtual void CallCopyOutputRegionToInputRegion(InputImageRegionType & destRegion,
-                                                 const OutputImageRegionType & srcRegion);
+  virtual void
+  CallCopyOutputRegionToInputRegion(InputImageRegionType & destRegion, const OutputImageRegionType & srcRegion);
 
   /** This function calls the actual region copier to do the mapping
    * from input image space to output image space.  It uses a Function
@@ -340,8 +351,8 @@ protected:
    *
    * If a filter needs a different default behavior, it can override
    * this method. */
-  virtual void CallCopyInputRegionToOutputRegion(OutputImageRegionType & destRegion,
-                                                 const InputImageRegionType & srcRegion);
+  virtual void
+  CallCopyInputRegionToOutputRegion(OutputImageRegionType & destRegion, const InputImageRegionType & srcRegion);
 
   /**
    * PushBackInput(), PushFronInput() in the public section force the
@@ -351,13 +362,18 @@ protected:
    * the versions from ProcessObject to avoid warnings about hiding
    * methods from the superclass.
    */
-  void PushBackInput(const DataObject *input) ITK_OVERRIDE
-  { Superclass::PushBackInput(input); }
-  void PushFrontInput(const DataObject *input) ITK_OVERRIDE
-  { Superclass::PushFrontInput(input); }
+  void
+  PushBackInput(const DataObject * input) override
+  {
+    Superclass::PushBackInput(input);
+  }
+  void
+  PushFrontInput(const DataObject * input) override
+  {
+    Superclass::PushFrontInput(input);
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToImageFilter);
   /**
    *  Tolerances for checking whether input images are defined to
    *  occupy the same physical space.
@@ -368,7 +384,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToImageFilter.hxx"
+#  include "itkImageToImageFilter.hxx"
 #endif
 
 #endif

@@ -50,16 +50,17 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKMathematicalMorphology
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT DoubleThresholdImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT DoubleThresholdImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef DoubleThresholdImageFilter                      Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DoubleThresholdImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = DoubleThresholdImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -68,12 +69,12 @@ public:
   itkTypeMacro(DoubleThresholdImageFilter, ImageToImageFilter);
 
   /** Types from the superclass */
-  typedef typename Superclass::InputImagePointer InputImagePointer;
-  typedef typename Superclass::InputImageType    InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputImageType = typename Superclass::InputImageType;
 
   /** Pixel types. */
-  typedef typename TInputImage::PixelType  InputPixelType;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
   /** Set the "outside" pixel value. The default value
    * NumericTraits<OutputPixelType>::ZeroValue(). */
@@ -117,38 +118,36 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputPixelType > ) );
-  itkConceptMacro( InputComparableCheck,
-                   ( Concept::Comparable< InputPixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputPixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< OutputPixelType > ) );
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputPixelType>));
+  itkConceptMacro(InputComparableCheck, (Concept::Comparable<InputPixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<InputPixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
   DoubleThresholdImageFilter();
-  virtual ~DoubleThresholdImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DoubleThresholdImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** DoubleThresholdImageFilter needs all of the input. So it must
    * provide an implementation of GenerateInputRequestedRegion() */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** DoubleThresholdImageFilter produces all of the output and must
    * provide an implementation of EnlargeOutputRequestedRegion() */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /** Single threaded version of
    * GenerateData(). DoubleThresholdImageFilter delegates its
    * implementation to the GrayscaleGeodesicDilateImageFilter. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DoubleThresholdImageFilter);
-
   InputPixelType m_Threshold1;
   InputPixelType m_Threshold2;
   InputPixelType m_Threshold3;
@@ -157,14 +156,14 @@ private:
   OutputPixelType m_InsideValue;
   OutputPixelType m_OutsideValue;
 
-  unsigned long m_NumberOfIterationsUsed;
+  unsigned long m_NumberOfIterationsUsed{ 1 };
 
   bool m_FullyConnected;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDoubleThresholdImageFilter.hxx"
+#  include "itkDoubleThresholdImageFilter.hxx"
 #endif
 
 #endif

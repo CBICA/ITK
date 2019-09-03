@@ -15,8 +15,8 @@
 #pragma warning(disable:4702)
 #endif
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -30,7 +30,7 @@ MetaTubeGraph()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph()" << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph()" << std::endl;
     }
   Clear();
 }
@@ -42,7 +42,7 @@ MetaTubeGraph(const char *_headerName)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph()" << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph()" << std::endl;
     }
   Clear();
   Read(_headerName);
@@ -55,7 +55,7 @@ MetaTubeGraph(const MetaTubeGraph *_tube)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph()" << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph()" << std::endl;
     }
   Clear();
   CopyInfo(_tube);
@@ -68,7 +68,7 @@ MetaTubeGraph(unsigned int dim)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph()" << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph()" << std::endl;
     }
   Clear();
 }
@@ -94,12 +94,12 @@ void MetaTubeGraph::
 PrintInfo() const
 {
   MetaObject::PrintInfo();
-  METAIO_STREAM::cout << "Root = " << m_Root << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "PointDim = " << m_PointDim << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "NPoints = " << m_NPoints << METAIO_STREAM::endl;
+  std::cout << "Root = " << m_Root << std::endl;
+  std::cout << "PointDim = " << m_PointDim << std::endl;
+  std::cout << "NPoints = " << m_NPoints << std::endl;
   char str[255];
   MET_TypeToString(m_ElementType, str);
-  METAIO_STREAM::cout << "ElementType = " << str << METAIO_STREAM::endl;
+  std::cout << "ElementType = " << str << std::endl;
 }
 
 void MetaTubeGraph::
@@ -117,7 +117,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaTubeGraph::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -129,7 +129,7 @@ NPoints(int npnt)
 }
 
 int MetaTubeGraph::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
@@ -141,7 +141,7 @@ Root(int root)
 }
 
 int MetaTubeGraph::
-Root(void) const
+Root() const
 {
   return m_Root;
 }
@@ -149,21 +149,21 @@ Root(void) const
 
 /** Clear tube information */
 void MetaTubeGraph::
-Clear(void)
+Clear()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: Clear" << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: Clear" << std::endl;
     }
   MetaObject::Clear();
   // Delete the list of pointers to tubes.
   PointListType::iterator it = m_PointList.begin();
   while(it != m_PointList.end())
-  {
+{
     TubeGraphPnt* pnt = *it;
     ++it;
     delete pnt;
-  }
+}
   m_PointList.clear();
 
   m_Root = 0;
@@ -174,19 +174,19 @@ Clear(void)
 
 /** Destroy tube information */
 void MetaTubeGraph::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaTubeGraph::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_SetupReadFields"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: M_SetupReadFields"
+                        << std::endl;
     }
 
   MetaObject::M_SetupReadFields();
@@ -213,7 +213,7 @@ M_SetupReadFields(void)
 }
 
 void MetaTubeGraph::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"TubeGraph");
   MetaObject::M_SetupWriteFields();
@@ -298,25 +298,25 @@ M_SetupWriteFields(void)
 
 
 bool MetaTubeGraph::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Loading Header"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: M_Read: Loading Header"
+                        << std::endl;
     }
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Error parsing file"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: M_Read: Error parsing file"
+                        << std::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Parsing Header"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: M_Read: Parsing Header"
+                        << std::endl;
     }
 
   MET_FieldRecordType * mF;
@@ -347,13 +347,13 @@ M_Read(void)
   int posGraphNode = -1;
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: Parsing point dim"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: Parsing point dim"
+                        << std::endl;
     }
 
   unsigned int j;
@@ -405,10 +405,10 @@ M_Read(void)
     int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
-      METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely"
-                << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << readSize << " : actual = " << gc
-                << METAIO_STREAM::endl;
+      std::cout << "MetaLine: m_Read: data not read completely"
+                << std::endl;
+      std::cout << "   ideal = " << readSize << " : actual = " << gc
+                << std::endl;
       delete [] _data;
       return false;
       }
@@ -502,7 +502,7 @@ M_Read(void)
 }
 
 MET_ValueEnumType MetaTubeGraph::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -514,13 +514,13 @@ ElementType(MET_ValueEnumType _elementType)
 }
 
 bool MetaTubeGraph::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaTubeGraph: M_Read: Error parsing file"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaTubeGraph: M_Read: Error parsing file"
+                        << std::endl;
     return false;
     }
 
@@ -575,7 +575,7 @@ M_Write(void)
         *m_WriteStream << (*it)->m_T[d] << " ";
         }
 
-      *m_WriteStream << METAIO_STREAM::endl;
+      *m_WriteStream << std::endl;
 
       ++it;
       }

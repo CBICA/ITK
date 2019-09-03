@@ -21,36 +21,36 @@
 #include "itkImageRegionIteratorWithIndex.h"
 #include "itkTestingMacros.h"
 
-int itkConstrainedValueDifferenceImageFilterTest( int argc, char* argv[] )
+int
+itkConstrainedValueDifferenceImageFilterTest(int argc, char * argv[])
 {
-  if ( argc < 2 )
-    {
-    std::cout << "Usage: " << argv[0]
-      << "outputImage " << std::endl;
+  if (argc < 2)
+  {
+    std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << "outputImage " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Define the dimension of the images
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
   // Define the pixel types
-  typedef float           InputImage1PixelType;
-  typedef float           InputImage2PixelType;
-  typedef unsigned short  OutputImagePixelType;
+  using InputImage1PixelType = float;
+  using InputImage2PixelType = float;
+  using OutputImagePixelType = unsigned short;
 
   // Declare the types of the images
-  typedef itk::Image< InputImage1PixelType, Dimension > InputImage1Type;
-  typedef itk::Image< InputImage2PixelType, Dimension > InputImage2Type;
-  typedef itk::Image< OutputImagePixelType, Dimension > OutputImageType;
+  using InputImage1Type = itk::Image<InputImage1PixelType, Dimension>;
+  using InputImage2Type = itk::Image<InputImage2PixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputImagePixelType, Dimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index< Dimension >         IndexType;
+  using IndexType = itk::Index<Dimension>;
 
   // Declare the type of the size
-  typedef itk::Size< Dimension >          SizeType;
+  using SizeType = itk::Size<Dimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion< Dimension >   RegionType;
+  using RegionType = itk::ImageRegion<Dimension>;
 
   // Create the two input images
   InputImage1Type::Pointer inputImageA = InputImage1Type::New();
@@ -68,66 +68,61 @@ int itkConstrainedValueDifferenceImageFilterTest( int argc, char* argv[] )
   start[2] = 0;
 
   RegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImageA->SetLargestPossibleRegion( region );
-  inputImageA->SetBufferedRegion( region );
-  inputImageA->SetRequestedRegion( region );
+  inputImageA->SetLargestPossibleRegion(region);
+  inputImageA->SetBufferedRegion(region);
+  inputImageA->SetRequestedRegion(region);
   inputImageA->Allocate();
 
   // Initialize Image B
-  inputImageB->SetLargestPossibleRegion( region );
-  inputImageB->SetBufferedRegion( region );
-  inputImageB->SetRequestedRegion( region );
+  inputImageB->SetLargestPossibleRegion(region);
+  inputImageB->SetBufferedRegion(region);
+  inputImageB->SetRequestedRegion(region);
   inputImageB->Allocate();
 
   // Declare Iterator types for each image
-  typedef itk::ImageRegionIteratorWithIndex< InputImage1Type > InputImage1IteratorType;
-  typedef itk::ImageRegionIteratorWithIndex< InputImage2Type > InputImage2IteratorType;
+  using InputImage1IteratorType = itk::ImageRegionIteratorWithIndex<InputImage1Type>;
+  using InputImage2IteratorType = itk::ImageRegionIteratorWithIndex<InputImage2Type>;
 
   // Create one iterator for Image A (this is a light object)
-  InputImage1IteratorType it1( inputImageA, inputImageA->GetBufferedRegion() );
+  InputImage1IteratorType it1(inputImageA, inputImageA->GetBufferedRegion());
 
   // Initialize the content of Image A
-  const InputImage1Type::PixelType valueA = 125;
-  while( !it1.IsAtEnd() )
-    {
-    it1.Set( valueA );
+  constexpr InputImage1Type::PixelType valueA = 125;
+  while (!it1.IsAtEnd())
+  {
+    it1.Set(valueA);
     ++it1;
-    }
+  }
 
   // Create one iterator for Image B (this is a light object)
-  InputImage2IteratorType it2( inputImageB, inputImageB->GetBufferedRegion() );
+  InputImage2IteratorType it2(inputImageB, inputImageB->GetBufferedRegion());
 
   // Initialize the content of Image B: when subtracted from A, the filter will
   // saturate a char in some of the pixels
   InputImage2Type::PixelType valueB = 120;
-  while( !it2.IsAtEnd() )
-    {
-    it2.Set( valueB );
+  while (!it2.IsAtEnd())
+  {
+    it2.Set(valueB);
     ++it2;
     valueB += 1.0;
-    }
+  }
 
-  typedef itk::ConstrainedValueDifferenceImageFilter<
-    InputImage1Type,
-    InputImage2Type,
-    OutputImageType > ConstrainedValueDifferenceImageFilterType;
+  using ConstrainedValueDifferenceImageFilterType =
+    itk::ConstrainedValueDifferenceImageFilter<InputImage1Type, InputImage2Type, OutputImageType>;
 
   // Create the filter
-  ConstrainedValueDifferenceImageFilterType::Pointer filter =
-    ConstrainedValueDifferenceImageFilterType::New();
+  ConstrainedValueDifferenceImageFilterType::Pointer filter = ConstrainedValueDifferenceImageFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, ConstrainedValueDifferenceImageFilter,
-    BinaryFunctorImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, ConstrainedValueDifferenceImageFilter, BinaryGeneratorImageFilter);
 
   // Set the input images
-  filter->SetInput1( inputImageA );
-  filter->SetInput2( inputImageB );
+  filter->SetInput1(inputImageA);
+  filter->SetInput2(inputImageB);
 
-  filter->SetFunctor( filter->GetFunctor() );
 
   // Execute the filter
   filter->Update();
@@ -136,15 +131,15 @@ int itkConstrainedValueDifferenceImageFilterTest( int argc, char* argv[] )
   OutputImageType::Pointer outputImage = filter->GetOutput();
 
   // Write the result image
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetFileName( argv[1] );
+  writer->SetFileName(argv[1]);
 
-  writer->SetInput( outputImage );
+  writer->SetInput(outputImage);
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   // All objects should be automatically destroyed at this point
   return EXIT_SUCCESS;

@@ -37,15 +37,15 @@ namespace itk
  *
  * Example usage:
  *
- * \code
- *   ProgressReporter progress(this, threadId,
- *                             threadRegion.GetNumberOfPixels(), 100);
- *   for( each pixel )
- *     {
- *     ...
- *     progress.CompletedPixel();
- *     }
- * \endcode
+   \code
+     ProgressReporter progress(this, threadId,
+                               threadRegion.GetNumberOfPixels(), 100);
+     for( each pixel )
+       {
+       ...
+       progress.CompletedPixel();
+       }
+   \endcode
  *
  * When used in a non-threaded filter, the threadId argument should be 0.
  *
@@ -60,54 +60,55 @@ namespace itk
 class ITKCommon_EXPORT ProgressReporter
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ProgressReporter);
+
   /** Constructor sets progress to 0 because the filter is starting.  */
-  ProgressReporter(ProcessObject *filter, ThreadIdType threadId,
-                   SizeValueType numberOfPixels,
-                   SizeValueType numberOfUpdates = 100,
-                   float initialProgress = 0.0f,
-                   float progressWeight  = 1.0f);
+  ProgressReporter(ProcessObject * filter,
+                   ThreadIdType    threadId,
+                   SizeValueType   numberOfPixels,
+                   SizeValueType   numberOfUpdates = 100,
+                   float           initialProgress = 0.0f,
+                   float           progressWeight = 1.0f);
 
   /** Destructor sets progress to 1 because the filter has finished.  */
   ~ProgressReporter();
 
   /** Called by a filter once per pixel.  */
-  void CompletedPixel()
+  void
+  CompletedPixel()
   {
     // Inline implementation for efficiency.
-    if ( --m_PixelsBeforeUpdate == 0 )
-      {
+    if (--m_PixelsBeforeUpdate == 0)
+    {
       m_PixelsBeforeUpdate = m_PixelsPerUpdate;
       m_CurrentPixel += m_PixelsPerUpdate;
       // only thread 0 should update the progress of the filter
-      if ( m_ThreadId == 0 )
-        {
-        m_Filter->UpdateProgress(
-          static_cast<float>(m_CurrentPixel) * m_InverseNumberOfPixels * m_ProgressWeight + m_InitialProgress);
-        }
+      if (m_ThreadId == 0)
+      {
+        m_Filter->UpdateProgress(static_cast<float>(m_CurrentPixel) * m_InverseNumberOfPixels * m_ProgressWeight +
+                                 m_InitialProgress);
+      }
       // all threads needs to check the abort flag
-      if ( m_Filter->GetAbortGenerateData() )
-        {
+      if (m_Filter->GetAbortGenerateData())
+      {
         std::string    msg;
         ProcessAborted e(__FILE__, __LINE__);
-        msg += "Object " + std::string( m_Filter->GetNameOfClass() ) + ": AbortGenerateDataOn";
+        msg += "Object " + std::string(m_Filter->GetNameOfClass()) + ": AbortGenerateDataOn";
         e.SetDescription(msg);
         throw e;
-        }
       }
+    }
   }
 
 protected:
-  ProcessObject *m_Filter;
-  ThreadIdType   m_ThreadId;
-  float          m_InverseNumberOfPixels;
-  SizeValueType  m_CurrentPixel;
-  SizeValueType  m_PixelsPerUpdate;
-  SizeValueType  m_PixelsBeforeUpdate;
-  float          m_InitialProgress;
-  float          m_ProgressWeight;
-
-private:
-  ProgressReporter() ITK_DELETED_FUNCTION;
+  ProcessObject * m_Filter;
+  ThreadIdType    m_ThreadId;
+  float           m_InverseNumberOfPixels;
+  SizeValueType   m_CurrentPixel;
+  SizeValueType   m_PixelsPerUpdate;
+  SizeValueType   m_PixelsBeforeUpdate;
+  float           m_InitialProgress;
+  float           m_ProgressWeight;
 };
 } // end namespace itk
 

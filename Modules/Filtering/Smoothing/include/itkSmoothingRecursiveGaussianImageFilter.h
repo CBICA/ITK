@@ -43,68 +43,62 @@ namespace itk
  * \ingroup SingleThreaded
  * \ingroup ITKSmoothing
  *
- * \wiki
- * \wikiexample{Smoothing/SmoothingRecursiveGaussianImageFilter,Gaussian smoothing that works with image adaptors}
- * \endwiki
  */
 
-template< typename TInputImage,
-          typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT SmoothingRecursiveGaussianImageFilter:
-  public InPlaceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT SmoothingRecursiveGaussianImageFilter : public InPlaceImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SmoothingRecursiveGaussianImageFilter           Self;
-  typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SmoothingRecursiveGaussianImageFilter);
 
-  /** Pixel typedefs. */
-  typedef TInputImage                                         InputImageType;
-  typedef TOutputImage                                        OutputImageType;
-  typedef typename TInputImage::PixelType                     PixelType;
-  typedef typename NumericTraits< PixelType >::RealType       RealType;
-  typedef typename NumericTraits< PixelType >::ScalarRealType ScalarRealType;
+  /** Standard class type aliases. */
+  using Self = SmoothingRecursiveGaussianImageFilter;
+  using Superclass = InPlaceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Pixel type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using PixelType = typename TInputImage::PixelType;
+  using RealType = typename NumericTraits<PixelType>::RealType;
+  using ScalarRealType = typename NumericTraits<PixelType>::ScalarRealType;
 
   /** Runtime information support. */
-  itkTypeMacro(SmoothingRecursiveGaussianImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(SmoothingRecursiveGaussianImageFilter, ImageToImageFilter);
 
   /** Image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Define the type for the sigma array. */
-  typedef FixedArray< ScalarRealType,
-                      itkGetStaticConstMacro(ImageDimension) > SigmaArrayType;
+  using SigmaArrayType = FixedArray<ScalarRealType, Self::ImageDimension>;
 
   /** Define the image type for internal computations.
    * RealType is usually 'double' in NumericTraits.
    * Here we prefer float in order to save memory. */
-  typedef typename NumericTraits< PixelType >::FloatType InternalRealType;
-  typedef typename InputImageType::template Rebind<InternalRealType>::Type RealImageType;
+  using InternalRealType = typename NumericTraits<PixelType>::FloatType;
+  using RealImageType = typename InputImageType::template Rebind<InternalRealType>::Type;
 
   /** Typedef for the first Gaussian smoothing in the pipeline. */
-  typedef RecursiveGaussianImageFilter< InputImageType, RealImageType > FirstGaussianFilterType;
+  using FirstGaussianFilterType = RecursiveGaussianImageFilter<InputImageType, RealImageType>;
 
   /** Typedef for the internal Gaussian smoothing filter. */
-  typedef RecursiveGaussianImageFilter< RealImageType, RealImageType > InternalGaussianFilterType;
+  using InternalGaussianFilterType = RecursiveGaussianImageFilter<RealImageType, RealImageType>;
 
   /** Typedef for the casting image filter. */
-  typedef CastImageFilter< RealImageType, OutputImageType > CastingFilterType;
+  using CastingFilterType = CastImageFilter<RealImageType, OutputImageType>;
 
   /** Pointer to the internal Gaussian filter. */
-  typedef typename InternalGaussianFilterType::Pointer InternalGaussianFilterPointer;
+  using InternalGaussianFilterPointer = typename InternalGaussianFilterType::Pointer;
 
   /** Pointer to the first Gaussian smoothing filter. */
-  typedef typename FirstGaussianFilterType::Pointer FirstGaussianFilterPointer;
+  using FirstGaussianFilterPointer = typename FirstGaussianFilterType::Pointer;
 
   /** Pointer to the casting image filter. */
-  typedef typename CastingFilterType::Pointer CastingFilterPointer;
+  using CastingFilterPointer = typename CastingFilterType::Pointer;
 
   /** Pointer to the Output Image */
-  typedef typename OutputImageType::Pointer OutputImagePointer;
+  using OutputImagePointer = typename OutputImageType::Pointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -113,42 +107,51 @@ public:
    * Sigma is measured in the units of image spacing. You may use the method
    * SetSigma to set the same value across each axis or use the method
    * SetSigmaArray if you need different values along each axis. */
-  void SetSigmaArray(const SigmaArrayType & sigmas);
-  void SetSigma(ScalarRealType sigma);
+  void
+  SetSigmaArray(const SigmaArrayType & sigmas);
+  void
+  SetSigma(ScalarRealType sigma);
 
   /** Get the Sigma value. */
-  SigmaArrayType GetSigmaArray() const;
+  SigmaArrayType
+  GetSigmaArray() const;
 
   /** Get the Sigma scalar. If the Sigma is anisotropic, we will just
    * return the Sigma along the first dimension. */
-  ScalarRealType GetSigma() const;
+  ScalarRealType
+  GetSigma() const;
 
   /** Set/Get the flag for normalizing the Gaussian over scale-space.
    * This method does not effect the output of this filter.
    *
    * \sa RecursiveGaussianImageFilter::SetNormalizeAcrossScale */
-  void SetNormalizeAcrossScale(bool normalizeInScaleSpace);
+  void
+  SetNormalizeAcrossScale(bool normalizeInScaleSpace);
   itkGetConstMacro(NormalizeAcrossScale, bool);
-  itkBooleanMacro( NormalizeAcrossScale );
+  itkBooleanMacro(NormalizeAcrossScale);
 
-  void SetNumberOfThreads(ThreadIdType nb) ITK_OVERRIDE;
+  void
+  SetNumberOfWorkUnits(ThreadIdType nb) override;
 
-  virtual bool CanRunInPlace( void ) const ITK_OVERRIDE;
+  bool
+  CanRunInPlace() const override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
   // This concept does not work with variable length vector images
-  //itkConceptMacro( InputHasNumericTraitsCheck,
+  // itkConceptMacro( InputHasNumericTraitsCheck,
   //( Concept::HasNumericTraits< PixelType > ) );
   // End concept checking
 #endif
 
 protected:
   SmoothingRecursiveGaussianImageFilter();
-  virtual ~SmoothingRecursiveGaussianImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SmoothingRecursiveGaussianImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** SmoothingRecursiveGaussianImageFilter needs all of the input to produce an
    * output. Therefore, SmoothingRecursiveGaussianImageFilter needs to provide
@@ -156,26 +159,26 @@ protected:
    * the pipeline execution model.
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   // Override since the filter produces the entire dataset
-  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SmoothingRecursiveGaussianImageFilter);
-
   InternalGaussianFilterPointer m_SmoothingFilters[ImageDimension - 1];
   FirstGaussianFilterPointer    m_FirstSmoothingFilter;
   CastingFilterPointer          m_CastingFilter;
 
-  bool m_NormalizeAcrossScale;
+  bool m_NormalizeAcrossScale{ false };
 
   SigmaArrayType m_Sigma;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSmoothingRecursiveGaussianImageFilter.hxx"
+#  include "itkSmoothingRecursiveGaussianImageFilter.hxx"
 #endif
 
 #endif

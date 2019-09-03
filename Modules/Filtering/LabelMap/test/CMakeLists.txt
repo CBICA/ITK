@@ -203,19 +203,17 @@ itk_add_test(NAME itkBinaryShapeKeepNObjectsImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/binary-image-various-shapes01-binary-shape-keep-n-objects.png}
               ${ITK_TEST_OUTPUT_DIR}/itkBinaryShapeKeepNObjectsImageFilterTest1.png
-    itkBinaryShapeKeepNObjectsImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/BinaryImageWithVariousShapes01.png} ${ITK_TEST_OUTPUT_DIR}/itkBinaryShapeKeepNObjectsImageFilterTest1.png 255 0 2 0 1 EquivalentSphericalRadius)
+    itkBinaryShapeKeepNObjectsImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/BinaryImageWithVariousShapes01.png} ${ITK_TEST_OUTPUT_DIR}/itkBinaryShapeKeepNObjectsImageFilterTest1.png 255 0 2 0 1 Label)
 itk_add_test(NAME itkBinaryShapeOpeningImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/cthead1-binary-shape-opening.mha}
               ${ITK_TEST_OUTPUT_DIR}/cthead1-binary-shape-opening.mha
     itkBinaryShapeOpeningImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} ${ITK_TEST_OUTPUT_DIR}/cthead1-binary-shape-opening.mha 255 0 140 1 1 100)
-if((NOT APPLE) OR NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR NOT (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "3.1") OR NOT (CMAKE_BUILD_TYPE MATCHES "Release"))
 itk_add_test(NAME itkBinaryStatisticsKeepNObjectsImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/itkBinaryStatisticsKeepNObjectsImageFilterTest1.png}
               ${ITK_TEST_OUTPUT_DIR}/itkBinaryStatisticsKeepNObjectsImageFilterTest1.png
     itkBinaryStatisticsKeepNObjectsImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1-bin.png} DATA{${ITK_DATA_ROOT}/Input/cthead1.png} ${ITK_TEST_OUTPUT_DIR}/itkBinaryStatisticsKeepNObjectsImageFilterTest1.png 255 0 7 0 0 200)
-endif()
 itk_add_test(NAME itkBinaryStatisticsOpeningImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/cthead1-statistics-object-removed-baseline.png}
@@ -430,7 +428,7 @@ itk_add_test(NAME itkLabelShapeKeepNObjectsImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/itkLabelShapeKeepNObjectsImageFilterTest1.png}
               ${ITK_TEST_OUTPUT_DIR}/itkLabelShapeKeepNObjectsImageFilterTest1.png
-    itkLabelShapeKeepNObjectsImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} ${ITK_TEST_OUTPUT_DIR}/itkLabelShapeKeepNObjectsImageFilterTest1.png 0 1 0 NumberOfPixels)
+    itkLabelShapeKeepNObjectsImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} ${ITK_TEST_OUTPUT_DIR}/itkLabelShapeKeepNObjectsImageFilterTest1.png 0 1 0 Label)
 itk_add_test(NAME itkLabelShapeOpeningImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/cthead1Label-shape-open-baseline.png}
@@ -445,7 +443,7 @@ itk_add_test(NAME itkLabelStatisticsOpeningImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/cthead1Label-label-statistics-opening-baseline.png}
               ${ITK_TEST_OUTPUT_DIR}/itkLabelStatisticsOpeningImageFilterTest1.png
-    itkLabelStatisticsOpeningImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} DATA{${ITK_DATA_ROOT}/Input/cthead1.png} ${ITK_TEST_OUTPUT_DIR}/itkLabelStatisticsOpeningImageFilterTest1.png 0 98 0 PerimeterOnBorder)
+    itkLabelStatisticsOpeningImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} DATA{${ITK_DATA_ROOT}/Input/cthead1.png} ${ITK_TEST_OUTPUT_DIR}/itkLabelStatisticsOpeningImageFilterTest1.png 0 98 0 Label)
 itk_add_test(NAME itkLabelUniqueLabelMapFilterTest0
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/itkLabelUniqueLabelMapFilterTest0.png}
@@ -549,7 +547,8 @@ itk_add_test(NAME itkShapeRelabelImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/cthead1Label-shape-relabel-baseline.png}
               ${ITK_TEST_OUTPUT_DIR}/itkShapeRelabelImageFilterTest1.png
-    itkShapeRelabelImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} ${ITK_TEST_OUTPUT_DIR}/itkShapeRelabelImageFilterTest1.png 255 0 FeretDiameter)
+    itkShapeRelabelImageFilterTest1 DATA{${ITK_DATA_ROOT}/Input/cthead1Label.png} ${ITK_TEST_OUTPUT_DIR}/itkShapeRelabelImageFilterTest1.png 255 0 Label
+        )
 itk_add_test(NAME itkStatisticsRelabelImageFilterTest1
       COMMAND ITKLabelMapTestDriver
     --compare DATA{Baseline/cthead1-statistics-relabel_image-baseline.png}

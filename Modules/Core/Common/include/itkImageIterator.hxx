@@ -22,92 +22,53 @@
 
 namespace itk
 {
+
 //----------------------------------------------------------------------
 //  Constructor
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIterator< TImage >
-::ImageIterator()
+template <typename TImage>
+ImageIterator<TImage>::ImageIterator(const Self & it)
+  : ImageConstIterator<TImage>(it)
 {}
 
 //----------------------------------------------------------------------
 //  Constructor
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIterator< TImage >
-::ImageIterator(const Self & it):
-  ImageConstIterator< TImage >(it)
+template <typename TImage>
+ImageIterator<TImage>::ImageIterator(TImage * ptr, const RegionType & region)
+  : ImageConstIterator<TImage>(ptr, region)
 {}
 
 //----------------------------------------------------------------------
 //  Constructor
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIterator< TImage >
-::ImageIterator(TImage *ptr, const RegionType & region):
-  ImageConstIterator< TImage >(ptr, region)
-{}
-
-//----------------------------------------------------------------------
-//  Constructor
-//----------------------------------------------------------------------
-template< typename TImage >
-ImageIterator< TImage >
-::ImageIterator(const ImageConstIterator< TImage > & it):
-  ImageConstIterator< TImage >(it)
+template <typename TImage>
+ImageIterator<TImage>::ImageIterator(const ImageConstIterator<TImage> & it)
+  : ImageConstIterator<TImage>(it)
 {}
 
 //----------------------------------------------------------------------
 //    Assignment Operator
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIterator< TImage > &
-ImageIterator< TImage >
-::operator=(const ImageConstIterator< TImage > & it)
+template <typename TImage>
+ImageIterator<TImage> &
+ImageIterator<TImage>::operator=(const ImageConstIterator<TImage> & it)
 {
-  this->ImageConstIterator< TImage >::operator=(it);
+  this->ImageConstIterator<TImage>::operator=(it);
   return *this;
 }
 
 //----------------------------------------------------------------------
 //    Assignment Operator
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIterator< TImage > &
-ImageIterator< TImage >
-::operator=(const Self & it)
+template <typename TImage>
+ImageIterator<TImage> &
+ImageIterator<TImage>::operator=(const Self & it)
 {
-  this->ImageConstIterator< TImage >::operator=(it);
+  this->ImageConstIterator<TImage>::operator=(it);
   return *this;
 }
 
-#if !defined(ITK_LEGACY_REMOVE)
-//----------------------------------------------------------------------------
-// Begin() is the first pixel in the region.
-template< typename TImage >
-ImageIterator< TImage >
-ImageIterator< TImage >
-::Begin() const
-{
-  return this->Superclass::Begin();
-}
-
-//----------------------------------------------------------------------------
-// End() is one pixel past the last pixel in the current region.
-// The index of this pixel is
-//          [m_StartIndex[0] + m_Size[0],
-//           m_StartIndex[1] + m_Size[1]-1, ...,
-//           m_StartIndex[VImageDimension-2] + m_Size[VImageDimension-2]-1,
-//           m_StartIndex[VImageDimension-1] + m_Size[VImageDimension-1]-1]
-//
-template< typename TImage >
-ImageIterator< TImage >
-ImageIterator< TImage >
-::End() const
-{
-  return this->Superclass::End();
-}
-#endif
 } // end namespace itk
 
 #endif

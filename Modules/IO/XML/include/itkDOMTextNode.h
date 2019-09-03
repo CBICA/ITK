@@ -40,11 +40,13 @@ namespace itk
 class DOMTextNode : public DOMNode
 {
 public:
-  /** Standard class typedefs. */
-  typedef DOMTextNode                 Self;
-  typedef DOMNode                     Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DOMTextNode);
+
+  /** Standard class type aliases. */
+  using Self = DOMTextNode;
+  using Superclass = DOMNode;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -53,20 +55,15 @@ public:
   itkTypeMacro(DOMTextNode, DOMNode);
 
   /** Functions to set/get the enclosed text of this node. */
-  itkSetMacro( Text, std::string& );
-  itkGetConstReferenceMacro( Text, std::string );
+  itkSetMacro(Text, std::string &);
+  itkGetConstReferenceMacro(Text, std::string);
 
 protected:
-  DOMTextNode()
-  {
-    this->SetName( "!" );
-  }
+  DOMTextNode() { this->SetName("!"); }
 
 private:
   /** Variable to hold the text string of this node. */
   std::string m_Text;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(DOMTextNode);
 };
 
 } // namespace itk

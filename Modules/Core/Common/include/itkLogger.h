@@ -33,13 +33,15 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT Logger:public LoggerBase
+class ITKCommon_EXPORT Logger : public LoggerBase
 {
 public:
-  typedef Logger                     Self;
-  typedef LoggerBase                 Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(Logger);
+
+  using Self = Logger;
+  using Superclass = LoggerBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Logger, Object);
@@ -48,16 +50,12 @@ public:
   itkNewMacro(Self);
 
 protected:
-
   /** Constructor */
   Logger();
 
   /** Destructor */
-  virtual ~Logger() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(Logger);
-};                              // class Logger
+  ~Logger() override;
+}; // class Logger
 } // namespace itk
 
-#endif  // itkLogger_h
+#endif // itkLogger_h

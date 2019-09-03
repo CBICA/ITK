@@ -18,29 +18,28 @@
 
 #include "itkFastMarchingThresholdStoppingCriterion.h"
 
-int itkFastMarchingThresholdStoppingCriterionTest( int , char * [] )
+int
+itkFastMarchingThresholdStoppingCriterionTest(int, char *[])
 {
-  typedef itk::Image< float, 2> ImageType;
+  using ImageType = itk::Image<float, 2>;
 
-  typedef itk::FastMarchingThresholdStoppingCriterion<
-      ImageType, ImageType > ImageStoppingCriterionType;
+  using ImageStoppingCriterionType = itk::FastMarchingThresholdStoppingCriterion<ImageType, ImageType>;
 
   ImageStoppingCriterionType::Pointer image_criterion = ImageStoppingCriterionType::New();
-  if( image_criterion.IsNull() )
-    {
+  if (image_criterion.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::QuadEdgeMesh< float, 3 > MeshType;
+  using MeshType = itk::QuadEdgeMesh<float, 3>;
 
-  typedef itk::FastMarchingThresholdStoppingCriterion< MeshType, MeshType >
-      MeshStoppingCriterionType;
+  using MeshStoppingCriterionType = itk::FastMarchingThresholdStoppingCriterion<MeshType, MeshType>;
 
   MeshStoppingCriterionType::Pointer mesh_criterion = MeshStoppingCriterionType::New();
-  if( mesh_criterion.IsNull() )
-    {
+  if (mesh_criterion.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

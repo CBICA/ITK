@@ -36,34 +36,35 @@ namespace itk
  * \ingroup DataSources
  * \ingroup ITKImageSources
  */
-template< typename TOutputImage >
-class ITK_TEMPLATE_EXPORT GenerateImageSource
-  : public ImageSource< TOutputImage >
+template <typename TOutputImage>
+class ITK_TEMPLATE_EXPORT GenerateImageSource : public ImageSource<TOutputImage>
 {
 public:
-  typedef GenerateImageSource         Self;
-  typedef ImageSource< TOutputImage > Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self>   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GenerateImageSource);
 
-  /** Output image typedefs */
-  typedef TOutputImage                            OutputImageType;
-  typedef typename OutputImageType::Pointer       OutputImagePointer;
-  typedef typename OutputImageType::PixelType     PixelType;
-  typedef typename OutputImageType::RegionType    RegionType;
-  typedef typename OutputImageType::SpacingType   SpacingType;
-  typedef typename OutputImageType::PointType     PointType;
-  typedef typename OutputImageType::DirectionType DirectionType;
-  typedef typename OutputImageType::IndexType     IndexType;
+  using Self = GenerateImageSource;
+  using Superclass = ImageSource<TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Output image type alias */
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using PixelType = typename OutputImageType::PixelType;
+  using RegionType = typename OutputImageType::RegionType;
+  using SpacingType = typename OutputImageType::SpacingType;
+  using PointType = typename OutputImageType::PointType;
+  using DirectionType = typename OutputImageType::DirectionType;
+  using IndexType = typename OutputImageType::IndexType;
 
   /** Typedef the reference image type to be the ImageBase of the OutputImageType */
-  typedef ImageBase<TOutputImage::ImageDimension> ReferenceImageBaseType;
+  using ReferenceImageBaseType = ImageBase<TOutputImage::ImageDimension>;
 
-  typedef typename TOutputImage::SizeType      SizeType;
-  typedef typename TOutputImage::SizeValueType SizeValueType;
+  using SizeType = typename TOutputImage::SizeType;
+  using SizeValueType = typename TOutputImage::SizeValueType;
 
   /** Dimensionality of the output image */
-  itkStaticConstMacro(NDimensions, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int NDimensions = TOutputImage::ImageDimension;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(GenerateImageSource, ImageSource);
@@ -109,7 +110,8 @@ public:
   itkGetConstReferenceMacro(StartIndex, IndexType);
 
   /** Helper method to set the output parameters based on an image. */
-  void SetOutputParametersFromImage(const ReferenceImageBaseType *image);
+  void
+  SetOutputParametersFromImage(const ReferenceImageBaseType * image);
 
   /** Set a reference image to use to define the output information.
    *  By default, output information is specificed through the
@@ -123,27 +125,26 @@ public:
 
 protected:
   GenerateImageSource();
-  // virtual ~GenerateImageSource() default implementation ok
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GenerateImageSource() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GenerateImageSource);
-
-  SizeType      m_Size;          //size of the output image
+  SizeType      m_Size; // size of the output image
   SpacingType   m_Spacing;
   PointType     m_Origin;
   DirectionType m_Direction;
   IndexType     m_StartIndex;
-  bool          m_UseReferenceImage;
-
+  bool          m_UseReferenceImage{ false };
 };
 
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGenerateImageSource.hxx"
+#  include "itkGenerateImageSource.hxx"
 #endif
 
-#endif //itkGenerateImageSource_h
+#endif // itkGenerateImageSource_h

@@ -43,23 +43,19 @@ namespace itk
  * \ingroup Functions ImageInterpolators
  * \ingroup ITKCommon
  */
-template<
-  typename TCoordRep = float,
-  unsigned int VSpaceDimension = 2,
-  unsigned int VSplineOrder = 3
-  >
-class ITK_TEMPLATE_EXPORT BSplineInterpolationWeightFunction:
-  public FunctionBase< ContinuousIndex< TCoordRep, VSpaceDimension >,
-                       Array< double > >
+template <typename TCoordRep = float, unsigned int VSpaceDimension = 2, unsigned int VSplineOrder = 3>
+class ITK_TEMPLATE_EXPORT BSplineInterpolationWeightFunction
+  : public FunctionBase<ContinuousIndex<TCoordRep, VSpaceDimension>, Array<double>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BSplineInterpolationWeightFunction Self;
-  typedef FunctionBase< ContinuousIndex< TCoordRep, VSpaceDimension >,
-                        Array< double > >                  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineInterpolationWeightFunction);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = BSplineInterpolationWeightFunction;
+  using Superclass = FunctionBase<ContinuousIndex<TCoordRep, VSpaceDimension>, Array<double>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through the object factory. */
   itkNewMacro(Self);
@@ -68,24 +64,25 @@ public:
   itkTypeMacro(BSplineInterpolationWeightFunction, FunctionBase);
 
   /** Space dimension. */
-  itkStaticConstMacro(SpaceDimension, unsigned int, VSpaceDimension);
+  static constexpr unsigned int SpaceDimension = VSpaceDimension;
 
   /** Spline order. */
-  itkStaticConstMacro(SplineOrder, unsigned int, VSplineOrder);
+  static constexpr unsigned int SplineOrder = VSplineOrder;
 
-  /** OutputType typedef support. */
-  typedef Array< double > WeightsType;
+  /** OutputType type alias support. */
+  using WeightsType = Array<double>;
 
-  /** Index and size typedef support. */
-  typedef Index< VSpaceDimension > IndexType;
-  typedef Size< VSpaceDimension >  SizeType;
+  /** Index and size type alias support. */
+  using IndexType = Index<VSpaceDimension>;
+  using SizeType = Size<VSpaceDimension>;
 
-  /** ContinuousIndex typedef support. */
-  typedef ContinuousIndex< TCoordRep, VSpaceDimension > ContinuousIndexType;
+  /** ContinuousIndex type alias support. */
+  using ContinuousIndexType = ContinuousIndex<TCoordRep, VSpaceDimension>;
 
   /** Evaluate the weights at specified ContinuousIndex position.
    * Subclasses must provide this method. */
-  virtual WeightsType Evaluate(const ContinuousIndexType & index) const ITK_OVERRIDE;
+  WeightsType
+  Evaluate(const ContinuousIndexType & index) const override;
 
   /** Evaluate the weights at specified ContinuousIndex position.
    * The weights are returned in the user specified container.
@@ -95,8 +92,8 @@ public:
    * On return, startIndex contains the start index of the
    * support region over which the weights are defined.
    */
-  virtual void Evaluate(const ContinuousIndexType & index,
-                        WeightsType & weights, IndexType & startIndex) const;
+  virtual void
+  Evaluate(const ContinuousIndexType & index, WeightsType & weights, IndexType & startIndex) const;
 
   /** Get support region size. */
   itkGetConstMacro(SupportSize, SizeType);
@@ -106,12 +103,11 @@ public:
 
 protected:
   BSplineInterpolationWeightFunction();
-  ~BSplineInterpolationWeightFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BSplineInterpolationWeightFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineInterpolationWeightFunction);
-
   /** Number of weights. */
   unsigned int m_NumberOfWeights;
 
@@ -119,13 +115,13 @@ private:
   SizeType m_SupportSize;
 
   /** Lookup table type. */
-  typedef Array2D< unsigned int > TableType;
+  using TableType = Array2D<unsigned int>;
 
   /** Table mapping linear offset to indices. */
   TableType m_OffsetToIndexTable;
 
   /** Interpolation kernel type. */
-  typedef BSplineKernelFunction< itkGetStaticConstMacro(SplineOrder) > KernelType;
+  using KernelType = BSplineKernelFunction<Self::SplineOrder>;
 
   /** Interpolation kernel. */
   typename KernelType::Pointer m_Kernel;
@@ -133,7 +129,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBSplineInterpolationWeightFunction.hxx"
+#  include "itkBSplineInterpolationWeightFunction.hxx"
 #endif
 
 #endif

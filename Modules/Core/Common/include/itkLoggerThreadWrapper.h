@@ -20,12 +20,29 @@
 
 #include <string>
 #include <queue>
+#include <thread>
 
-#include "itkMultiThreader.h"
-#include "itkSimpleFastMutexLock.h"
+#include "itkObjectFactory.h"
+#include <mutex>
+#include "ITKCommonExport.h"
 
 namespace itk
 {
+
+/** \class LoggerThreadWrapperOperationType
+ *
+ * \ingroup ITKCommon
+ *
+ * Definition of types of operations for LoggerThreadWrapper.
+ */
+enum class LoggerThreadWrapperOperationType : uint8_t
+{
+  SET_PRIORITY_LEVEL,
+  SET_LEVEL_FOR_FLUSHING,
+  ADD_LOG_OUTPUT,
+  WRITE
+};
+
 /** \class LoggerThreadWrapper
  *  \brief Used for providing logging service as a separate thread.
  *
@@ -36,15 +53,14 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename SimpleLoggerType >
-class ITK_TEMPLATE_EXPORT LoggerThreadWrapper:public SimpleLoggerType
+template <typename SimpleLoggerType>
+class ITK_TEMPLATE_EXPORT LoggerThreadWrapper : public SimpleLoggerType
 {
 public:
-
-  typedef LoggerThreadWrapper        Self;
-  typedef SimpleLoggerType           Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = LoggerThreadWrapper;
+  using Superclass = SimpleLoggerType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LoggerThreadWrapper, SimpleLoggerType);
@@ -52,75 +68,85 @@ public:
   /** New macro for creation of through a Smart Pointer */
   itkNewMacro(Self);
 
-  typedef  typename SimpleLoggerType::OutputType        OutputType;
-  typedef  typename SimpleLoggerType::PriorityLevelType PriorityLevelType;
-  typedef  unsigned int                                 DelayType;
+  using OutputType = typename SimpleLoggerType::OutputType;
+  using PriorityLevelType = typename SimpleLoggerType::PriorityLevelType;
+  using DelayType = unsigned int;
 
-  /** Definition of types of operations for LoggerThreadWrapper. */
-  typedef enum {
-    SET_PRIORITY_LEVEL,
-    SET_LEVEL_FOR_FLUSHING,
-    ADD_LOG_OUTPUT,
-    WRITE
-    } OperationType;
+#if !defined(ITK_LEGACY_REMOVE)
+  static constexpr LoggerThreadWrapperOperationType SET_PRIORITY_LEVEL =
+    LoggerThreadWrapperOperationType::SET_PRIORITY_LEVEL;
+  static constexpr LoggerThreadWrapperOperationType SET_LEVEL_FOR_FLUSHING =
+    LoggerThreadWrapperOperationType::SET_LEVEL_FOR_FLUSHING;
+  static constexpr LoggerThreadWrapperOperationType ADD_LOG_OUTPUT = LoggerThreadWrapperOperationType::ADD_LOG_OUTPUT;
+  static constexpr LoggerThreadWrapperOperationType WRITE = LoggerThreadWrapperOperationType::WRITE;
+#endif
 
   /** Set the priority level for the current logger. Only messages that have
    * priorities equal or greater than the one set here will be posted to the
    * current outputs */
-  virtual void SetPriorityLevel(PriorityLevelType level) ITK_OVERRIDE;
+  void
+  SetPriorityLevel(PriorityLevelType level) override;
 
   /** Get the priority level for the current logger. Only messages that have
    * priorities equal or greater than the one set here will be posted to the
    * current outputs */
-  virtual PriorityLevelType GetPriorityLevel() const ITK_OVERRIDE;
+  PriorityLevelType
+  GetPriorityLevel() const override;
 
-  virtual void SetLevelForFlushing(PriorityLevelType level) ITK_OVERRIDE;
+  void
+  SetLevelForFlushing(PriorityLevelType level) override;
 
-  virtual PriorityLevelType GetLevelForFlushing() const ITK_OVERRIDE;
+  PriorityLevelType
+  GetLevelForFlushing() const override;
 
-/** Set the delay in milliseconds between checks to see if there are any
- *  low priority messages to be processed.
- */
-  virtual void SetDelay(DelayType delay);
+  /** Set the delay in milliseconds between checks to see if there are any
+   *  low priority messages to be processed.
+   */
+  virtual void
+  SetDelay(DelayType delay);
 
-/** Get the delay in milliseconds between checks to see if there are any
- *  low priority messages to be processed.
- */
-  virtual DelayType GetDelay() const;
+  /** Get the delay in milliseconds between checks to see if there are any
+   *  low priority messages to be processed.
+   */
+  virtual DelayType
+  GetDelay() const;
 
   /** Registers another output stream with the multiple output. */
-  virtual void AddLogOutput(OutputType *output) ITK_OVERRIDE;
+  void
+  AddLogOutput(OutputType * output) override;
 
-  virtual void Write(PriorityLevelType level, std::string const & content) ITK_OVERRIDE;
+  void
+  Write(PriorityLevelType level, std::string const & content) override;
 
-  virtual void Flush() ITK_OVERRIDE;
+  void
+  Flush() override;
 
 protected:
-
   /** Constructor */
   LoggerThreadWrapper();
 
   /** Destructor */
-  virtual ~LoggerThreadWrapper() ITK_OVERRIDE;
+  ~LoggerThreadWrapper() override;
 
   /** Print contents of a LoggerThreadWrapper */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  static ITK_THREAD_RETURN_TYPE ThreadFunction(void *);
+  void
+  ThreadFunction();
 
 private:
+  using OperationContainerType = std::queue<LoggerThreadWrapperOperationType>;
 
-  typedef std::queue< OperationType > OperationContainerType;
+  using MessageContainerType = std::queue<std::string>;
 
-  typedef std::queue< std::string > MessageContainerType;
+  using LevelContainerType = std::queue<PriorityLevelType>;
 
-  typedef std::queue< PriorityLevelType > LevelContainerType;
+  using OutputContainerType = std::queue<typename OutputType::Pointer>;
 
-  typedef std::queue< typename OutputType::Pointer > OutputContainerType;
+  std::thread m_Thread;
 
-  MultiThreader::Pointer m_Threader;
-
-  ThreadIdType m_ThreadID;
+  bool m_TerminationRequested;
 
   OperationContainerType m_OperationQ;
 
@@ -130,15 +156,20 @@ private:
 
   OutputContainerType m_OutputQ;
 
-  SimpleFastMutexLock m_Mutex;
+  mutable std::mutex m_Mutex;
 
   DelayType m_Delay;
 
-};  // class LoggerThreadWrapper
+}; // class LoggerThreadWrapper
+
+// Define how to print enumeration
+extern ITKCommon_EXPORT std::ostream &
+                        operator<<(std::ostream & out, const LoggerThreadWrapperOperationType value);
+
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLoggerThreadWrapper.hxx"
+#  include "itkLoggerThreadWrapper.hxx"
 #endif
 
-#endif  // itkLoggerThreadWrapper_h
+#endif // itkLoggerThreadWrapper_h

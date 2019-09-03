@@ -18,43 +18,50 @@
 #ifndef itkStatisticsImageFilter_h
 #define itkStatisticsImageFilter_h
 
-#include "itkImageToImageFilter.h"
+#include "itkImageSink.h"
 #include "itkNumericTraits.h"
 #include "itkArray.h"
 #include "itkSimpleDataObjectDecorator.h"
+#include <mutex>
+#include "itkCompensatedSummation.h"
 
 namespace itk
 {
 /** \class StatisticsImageFilter
- * \brief Compute min. max, variance and mean of an Image.
+ * \brief Compute min, max, variance and mean of an Image.
  *
- * StatisticsImageFilter computes the minimum, maximum, sum, mean, variance
+ * StatisticsImageFilter computes the minimum, maximum, sum, sum of squares, mean, variance
  * sigma of an image.  The filter needs all of its input image.  It
  * behaves as a filter with an input and output. Thus it can be inserted
  * in a pipline with other filters and the statistics will only be
  * recomputed if a downstream filter changes.
  *
- * The filter passes its input through unmodified.  The filter is
- * threaded. It computes statistics in each thread then combines them in
- * its AfterThreadedGenerate method.
+ * This filter is automatically multi-threaded and can stream its
+ * input when NumberOfStreamDivisions is set to more than
+ * one. Statistics are independently computed for each streamed and
+ * threaded region then merged.
+ *
+ * Internally a compensated summation algorithm is used for the
+ * accumulation of intensities to improve accuracy for large images.
  *
  * \ingroup MathematicalStatisticsImageFilters
  * \ingroup ITKImageStatistics
  *
- * \wiki
- * \wikiexample{Statistics/StatisticsImageFilter,Compute min\, max\, variance and mean of an Image.}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageStatistics/ComputeMinMaxVarianceMeanOfImage,Compute Min, Max, Variance And Mean Of
+ * Image} \endsphinx
  */
-template< typename TInputImage >
-class ITK_TEMPLATE_EXPORT StatisticsImageFilter:
-  public ImageToImageFilter< TInputImage, TInputImage >
+template <typename TInputImage>
+class ITK_TEMPLATE_EXPORT StatisticsImageFilter : public ImageSink<TInputImage>
 {
 public:
-  /** Standard Self typedef */
-  typedef StatisticsImageFilter                          Self;
-  typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StatisticsImageFilter);
+
+  /** Standard Self type alias */
+  using Self = StatisticsImageFilter;
+  using Superclass = ImageSink<TInputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,124 +69,105 @@ public:
   /** Runtime information support. */
   itkTypeMacro(StatisticsImageFilter, ImageToImageFilter);
 
-  /** Image related typedefs. */
-  typedef typename TInputImage::Pointer InputImagePointer;
+  /** Image related type alias. */
+  using InputImagePointer = typename TInputImage::Pointer;
 
-  typedef typename TInputImage::RegionType RegionType;
-  typedef typename TInputImage::SizeType   SizeType;
-  typedef typename TInputImage::IndexType  IndexType;
-  typedef typename TInputImage::PixelType  PixelType;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Type to use for computations. */
-  typedef typename NumericTraits< PixelType >::RealType RealType;
+  using RealType = typename NumericTraits<PixelType>::RealType;
 
   /** Smart Pointer type to a DataObject. */
-  typedef typename DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = typename DataObject::Pointer;
 
   /** Type of DataObjects used for scalar outputs */
-  typedef SimpleDataObjectDecorator< RealType >  RealObjectType;
-  typedef SimpleDataObjectDecorator< PixelType > PixelObjectType;
+  using RealObjectType = SimpleDataObjectDecorator<RealType>;
+  using PixelObjectType = SimpleDataObjectDecorator<PixelType>;
 
   /** Return the computed Minimum. */
-  PixelType GetMinimum() const
-  { return this->GetMinimumOutput()->Get(); }
-  PixelObjectType * GetMinimumOutput();
-
-  const PixelObjectType * GetMinimumOutput() const;
+  itkGetDecoratedOutputMacro(Minimum, PixelType);
 
   /** Return the computed Maximum. */
-  PixelType GetMaximum() const
-  { return this->GetMaximumOutput()->Get(); }
-  PixelObjectType * GetMaximumOutput();
-
-  const PixelObjectType * GetMaximumOutput() const;
+  itkGetDecoratedOutputMacro(Maximum, PixelType);
 
   /** Return the computed Mean. */
-  RealType GetMean() const
-  { return this->GetMeanOutput()->Get(); }
-  RealObjectType * GetMeanOutput();
-
-  const RealObjectType * GetMeanOutput() const;
+  itkGetDecoratedOutputMacro(Mean, RealType);
 
   /** Return the computed Standard Deviation. */
-  RealType GetSigma() const
-  { return this->GetSigmaOutput()->Get(); }
-  RealObjectType * GetSigmaOutput();
-
-  const RealObjectType * GetSigmaOutput() const;
+  itkGetDecoratedOutputMacro(Sigma, RealType);
 
   /** Return the computed Variance. */
-  RealType GetVariance() const
-  { return this->GetVarianceOutput()->Get(); }
-  RealObjectType * GetVarianceOutput();
-
-  const RealObjectType * GetVarianceOutput() const;
+  itkGetDecoratedOutputMacro(Variance, RealType);
 
   /** Return the compute Sum. */
-  RealType GetSum() const
-  { return this->GetSumOutput()->Get(); }
-  RealObjectType * GetSumOutput();
+  itkGetDecoratedOutputMacro(Sum, RealType);
 
-  const RealObjectType * GetSumOutput() const;
+  /** Return the compute Sum of Squares. */
+  itkGetDecoratedOutputMacro(SumOfSquares, RealType);
+
+  // Change the acces from protected to public to expose streaming option
+  using Superclass::SetNumberOfStreamDivisions;
+  using Superclass::GetNumberOfStreamDivisions;
 
   /** Make a DataObject of the correct type to be used as the specified
    * output. */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectIdentifierType = ProcessObject::DataObjectIdentifierType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(const DataObjectIdentifierType & name) override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< PixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<PixelType>));
   // End concept checking
 #endif
 
 protected:
   StatisticsImageFilter();
-  ~StatisticsImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  /** Pass the input through unmodified. Do this by Grafting in the
-   *  AllocateOutputs method.
-   */
-  void AllocateOutputs() ITK_OVERRIDE;
+  ~StatisticsImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Initialize some accumulators before the threads run. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeStreamedGenerateData() override;
 
-  /** Do final mean and variance computation from data accumulated in threads.
+  /** Set outputs to computed values from all regions
    */
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  AfterStreamedGenerateData() override;
 
-  /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const RegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  ThreadedStreamedGenerateData(const RegionType &) override;
 
-  // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
-
-  // Override since the filter produces all of its output
-  void EnlargeOutputRequestedRegion(DataObject *data) ITK_OVERRIDE;
+  itkSetDecoratedOutputMacro(Minimum, PixelType);
+  itkSetDecoratedOutputMacro(Maximum, PixelType);
+  itkSetDecoratedOutputMacro(Mean, RealType);
+  itkSetDecoratedOutputMacro(Sigma, RealType);
+  itkSetDecoratedOutputMacro(Variance, RealType);
+  itkSetDecoratedOutputMacro(Sum, RealType);
+  itkSetDecoratedOutputMacro(SumOfSquares, RealType);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(StatisticsImageFilter);
+  CompensatedSummation<RealType> m_ThreadSum{ 1 };
+  CompensatedSummation<RealType> m_SumOfSquares{ 1 };
 
-  Array< RealType >       m_ThreadSum;
-  Array< RealType >       m_SumOfSquares;
-  Array< SizeValueType >  m_Count;
-  Array< PixelType >      m_ThreadMin;
-  Array< PixelType >      m_ThreadMax;
+  SizeValueType m_Count{ 1 };
+  PixelType     m_ThreadMin{ 1 };
+  PixelType     m_ThreadMax{ 1 };
+
+  std::mutex m_Mutex;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkStatisticsImageFilter.hxx"
+#  include "itkStatisticsImageFilter.hxx"
 #endif
 
 #endif

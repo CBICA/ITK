@@ -31,28 +31,29 @@ namespace itk
  *
  * \ingroup ITKImageGradient
  */
-template< typename TInputImage, typename TDataType >
-class ITK_TEMPLATE_EXPORT DifferenceOfGaussiansGradientImageFilter:
-  public ImageToImageFilter< TInputImage,
-                             Image< CovariantVector< TDataType, TInputImage::ImageDimension >,
-                                    TInputImage::ImageDimension > >
+template <typename TInputImage, typename TDataType>
+class ITK_TEMPLATE_EXPORT DifferenceOfGaussiansGradientImageFilter
+  : public ImageToImageFilter<
+      TInputImage,
+      Image<CovariantVector<TDataType, TInputImage::ImageDimension>, TInputImage::ImageDimension>>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(DifferenceOfGaussiansGradientImageFilter);
+
   /** Number of dimensions. */
-  itkStaticConstMacro(NDimensions, unsigned int, TInputImage::ImageDimension);
+  static constexpr unsigned int NDimensions = TInputImage::ImageDimension;
 
-  /** Standard class typedefs. */
-  typedef DifferenceOfGaussiansGradientImageFilter Self;
+  /** Standard class type aliases. */
+  using Self = DifferenceOfGaussiansGradientImageFilter;
 
-  /** Output image typedef. The output image is always an n-dimensional
+  /** Output image type alias. The output image is always an n-dimensional
    * image of n-dimensional vectors of doubles. */
-  typedef Image< CovariantVector< TDataType, itkGetStaticConstMacro(NDimensions) >, itkGetStaticConstMacro(NDimensions) >
-  TOutputImage;
+  using TOutputImage = Image<CovariantVector<TDataType, Self::NDimensions>, Self::NDimensions>;
 
-  /** Standard class typedefs. */
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  /** Standard class type aliases. */
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -60,17 +61,17 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(DifferenceOfGaussiansGradientImageFilter, ImageToImageFilter);
 
-  /** Image size typedef. */
-  typedef Size< itkGetStaticConstMacro(NDimensions) > SizeType;
+  /** Image size type alias. */
+  using SizeType = Size<Self::NDimensions>;
 
-  /** Image index typedef. */
-  typedef typename TInputImage::IndexType IndexType;
+  /** Image index type alias. */
+  using IndexType = typename TInputImage::IndexType;
 
-  /** Image pixel value typedef. */
-  typedef typename TInputImage::PixelType PixelType;
+  /** Image pixel value type alias. */
+  using PixelType = typename TInputImage::PixelType;
 
   /** Typedef to describe the output image region type. */
-  typedef typename TInputImage::RegionType OutputImageRegionType;
+  using OutputImageRegionType = typename TInputImage::RegionType;
 
   /** Set/Get the member variables. */
   itkGetConstMacro(Width, unsigned int);
@@ -78,28 +79,27 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( DataTypeHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< TDataType > ) );
+  itkConceptMacro(DataTypeHasNumericTraitsCheck, (Concept::HasNumericTraits<TDataType>));
   // End concept checking
 #endif
 
 protected:
   DifferenceOfGaussiansGradientImageFilter();
-  virtual ~DifferenceOfGaussiansGradientImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DifferenceOfGaussiansGradientImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Method for evaluating the implicit function over the image. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DifferenceOfGaussiansGradientImageFilter);
-
   unsigned int m_Width;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDifferenceOfGaussiansGradientImageFilter.hxx"
+#  include "itkDifferenceOfGaussiansGradientImageFilter.hxx"
 #endif
 
 #endif

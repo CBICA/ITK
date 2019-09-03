@@ -36,150 +36,147 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
   // Verify the number of parameters on the command line.
-  if ( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Missing parameters. " << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0]
-              << " input4DImageFile output3DImageFile"
-              << std::endl;
+    std::cerr << argv[0] << " input4DImageFile output3DImageFile" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-// Software Guide : BeginLatex
-//
-// First we declare the types of the images, the 3D and 4D readers.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // First we declare the types of the images, the 3D and 4D readers.
+  //
+  // Software Guide : EndLatex
 
 
-// Software Guide : BeginCodeSnippet
-  typedef unsigned char               PixelType;
-  typedef itk::Image< PixelType, 3 >  Image3DType;
-  typedef itk::Image< PixelType, 4 >  Image4DType;
+  // Software Guide : BeginCodeSnippet
+  using PixelType = unsigned char;
+  using Image3DType = itk::Image<PixelType, 3>;
+  using Image4DType = itk::Image<PixelType, 4>;
 
-  typedef itk::ImageFileReader< Image4DType > Reader4DType;
-  typedef itk::ImageFileWriter< Image3DType > Writer3DType;
-// Software Guide : EndCodeSnippet
+  using Reader4DType = itk::ImageFileReader<Image4DType>;
+  using Writer3DType = itk::ImageFileWriter<Image3DType>;
+  // Software Guide : EndCodeSnippet
 
   Reader4DType::Pointer reader4D = Reader4DType::New();
-  reader4D->SetFileName( argv[1] );
+  reader4D->SetFileName(argv[1]);
 
   try
-    {
+  {
     reader4D->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error reading the image" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   Image4DType::ConstPointer image4D = reader4D->GetOutput();
 
-// Software Guide : BeginLatex
-//
-// Next, define the necessary types for indices, points, spacings, and size.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // Next, define the necessary types for indices, points, spacings, and size.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
+  // Software Guide : BeginCodeSnippet
   Image3DType::Pointer image3D = Image3DType::New();
-  typedef Image3DType::IndexType    Index3DType;
-  typedef Image3DType::SizeType     Size3DType;
-  typedef Image3DType::RegionType   Region3DType;
-  typedef Image3DType::SpacingType  Spacing3DType;
-  typedef Image3DType::PointType    Origin3DType;
+  using Index3DType = Image3DType::IndexType;
+  using Size3DType = Image3DType::SizeType;
+  using Region3DType = Image3DType::RegionType;
+  using Spacing3DType = Image3DType::SpacingType;
+  using Origin3DType = Image3DType::PointType;
 
-  typedef Image4DType::IndexType    Index4DType;
-  typedef Image4DType::SizeType     Size4DType;
-  typedef Image4DType::SpacingType  Spacing4DType;
-  typedef Image4DType::PointType    Origin4DType;
-// Software Guide : EndCodeSnippet
+  using Index4DType = Image4DType::IndexType;
+  using Size4DType = Image4DType::SizeType;
+  using Spacing4DType = Image4DType::SpacingType;
+  using Origin4DType = Image4DType::PointType;
+  // Software Guide : EndCodeSnippet
 
-  Index3DType       index3D;
-  Size3DType        size3D;
-  Spacing3DType     spacing3D;
-  Origin3DType      origin3D;
+  Index3DType   index3D;
+  Size3DType    size3D;
+  Spacing3DType spacing3D;
+  Origin3DType  origin3D;
 
   Image4DType::RegionType region4D = image4D->GetBufferedRegion();
 
-  Index4DType       index4D   = region4D.GetIndex();
-  Size4DType        size4D    = region4D.GetSize();
-  Spacing4DType     spacing4D = image4D->GetSpacing();
-  Origin4DType      origin4D  = image4D->GetOrigin();
+  Index4DType   index4D = region4D.GetIndex();
+  Size4DType    size4D = region4D.GetSize();
+  Spacing4DType spacing4D = image4D->GetSpacing();
+  Origin4DType  origin4D = image4D->GetOrigin();
 
-// Software Guide : BeginLatex
-//
-// Here we make sure that the values for our resultant 3D mean image
-// match up with the input 4D image.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // Here we make sure that the values for our resultant 3D mean image
+  // match up with the input 4D image.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
-  for( unsigned int i=0; i < 3; i++)
-    {
-    size3D[i]    = size4D[i];
-    index3D[i]   = index4D[i];
+  // Software Guide : BeginCodeSnippet
+  for (unsigned int i = 0; i < 3; i++)
+  {
+    size3D[i] = size4D[i];
+    index3D[i] = index4D[i];
     spacing3D[i] = spacing4D[i];
-    origin3D[i]  = origin4D[i];
-    }
+    origin3D[i] = origin4D[i];
+  }
 
-  image3D->SetSpacing( spacing3D );
-  image3D->SetOrigin(  origin3D  );
+  image3D->SetSpacing(spacing3D);
+  image3D->SetOrigin(origin3D);
 
   Region3DType region3D;
-  region3D.SetIndex( index3D );
-  region3D.SetSize( size3D );
+  region3D.SetIndex(index3D);
+  region3D.SetSize(size3D);
 
-  image3D->SetRegions( region3D  );
+  image3D->SetRegions(region3D);
   image3D->Allocate();
-// Software Guide : EndCodeSnippet
+  // Software Guide : EndCodeSnippet
 
-  typedef itk::NumericTraits< PixelType >::AccumulateType    SumType;
-  typedef itk::NumericTraits< SumType   >::RealType          MeanType;
+  using SumType = itk::NumericTraits<PixelType>::AccumulateType;
+  using MeanType = itk::NumericTraits<SumType>::RealType;
 
   const unsigned int timeLength = region4D.GetSize()[3];
 
-  typedef itk::ImageLinearConstIteratorWithIndex<
-                                  Image4DType > IteratorType;
+  using IteratorType = itk::ImageLinearConstIteratorWithIndex<Image4DType>;
 
-// Software Guide : BeginLatex
-//
-// Next we iterate over time in the input image series, compute the average,
-// and store that value in the corresponding pixel of the output 3D image.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // Next we iterate over time in the input image series, compute the average,
+  // and store that value in the corresponding pixel of the output 3D image.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
-  IteratorType it( image4D, region4D );
-  it.SetDirection( 3 ); // Walk along time dimension
+  // Software Guide : BeginCodeSnippet
+  IteratorType it(image4D, region4D);
+  it.SetDirection(3); // Walk along time dimension
   it.GoToBegin();
-  while( !it.IsAtEnd() )
-    {
-    SumType sum = itk::NumericTraits< SumType >::ZeroValue();
+  while (!it.IsAtEnd())
+  {
+    SumType sum = itk::NumericTraits<SumType>::ZeroValue();
     it.GoToBeginOfLine();
     index4D = it.GetIndex();
-    while( !it.IsAtEndOfLine() )
-      {
+    while (!it.IsAtEndOfLine())
+    {
       sum += it.Get();
       ++it;
-      }
-    MeanType mean = static_cast< MeanType >( sum ) /
-                    static_cast< MeanType >( timeLength );
+    }
+    MeanType mean = static_cast<MeanType>(sum) / static_cast<MeanType>(timeLength);
 
     index3D[0] = index4D[0];
     index3D[1] = index4D[1];
     index3D[2] = index4D[2];
 
-    image3D->SetPixel( index3D, static_cast< PixelType >( mean ) );
+    image3D->SetPixel(index3D, static_cast<PixelType>(mean));
     it.NextLine();
-    }
-// Software Guide : EndCodeSnippet
+  }
+  // Software Guide : EndCodeSnippet
 
 
   // Software Guide : BeginLatex
@@ -201,19 +198,19 @@ int main( int argc, char *argv[] )
   // Software Guide : EndLatex
 
   Writer3DType::Pointer writer3D = Writer3DType::New();
-  writer3D->SetFileName( argv[2] );
-  writer3D->SetInput( image3D );
+  writer3D->SetFileName(argv[2]);
+  writer3D->SetInput(image3D);
 
   try
-    {
+  {
     writer3D->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error writing the image" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

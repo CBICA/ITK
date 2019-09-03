@@ -102,50 +102,47 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-template<typename TImageType, typename THistogramFrequencyContainer =
-  DenseFrequencyContainer2>
+template <typename TImageType, typename THistogramFrequencyContainer = DenseFrequencyContainer2>
 class ITK_TEMPLATE_EXPORT ScalarImageToRunLengthMatrixFilter : public ProcessObject
 {
 public:
-  /** Standard typedefs */
-  typedef ScalarImageToRunLengthMatrixFilter  Self;
-  typedef ProcessObject                       Superclass;
-  typedef SmartPointer<Self>                  Pointer;
-  typedef SmartPointer<const Self>            ConstPointer;
+  /** Standard type alias */
+  using Self = ScalarImageToRunLengthMatrixFilter;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( ScalarImageToRunLengthMatrixFilter, ProcessObject );
+  itkTypeMacro(ScalarImageToRunLengthMatrixFilter, ProcessObject);
 
   /** standard New() method support */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
-  typedef TImageType                                      ImageType;
-  typedef typename ImageType::Pointer                     ImagePointer;
-  typedef typename ImageType::ConstPointer                ImageConstPointer;
-  typedef typename ImageType::PixelType                   PixelType;
-  typedef typename ImageType::IndexType                   IndexType;
-  typedef typename ImageType::RegionType                  RegionType;
-  typedef typename ImageType::SizeType                    RadiusType;
-  typedef typename ImageType::OffsetType                  OffsetType;
-  typedef VectorContainer<unsigned char, OffsetType>      OffsetVector;
-  typedef typename OffsetVector::Pointer                  OffsetVectorPointer;
-  typedef typename ImageType::PointType                   PointType;
+  using ImageType = TImageType;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using RegionType = typename ImageType::RegionType;
+  using RadiusType = typename ImageType::SizeType;
+  using OffsetType = typename ImageType::OffsetType;
+  using OffsetVector = VectorContainer<unsigned char, OffsetType>;
+  using OffsetVectorPointer = typename OffsetVector::Pointer;
+  using PointType = typename ImageType::PointType;
 
-  typedef typename NumericTraits<PixelType>::RealType     MeasurementType;
-  typedef typename NumericTraits<PixelType>::RealType     RealType;
+  using MeasurementType = typename NumericTraits<PixelType>::RealType;
+  using RealType = typename NumericTraits<PixelType>::RealType;
 
-  typedef Histogram<MeasurementType, THistogramFrequencyContainer>
-                                                          HistogramType;
-  typedef typename HistogramType::Pointer                 HistogramPointer;
-  typedef typename HistogramType::ConstPointer            HistogramConstPointer;
-  typedef typename HistogramType::MeasurementVectorType   MeasurementVectorType;
+  using HistogramType = Histogram<MeasurementType, THistogramFrequencyContainer>;
+  using HistogramPointer = typename HistogramType::Pointer;
+  using HistogramConstPointer = typename HistogramType::ConstPointer;
+  using MeasurementVectorType = typename HistogramType::MeasurementVectorType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro( ImageDimension, unsigned int,
-    TImageType::ImageDimension );
+  static constexpr unsigned int ImageDimension = TImageType::ImageDimension;
 
   /** Specify the default number of bins per axis */
-  itkStaticConstMacro( DefaultBinsPerAxis, unsigned int, 256 );
+  static constexpr unsigned int DefaultBinsPerAxis = 256;
 
   /**
    * Set the offsets over which the intensity/distance pairs will be computed.
@@ -156,7 +153,7 @@ public:
    * of (-1, 0). This is required from the iterating order of pixel iterator.
    *
    */
-  itkSetObjectMacro( Offsets, OffsetVector );
+  itkSetObjectMacro(Offsets, OffsetVector);
 
   /**
    * Set offset over which the intensity/distance pairs will be computed.
@@ -167,84 +164,95 @@ public:
    * of (-1, 0). This is required from the iterating order of pixel iterator.
    *
    */
-  void SetOffset( const OffsetType offset );
+  void
+  SetOffset(const OffsetType offset);
 
   /**
    * Get the current offset(s).
    */
-  itkGetModifiableObjectMacro(Offsets, OffsetVector );
+  itkGetModifiableObjectMacro(Offsets, OffsetVector);
 
   /** Set number of histogram bins along each axis */
-  itkSetMacro( NumberOfBinsPerAxis, unsigned int );
+  itkSetMacro(NumberOfBinsPerAxis, unsigned int);
 
   /** Get number of histogram bins along each axis */
-  itkGetConstMacro( NumberOfBinsPerAxis, unsigned int );
+  itkGetConstMacro(NumberOfBinsPerAxis, unsigned int);
 
   /**
    * Set the min and max (inclusive) pixel value that will be used in
    * generating the histogram.
    */
-  void SetPixelValueMinMax( PixelType min, PixelType max );
+  void
+  SetPixelValueMinMax(PixelType min, PixelType max);
 
   /** Get the min pixel value defining one dimension of the joint histogram. */
-  itkGetConstMacro( Min, PixelType );
+  itkGetConstMacro(Min, PixelType);
 
   /** Get the max pixel value defining one dimension of the joint histogram. */
-  itkGetConstMacro( Max, PixelType );
+  itkGetConstMacro(Max, PixelType);
 
   /**
    * Set the min and max (inclusive) pixel value that will be used in
    * generating the histogram.
    */
-  void SetDistanceValueMinMax( RealType min, RealType max );
+  void
+  SetDistanceValueMinMax(RealType min, RealType max);
 
   /**
    * Get the min distance value defining one dimension of the joint histogram.
    */
-  itkGetConstMacro( MinDistance, RealType );
+  itkGetConstMacro(MinDistance, RealType);
 
   /**
    * Get the max distance value defining one dimension of the joint histogram.
    */
-  itkGetConstMacro( MaxDistance, RealType );
+  itkGetConstMacro(MaxDistance, RealType);
 
   /** Method to set the input image */
   using Superclass::SetInput;
-  void SetInput( const ImageType *image );
+  void
+  SetInput(const ImageType * image);
 
   /** Method to get the input image */
-  const ImageType * GetInput() const;
+  const ImageType *
+  GetInput() const;
 
   /** Method to set the mask image */
-  void SetMaskImage( const ImageType *image );
+  void
+  SetMaskImage(const ImageType * image);
 
   /** Method to get the mask image */
-  const ImageType * GetMaskImage() const;
+  const ImageType *
+  GetMaskImage() const;
 
   /** method to get the Histogram */
-  const HistogramType * GetOutput() const;
+  const HistogramType *
+  GetOutput() const;
 
   /**
    * Set the pixel value of the mask that should be considered "inside" the
    * object. Defaults to 1.
    */
-  itkSetMacro( InsidePixelValue, PixelType );
-  itkGetConstMacro( InsidePixelValue, PixelType );
+  itkSetMacro(InsidePixelValue, PixelType);
+  itkGetConstMacro(InsidePixelValue, PixelType);
 
 protected:
   ScalarImageToRunLengthMatrixFilter();
-  virtual ~ScalarImageToRunLengthMatrixFilter() ITK_OVERRIDE {};
-  virtual void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  ~ScalarImageToRunLengthMatrixFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Standard itk::ProcessObject subclass method. */
-  typedef DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = DataObject::Pointer;
 
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput( DataObjectPointerArraySizeType idx ) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
 
   /** This method causes the filter to generate its output. */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /**
    * Normalize the direction of the offset before it is applied.
@@ -253,27 +261,26 @@ protected:
    * For example, the input offset (-1, 0) will be normalized as
    * (1, 0).
    * */
-  void NormalizeOffsetDirection(OffsetType &offset);
+  void
+  NormalizeOffsetDirection(OffsetType & offset);
 
 private:
+  unsigned int m_NumberOfBinsPerAxis;
+  PixelType    m_Min;
+  PixelType    m_Max;
+  RealType     m_MinDistance;
+  RealType     m_MaxDistance;
+  PixelType    m_InsidePixelValue;
 
-  unsigned int             m_NumberOfBinsPerAxis;
-  PixelType                m_Min;
-  PixelType                m_Max;
-  RealType                 m_MinDistance;
-  RealType                 m_MaxDistance;
-  PixelType                m_InsidePixelValue;
-
-  MeasurementVectorType    m_LowerBound;
-  MeasurementVectorType    m_UpperBound;
-  OffsetVectorPointer      m_Offsets;
-
+  MeasurementVectorType m_LowerBound;
+  MeasurementVectorType m_UpperBound;
+  OffsetVectorPointer   m_Offsets;
 };
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScalarImageToRunLengthMatrixFilter.hxx"
+#  include "itkScalarImageToRunLengthMatrixFilter.hxx"
 #endif
 
 #endif

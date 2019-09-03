@@ -28,24 +28,29 @@ namespace itk
 {
 
 template <class TInputImage, class TOutputImage>
-SpeckleNoiseImageFilter<TInputImage, TOutputImage>
-::SpeckleNoiseImageFilter() :
-  m_StandardDeviation( 1.0 )
+SpeckleNoiseImageFilter<TInputImage, TOutputImage>::SpeckleNoiseImageFilter()
+
 {
+  this->DynamicMultiThreadingOn();
 }
 
 template <class TInputImage, class TOutputImage>
 void
-SpeckleNoiseImageFilter<TInputImage, TOutputImage>
-::ThreadedGenerateData( const OutputImageRegionType &outputRegionForThread, ThreadIdType threadId)
+SpeckleNoiseImageFilter<TInputImage, TOutputImage>::DynamicThreadedGenerateData(
+  const OutputImageRegionType & outputRegionForThread)
 {
-  const InputImageType* inputPtr = this->GetInput();
-  OutputImageType*      outputPtr = this->GetOutput(0);
+  const InputImageType * inputPtr = this->GetInput();
+  OutputImageType *      outputPtr = this->GetOutput(0);
 
   // Create a random generator per thread
+  IndexValueType indSeed = 0;
+  for (unsigned d = 0; d < TOutputImage::ImageDimension; d++)
+  {
+    indSeed += outputRegionForThread.GetIndex(d);
+  }
   typename Statistics::MersenneTwisterRandomVariateGenerator::Pointer rand =
     Statistics::MersenneTwisterRandomVariateGenerator::New();
-  const uint32_t seed = Self::Hash( this->GetSeed(), threadId );
+  const uint32_t seed = Self::Hash(this->GetSeed(), uint32_t(indSeed));
   rand->Initialize(seed);
 
   // Define the portion of the input to walk for this thread, using
@@ -58,8 +63,6 @@ SpeckleNoiseImageFilter<TInputImage, TOutputImage>
   ImageScanlineConstIterator<TInputImage> inputIt(inputPtr, inputRegionForThread);
   ImageScanlineIterator<TOutputImage>     outputIt(outputPtr, outputRegionForThread);
 
-  ProgressReporter progress(this, threadId, outputRegionForThread.GetNumberOfPixels() );
-
   inputIt.GoToBegin();
   outputIt.GoToBegin();
 
@@ -68,62 +71,58 @@ SpeckleNoiseImageFilter<TInputImage, TOutputImage>
   const double theta = m_StandardDeviation * m_StandardDeviation;
   const double k = 1 / theta;
 
-  const double floork = Math::Floor<double>( k );
+  const auto   floork = Math::Floor<double>(k);
   const double delta = k - floork;
-  const double v0 = Math::e / ( Math::e + delta );
+  const double v0 = Math::e / (Math::e + delta);
 
-  while ( !inputIt.IsAtEnd() )
+  while (!inputIt.IsAtEnd())
+  {
+    while (!inputIt.IsAtEndOfLine())
     {
-    while ( !inputIt.IsAtEndOfLine() )
-      {
       // First generate the gamma distributed random variable
       // ref http://en.wikipedia.org/wiki/Gamma_distribution#Generating_gamma-distributed_random_variables
       double xi;
       double nu;
       do
-        {
+      {
         const double v1 = 1.0 - rand->GetVariateWithOpenUpperRange(); // open *lower* range -- (0,1]
         const double v2 = 1.0 - rand->GetVariateWithOpenUpperRange();
         const double v3 = 1.0 - rand->GetVariateWithOpenUpperRange();
-        if( v1 <= v0 )
-          {
-          xi = std::pow( v2, 1 / delta );
-          nu = v3 * std::pow( xi, delta - 1.0 );
-          }
-        else
-          {
-          xi = 1.0 - std::log( v2 );
-          nu = v3 * std::exp( -xi );
-          }
-        }
-      while( nu > std::exp( -xi ) * std::pow( xi, delta - 1.0 ) );
-      double gamma = xi;
-      for( int i = 0; i < floork; i++ )
+        if (v1 <= v0)
         {
-        gamma -= std::log( 1.0 - rand->GetVariateWithOpenUpperRange() );
+          xi = std::pow(v2, 1 / delta);
+          nu = v3 * std::pow(xi, delta - 1.0);
         }
+        else
+        {
+          xi = 1.0 - std::log(v2);
+          nu = v3 * std::exp(-xi);
+        }
+      } while (nu > std::exp(-xi) * std::pow(xi, delta - 1.0));
+      double gamma = xi;
+      for (int i = 0; i < floork; i++)
+      {
+        gamma -= std::log(1.0 - rand->GetVariateWithOpenUpperRange());
+      }
       gamma *= theta;
       // Apply multiplicative noise
       const double out = gamma * inputIt.Get();
-      outputIt.Set( Self::ClampCast( out )  );
+      outputIt.Set(Self::ClampCast(out));
       ++inputIt;
       ++outputIt;
-      }
+    }
     inputIt.NextLine();
     outputIt.NextLine();
-    progress.CompletedPixel();  // potential exception thrown here
-    }
+  }
 }
 
 template <class TInputImage, class TOutputImage>
 void
-SpeckleNoiseImageFilter<TInputImage, TOutputImage>
-::PrintSelf(std::ostream& os, Indent indent) const
+SpeckleNoiseImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
-  os << indent << "StandardDeviation: "
-     << static_cast<typename NumericTraits<double>::PrintType>( m_StandardDeviation )
+  os << indent << "StandardDeviation: " << static_cast<typename NumericTraits<double>::PrintType>(m_StandardDeviation)
      << std::endl;
 }
 } // end namespace itk

@@ -37,92 +37,122 @@ namespace itk
  * \ingroup FiniteDifferenceFunctions
  * \ingroup ITKRegistrationCommon
  */
-template< typename TFixedImage, typename TMovingImage, typename TDisplacementField >
-class PDEDeformableRegistrationFunction:
-  public FiniteDifferenceFunction< TDisplacementField >
+template <typename TFixedImage, typename TMovingImage, typename TDisplacementField>
+class PDEDeformableRegistrationFunction : public FiniteDifferenceFunction<TDisplacementField>
 {
 public:
-  /** Standard class typedefs. */
-  typedef PDEDeformableRegistrationFunction              Self;
-  typedef FiniteDifferenceFunction< TDisplacementField > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PDEDeformableRegistrationFunction);
+
+  /** Standard class type aliases. */
+  using Self = PDEDeformableRegistrationFunction;
+  using Superclass = FiniteDifferenceFunction<TDisplacementField>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(PDEDeformableRegistrationFunction,
-               FiniteDifferenceFunction);
+  itkTypeMacro(PDEDeformableRegistrationFunction, FiniteDifferenceFunction);
 
   /** MovingImage image type. */
-  typedef TMovingImage                           MovingImageType;
-  typedef typename MovingImageType::ConstPointer MovingImagePointer;
+  using MovingImageType = TMovingImage;
+  using MovingImagePointer = typename MovingImageType::ConstPointer;
 
   /** FixedImage image type. */
-  typedef TFixedImage                           FixedImageType;
-  typedef typename FixedImageType::ConstPointer FixedImagePointer;
+  using FixedImageType = TFixedImage;
+  using FixedImagePointer = typename FixedImageType::ConstPointer;
 
   /** Deformation field type. */
-  typedef TDisplacementField                      DisplacementFieldType;
-  typedef typename DisplacementFieldType::Pointer DisplacementFieldTypePointer;
-
-#ifdef ITKV3_COMPATIBILITY
-  typedef TDisplacementField                     DeformationFieldType;
-  typedef typename DeformationFieldType::Pointer DeformationFieldTypePointer;
-#endif
+  using DisplacementFieldType = TDisplacementField;
+  using DisplacementFieldTypePointer = typename DisplacementFieldType::Pointer;
 
   /** Set the moving image.  */
-  void SetMovingImage(const MovingImageType *ptr)
-  { m_MovingImage = ptr; }
+  void
+  SetMovingImage(const MovingImageType * ptr)
+  {
+    m_MovingImage = ptr;
+  }
 
   /** Get the moving image. */
-  const MovingImageType * GetMovingImage(void) const
-  { return m_MovingImage; }
+  const MovingImageType *
+  GetMovingImage() const
+  {
+    return m_MovingImage;
+  }
 
   /** Set the fixed image. */
-  void SetFixedImage(const FixedImageType *ptr)
-  { m_FixedImage = ptr; }
+  void
+  SetFixedImage(const FixedImageType * ptr)
+  {
+    m_FixedImage = ptr;
+  }
 
   /** Get the fixed image. */
-  const FixedImageType * GetFixedImage(void) const
-  { return m_FixedImage; }
+  const FixedImageType *
+  GetFixedImage() const
+  {
+    return m_FixedImage;
+  }
 
   /** Set the deformation field image. */
-  void SetDisplacementField(DisplacementFieldTypePointer ptr)
-  { m_DisplacementField = ptr; }
+  void
+  SetDisplacementField(DisplacementFieldTypePointer ptr)
+  {
+    m_DisplacementField = ptr;
+  }
 
   /** Get the deformation field. This function should have been
    *  declared const. It is not for backward compatibility reasons. */
-  DisplacementFieldType * GetDisplacementField(void)
-  { return m_DisplacementField; }
+  DisplacementFieldType *
+  GetDisplacementField()
+  {
+    return m_DisplacementField;
+  }
 
-#ifdef ITKV3_COMPATIBILITY
-  void SetDeformationField(DeformationFieldTypePointer ptr)
-  { this->SetDisplacementField(ptr); }
-
-  DeformationFieldType * GetDeformationField(void)
-  { return itkDynamicCastInDebugMode<DeformationFieldType *> (this->GetDisplacementField()); }
-#endif
-
-  void SetEnergy(double e) { m_Energy = e; }
-  double GetEnergy() const { return m_Energy; }
-  void SetGradientStep(double e) { m_GradientStep = e; }
-  double GetGradientStep() const { return m_GradientStep; }
-  void SetNormalizeGradient(bool e) { m_NormalizeGradient = e; }
-  bool GetNormalizeGradient() const { return m_NormalizeGradient; }
+  void
+  SetEnergy(double e)
+  {
+    m_Energy = e;
+  }
+  double
+  GetEnergy() const
+  {
+    return m_Energy;
+  }
+  void
+  SetGradientStep(double e)
+  {
+    m_GradientStep = e;
+  }
+  double
+  GetGradientStep() const
+  {
+    return m_GradientStep;
+  }
+  void
+  SetNormalizeGradient(bool e)
+  {
+    m_NormalizeGradient = e;
+  }
+  bool
+  GetNormalizeGradient() const
+  {
+    return m_NormalizeGradient;
+  }
 
 protected:
   PDEDeformableRegistrationFunction()
   {
-    m_MovingImage = ITK_NULLPTR;
-    m_FixedImage = ITK_NULLPTR;
-    m_DisplacementField = ITK_NULLPTR;
+    m_MovingImage = nullptr;
+    m_FixedImage = nullptr;
+    m_DisplacementField = nullptr;
     m_Energy = 0.0;
     m_NormalizeGradient = true;
     m_GradientStep = 1.0;
   }
 
-  ~PDEDeformableRegistrationFunction() ITK_OVERRIDE {}
+  ~PDEDeformableRegistrationFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     Superclass::PrintSelf(os, indent);
     os << indent << "MovingImage: ";
@@ -145,9 +175,6 @@ protected:
   bool m_NormalizeGradient;
 
   mutable double m_GradientStep;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PDEDeformableRegistrationFunction);
 };
 } // end namespace itk
 

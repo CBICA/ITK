@@ -47,18 +47,19 @@ namespace itk
  * \ingroup PathFilters
  * \ingroup ITKPath
  */
-template< typename TFourierSeriesPath, typename TSwathMeritImage >
-class ITK_TEMPLATE_EXPORT OrthogonalSwath2DPathFilter:public
-  PathAndImageToPathFilter< TFourierSeriesPath, TSwathMeritImage,
-                            OrthogonallyCorrected2DParametricPath >
+template <typename TFourierSeriesPath, typename TSwathMeritImage>
+class ITK_TEMPLATE_EXPORT OrthogonalSwath2DPathFilter
+  : public PathAndImageToPathFilter<TFourierSeriesPath, TSwathMeritImage, OrthogonallyCorrected2DParametricPath>
 {
 public:
-  /** Standard class typedefs. */
-  typedef OrthogonalSwath2DPathFilter Self;
-  typedef PathAndImageToPathFilter< TFourierSeriesPath, TSwathMeritImage,
-                                    OrthogonallyCorrected2DParametricPath > Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OrthogonalSwath2DPathFilter);
+
+  /** Standard class type aliases. */
+  using Self = OrthogonalSwath2DPathFilter;
+  using Superclass =
+    PathAndImageToPathFilter<TFourierSeriesPath, TSwathMeritImage, OrthogonallyCorrected2DParametricPath>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,41 +67,39 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(OrthogonalSwath2DPathFilter, PathAndImageToPathFilter);
 
-  /** Some convenient typedefs. */
-  typedef TFourierSeriesPath                InputPathType;
-  typedef typename InputPathType::Pointer   InputPathPointer;
-  typedef typename InputPathType::InputType InputPathInputType;
+  /** Some convenient type alias. */
+  using InputPathType = TFourierSeriesPath;
+  using InputPathPointer = typename InputPathType::Pointer;
+  using InputPathInputType = typename InputPathType::InputType;
 
-  typedef TSwathMeritImage                 ImageType;
-  typedef typename ImageType::ConstPointer ImageConstPointer;
+  using ImageType = TSwathMeritImage;
+  using ImageConstPointer = typename ImageType::ConstPointer;
 
-  typedef OrthogonallyCorrected2DParametricPath OutputPathType;
-  typedef typename OutputPathType::Pointer      OutputPathPointer;
-  typedef typename OutputPathType::InputType    OutputPathInputType;
-  typedef typename OutputPathType::OrthogonalCorrectionTableType
-  OrthogonalCorrectionTableType;
-  typedef typename OutputPathType::OrthogonalCorrectionTablePointer
-  OrthogonalCorrectionTablePointer;
+  using OutputPathType = OrthogonallyCorrected2DParametricPath;
+  using OutputPathPointer = typename OutputPathType::Pointer;
+  using OutputPathInputType = typename OutputPathType::InputType;
+  using OrthogonalCorrectionTableType = typename OutputPathType::OrthogonalCorrectionTableType;
+  using OrthogonalCorrectionTablePointer = typename OutputPathType::OrthogonalCorrectionTablePointer;
 
-  typedef typename InputPathType::IndexType  IndexType;
-  typedef typename InputPathType::OffsetType OffsetType;
-  typedef typename ImageType::SizeType       SizeType;
+  using IndexType = typename InputPathType::IndexType;
+  using OffsetType = typename InputPathType::OffsetType;
+  using SizeType = typename ImageType::SizeType;
 
 protected:
   OrthogonalSwath2DPathFilter();
-  virtual ~OrthogonalSwath2DPathFilter() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~OrthogonalSwath2DPathFilter() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OrthogonalSwath2DPathFilter);
-
   // Find the "L" for the maximum merit over the range L-1 to L+1 at F & x.
   // This value is both returned and stored in m_StepValues.
   // The merits for F & x at L-1 to L+1 must have already been calculated.
-  unsigned int FindAndStoreBestErrorStep(unsigned int x, unsigned int F,
-                                         unsigned int L);
+  unsigned int
+  FindAndStoreBestErrorStep(unsigned int x, unsigned int F, unsigned int L);
 
   // m_StepValues & m_MeritValues are stored as datatype[x][F][L] which requres
   // cols*rows*rows bytes of storage where rows and cols are the dimensions of
@@ -115,27 +114,29 @@ private:
   // be
   // used on both the left and right hand of assignments for reads & writes, ex:
   // StepValue(1,1,1) = 2+MeritValue(0,0,3);
-  inline int & StepValue(int f, int l, int x)
+  inline int &
+  StepValue(int f, int l, int x)
   {
     int rows = m_SwathSize[1];
 
-    return m_StepValues[( x * rows * rows ) + ( f * rows ) + ( l )];
+    return m_StepValues[(x * rows * rows) + (f * rows) + (l)];
   }
 
-  inline double & MeritValue(int f, int l, int x)
+  inline double &
+  MeritValue(int f, int l, int x)
   {
     int rows = m_SwathSize[1];
 
-    return m_MeritValues[( x * rows * rows ) + ( f * rows ) + ( l )];
+    return m_MeritValues[(x * rows * rows) + (f * rows) + (l)];
   }
 
-  int *   m_StepValues; // best y=error coordinate @ x of image for (0,F) ->
-                        // (x+1,L)
-  double *m_MeritValues;
+  int * m_StepValues; // best y=error coordinate @ x of image for (0,F) ->
+                      // (x+1,L)
+  double * m_MeritValues;
 
-  int *                            m_OptimumStepsValues;  // best step (e value)
-                                                          // sequence for a
-                                                          // closed path
+  int * m_OptimumStepsValues; // best step (e value)
+                              // sequence for a
+                              // closed path
   OrthogonalCorrectionTablePointer m_FinalOffsetValues;
 
   SizeType m_SwathSize;
@@ -143,7 +144,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkOrthogonalSwath2DPathFilter.hxx"
+#  include "itkOrthogonalSwath2DPathFilter.hxx"
 #endif
 
 #endif

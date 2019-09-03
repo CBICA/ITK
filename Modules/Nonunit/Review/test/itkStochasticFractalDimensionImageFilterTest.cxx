@@ -28,79 +28,79 @@ template <unsigned int NDimension>
 class Helper
 {
 public:
+  static int
+  Run(int argc, char * argv[])
+  {
+    using PixelType = float;
+    using ImageType = itk::Image<PixelType, NDimension>;
 
-  static int Run( int argc, char *argv[] )
-    {
-    typedef float                             PixelType;
-    typedef itk::Image<PixelType, NDimension> ImageType;
-
-    typedef itk::ImageFileReader<ImageType> ReaderType;
+    using ReaderType = itk::ImageFileReader<ImageType>;
     typename ReaderType::Pointer imageReader = ReaderType::New();
-    imageReader->SetFileName( argv[2] );
+    imageReader->SetFileName(argv[2]);
     imageReader->Update();
 
-    typedef itk::StochasticFractalDimensionImageFilter<ImageType> FractalFilterType;
+    using FractalFilterType = itk::StochasticFractalDimensionImageFilter<ImageType>;
     typename FractalFilterType::Pointer fractalFilter = FractalFilterType::New();
-    fractalFilter->SetInput( imageReader->GetOutput() );
+    fractalFilter->SetInput(imageReader->GetOutput());
 
-    itk::SimpleFilterWatcher watcher( fractalFilter, "FractalDimensionFilter");
+    itk::SimpleFilterWatcher watcher(fractalFilter, "FractalDimensionFilter");
 
     typename FractalFilterType::RadiusType radius;
     typename FractalFilterType::RadiusType radius2;
 
-    radius.Fill( 5 );
-    fractalFilter->SetNeighborhoodRadius( radius );
+    radius.Fill(5);
+    fractalFilter->SetNeighborhoodRadius(radius);
     radius2 = fractalFilter->GetNeighborhoodRadius();
-    if( radius2[0] != 5 )
-      {
+    if (radius2[0] != 5)
+    {
       std::cerr << "Error in Set/GetNeighborhoodRadius()" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
-    radius.Fill( 2 );
-    fractalFilter->SetNeighborhoodRadius( radius );
+    radius.Fill(2);
+    fractalFilter->SetNeighborhoodRadius(radius);
     radius2 = fractalFilter->GetNeighborhoodRadius();
-    if( radius2[0] != 2 )
-      {
+    if (radius2[0] != 2)
+    {
       std::cerr << "Error in Set/GetNeighborhoodRadius()" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
-    if( argc > 4 )
-      {
-      radius.Fill( atoi( argv[4] ) );
-      fractalFilter->SetNeighborhoodRadius( radius );
-      }
+    if (argc > 4)
+    {
+      radius.Fill(std::stoi(argv[4]));
+      fractalFilter->SetNeighborhoodRadius(radius);
+    }
 
-    if( argc > 5 )
-      {
+    if (argc > 5)
+    {
       PixelType maskLabel = 1.0;
-      if( argc > 6 )
-        {
-        maskLabel = static_cast<PixelType>( atof( argv[6] ) );
-        }
+      if (argc > 6)
+      {
+        maskLabel = static_cast<PixelType>(std::stod(argv[6]));
+      }
 
       typename ReaderType::Pointer labelImageReader = ReaderType::New();
-      labelImageReader->SetFileName( argv[5] );
+      labelImageReader->SetFileName(argv[5]);
       labelImageReader->Update();
 
-      typedef typename FractalFilterType::MaskImageType MaskImageType;
+      using MaskImageType = typename FractalFilterType::MaskImageType;
 
-      typedef itk::BinaryThresholdImageFilter<ImageType, MaskImageType> ThresholderType;
+      using ThresholderType = itk::BinaryThresholdImageFilter<ImageType, MaskImageType>;
 
       typename ThresholderType::Pointer thresholder = ThresholderType::New();
-      thresholder->SetInput( labelImageReader->GetOutput() );
-      thresholder->SetInsideValue( 1 );
-      thresholder->SetOutsideValue( 0 );
-      thresholder->SetLowerThreshold( maskLabel );
-      thresholder->SetUpperThreshold( maskLabel );
+      thresholder->SetInput(labelImageReader->GetOutput());
+      thresholder->SetInsideValue(1);
+      thresholder->SetOutsideValue(0);
+      thresholder->SetLowerThreshold(maskLabel);
+      thresholder->SetUpperThreshold(maskLabel);
       thresholder->Update();
 
-      fractalFilter->SetMaskImage( thresholder->GetOutput() );
-      }
+      fractalFilter->SetMaskImage(thresholder->GetOutput());
+    }
 
     try
-      {
+    {
       itk::TimeProbe timer;
 
       timer.Start();
@@ -110,55 +110,55 @@ public:
       timer.Stop();
 
       std::cout << "   (elapsed time: " << timer.GetMean() << ")" << std::endl;
-      }
-    catch( ... )
-      {
+    }
+    catch (...)
+    {
       std::cerr << "Exception caught." << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
-    typedef itk::ImageFileWriter<ImageType> WriterType;
+    using WriterType = itk::ImageFileWriter<ImageType>;
     typename WriterType::Pointer writer = WriterType::New();
-    writer->SetInput( fractalFilter->GetOutput() );
-    writer->SetFileName( argv[3] );
+    writer->SetInput(fractalFilter->GetOutput());
+    writer->SetFileName(argv[3]);
     writer->UseCompressionOn();
     writer->Update();
 
     return EXIT_SUCCESS;
   }
-
 };
 
-}
+} // namespace StochasticFractalDimensionImageFilterTest
 
-int itkStochasticFractalDimensionImageFilterTest( int argc, char *argv[] )
+int
+itkStochasticFractalDimensionImageFilterTest(int argc, char * argv[])
 {
-  if ( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cout << "Usage: " << argv[0] << " imageDimension "
-      << "inputImage outputImage [radius] [labelImage] [label]" << std::endl;
+              << "inputImage outputImage [radius] [labelImage] [label]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int imageDimension = atoi( argv[1] );
+  const unsigned int imageDimension = std::stoi(argv[1]);
 
-  switch( imageDimension )
-    {
+  switch (imageDimension)
+  {
     case 2:
-      {
-      StochasticFractalDimensionImageFilterTest::Helper<2>::Run( argc, argv );
+    {
+      StochasticFractalDimensionImageFilterTest::Helper<2>::Run(argc, argv);
       break;
-      }
+    }
     case 3:
-      {
-      StochasticFractalDimensionImageFilterTest::Helper<3>::Run( argc, argv );
+    {
+      StochasticFractalDimensionImageFilterTest::Helper<3>::Run(argc, argv);
       break;
-      }
+    }
     default:
       std::cerr << "Image Dimension " << imageDimension;
       std::cerr << " is not supported by this test " << std::endl;
       return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -27,24 +27,25 @@
 
 /* Uncomment to write out image files */
 /*
-*/
+ */
 
-int itkShapeDetectionLevelSetImageFilterTest(int, char* [] )
+int
+itkShapeDetectionLevelSetImageFilterTest(int, char *[])
 {
 
-  const   unsigned int    ImageDimension = 2;
-  typedef unsigned char   PixelType;
-  typedef float           InternalPixelType;
+  constexpr unsigned int ImageDimension = 2;
+  using PixelType = unsigned char;
+  using InternalPixelType = float;
 
-  typedef itk::Image<PixelType,ImageDimension>         ImageType;
-  typedef itk::Image<InternalPixelType,ImageDimension> InternalImageType;
+  using ImageType = itk::Image<PixelType, ImageDimension>;
+  using InternalImageType = itk::Image<InternalPixelType, ImageDimension>;
 
   ImageType::SizeType imageSize;
   imageSize[0] = 128;
   imageSize[1] = 128;
 
   ImageType::RegionType imageRegion;
-  imageRegion.SetSize( imageSize );
+  imageRegion.SetSize(imageSize);
 
   /**
    * Create an input image.
@@ -54,63 +55,61 @@ int itkShapeDetectionLevelSetImageFilterTest(int, char* [] )
   PixelType foreground = 190;
 
   ImageType::Pointer inputImage = ImageType::New();
-  inputImage->SetRegions( imageRegion );
+  inputImage->SetRegions(imageRegion);
   inputImage->Allocate();
-  inputImage->FillBuffer( background );
+  inputImage->FillBuffer(background);
 
   ImageType::IndexType squareStart;
-  squareStart.Fill( 20 );
+  squareStart.Fill(20);
   ImageType::SizeType squareSize;
-  squareSize.Fill( 60 );
+  squareSize.Fill(60);
   ImageType::RegionType squareRegion;
-  squareRegion.SetIndex( squareStart );
-  squareRegion.SetSize( squareSize );
+  squareRegion.SetIndex(squareStart);
+  squareRegion.SetSize(squareSize);
 
-  typedef itk::ImageRegionIterator<ImageType> Iterator;
-  Iterator it( inputImage, squareRegion );
+  using Iterator = itk::ImageRegionIterator<ImageType>;
+  Iterator it(inputImage, squareRegion);
   it.GoToBegin();
-  while( !it.IsAtEnd() )
-    {
-    it.Set( foreground );
+  while (!it.IsAtEnd())
+  {
+    it.Set(foreground);
     ++it;
-    }
+  }
 
   try
-    {
+  {
     /**
-    * Create an edge potential map.
-    * First compute the image gradient magnitude using a derivative of gaussian filter.
-    * Then apply a sigmoid function to the gradient magnitude.
-    */
-    typedef itk::CastImageFilter< ImageType, InternalImageType > CastFilterType;
+     * Create an edge potential map.
+     * First compute the image gradient magnitude using a derivative of gaussian filter.
+     * Then apply a sigmoid function to the gradient magnitude.
+     */
+    using CastFilterType = itk::CastImageFilter<ImageType, InternalImageType>;
     CastFilterType::Pointer caster = CastFilterType::New();
-    caster->SetInput( inputImage );
+    caster->SetInput(inputImage);
 
-    typedef itk::GradientMagnitudeRecursiveGaussianImageFilter< InternalImageType,
-      InternalImageType > GradientImageType;
+    using GradientImageType = itk::GradientMagnitudeRecursiveGaussianImageFilter<InternalImageType, InternalImageType>;
 
     GradientImageType::Pointer gradMagnitude = GradientImageType::New();
-    gradMagnitude->SetInput( caster->GetOutput() );
-    gradMagnitude->SetSigma( 1.0 );
+    gradMagnitude->SetInput(caster->GetOutput());
+    gradMagnitude->SetSigma(1.0);
 
-    typedef itk::SigmoidImageFilter< InternalImageType, InternalImageType >
-      SigmoidFilterType;
+    using SigmoidFilterType = itk::SigmoidImageFilter<InternalImageType, InternalImageType>;
     SigmoidFilterType::Pointer sigmoid = SigmoidFilterType::New();
-    sigmoid->SetOutputMinimum( 0.0 );
-    sigmoid->SetOutputMaximum( 1.0 );
-    sigmoid->SetAlpha( -0.4 );
-    sigmoid->SetBeta( 2.5 );
-    sigmoid->SetInput( gradMagnitude->GetOutput() );
+    sigmoid->SetOutputMinimum(0.0);
+    sigmoid->SetOutputMaximum(1.0);
+    sigmoid->SetAlpha(-0.4);
+    sigmoid->SetBeta(2.5);
+    sigmoid->SetInput(gradMagnitude->GetOutput());
 
     /**
-    * Create an initial level.
-    * Use fast marching to create an signed distance from a seed point.
-    */
-    typedef itk::FastMarchingImageFilter<InternalImageType> FastMarchingFilterType;
+     * Create an initial level.
+     * Use fast marching to create an signed distance from a seed point.
+     */
+    using FastMarchingFilterType = itk::FastMarchingImageFilter<InternalImageType>;
     FastMarchingFilterType::Pointer fastMarching = FastMarchingFilterType::New();
 
-    typedef FastMarchingFilterType::NodeContainer NodeContainer;
-    typedef FastMarchingFilterType::NodeType      NodeType;
+    using NodeContainer = FastMarchingFilterType::NodeContainer;
+    using NodeType = FastMarchingFilterType::NodeType;
 
     NodeContainer::Pointer seeds = NodeContainer::New();
 
@@ -120,60 +119,57 @@ int itkShapeDetectionLevelSetImageFilterTest(int, char* [] )
     seedPosition[1] = 47;
 
     NodeType node;
-    node.SetValue( -5.0 );
-    node.SetIndex( seedPosition );
+    node.SetValue(-5.0);
+    node.SetIndex(seedPosition);
 
     seeds->Initialize();
-    seeds->InsertElement( 0, node );
+    seeds->InsertElement(0, node);
 
-    fastMarching->SetTrialPoints( seeds );
-    fastMarching->SetSpeedConstant( 1.0 );
-    fastMarching->SetOutputSize( imageSize );
+    fastMarching->SetTrialPoints(seeds);
+    fastMarching->SetSpeedConstant(1.0);
+    fastMarching->SetOutputSize(imageSize);
 
     /**
-    * Set up and run the shape detection filter
-    */
-    typedef itk::ShapeDetectionLevelSetImageFilter<
-      InternalImageType, InternalImageType > ShapeDetectionFilterType;
+     * Set up and run the shape detection filter
+     */
+    using ShapeDetectionFilterType = itk::ShapeDetectionLevelSetImageFilter<InternalImageType, InternalImageType>;
 
     ShapeDetectionFilterType::Pointer shapeDetection = ShapeDetectionFilterType::New();
 
     // set the initial level set
-    shapeDetection->SetInput( fastMarching->GetOutput() );
+    shapeDetection->SetInput(fastMarching->GetOutput());
 
     // set the edge potential image
-    shapeDetection->SetFeatureImage( sigmoid->GetOutput() );
+    shapeDetection->SetFeatureImage(sigmoid->GetOutput());
 
     // set the weights between the propagation and curvature terms
-    shapeDetection->SetPropagationScaling( 1.0 );
-    shapeDetection->SetCurvatureScaling( 0.1 );
+    shapeDetection->SetPropagationScaling(1.0);
+    shapeDetection->SetCurvatureScaling(0.1);
 
     // set the convergence criteria
-    shapeDetection->SetMaximumRMSError( 0.02 );
-    shapeDetection->SetNumberOfIterations( 200 );
+    shapeDetection->SetMaximumRMSError(0.02);
+    shapeDetection->SetNumberOfIterations(200);
 
     /**
-    * Threshold the output level set to display the final contour.
-    */
-    typedef itk::BinaryThresholdImageFilter< InternalImageType, ImageType >
-      ThresholdFilterType;
+     * Threshold the output level set to display the final contour.
+     */
+    using ThresholdFilterType = itk::BinaryThresholdImageFilter<InternalImageType, ImageType>;
     ThresholdFilterType::Pointer thresholder = ThresholdFilterType::New();
 
-    thresholder->SetInput( shapeDetection->GetOutput() );
-    thresholder->SetLowerThreshold( -1e+10 );
-    thresholder->SetUpperThreshold( 0.0 );
-    thresholder->SetOutsideValue( 0 );
-    thresholder->SetInsideValue( 255 );
+    thresholder->SetInput(shapeDetection->GetOutput());
+    thresholder->SetLowerThreshold(-1e+10);
+    thresholder->SetUpperThreshold(0.0);
+    thresholder->SetOutsideValue(0);
+    thresholder->SetInsideValue(255);
 
     /**
-    * Compute overlap between the true shape and the segmented shape
-    */
-    typedef itk::SimilarityIndexImageFilter< ImageType, ImageType >
-      OverlapCalculatorType;
+     * Compute overlap between the true shape and the segmented shape
+     */
+    using OverlapCalculatorType = itk::SimilarityIndexImageFilter<ImageType, ImageType>;
     OverlapCalculatorType::Pointer overlap = OverlapCalculatorType::New();
 
-    overlap->SetInput1( inputImage );
-    overlap->SetInput2( thresholder->GetOutput() );
+    overlap->SetInput1(inputImage);
+    overlap->SetInput2(thresholder->GetOutput());
     overlap->Update();
 
     /** Printout useful information from the shape detection filter. */
@@ -185,69 +181,68 @@ int itkShapeDetectionLevelSetImageFilterTest(int, char* [] )
 
 
     /**
-    * Uncomment to write out image files.
-    */
-  /*
-    typedef itk::ImageFileWriter< ImageType > WriterType;
-    WriterType::Pointer writer = WriterType::New();
+     * Uncomment to write out image files.
+     */
+    /*
+      using WriterType = itk::ImageFileWriter< ImageType >;
+      WriterType::Pointer writer = WriterType::New();
 
-    typedef itk::RescaleIntensityImageFilter< InternalImageType,
-      ImageType > RescaleFilterType;
-    RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
+      using RescaleFilterType = itk::RescaleIntensityImageFilter< InternalImageType,
+        ImageType >;
+      RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
 
-    writer->SetFileName( "inputImage.png" );
-    writer->SetInput( inputImage );
-    writer->Update();
+      writer->SetFileName( "inputImage.png" );
+      writer->SetInput( inputImage );
+      writer->Update();
 
-    rescaler->SetInput( gradMagnitude->GetOutput() );
-    rescaler->SetOutputMinimum( 0 );
-    rescaler->SetOutputMaximum( 255 );
-    writer->SetFileName( "gradMagnitude.png" );
-    writer->SetInput( rescaler->GetOutput() );
-    writer->Update();
+      rescaler->SetInput( gradMagnitude->GetOutput() );
+      rescaler->SetOutputMinimum( 0 );
+      rescaler->SetOutputMaximum( 255 );
+      writer->SetFileName( "gradMagnitude.png" );
+      writer->SetInput( rescaler->GetOutput() );
+      writer->Update();
 
-    rescaler->SetInput( sigmoid->GetOutput() );
-    writer->SetFileName( "edgePotential.png" );
-    writer->Update();
+      rescaler->SetInput( sigmoid->GetOutput() );
+      writer->SetFileName( "edgePotential.png" );
+      writer->Update();
 
-    writer->SetInput( thresholder->GetOutput() );
-    writer->SetFileName( "outputLevelSet.png" );
-    writer->Update();
+      writer->SetInput( thresholder->GetOutput() );
+      writer->SetFileName( "outputLevelSet.png" );
+      writer->Update();
 
-    thresholder->SetInput( fastMarching->GetOutput() );
-    writer->SetInput( thresholder->GetOutput() );
-    writer->SetFileName( "initialLevelSet.png" );
-    writer->Update();
-*/
+      thresholder->SetInput( fastMarching->GetOutput() );
+      writer->SetInput( thresholder->GetOutput() );
+      writer->SetFileName( "initialLevelSet.png" );
+      writer->Update();
+  */
     // Check of overlap is above threshold
-    if ( overlap->GetSimilarityIndex() > 0.90 )
-      {
+    if (overlap->GetSimilarityIndex() > 0.90)
+    {
       std::cout << "Overlap exceed threshold." << std::endl;
-      }
+    }
     else
-      {
+    {
       std::cout << "Overlap below threshold." << std::endl;
       std::cout << "Test failed." << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     // Test case when PropagationScaling is zero
-    shapeDetection->SetPropagationScaling( 0.0 );
-    shapeDetection->SetCurvatureScaling( 1.0 );
+    shapeDetection->SetPropagationScaling(0.0);
+    shapeDetection->SetCurvatureScaling(1.0);
     shapeDetection->Update();
 
     std::cout << "Test Passed. " << std::endl;
     return EXIT_SUCCESS;
-
-    }
-  catch( itk::ExceptionObject& err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
-  catch( ... )
-    {
+  }
+  catch (...)
+  {
     std::cout << "Caught unknown exception" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 }

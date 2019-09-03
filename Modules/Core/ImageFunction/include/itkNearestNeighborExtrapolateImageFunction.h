@@ -36,39 +36,39 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = float >
-class NearestNeighborExtrapolateImageFunction:
-  public ExtrapolateImageFunction< TInputImage, TCoordRep >
+template <typename TInputImage, typename TCoordRep = float>
+class NearestNeighborExtrapolateImageFunction : public ExtrapolateImageFunction<TInputImage, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef NearestNeighborExtrapolateImageFunction            Self;
-  typedef ExtrapolateImageFunction< TInputImage, TCoordRep > Superclass;
-  typedef SmartPointer< Self >                               Pointer;
-  typedef SmartPointer< const Self >                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NearestNeighborExtrapolateImageFunction);
+
+  /** Standard class type aliases. */
+  using Self = NearestNeighborExtrapolateImageFunction;
+  using Superclass = ExtrapolateImageFunction<TInputImage, TCoordRep>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(NearestNeighborExtrapolateImageFunction,
-               InterpolateImageFunction);
+  itkTypeMacro(NearestNeighborExtrapolateImageFunction, InterpolateImageFunction);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
+  /** OutputType type alias support */
+  using OutputType = typename Superclass::OutputType;
 
-  /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = typename Superclass::InputImageType;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType      IndexType;
-  typedef typename IndexType::IndexValueType  IndexValueType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
+  using IndexValueType = typename IndexType::IndexValueType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
   /** Evaluate the function at a ContinuousIndex position
    *
@@ -77,24 +77,24 @@ public:
    * nearest neighbor within the image buffer.
    *
    */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const ITK_OVERRIDE
+  OutputType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const override
   {
     IndexType nindex;
 
-    for ( unsigned int j = 0; j < ImageDimension; j++ )
+    for (unsigned int j = 0; j < ImageDimension; j++)
+    {
+      nindex[j] = Math::RoundHalfIntegerUp<IndexValueType>(index[j]);
+      if (nindex[j] < this->GetStartIndex()[j])
       {
-      nindex[j] = Math::RoundHalfIntegerUp< IndexValueType >(index[j]);
-      if ( nindex[j] < this->GetStartIndex()[j] )
-        {
         nindex[j] = this->GetStartIndex()[j];
-        }
-      else if ( nindex[j] > this->GetEndIndex()[j] )
-        {
-        nindex[j] = this->GetEndIndex()[j];
-        }
       }
-    return static_cast< OutputType >( this->GetInputImage()->GetPixel(nindex) );
+      else if (nindex[j] > this->GetEndIndex()[j])
+      {
+        nindex[j] = this->GetEndIndex()[j];
+      }
+    }
+    return static_cast<OutputType>(this->GetInputImage()->GetPixel(nindex));
   }
 
   /** Evaluate the function at a ContinuousIndex position
@@ -104,37 +104,37 @@ public:
    * nearest neighbor within the image buffer.
    *
    */
-  virtual OutputType EvaluateAtIndex(
-    const IndexType & index) const ITK_OVERRIDE
+  OutputType
+  EvaluateAtIndex(const IndexType & index) const override
   {
     IndexType nindex;
 
-    for ( unsigned int j = 0; j < ImageDimension; j++ )
+    for (unsigned int j = 0; j < ImageDimension; j++)
+    {
+      if (index[j] < this->GetStartIndex()[j])
       {
-      if ( index[j] < this->GetStartIndex()[j] )
-        {
         nindex[j] = this->GetStartIndex()[j];
-        }
-      else if ( index[j] > this->GetEndIndex()[j] )
-        {
-        nindex[j] = this->GetEndIndex()[j];
-        }
-      else
-        {
-        nindex[j] = index[j];
-        }
       }
-    return static_cast< OutputType >( this->GetInputImage()->GetPixel(nindex) );
+      else if (index[j] > this->GetEndIndex()[j])
+      {
+        nindex[j] = this->GetEndIndex()[j];
+      }
+      else
+      {
+        nindex[j] = index[j];
+      }
+    }
+    return static_cast<OutputType>(this->GetInputImage()->GetPixel(nindex));
   }
 
 protected:
-  NearestNeighborExtrapolateImageFunction(){}
-  ~NearestNeighborExtrapolateImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-  { Superclass::PrintSelf(os, indent); }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NearestNeighborExtrapolateImageFunction);
+  NearestNeighborExtrapolateImageFunction() = default;
+  ~NearestNeighborExtrapolateImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
+  }
 };
 } // end namespace itk
 

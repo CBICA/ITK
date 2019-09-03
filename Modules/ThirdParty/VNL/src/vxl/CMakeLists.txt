@@ -12,29 +12,72 @@
 # Root vxl
 #
 #   vxl-maintainers@lists.sf.net
-cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 
-# Set policies for cmake
-if( POLICY CMP0003 )
-  cmake_policy(SET CMP0003 NEW)
-endif()
-# Use @rpath on OS X
-if( POLICY CMP0042 )
-  cmake_policy(SET CMP0042 NEW)
+cmake_minimum_required(VERSION 3.10.2)
+if(CMAKE_VERSION VERSION_LESS 3.12.0)
+  cmake_policy(VERSION ${CMAKE_VERSION})
+else()
+  cmake_policy(VERSION 3.10.2...3.13.2)
 endif()
 
-# Honor visibility properties for static libraries
-if( POLICY CMP0063 )
-  cmake_policy(SET CMP0063 NEW)
+if(NOT CMAKE_CXX_STANDARD)
+   set(CMAKE_CXX_STANDARD "11")
 endif()
-#: Add PIE options when linking executable.
-if( POLICY CMP0083 )
-  cmake_policy(SET CMP0083 NEW)
+if(NOT CMAKE_CXX_STANDARD_REQUIRED)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+if(NOT CMAKE_CXX_EXTENSIONS)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+set(VALID_CXX_STANDARDS "11" "14" "17")
+if(NOT CMAKE_CXX_STANDARD IN_LIST VALID_CXX_STANDARDS )
+   MESSAGE(FATAL_ERROR "CMAKE_CXX_STANDARD:STRING=${CMAKE_CXX_STANDARD} not in know standards list\n ${VALID_CXX_STANDARDS}.")
 endif()
 
-project(vxl)
+if(NOT CMAKE_C_STANDARD)
+   set(CMAKE_C_STANDARD "11")
+endif()
+if(NOT CMAKE_C_STANDARD_REQUIRED)
+  set(CMAKE_C_STANDARD_REQUIRED ON)
+endif()
+if(NOT CMAKE_C_EXTENSIONS)
+  set(CMAKE_C_EXTENSIONS OFF)
+endif()
+set(VALID_C_STANDARDS "90" "99" "11")
+if(NOT CMAKE_C_STANDARD IN_LIST VALID_C_STANDARDS )
+   MESSAGE(FATAL_ERROR "CMAKE_C_STANDARD:STRING=${CMAKE_C_STANDARD} not in know standards list\n ${VALID_C_STANDARDS}.")
+endif()
+
+# Set policies consistent with newer versions of cmake
+# to ease integration with projects that require newer
+# cmake versions.
+foreach(p
+    ## Only policies introduced after the cmake_minimum_required
+    ## version need to explicitly be set to NEW.
+
+    ##----- Policies Introduced by CMake 3.12
+    CMP0075  #: Include file check macros honor CMAKE_REQUIRED_LIBRARIES.
+    ##----- Policies Introduced by CMake 3.10
+    CMP0071  #: Let AUTOMOC and AUTOUIC process GENERATED files.
+    CMP0070  #: Define file(GENERATE) behavior for relative paths.
+    CMP0083  #: Add PIE options when linking executable.
+    )
+  if(POLICY ${p})
+    cmake_policy(SET ${p} NEW)
+  endif()
+endforeach()
+
+project(VXL #Project name must be all caps to have properly generated VXL_VERSION_* variables
+    VERSION 2.0.2.1 # defines #VXL_VERSION{,MAJOR,MINOR,PATCH,TWEAK}
+    DESCRIPTION "A multi-platform collection of C++ software libraries for Computer Vision and Image Understanding."
+    LANGUAGES CXX C)
+
+SET(VXL_API_VERSION "${VXL_VERSION_MAJOR}.${VXL_VERSION_MINOR}")
+SET(VXL_LIBRARY_PROPERTIES ${VXL_LIBRARY_PROPERTIES} VERSION "${VXL_VERSION}"
+    SOVERSION "${VXL_API_VERSION}")
 
 include(CMakeDependentOption)
+include(${CMAKE_CURRENT_SOURCE_DIR}/config/cmake/VXLInitializeBuildType.cmake)
 
 #Disable overzealous compiler warning.  If the definition is truely missing a link error will be created.
 include(CheckCXXCompilerFlag)
@@ -42,7 +85,7 @@ CHECK_CXX_COMPILER_FLAG(-Wno-undefined-var-template HAS_NO_UNDEFINED_VAR_TEMPLAT
 if( HAS_NO_UNDEFINED_VAR_TEMPLATE )
   add_definitions( -Wno-undefined-var-template )
 endif()
-if(NOT CMAKE_VERSION VERSION_LESS 3.14.0)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.14.0)
   include(CheckPIESupported)
   check_pie_supported()
 endif()
@@ -63,7 +106,6 @@ if(NOT COMMAND SETIFEMPTY)
     endif()
   endmacro()
 endif()
-
 
 #-----------------------------------------------------------------------------
 SETIFEMPTY(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
@@ -93,7 +135,7 @@ set(VXL_ROOT_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(VXL_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/config/cmake/Modules)
 
 include( ${VXL_CMAKE_DIR}/VXLStandardOptions.cmake )
-include( ${VXL_CMAKE_DIR}/VXLGenerateExportHeader.cmake )
+include( GenerateExportHeader )
 include( ${CMAKE_CURRENT_LIST_DIR}/config/cmake/config/vxl_utils.cmake )
 include(${CMAKE_CURRENT_LIST_DIR}/config/cmake/doxygen/doxygen.cmake)
 
@@ -117,16 +159,20 @@ set( CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} ${VXL_EXTRA_CMAKE_EXE_
 set( CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} ${VXL_EXTRA_CMAKE_MODULE_LINKER_FLAGS}" )
 set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${VXL_EXTRA_CMAKE_SHARED_LINKER_FLAGS}" )
 
-
+if(MSVC_VERSION GREATER_EQUAL 1920)
+# Force synchronous writes of .pdb files for building VXL on MSVC 1920-1929
+# https://docs.microsoft.com/en-us/cpp/build/reference/fs-force-synchronous-pdb-writes?view=vs-201
+  add_compile_options( "/FS" )
+endif()
 #-------------------------------------------------------------------
 #-- BUILD CONFIG OPTIONS
 
 # Optionally use old error reporting methods, rather than exceptions.
 # The main use is in vil which often uses/used null images to imply an error.
-option(VXL_LEGACY_ERROR_REPORTING "Use old error reporting methods rather than exceptions?" ON)
-if(VXL_LEGACY_ERROR_REPORTING)
-  add_definitions( -DVXL_LEGACY_ERROR_REPORTING )
-endif()
+option( VXL_LEGACY_FUTURE_REMOVE "Disable features and cause errors for code deprecated, or listed for removal" ON)
+mark_as_advanced(VXL_LEGACY_FUTURE_REMOVE)
+option(VXL_RUN_FAILING_TESTS "Enable long-time failing tests. If tests are failing for a long time, turn them off by default." OFF)
+mark_as_advanced(VXL_RUN_FAILING_TESTS)
 
 # Option to build Windows Unicode support, the string
 # type of which is wchar_t, each character is a 16-bit unsigned integer.
@@ -150,10 +196,10 @@ endif()
 # compiler flag must be added.  Only do this if we are on a x86_64 *nix platform, we're building
 # static libraries, and the user has not explicitly requested position dependent code.
 if(UNIX)
-  if(NOT VXL_BUILD_SHARED_LIBS AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-    option(BUILD_POSITION_DEPENDENT_CODE "Generate position dependent code (i.e. code cannot be used in shared library)" OFF)
-    mark_as_advanced(BUILD_POSITION_DEPENDENT_CODE)
-    if(NOT BUILD_POSITION_DEPENDENT_CODE)
+  if(NOT BUILD_SHARED_LIBS AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    option(VXL_BUILD_POSITION_DEPENDENT_CODE "Generate position dependent code (i.e. code cannot be used in shared library)" OFF)
+    mark_as_advanced(VXL_BUILD_POSITION_DEPENDENT_CODE)
+    if(NOT VXL_BUILD_POSITION_DEPENDENT_CODE)
       message(STATUS "Adding -fPIC compiler flag to generate position independent code.")
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
@@ -221,23 +267,27 @@ endif()
 #-------------------------------------------------------------------
 #-- BUILD SELECTION OPTIONS
 # Options for selecting the core core libraries
-option( BUILD_CORE_GEOMETRY "Build VXL's geometry libraries" ON )
-option( BUILD_CORE_NUMERICS "Build VXL's numerics libraries" ON )
-option( BUILD_CORE_SERIALISATION "Build VXL's serialisation libraries" ON )
-option( BUILD_CORE_UTILITIES "Build VXL's utility libraries" ON )
-option( BUILD_CORE_IMAGING "Build VXL's imaging libraries" ON )
+option( VXL_BUILD_CORE_NUMERICS_ONLY "Turn off everything except the core numerics" OFF)
+mark_as_advanced(VXL_BUILD_CORE_NUMERICS_ONLY)
+option( VXL_BUILD_CORE_NUMERICS "Build VXL's numerics libraries" ON )
+CMAKE_DEPENDENT_OPTION( VXL_BUILD_CORE_GEOMETRY "Build VXL's geometry libraries" ON "NOT VXL_BUILD_CORE_NUMERICS_ONLY" OFF)
+CMAKE_DEPENDENT_OPTION( VXL_BUILD_CORE_SERIALISATION "Build VXL's serialisation libraries" ON "NOT VXL_BUILD_CORE_NUMERICS_ONLY" OFF)
+CMAKE_DEPENDENT_OPTION( VXL_BUILD_CORE_UTILITIES "Build VXL's utility libraries" ON "NOT VXL_BUILD_CORE_NUMERICS_ONLY" OFF)
+CMAKE_DEPENDENT_OPTION( VXL_BUILD_CORE_IMAGING "Build VXL's imaging libraries" ON "NOT VXL_BUILD_CORE_NUMERICS_ONLY" OFF)
 
 # By default, build examples when building tests. Examples require most of the core libraries
-CMAKE_DEPENDENT_OPTION( BUILD_EXAMPLES "Should the examples be built?" ${BUILD_TESTING}
-                      "BUILD_CORE_GEOMETRY;BUILD_CORE_NUMERICS;BUILD_CORE_UTILITIES;BUILD_CORE_SERIALISATION;BUILD_CORE_IMAGING" OFF)
+CMAKE_DEPENDENT_OPTION( VXL_BUILD_EXAMPLES "Should the examples be built?" ${BUILD_TESTING}
+                      "VXL_BUILD_CORE_GEOMETRY;VXL_BUILD_CORE_NUMERICS;VXL_BUILD_CORE_UTILITIES;VXL_BUILD_CORE_SERIALISATION;VXL_BUILD_CORE_IMAGING" OFF)
+mark_as_advanced(VXL_BUILD_EXAMPLES)
 
-# Option to specify whether this is a build for the dashboard.  Each
-# dashboard build should set BUILD_FOR_VXL_DASHBOARD to ON in the
-# initial cache (set in the CTest script).
-option( BUILD_FOR_VXL_DASHBOARD "Enable deprecated code and known failing test?)" OFF )
-option( BUILD_NONDEPRECATED_ONLY "Build only nondeprecated libraries (Experimental)" ON )
+option( VXL_BUILD_NONDEPRECATED_ONLY "Build only nondeprecated libraries (Experimental)" ON )
+mark_as_advanced(VXL_BUILD_NONDEPRECATED_ONLY)
 
-CMAKE_DEPENDENT_OPTION(BUILD_CORE_PROBABILITY "Build VXL's probability libraries (Experimental)" ON "BUILD_CORE_NUMERICS;BUILD_FOR_VXL_DASHBOARD" OFF)
+CMAKE_DEPENDENT_OPTION(VXL_BUILD_CORE_PROBABILITY "Build VXL's probability libraries (Experimental)" ON
+                       "VXL_BUILD_CORE_NUMERICS;NOT VXL_BUILD_CORE_NUMERICS_ONLY" OFF)
+
+option(VXL_USE_GEOTIFF "Use the GEOTIFF Library if available" True)
+mark_as_advanced(VXL_USE_GEOTIFF)
 
 # Build the core vxl + support libraries
 add_subdirectory(vcl)
@@ -246,7 +296,7 @@ add_subdirectory(core)
 
 # Optionally build the contributed libraries
 if( EXISTS ${CMAKE_CURRENT_LIST_DIR}/contrib/CMakeLists.txt )
-  CMAKE_DEPENDENT_OPTION(BUILD_CONTRIB "Build the contributed libraries?" ON "BUILD_CORE_GEOMETRY;BUILD_CORE_NUMERICS;BUILD_CORE_UTILITIES;BUILD_CORE_SERIALISATION;BUILD_CORE_IMAGING" OFF)
+  CMAKE_DEPENDENT_OPTION(VXL_BUILD_CONTRIB "Build the contributed libraries?" OFF "VXL_BUILD_CORE_GEOMETRY;VXL_BUILD_CORE_NUMERICS;VXL_BUILD_CORE_UTILITIES;VXL_BUILD_CORE_SERIALISATION;VXL_BUILD_CORE_IMAGING;NOT VXL_BUILD_CORE_NUMERICS_ONLY" OFF)
   add_subdirectory(contrib)
 endif()
 
@@ -257,15 +307,18 @@ endif()
 # the UseVXL.cmake from the vxl binary directory, and determine the
 # vxl source directory by loading the cache.
 configure_file( ${VXL_CMAKE_DIR}/UseVXL.cmake
-                ${vxl_BINARY_DIR}/UseVXL.cmake COPYONLY )
+                ${VXL_BINARY_DIR}/UseVXL.cmake COPYONLY )
 # For use in client projects that call UseVXL.cmake
 set(VXL_LIBRARY_PATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} CACHE STATIC "Where all the vxl libraries are, for clients to use." )
 
 # Copy CTestCustom.cmake to top of build tree
 configure_file( ${VXL_CMAKE_DIR}/CTestCustom.cmake
-  ${vxl_BINARY_DIR}/CTestCustom.cmake COPYONLY )
+  ${VXL_BINARY_DIR}/CTestCustom.cmake COPYONLY )
 
 # This command must be the last command in this file
 if(NOT VXL_NO_EXPORT)
   include(${CMAKE_CURRENT_LIST_DIR}/config/cmake/export/VXLCreateProject.cmake)
 endif()
+
+option(VXL_BUILD_OBJECT_LIBRARIES "Build object libraries (to enable all in a single library)?" OFF)
+mark_as_advanced(VXL_BUILD_OBJECT_LIBRARIES)

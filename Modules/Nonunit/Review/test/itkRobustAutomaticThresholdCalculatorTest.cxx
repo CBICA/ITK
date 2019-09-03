@@ -24,77 +24,72 @@
 #include "itkTestingMacros.h"
 
 
-int itkRobustAutomaticThresholdCalculatorTest( int argc, char *argv[] )
+int
+itkRobustAutomaticThresholdCalculatorTest(int argc, char * argv[])
 {
-  if( argc != 4 )
-    {
+  if (argc != 4)
+  {
     std::cerr << "Missing parameters." << std::endl;
     std::cerr << "Usage: " << argv[0] << " inputImage pow expectedOutput" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned short                      PixelType;
-  typedef itk::Image< PixelType, Dimension >  ImageType;
+  using PixelType = unsigned short;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef float                                   RealPixelType;
-  typedef itk::Image< RealPixelType, Dimension >  RealImageType;
+  using RealPixelType = float;
+  using RealImageType = itk::Image<RealPixelType, Dimension>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::GradientMagnitudeRecursiveGaussianImageFilter< ImageType, RealImageType >
-    GradientType;
+  using GradientType = itk::GradientMagnitudeRecursiveGaussianImageFilter<ImageType, RealImageType>;
   GradientType::Pointer gradient = GradientType::New();
-  gradient->SetInput( reader->GetOutput() );
-  gradient->SetSigma( 10 );
+  gradient->SetInput(reader->GetOutput());
+  gradient->SetSigma(10);
   gradient->Update();
 
-  typedef itk::RobustAutomaticThresholdCalculator< ImageType, RealImageType >
-    CalculatorType;
+  using CalculatorType = itk::RobustAutomaticThresholdCalculator<ImageType, RealImageType>;
   CalculatorType::Pointer calculator = CalculatorType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( calculator,
-    RobustAutomaticThresholdCalculator, Object );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(calculator, RobustAutomaticThresholdCalculator, Object);
 
 
-  calculator->SetGradient( gradient->GetOutput() );
+  calculator->SetGradient(gradient->GetOutput());
 
-  double pow = atof( argv[2] );
-  calculator->SetPow( pow );
-  TEST_SET_GET_VALUE( pow, calculator->GetPow() );
+  double pow = std::stod(argv[2]);
+  calculator->SetPow(pow);
+  ITK_TEST_SET_GET_VALUE(pow, calculator->GetPow());
 
 
   // Test input or gradient unset exceptions
-  TRY_EXPECT_EXCEPTION( calculator->Compute() );
+  ITK_TRY_EXPECT_EXCEPTION(calculator->Compute());
 
-  TRY_EXPECT_EXCEPTION( calculator->GetOutput() );
+  ITK_TRY_EXPECT_EXCEPTION(calculator->GetOutput());
 
 
-  calculator->SetInput( reader->GetOutput() );
+  calculator->SetInput(reader->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( calculator->Compute() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(calculator->Compute());
 
 
   // Regression test
-  CalculatorType::InputPixelType expectedOutput =
-    static_cast< CalculatorType::InputPixelType >( atof( argv[3] ) );
+  auto                           expectedOutput = static_cast<CalculatorType::InputPixelType>(std::stod(argv[3]));
   CalculatorType::InputPixelType computedOutput = calculator->GetOutput();
-  if( itk::Math::NotAlmostEquals( expectedOutput, computedOutput ) )
-    {
+  if (itk::Math::NotAlmostEquals(expectedOutput, computedOutput))
+  {
     std::cout << "Test failed!" << std::endl;
     std::cout << "Error in GetOutput()" << std::endl;
     std::cout << "Expected: "
-      << static_cast< itk::NumericTraits<
-      CalculatorType::InputPixelType >::PrintType >( expectedOutput )
-      << ", but got: "
-      << static_cast< itk::NumericTraits<
-      CalculatorType::InputPixelType >::PrintType >( computedOutput )
-      << std::endl;
+              << static_cast<itk::NumericTraits<CalculatorType::InputPixelType>::PrintType>(expectedOutput)
+              << ", but got: "
+              << static_cast<itk::NumericTraits<CalculatorType::InputPixelType>::PrintType>(computedOutput)
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "Test finished." << std::endl;
   return EXIT_SUCCESS;

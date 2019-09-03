@@ -38,28 +38,28 @@ namespace itk
  * application:
  *     Here it is assumed that the transform is Euler3DTransform.
  *
- * \code
- *  OptimizerType::StepsType steps( m_Transform->GetNumberOfParameters() );
- *  steps[0] = 10;
- *  steps[1] = 10;
- *  steps[2] = 10;
- *  m_Optimizer->SetNumberOfSteps( steps );
- *  m_Optimizer->SetStepLength( 2 );
- * \endcode
+   \code
+    OptimizerType::StepsType steps( m_Transform->GetNumberOfParameters() );
+    steps[0] = 10;
+    steps[1] = 10;
+    steps[2] = 10;
+    m_Optimizer->SetNumberOfSteps( steps );
+    m_Optimizer->SetStepLength( 2 );
+   \endcode
  *
  * The optimizer throws IterationEvents after every iteration. We use this to plot
  * the metric space in an image as follows:
  *
- * \code
- *  if( itk::IterationEvent().CheckEvent(& event ) )
- *  {
- *    IndexType index;
- *    index[0] = m_Optimizer->GetCurrentIndex()[0];
- *    index[1] = m_Optimizer->GetCurrentIndex()[1];
- *    index[2] = m_Optimizer->GetCurrentIndex()[2];
- *    image->SetPixel( index, m_Optimizer->GetCurrentValue() );
- *  }
- * \endcode
+   \code
+    if( itk::IterationEvent().CheckEvent(& event ) )
+    {
+      IndexType index;
+      index[0] = m_Optimizer->GetCurrentIndex()[0];
+      index[1] = m_Optimizer->GetCurrentIndex()[1];
+      index[2] = m_Optimizer->GetCurrentIndex()[2];
+      image->SetPixel( index, m_Optimizer->GetCurrentValue() );
+    }
+   \endcode
  *
  * The image size is expected to be 11 x 11 x 11.
  *
@@ -75,31 +75,40 @@ namespace itk
  *
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizers
+ *
+ * \sphinx
+ * \sphinxexample{Numerics/Optimizers/ExhaustiveOptimizer,Exhaustive Optimizer}
+ * \endsphinx
  */
-class ITKOptimizers_EXPORT ExhaustiveOptimizer:
-  public SingleValuedNonLinearOptimizer
+class ITKOptimizers_EXPORT ExhaustiveOptimizer : public SingleValuedNonLinearOptimizer
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef ExhaustiveOptimizer            Self;
-  typedef SingleValuedNonLinearOptimizer Superclass;
-  typedef SmartPointer< Self >           Pointer;
-  typedef SmartPointer< const Self >     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ExhaustiveOptimizer);
 
-  typedef Array< SizeValueType > StepsType;
+  /** Standard "Self" type alias. */
+  using Self = ExhaustiveOptimizer;
+  using Superclass = SingleValuedNonLinearOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using StepsType = Array<SizeValueType>;
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ExhaustiveOptimizer, SingleValuedNonLinearOptimizer);
 
-  virtual void    StartOptimization(void) ITK_OVERRIDE;
+  void
+  StartOptimization() override;
 
-  void StartWalking();
+  void
+  StartWalking();
 
-  void ResumeWalking();
+  void
+  ResumeWalking();
 
-  void StopWalking();
+  void
+  StopWalking();
 
   itkSetMacro(StepLength, double);
   itkSetMacro(NumberOfSteps, StepsType);
@@ -114,17 +123,21 @@ public:
   itkGetConstReferenceMacro(MaximumNumberOfIterations, SizeValueType);
 
   /** Get the reason for termination */
-  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
+  const std::string
+  GetStopConditionDescription() const override;
 
 protected:
   ExhaustiveOptimizer();
-  virtual ~ExhaustiveOptimizer() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ExhaustiveOptimizer() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Advance to the next grid position. */
-  void AdvanceOneStep();
+  void
+  AdvanceOneStep();
 
-  void IncrementIndex(ParametersType & param);
+  void
+  IncrementIndex(ParametersType & param);
 
 protected:
   MeasureType m_CurrentValue;
@@ -152,8 +165,6 @@ protected:
   ParametersType m_MaximumMetricValuePosition;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ExhaustiveOptimizer);
-
   std::ostringstream m_StopConditionDescription;
 };
 } // end namespace itk

@@ -21,54 +21,55 @@
 #include "itkMinimumDecisionRule.h"
 
 
-int itkMinimumDecisionRuleTest(int,char *[] )
+int
+itkMinimumDecisionRuleTest(int, char *[])
 {
 
   std::cout << "==================================" << std::endl;
   std::cout << "Testing MinimumDecionRule " << std::endl << std::endl;
 
-  typedef itk::Statistics::MinimumDecisionRule  DecisionRuleType;
+  using DecisionRuleType = itk::Statistics::MinimumDecisionRule;
   DecisionRuleType::Pointer decisionRule = DecisionRuleType::New();
 
   DecisionRuleType::MembershipVectorType discriminantScores;
-  discriminantScores.resize( 3 );
+  discriminantScores.resize(3);
 
   discriminantScores[0] = 0.0;
   discriminantScores[1] = 1.0;
   discriminantScores[2] = 2.0;
 
-  if ( decisionRule->Evaluate( discriminantScores ) != 0 )
-    {
+  if (decisionRule->Evaluate(discriminantScores) != 0)
+  {
     std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   DecisionRuleType::MembershipVectorType discriminantScores2;
-  discriminantScores2.resize( 3 );
+  discriminantScores2.resize(3);
 
   discriminantScores2[0] = 0.0;
   discriminantScores2[1] = 1.0;
   discriminantScores2[2] = 2.0;
 
-  if ( decisionRule->Evaluate( discriminantScores2 ) != 0 )
-    {
+  if (decisionRule->Evaluate(discriminantScores2) != 0)
+  {
     std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   DecisionRuleType::MembershipVectorType discriminantScores3;
-  discriminantScores3.resize( 3 );
+  discriminantScores3.resize(3);
 
   discriminantScores3[0] = 0.0;
   discriminantScores3[1] = 1.0;
   discriminantScores3[2] = 2.0;
 
-  if ( decisionRule->Evaluate( discriminantScores3 ) != 0 )
-    {
+  if (decisionRule->Evaluate(discriminantScores3) != 0)
+  {
     std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "[SUCCEEDED]" << std::endl;
   return EXIT_SUCCESS;

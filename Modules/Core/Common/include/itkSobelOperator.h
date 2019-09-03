@@ -34,11 +34,11 @@ namespace itk
  *
  * 1) Set the direction by calling  \code SetDirection \endcode
  * 2) call
- * \code
- * itk::Size<2> radius;
- * radius.Fill(1);
- * sobelOperator.CreateToRadius(radius);
- * \endcode
+   \code
+   itk::Size<2> radius;
+   radius.Fill(1);
+   sobelOperator.CreateToRadius(radius);
+   \endcode
  * 3) You may optionally scale the coefficients of this operator using the
  * \code ScaleCoefficients \endcode method.  This is useful if you
  * want to take the spacing of the image into account when computing
@@ -87,25 +87,23 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Operators/SobelOperator,Create the Sobel kernel}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateSobelKernel,Create Sobel Kernel}
+ * \endsphinx
  */
-template< typename TPixel, unsigned int VDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT SobelOperator:
-  public NeighborhoodOperator< TPixel, VDimension, TAllocator >
+template <typename TPixel, unsigned int VDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT SobelOperator : public NeighborhoodOperator<TPixel, VDimension, TAllocator>
 {
 public:
-  /** Standard typedefs */
-  typedef SobelOperator                                          Self;
-  typedef NeighborhoodOperator< TPixel, VDimension, TAllocator > Superclass;
+  /** Standard type alias */
+  using Self = SobelOperator;
+  using Superclass = NeighborhoodOperator<TPixel, VDimension, TAllocator>;
 
   itkTypeMacro(SobelOperator, NeighborhoodOperator);
 
-  SobelOperator() {}
-  SobelOperator(const Self & other):
-    NeighborhoodOperator< TPixel, VDimension, TAllocator >(other)
+  SobelOperator() = default;
+  SobelOperator(const Self & other)
+    : NeighborhoodOperator<TPixel, VDimension, TAllocator>(other)
   {}
 
   /** Creates the operator with length only in the specified direction.  For
@@ -113,7 +111,8 @@ public:
    * The radius of the operator will be 0 except along the axis on which
    * the operator will work.
    * \sa CreateToRadius \sa FillCenteredDirectional \sa SetDirection() \sa GetDirection() */
-  virtual void CreateDirectional() ITK_OVERRIDE
+  void
+  CreateDirectional() override
   {
     this->CreateToRadius(1);
   }
@@ -126,7 +125,8 @@ public:
   /**
    * Assignment operator
    */
-  Self & operator=(const Self & other)
+  Self &
+  operator=(const Self & other)
   {
     Superclass::operator=(other);
     return *this;
@@ -135,10 +135,11 @@ public:
   /**
    * Prints some debugging information
    */
-  virtual void PrintSelf(std::ostream & os, Indent i) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent i) const override
   {
-    os << i << "SobelOperator { this=" << this  << "}" << std::endl;
-    Superclass::PrintSelf( os, i.GetNextIndent() );
+    os << i << "SobelOperator { this=" << this << "}" << std::endl;
+    Superclass::PrintSelf(os, i.GetNextIndent());
   }
 
 protected:
@@ -146,23 +147,25 @@ protected:
    * Typedef support for coefficient vector type.  Necessary to
    * work around compiler bug on VC++.
    */
-  typedef typename Superclass::CoefficientVector CoefficientVector;
-  typedef typename Superclass::PixelType         PixelType;
+  using CoefficientVector = typename Superclass::CoefficientVector;
+  using PixelType = typename Superclass::PixelType;
 
   /**
    * Calculates operator coefficients.
    */
-  CoefficientVector GenerateCoefficients() ITK_OVERRIDE;
+  CoefficientVector
+  GenerateCoefficients() override;
 
   /**
    * Arranges coefficients spatially in the memory buffer.
    */
-  void Fill(const CoefficientVector & c) ITK_OVERRIDE;
+  void
+  Fill(const CoefficientVector & c) override;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSobelOperator.hxx"
+#  include "itkSobelOperator.hxx"
 #endif
 
 #endif

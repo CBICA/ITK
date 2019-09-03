@@ -46,14 +46,16 @@ namespace itk
  * \ingroup Functions
  * \ingroup ITKImageSources
  */
-template< typename TRealValueType >
-class GaborKernelFunction : public KernelFunctionBase< TRealValueType >
+template <typename TRealValueType>
+class GaborKernelFunction : public KernelFunctionBase<TRealValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GaborKernelFunction                Self;
-  typedef KernelFunctionBase<TRealValueType> Superclass;
-  typedef SmartPointer< Self >               Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaborKernelFunction);
+
+  /** Standard class type aliases. */
+  using Self = GaborKernelFunction;
+  using Superclass = KernelFunctionBase<TRealValueType>;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,21 +64,22 @@ public:
   itkTypeMacro(GaborKernelFunction, KernelFunctionBase);
 
   /** Evaluate the function. */
-  TRealValueType Evaluate(const TRealValueType & u) const ITK_OVERRIDE
+  TRealValueType
+  Evaluate(const TRealValueType & u) const override
   {
     TRealValueType parameter = itk::Math::sqr(u / this->m_Sigma);
-    TRealValueType envelope = std::exp(static_cast< TRealValueType >(-0.5) * parameter);
-    TRealValueType phase = static_cast< TRealValueType >(2.0 * itk::Math::pi) * this->m_Frequency * u
-                   + this->m_PhaseOffset;
+    TRealValueType envelope = std::exp(static_cast<TRealValueType>(-0.5) * parameter);
+    TRealValueType phase =
+      static_cast<TRealValueType>(2.0 * itk::Math::pi) * this->m_Frequency * u + this->m_PhaseOffset;
 
-    if ( this->m_CalculateImaginaryPart )
-      {
+    if (this->m_CalculateImaginaryPart)
+    {
       return envelope * std::sin(phase);
-      }
+    }
     else
-      {
+    {
       return envelope * std::cos(phase);
-      }
+    }
   }
 
   /** Set/Get the standard deviation of the Gaussian envelope. */
@@ -99,26 +102,25 @@ public:
 
 protected:
   GaborKernelFunction()
-    {
+  {
     this->m_CalculateImaginaryPart = false;
-    this->m_Sigma = NumericTraits< TRealValueType >::OneValue();
+    this->m_Sigma = NumericTraits<TRealValueType>::OneValue();
     this->m_Frequency = static_cast<TRealValueType>(0.4);
-    this->m_PhaseOffset = NumericTraits< TRealValueType >::ZeroValue();
-    }
-  ~GaborKernelFunction() ITK_OVERRIDE {};
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-    {
+    this->m_PhaseOffset = NumericTraits<TRealValueType>::ZeroValue();
+  }
+  ~GaborKernelFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
     Superclass::PrintSelf(os, indent);
 
     os << indent << "Sigma: " << this->GetSigma() << std::endl;
     os << indent << "Frequency: " << this->GetFrequency() << std::endl;
     os << indent << "PhaseOffset: " << this->GetPhaseOffset() << std::endl;
     os << indent << "CalculateImaginaryPart: " << this->GetCalculateImaginaryPart() << std::endl;
-    }
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaborKernelFunction);
-
   TRealValueType m_Sigma;
 
   TRealValueType m_Frequency;

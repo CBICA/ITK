@@ -27,12 +27,9 @@
 namespace itk
 {
 
-template< typename TOutputImage >
-GaborImageSource< TOutputImage >
-::GaborImageSource() :
-  m_CalculateImaginaryPart( false ),
-  m_Frequency( 0.4 ),
-  m_PhaseOffset( 0.0 )
+template <typename TOutputImage>
+GaborImageSource<TOutputImage>::GaborImageSource()
+
 {
   // Gabor parameters, defined so that the Gaussian
   // is centered in the default image
@@ -40,19 +37,18 @@ GaborImageSource< TOutputImage >
   this->m_Sigma.Fill(16.0);
 }
 
-template< typename TOutputImage >
+template <typename TOutputImage>
 void
-GaborImageSource< TOutputImage >
-::GenerateData()
+GaborImageSource<TOutputImage>::GenerateData()
 {
-  OutputImageType* outputPtr = this->GetOutput();
+  OutputImageType * outputPtr = this->GetOutput();
 
   // Allocate the output buffer
-  outputPtr->SetBufferedRegion( outputPtr->GetRequestedRegion() );
+  outputPtr->SetBufferedRegion(outputPtr->GetRequestedRegion());
   outputPtr->Allocate();
 
   // Create and initialize a new Gaussian function
-  typedef GaborKernelFunction<double> KernelFunctionType;
+  using KernelFunctionType = GaborKernelFunction<double>;
   typename KernelFunctionType::Pointer gabor = KernelFunctionType::New();
 
   gabor->SetSigma(this->m_Sigma[0]);
@@ -61,48 +57,45 @@ GaborImageSource< TOutputImage >
   gabor->SetCalculateImaginaryPart(this->m_CalculateImaginaryPart);
 
   // Create an iterator that will walk the output region
-  ImageRegionIteratorWithIndex< OutputImageType >
-  outIt( outputPtr, outputPtr->GetRequestedRegion() );
+  ImageRegionIteratorWithIndex<OutputImageType> outIt(outputPtr, outputPtr->GetRequestedRegion());
 
 
-  ProgressReporter progress( this, 0,
-                             outputPtr->GetRequestedRegion().GetNumberOfPixels() );
+  ProgressReporter progress(this, 0, outputPtr->GetRequestedRegion().GetNumberOfPixels());
 
   // Walk the output image, evaluating the spatial function at each pixel
-  for ( outIt.GoToBegin(); !outIt.IsAtEnd(); ++outIt )
-    {
+  for (outIt.GoToBegin(); !outIt.IsAtEnd(); ++outIt)
+  {
     const typename OutputImageType::IndexType index = outIt.GetIndex();
     // The position at which the function is evaluated
     typename OutputImageType::PointType evalPoint;
     outputPtr->TransformIndexToPhysicalPoint(index, evalPoint);
     double sum = 0.0;
-    for ( unsigned int i = 1; i < ImageDimension; ++i )
-      {
-      sum += itk::Math::sqr( ( evalPoint[i] - this->m_Mean[i] ) / this->m_Sigma[i] );
-      }
+    for (unsigned int i = 1; i < ImageDimension; ++i)
+    {
+      sum += itk::Math::sqr((evalPoint[i] - this->m_Mean[i]) / this->m_Sigma[i]);
+    }
     const double value = std::exp(-0.5 * sum) * gabor->Evaluate(evalPoint[0] - this->m_Mean[0]);
 
     // Set the pixel value to the function value
-    outIt.Set( static_cast< PixelType >( value ) );
+    outIt.Set(static_cast<PixelType>(value));
     progress.CompletedPixel();
-    }
+  }
 }
 
-template< typename TOutputImage >
+template <typename TOutputImage>
 void
-GaborImageSource< TOutputImage >
-::PrintSelf(std::ostream & os, Indent indent) const
+GaborImageSource<TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
-  if ( this->GetCalculateImaginaryPart() )
-    {
+  if (this->GetCalculateImaginaryPart())
+  {
     os << indent << "Calculate complex part: true " << std::endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Calculate complex part: false " << std::endl;
-    }
+  }
   os << indent << "Frequency: " << this->GetFrequency() << std::endl;
   os << indent << "Phase offset: " << m_PhaseOffset << std::endl;
   os << indent << "Sigma: " << this->GetSigma() << std::endl;

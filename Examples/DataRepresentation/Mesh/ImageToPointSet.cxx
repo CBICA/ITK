@@ -32,70 +32,71 @@
 #include "itkImageRegionConstIterator.h"
 
 
-int main( int argc, char * argv[] )
+int
+main(int argc, char * argv[])
 {
   // Verify the number of parameters in the command line
-  if( argc < 2 )
-    {
+  if (argc < 2)
+  {
     std::cerr << "Usage: " << std::endl;
     std::cerr << argv[0] << " inputImageFile  " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  typedef unsigned char      PixelType;
-  const   unsigned int       Dimension = 2;
+  using PixelType = unsigned char;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::Image< PixelType, Dimension >    ImageType;
-  typedef itk::PointSet< PixelType, Dimension > PointSetType;
-  typedef itk::ImageFileReader< ImageType >     ReaderType;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using PointSetType = itk::PointSet<PixelType, Dimension>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
 
-  const char * inputFilename  = argv[1];
-  reader->SetFileName( inputFilename  );
+  const char * inputFilename = argv[1];
+  reader->SetFileName(inputFilename);
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "ExceptionObject caught !" << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  PointSetType::Pointer  pointSet = PointSetType::New();
+  PointSetType::Pointer pointSet = PointSetType::New();
 
 
-  typedef itk::ImageRegionConstIterator< ImageType > IteratorType;
+  using IteratorType = itk::ImageRegionConstIterator<ImageType>;
 
   const ImageType * image = reader->GetOutput();
 
-  IteratorType it( image, image->GetBufferedRegion() );
+  IteratorType it(image, image->GetBufferedRegion());
 
   it.GoToBegin();
 
 
-  typedef PointSetType::PointType     PointType;
+  using PointType = PointSetType::PointType;
   PointType point;
 
   unsigned long pointId = 0;
 
-  while( !it.IsAtEnd() )
-    {
+  while (!it.IsAtEnd())
+  {
 
     // Convert the pixel position into a Point
-    image->TransformIndexToPhysicalPoint( it.GetIndex() , point );
-    pointSet->SetPoint( pointId, point );
+    image->TransformIndexToPhysicalPoint(it.GetIndex(), point);
+    pointSet->SetPoint(pointId, point);
 
     // Transfer the pixel data to the value associated with the point.
-    pointSet->SetPointData( pointId, it.Get() );
+    pointSet->SetPointData(pointId, it.Get());
 
     ++it;
     ++pointId;
-    }
+  }
 
 
   std::cout << "Number Of Points = ";

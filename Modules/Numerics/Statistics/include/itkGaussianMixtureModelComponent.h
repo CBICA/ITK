@@ -46,60 +46,63 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-template< typename TSample >
-class ITK_TEMPLATE_EXPORT GaussianMixtureModelComponent:
-  public MixtureModelComponentBase< TSample >
+template <typename TSample>
+class ITK_TEMPLATE_EXPORT GaussianMixtureModelComponent : public MixtureModelComponentBase<TSample>
 {
 public:
-  /**Standard class typedefs. */
-  typedef GaussianMixtureModelComponent        Self;
-  typedef MixtureModelComponentBase< TSample > Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
+  /**Standard class type aliases. */
+  using Self = GaussianMixtureModelComponent;
+  using Superclass = MixtureModelComponentBase<TSample>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**Standard Macros */
   itkTypeMacro(GaussianMixtureModelComponent, MixtureModelComponentBase);
   itkNewMacro(Self);
 
   /** Typedefs from the superclass */
-  typedef typename Superclass::MeasurementVectorType     MeasurementVectorType;
-  typedef typename Superclass::MeasurementVectorSizeType MeasurementVectorSizeType;
-  typedef typename Superclass::MembershipFunctionType    MembershipFunctionType;
-  typedef typename Superclass::WeightArrayType           WeightArrayType;
-  typedef typename Superclass::ParametersType            ParametersType;
+  using MeasurementVectorType = typename Superclass::MeasurementVectorType;
+  using MeasurementVectorSizeType = typename Superclass::MeasurementVectorSizeType;
+  using MembershipFunctionType = typename Superclass::MembershipFunctionType;
+  using WeightArrayType = typename Superclass::WeightArrayType;
+  using ParametersType = typename Superclass::ParametersType;
 
   /** Type of the membership function. Gaussian density function */
-  typedef GaussianMembershipFunction< MeasurementVectorType >
-  NativeMembershipFunctionType;
+  using NativeMembershipFunctionType = GaussianMembershipFunction<MeasurementVectorType>;
 
   /** Types of the mean and the covariance calculator that will update
    *  this component's distribution parameters */
-  typedef WeightedMeanSampleFilter< TSample >       MeanEstimatorType;
-  typedef WeightedCovarianceSampleFilter< TSample > CovarianceEstimatorType;
+  using MeanEstimatorType = WeightedMeanSampleFilter<TSample>;
+  using CovarianceEstimatorType = WeightedCovarianceSampleFilter<TSample>;
 
   /** Type of the mean vector */
-  typedef typename MeanEstimatorType::OutputType MeanVectorType;
+  using MeanVectorType = typename MeanEstimatorType::OutputType;
 
   /** Type of the covariance matrix */
-  typedef typename CovarianceEstimatorType::OutputType CovarianceMatrixType;
+  using CovarianceMatrixType = typename CovarianceEstimatorType::OutputType;
 
   /** Sets the input sample */
-  void SetSample(const TSample *sample) ITK_OVERRIDE;
+  void
+  SetSample(const TSample * sample) override;
 
   /** Sets the component's distribution parameters. */
-  void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType & parameters) override;
 
 protected:
   GaussianMixtureModelComponent();
-  virtual ~GaussianMixtureModelComponent() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GaussianMixtureModelComponent() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Returns the sum of squared changes in parameters between
    * iterations */
-  double CalculateParametersChange();
+  double
+  CalculateParametersChange();
 
   /** Computes the new distribution parameters */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
   typename NativeMembershipFunctionType::Pointer m_GaussianMembershipFunction;
@@ -111,12 +114,12 @@ private:
   typename MeanEstimatorType::Pointer m_MeanEstimator;
 
   typename CovarianceEstimatorType::Pointer m_CovarianceEstimator;
-};  // end of class
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGaussianMixtureModelComponent.hxx"
+#  include "itkGaussianMixtureModelComponent.hxx"
 #endif
 
 #endif

@@ -21,35 +21,34 @@
 #include "itkTranslationTransform.h"
 
 
-int itkGradientDifferenceImageToImageMetricTest(int , char*[] )
+int
+itkGradientDifferenceImageToImageMetricTest(int, char *[])
 {
   // Create two simple images.
-  const unsigned int ImageDimension = 2;
-  typedef double PixelType;
-  typedef double CoordinateRepresentationType;
+  constexpr unsigned int ImageDimension = 2;
+  using PixelType = double;
+  using CoordinateRepresentationType = double;
 
-  //Allocate Images
-  typedef itk::Image<PixelType,ImageDimension> MovingImageType;
-  typedef itk::Image<PixelType,ImageDimension> FixedImageType;
+  // Allocate Images
+  using MovingImageType = itk::Image<PixelType, ImageDimension>;
+  using FixedImageType = itk::Image<PixelType, ImageDimension>;
 
   // Declare Gaussian Sources
-  typedef itk::GaussianImageSource<MovingImageType> MovingImageSourceType;
-  typedef itk::GaussianImageSource<FixedImageType>  FixedImageSourceType;
+  using MovingImageSourceType = itk::GaussianImageSource<MovingImageType>;
+  using FixedImageSourceType = itk::GaussianImageSource<FixedImageType>;
 
   // Note: the following declarations are classical arrays
-  FixedImageType::SizeValueType fixedImageSize[] = {100,  100};
-  MovingImageType::SizeValueType movingImageSize[] = {100,  100};
+  FixedImageType::SizeValueType  fixedImageSize[] = { 100, 100 };
+  MovingImageType::SizeValueType movingImageSize[] = { 100, 100 };
 
-  FixedImageType::SpacingValueType fixedImageSpacing[]  = {1.0f, 1.0f};
-  MovingImageType::SpacingValueType movingImageSpacing[] = {1.0f, 1.0f};
+  FixedImageType::SpacingValueType  fixedImageSpacing[] = { 1.0f, 1.0f };
+  MovingImageType::SpacingValueType movingImageSpacing[] = { 1.0f, 1.0f };
 
-  FixedImageType::PointValueType fixedImageOrigin[] = {0.0f, 0.0f};
-  MovingImageType::PointValueType movingImageOrigin[] = {0.0f, 0.0f};
+  FixedImageType::PointValueType  fixedImageOrigin[] = { 0.0f, 0.0f };
+  MovingImageType::PointValueType movingImageOrigin[] = { 0.0f, 0.0f };
 
-  MovingImageSourceType::Pointer movingImageSource =
-    MovingImageSourceType::New();
-  FixedImageSourceType::Pointer  fixedImageSource  =
-    FixedImageSourceType::New();
+  MovingImageSourceType::Pointer movingImageSource = MovingImageSourceType::New();
+  FixedImageSourceType::Pointer  fixedImageSource = FixedImageSourceType::New();
 
   movingImageSource->SetSize(movingImageSize);
   movingImageSource->SetOrigin(movingImageOrigin);
@@ -67,16 +66,14 @@ int itkGradientDifferenceImageToImageMetricTest(int , char*[] )
   fixedImageSource->Update();  // Force the filter to run
 
   MovingImageType::Pointer movingImage = movingImageSource->GetOutput();
-  FixedImageType::Pointer  fixedImage  = fixedImageSource->GetOutput();
+  FixedImageType::Pointer  fixedImage = fixedImageSource->GetOutput();
 
   // Set up the metric.
-  typedef itk::GradientDifferenceImageToImageMetric<
-                                            FixedImageType,
-                                            MovingImageType> MetricType;
+  using MetricType = itk::GradientDifferenceImageToImageMetric<FixedImageType, MovingImageType>;
 
-  typedef MetricType::TransformType         TransformBaseType;
-  typedef MetricType::DerivativeType        DerivativeType;
-  typedef TransformBaseType::ParametersType ParametersType;
+  using TransformBaseType = MetricType::TransformType;
+  using DerivativeType = MetricType::DerivativeType;
+  using ParametersType = TransformBaseType::ParametersType;
 
   MetricType::Pointer metric = MetricType::New();
 
@@ -85,19 +82,17 @@ int itkGradientDifferenceImageToImageMetricTest(int , char*[] )
   metric->SetMovingImage(movingImage);
 
   // Set up a transform.
-  typedef itk::TranslationTransform<CoordinateRepresentationType,
-    ImageDimension> TransformType;
+  using TransformType = itk::TranslationTransform<CoordinateRepresentationType, ImageDimension>;
 
   TransformType::Pointer transform = TransformType::New();
-  metric->SetTransform(transform.GetPointer());
+  metric->SetTransform(transform);
 
   // Set up an interpolator.
-  typedef itk::LinearInterpolateImageFunction<MovingImageType,
-    double> InterpolatorType;
+  using InterpolatorType = itk::LinearInterpolateImageFunction<MovingImageType, double>;
 
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
-  interpolator->SetInputImage(movingImage.GetPointer());
-  metric->SetInterpolator(interpolator.GetPointer());
+  interpolator->SetInputImage(movingImage);
+  metric->SetInterpolator(interpolator);
 
   // Define the region over which the metric will be computed.
   metric->SetFixedImageRegion(fixedImage->GetBufferedRegion());
@@ -105,45 +100,44 @@ int itkGradientDifferenceImageToImageMetricTest(int , char*[] )
   // Set up transform parameters.
   const unsigned int numberOfParameters = transform->GetNumberOfParameters();
 
-  ParametersType parameters( numberOfParameters );
+  ParametersType parameters(numberOfParameters);
   for (unsigned int k = 0; k < numberOfParameters; k++)
-    {
+  {
     parameters[k] = 0.0;
-    }
+  }
 
 
   try
-    {
+  {
     // Initialize the metric.
     metric->Initialize();
 
     // Do some work
-    DerivativeType derivatives( numberOfParameters );
+    DerivativeType          derivatives(numberOfParameters);
     MetricType::MeasureType value;
     for (double y = -10.0; y <= 10.0; y += 5.0)
-      {
+    {
       parameters[1] = y;
       for (double x = -10.0; x <= 10.0; x += 5.0)
-        {
+      {
         parameters[0] = x;
-        metric->GetValueAndDerivative (parameters, value, derivatives);
-        std::cout << "Parameters: " << parameters
-                  << ", Value: " << value
-                  << ", Derivatives: " << derivatives << std::endl;
-        }
+        metric->GetValueAndDerivative(parameters, value, derivatives);
+        std::cout << "Parameters: " << parameters << ", Value: " << value << ", Derivatives: " << derivatives
+                  << std::endl;
       }
+    }
 
     // Exercise Print() method.
     metric->Print(std::cout);
 
     std::cout << "Test passed." << std::endl;
-    }
-  catch (itk::ExceptionObject& ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cerr << "Exception caught!" << std::endl;
     std::cerr << ex << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

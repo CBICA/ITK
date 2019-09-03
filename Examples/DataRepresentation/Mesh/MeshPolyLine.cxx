@@ -43,7 +43,8 @@
 // Software Guide : EndCodeSnippet
 
 
-int main(int, char *[])
+int
+main(int, char *[])
 {
   //  Software Guide : BeginLatex
   //
@@ -56,8 +57,8 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef float                             PixelType;
-  typedef itk::Mesh< PixelType, 2 >         MeshType;
+  using PixelType = float;
+  using MeshType = itk::Mesh<PixelType, 2>;
   // Software Guide : EndCodeSnippet
 
 
@@ -72,9 +73,9 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef MeshType::CellType                CellType;
-  typedef itk::VertexCell< CellType >       VertexType;
-  typedef itk::LineCell< CellType >         LineType;
+  using CellType = MeshType::CellType;
+  using VertexType = itk::VertexCell<CellType>;
+  using LineType = itk::LineCell<CellType>;
   // Software Guide : EndCodeSnippet
 
 
@@ -103,22 +104,26 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  MeshType::Pointer  mesh = MeshType::New();
+  MeshType::Pointer mesh = MeshType::New();
 
-  MeshType::PointType   point0;
-  MeshType::PointType   point1;
-  MeshType::PointType   point2;
-  MeshType::PointType   point3;
+  MeshType::PointType point0;
+  MeshType::PointType point1;
+  MeshType::PointType point2;
+  MeshType::PointType point3;
 
-  point0[0] = -1; point0[1] = -1;
-  point1[0] =  1; point1[1] = -1;
-  point2[0] =  1; point2[1] =  1;
-  point3[0] = -1; point3[1] =  1;
+  point0[0] = -1;
+  point0[1] = -1;
+  point1[0] = 1;
+  point1[1] = -1;
+  point2[0] = 1;
+  point2[1] = 1;
+  point3[0] = -1;
+  point3[1] = 1;
 
-  mesh->SetPoint( 0, point0 );
-  mesh->SetPoint( 1, point1 );
-  mesh->SetPoint( 2, point2 );
-  mesh->SetPoint( 3, point3 );
+  mesh->SetPoint(0, point0);
+  mesh->SetPoint(1, point1);
+  mesh->SetPoint(2, point2);
+  mesh->SetPoint(3, point3);
   // Software Guide : EndCodeSnippet
 
 
@@ -139,20 +144,20 @@ int main(int, char *[])
   // Software Guide : BeginCodeSnippet
   CellType::CellAutoPointer cellpointer;
 
-  cellpointer.TakeOwnership( new LineType );
-  cellpointer->SetPointId( 0, 0 );
-  cellpointer->SetPointId( 1, 1 );
-  mesh->SetCell( 0, cellpointer );
+  cellpointer.TakeOwnership(new LineType);
+  cellpointer->SetPointId(0, 0);
+  cellpointer->SetPointId(1, 1);
+  mesh->SetCell(0, cellpointer);
 
-  cellpointer.TakeOwnership( new LineType );
-  cellpointer->SetPointId( 0, 1 );
-  cellpointer->SetPointId( 1, 2 );
-  mesh->SetCell( 1, cellpointer );
+  cellpointer.TakeOwnership(new LineType);
+  cellpointer->SetPointId(0, 1);
+  cellpointer->SetPointId(1, 2);
+  mesh->SetCell(1, cellpointer);
 
-  cellpointer.TakeOwnership( new LineType );
-  cellpointer->SetPointId( 0, 2 );
-  cellpointer->SetPointId( 1, 0 );
-  mesh->SetCell( 2, cellpointer );
+  cellpointer.TakeOwnership(new LineType);
+  cellpointer->SetPointId(0, 2);
+  cellpointer->SetPointId(1, 0);
+  mesh->SetCell(2, cellpointer);
   // Software Guide : EndCodeSnippet
 
 
@@ -164,21 +169,21 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  cellpointer.TakeOwnership( new VertexType );
-  cellpointer->SetPointId( 0, 0 );
-  mesh->SetCell( 3, cellpointer );
+  cellpointer.TakeOwnership(new VertexType);
+  cellpointer->SetPointId(0, 0);
+  mesh->SetCell(3, cellpointer);
 
-  cellpointer.TakeOwnership( new VertexType );
-  cellpointer->SetPointId( 0, 1 );
-  mesh->SetCell( 4, cellpointer );
+  cellpointer.TakeOwnership(new VertexType);
+  cellpointer->SetPointId(0, 1);
+  mesh->SetCell(4, cellpointer);
 
-  cellpointer.TakeOwnership( new VertexType );
-  cellpointer->SetPointId( 0, 2 );
-  mesh->SetCell( 5, cellpointer );
+  cellpointer.TakeOwnership(new VertexType);
+  cellpointer->SetPointId(0, 2);
+  mesh->SetCell(5, cellpointer);
 
-  cellpointer.TakeOwnership( new VertexType );
-  cellpointer->SetPointId( 0, 3 );
-  mesh->SetCell( 6, cellpointer );
+  cellpointer.TakeOwnership(new VertexType);
+  cellpointer->SetPointId(0, 3);
+  mesh->SetCell(6, cellpointer);
   // Software Guide : EndCodeSnippet
 
 
@@ -201,15 +206,15 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef MeshType::PointsContainer::ConstIterator  PointIterator;
+  using PointIterator = MeshType::PointsContainer::ConstIterator;
   PointIterator pointIterator = mesh->GetPoints()->Begin();
-  PointIterator pointEnd      = mesh->GetPoints()->End();
+  PointIterator pointEnd = mesh->GetPoints()->End();
 
-  while( pointIterator != pointEnd )
-    {
+  while (pointIterator != pointEnd)
+  {
     std::cout << pointIterator.Value() << std::endl;
     ++pointIterator;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -226,17 +231,17 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef MeshType::CellsContainer::ConstIterator  CellIterator;
+  using CellIterator = MeshType::CellsContainer::ConstIterator;
 
   CellIterator cellIterator = mesh->GetCells()->Begin();
-  CellIterator cellEnd      = mesh->GetCells()->End();
+  CellIterator cellEnd = mesh->GetCells()->End();
 
-  while( cellIterator != cellEnd )
-    {
+  while (cellIterator != cellEnd)
+  {
     CellType * cell = cellIterator.Value();
     std::cout << cell->GetNumberOfPoints() << std::endl;
     ++cellIterator;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -264,30 +269,30 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   cellIterator = mesh->GetCells()->Begin();
-  cellEnd      = mesh->GetCells()->End();
+  cellEnd = mesh->GetCells()->End();
 
-  while( cellIterator != cellEnd )
-    {
+  while (cellIterator != cellEnd)
+  {
     CellType * cell = cellIterator.Value();
 
     std::cout << "cell with " << cell->GetNumberOfPoints();
     std::cout << " points   " << std::endl;
 
     // Software Guide : BeginCodeSnippet
-    typedef CellType::PointIdIterator     PointIdIterator;
+    using PointIdIterator = CellType::PointIdIterator;
 
     PointIdIterator pointIditer = cell->PointIdsBegin();
-    PointIdIterator pointIdend  = cell->PointIdsEnd();
+    PointIdIterator pointIdend = cell->PointIdsEnd();
 
-    while( pointIditer != pointIdend )
-      {
+    while (pointIditer != pointIdend)
+    {
       std::cout << *pointIditer << std::endl;
       ++pointIditer;
-      }
+    }
     // Software Guide : EndCodeSnippet
 
     ++cellIterator;
-    }
+  }
 
 
   //  Software Guide : BeginLatex

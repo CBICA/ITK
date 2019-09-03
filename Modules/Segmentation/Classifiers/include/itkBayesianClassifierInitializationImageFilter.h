@@ -72,27 +72,25 @@ namespace itk
  * \ingroup ClassificationFilters
  * \ingroup ITKClassifiers
  */
-template< typename TInputImage, typename TProbabilityPrecisionType = float >
-class ITK_TEMPLATE_EXPORT BayesianClassifierInitializationImageFilter:
-  public
-  ImageToImageFilter< TInputImage, VectorImage< TProbabilityPrecisionType,
-                                                TInputImage::ImageDimension > >
+template <typename TInputImage, typename TProbabilityPrecisionType = float>
+class ITK_TEMPLATE_EXPORT BayesianClassifierInitializationImageFilter
+  : public ImageToImageFilter<TInputImage, VectorImage<TProbabilityPrecisionType, TInputImage::ImageDimension>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BayesianClassifierInitializationImageFilter Self;
-  typedef TInputImage                                 InputImageType;
-  typedef TProbabilityPrecisionType                   ProbabilityPrecisionType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BayesianClassifierInitializationImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BayesianClassifierInitializationImageFilter;
+  using InputImageType = TInputImage;
+  using ProbabilityPrecisionType = TProbabilityPrecisionType;
 
   /** Dimension of the input image */
-  itkStaticConstMacro(Dimension, unsigned int,
-                       InputImageType ::ImageDimension);
+  static constexpr unsigned int Dimension = InputImageType ::ImageDimension;
 
-  typedef VectorImage< ProbabilityPrecisionType,
-                       itkGetStaticConstMacro(Dimension) >                   OutputImageType;
-  typedef ImageToImageFilter< InputImageType, OutputImageType > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  using OutputImageType = VectorImage<ProbabilityPrecisionType, Self::Dimension>;
+  using Superclass = ImageToImageFilter<InputImageType, OutputImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -101,92 +99,86 @@ public:
   itkTypeMacro(BayesianClassifierInitializationImageFilter, ImageToImageFilter);
 
   /** Input image iterators */
-  typedef ImageRegionConstIterator< InputImageType > InputImageIteratorType;
+  using InputImageIteratorType = ImageRegionConstIterator<InputImageType>;
 
   /** Pixel types. */
-  typedef typename InputImageType::PixelType  InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
   /** Image Type and Pixel type for the images representing the membership of a
    *  pixel to a particular class. This image has arrays as pixels, the number of
    *  elements in the array is the same as the number of classes to be used.    */
-  typedef VectorImage< ProbabilityPrecisionType,
-                       itkGetStaticConstMacro(Dimension) >             MembershipImageType;
-  typedef typename MembershipImageType::PixelType    MembershipPixelType;
-  typedef typename MembershipImageType::Pointer      MembershipImagePointer;
-  typedef ImageRegionIterator< MembershipImageType > MembershipImageIteratorType;
+  using MembershipImageType = VectorImage<ProbabilityPrecisionType, Self::Dimension>;
+  using MembershipPixelType = typename MembershipImageType::PixelType;
+  using MembershipImagePointer = typename MembershipImageType::Pointer;
+  using MembershipImageIteratorType = ImageRegionIterator<MembershipImageType>;
 
   /** Type of the Measurement */
-  typedef Vector< InputPixelType, 1 > MeasurementVectorType;
+  using MeasurementVectorType = Vector<InputPixelType, 1>;
 
   /** Type of the density functions */
-  typedef Statistics::MembershipFunctionBase< MeasurementVectorType > MembershipFunctionType;
-  typedef typename MembershipFunctionType::Pointer                    MembershipFunctionPointer;
+  using MembershipFunctionType = Statistics::MembershipFunctionBase<MeasurementVectorType>;
+  using MembershipFunctionPointer = typename MembershipFunctionType::Pointer;
 
   /** Membership function container */
-  typedef VectorContainer< unsigned int,
-                           MembershipFunctionPointer >  MembershipFunctionContainerType;
-  typedef typename MembershipFunctionContainerType::Pointer
-  MembershipFunctionContainerPointer;
+  using MembershipFunctionContainerType = VectorContainer<unsigned int, MembershipFunctionPointer>;
+  using MembershipFunctionContainerPointer = typename MembershipFunctionContainerType::Pointer;
 
   /** Method to set/get the density functions. Here you can set a vector
    * container of density functions. If no density functions are specified,
    * the filter will create ones for you. These default density functions
    * are Gaussian density functions centered around the K-means of the
    * input image.  */
-  virtual void SetMembershipFunctions(MembershipFunctionContainerType
-                                      *densityFunctionContainer);
+  virtual void
+  SetMembershipFunctions(MembershipFunctionContainerType * densityFunctionContainer);
   itkGetModifiableObjectMacro(MembershipFunctionContainer, MembershipFunctionContainerType);
 
   /** Set/Get methods for the number of classes. The user must supply this. */
   itkSetMacro(NumberOfClasses, unsigned int);
   itkGetConstMacro(NumberOfClasses, unsigned int);
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputMultiplyOperatorCheck,
-                   ( Concept::MultiplyOperator< InputPixelType > ) );
-  itkConceptMacro( DoubleConvertibleToProbabilityCheck,
-                   ( Concept::Convertible< double, TProbabilityPrecisionType > ) );
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputPixelType > ) );
-  itkConceptMacro( ProbabilityHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< TProbabilityPrecisionType > ) );
-  itkConceptMacro( DoublePlusInputCheck,
-                   ( Concept::AdditiveOperators< double, InputPixelType > ) );
+  itkConceptMacro(InputMultiplyOperatorCheck, (Concept::MultiplyOperator<InputPixelType>));
+  itkConceptMacro(DoubleConvertibleToProbabilityCheck, (Concept::Convertible<double, TProbabilityPrecisionType>));
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputPixelType>));
+  itkConceptMacro(ProbabilityHasNumericTraitsCheck, (Concept::HasNumericTraits<TProbabilityPrecisionType>));
+  itkConceptMacro(DoublePlusInputCheck, (Concept::AdditiveOperators<double, InputPixelType>));
   // End concept checking
 #endif
 
 protected:
   BayesianClassifierInitializationImageFilter();
-  virtual ~BayesianClassifierInitializationImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BayesianClassifierInitializationImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Initialize the membership functions. This will be called only if the membership
    * function hasn't already been set. This method initializes membership functions
    * using Gaussian density functions centered around the means computed using
    * Kmeans.
    */
-  virtual void InitializeMembershipFunctions();
+  virtual void
+  InitializeMembershipFunctions();
 
   /** Here is where the prior and membership probability vector images are
     created.*/
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BayesianClassifierInitializationImageFilter);
-
-  bool         m_UserSuppliesMembershipFunctions;
-  unsigned int m_NumberOfClasses;
+  bool         m_UserSuppliesMembershipFunctions{ false };
+  unsigned int m_NumberOfClasses{ 0 };
 
   typename MembershipFunctionContainerType::Pointer m_MembershipFunctionContainer;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBayesianClassifierInitializationImageFilter.hxx"
+#  include "itkBayesianClassifierInitializationImageFilter.hxx"
 #endif
 
 #endif

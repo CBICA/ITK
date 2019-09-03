@@ -54,47 +54,51 @@ namespace itk
  * \ingroup PathObjects
  * \ingroup ITKPath
  */
-template< unsigned int VDimension >
-class ITK_TEMPLATE_EXPORT FourierSeriesPath:public
-  ParametricPath< VDimension >
+template <unsigned int VDimension>
+class ITK_TEMPLATE_EXPORT FourierSeriesPath : public ParametricPath<VDimension>
 {
 public:
-  /** Standard class typedefs. */
-  typedef FourierSeriesPath            Self;
-  typedef ParametricPath< VDimension > Superclass;
-  typedef SmartPointer< Self >         Pointer;
-  typedef SmartPointer< const Self >   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FourierSeriesPath);
+
+  /** Standard class type aliases. */
+  using Self = FourierSeriesPath;
+  using Superclass = ParametricPath<VDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(FourierSeriesPath, ParametricPath);
 
   /** Input type */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Basic data-structure types used */
-  typedef ContinuousIndex< double, VDimension >   ContinuousIndexType;
-  typedef Index<  VDimension >                    IndexType;
-  typedef Offset< VDimension >                    OffsetType;
-  typedef Vector< double, VDimension >            VectorType;
-  typedef VectorContainer< unsigned, VectorType > CoefficientsType;
-  typedef typename CoefficientsType::Pointer      CoefficientsPointer;
+  using ContinuousIndexType = ContinuousIndex<double, VDimension>;
+  using IndexType = Index<VDimension>;
+  using OffsetType = Offset<VDimension>;
+  using VectorType = Vector<double, VDimension>;
+  using CoefficientsType = VectorContainer<unsigned, VectorType>;
+  using CoefficientsPointer = typename CoefficientsType::Pointer;
 
   /** Return the location of the parametric path at the specified location. */
-  virtual OutputType Evaluate(const InputType & input) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & input) const override;
 
   /** Evaluate the first derivative of the ND output with respect to the 1D
-    * input.  This is an exact, algebraic function. */
-  virtual VectorType EvaluateDerivative(const InputType & input) const ITK_OVERRIDE;
+   * input.  This is an exact, algebraic function. */
+  VectorType
+  EvaluateDerivative(const InputType & input) const override;
 
   /** Add another harmonic's frequency coefficients. */
-  void AddHarmonic(const VectorType & CosCoefficients,
-                   const VectorType & SinCoefficients);
+  void
+  AddHarmonic(const VectorType & CosCoefficients, const VectorType & SinCoefficients);
 
   /** Clear all frequency coefficients (including the "DC" coefficients). */
-  void Clear()
+  void
+  Clear()
   {
     m_CosCoefficients->Initialize();
     m_SinCoefficients->Initialize();
@@ -105,26 +109,26 @@ public:
   itkNewMacro(Self);
 
   /** Needed for Pipelining */
-  virtual void Initialize(void) ITK_OVERRIDE
+  void
+  Initialize() override
   {
     this->Clear();
   }
 
 protected:
   FourierSeriesPath();
-  ~FourierSeriesPath() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~FourierSeriesPath() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FourierSeriesPath);
-
   CoefficientsPointer m_CosCoefficients;
   CoefficientsPointer m_SinCoefficients;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFourierSeriesPath.hxx"
+#  include "itkFourierSeriesPath.hxx"
 #endif
 
 #endif

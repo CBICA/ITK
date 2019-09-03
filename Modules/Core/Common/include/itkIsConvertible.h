@@ -36,11 +36,14 @@ namespace Details
  * \ingroup ITKCommon
  */
 struct SfinaeTypes
+{
+  using TOne = char;
+  using TTwo = struct
   {
-  typedef char                       TOne;
-  typedef struct  { char arr__[2]; } TTwo;
+    char arr__[2];
   };
-} // Details namespace
+};
+} // namespace Details
 
 /** Traits that emulates \c std::is_convertible<>.
  * \tparam TFrom type to convert from
@@ -54,18 +57,20 @@ struct SfinaeTypes
  * \ingroup ITKCommon
  */
 template <typename TFrom, typename TTo>
-struct IsConvertible
-: private Details::SfinaeTypes
+struct IsConvertible : private Details::SfinaeTypes
 {
 private:
   static TOne Test(TTo);
-  static TTwo Test(...);
-  static TFrom MakeT();
+  static TTwo
+  Test(...);
+  static TFrom
+  MakeT();
+
 public:
-  static ITK_CONSTEXPR_VAR bool Value = sizeof(Test(MakeT())) == sizeof(TOne);
+  static constexpr bool Value = sizeof(Test(MakeT())) == sizeof(TOne);
 };
 
-} // itk::mpl namespace
+} // end namespace mpl
 
 // itk::IsConvertible has moved to itk::mpl.
 // Expect itk::IsConvertible to be deprecated.
@@ -73,5 +78,5 @@ using mpl::IsConvertible;
 
 /** \endcond */
 
-} // itk namespace
+} // end namespace itk
 #endif // itkIsConvertible_h

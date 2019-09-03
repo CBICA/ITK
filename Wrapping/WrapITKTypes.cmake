@@ -203,7 +203,11 @@ WRAP_TYPE("itk::Image" "I" "itkImage.h")
   # Make a list of all of the selected image pixel types and also double (for
   # BSplineDeformableTransform), uchar (for 8-bit image output), ulong
   # (for the watershed and relabel filters), bool for (FlatStructuringElement)
-  UNIQUE(wrap_image_types "${WRAP_ITK_ALL_TYPES};D;UC;UL;ULL;RGBUC;RGBAUC;VD;B;${ITKM_IT}")
+
+  # Wrap from ulong to other integral types, even if ulong isn't wrapped. This
+  # is needed for the relabel components image filter.
+  UNIQUE(WRAP_ITK_SCALAR_IMAGE_PIXEL_TYPES "${WRAP_ITK_SCALAR};D;UC;UL;ULL;B;${ITKM_IT}")
+  UNIQUE(wrap_image_types "${WRAP_ITK_ALL_TYPES};RGBUC;RGBAUC;VD;${WRAP_ITK_SCALAR_IMAGE_PIXEL_TYPES}")
 
   set(defined_vector_list )
   foreach(d ${ITK_WRAP_IMAGE_DIMS})
@@ -251,14 +255,12 @@ WRAP_TYPE("itk::Image" "I" "itkImage.h")
   foreach(d ${ITK_WRAP_IMAGE_DIMS})
     INCREMENT(d_inc ${d})
     foreach(vector_dim ${ITK_WRAP_VECTOR_COMPONENTS})
-      list(FIND defined_vector_list "${ITKM_VD${vector_dim}}${d_inc}" index)
-      if(index EQUAL -1)
+      if(NOT "${ITKM_VD${vector_dim}}${d_inc}" IN_LIST defined_vector_list)
         ADD_TEMPLATE("${ITKM_VD${vector_dim}}${d_inc}" "${ITKT_VD${vector_dim}},${d_inc}")
       endif()
     endforeach()
     # For N4BiasFieldCorrectionImageFilter
-    list(FIND defined_vector_list "${ITKM_VF1}${d}" index)
-    if(index EQUAL -1)
+    if(NOT "${ITKM_VF1}${d}" IN_LIST defined_vector_list)
       ADD_TEMPLATE("${ITKM_VF1}${d}" "${ITKT_VF1},${d}")
     endif()
   endforeach()
@@ -267,8 +269,7 @@ WRAP_TYPE("itk::Image" "I" "itkImage.h")
   # for the ITKRegistration module.
   foreach(d ${ITK_WRAP_IMAGE_DIMS})
     foreach(vector_dim ${ITK_WRAP_VECTOR_COMPONENTS})
-      list(FIND defined_vector_list "${ITKM_CVD${vector_dim}}${d}" index)
-      if(index EQUAL -1)
+      if(NOT "${ITKM_CVD${vector_dim}}${d}" IN_LIST defined_vector_list)
         ADD_TEMPLATE("${ITKM_CVD${vector_dim}}${d}" "${ITKT_CVD${vector_dim}},${d}")
       endif()
     endforeach()

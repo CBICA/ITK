@@ -35,18 +35,17 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< unsigned int VDimension = 3,
-          typename TInput = Point< double, VDimension > >
-class ITK_TEMPLATE_EXPORT FiniteCylinderSpatialFunction:
-  public InteriorExteriorSpatialFunction< VDimension, TInput >
+template <unsigned int VDimension = 3, typename TInput = Point<double, VDimension>>
+class ITK_TEMPLATE_EXPORT FiniteCylinderSpatialFunction : public InteriorExteriorSpatialFunction<VDimension, TInput>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(FiniteCylinderSpatialFunction);
 
-  /** Standard class typedefs. */
-  typedef FiniteCylinderSpatialFunction                         Self;
-  typedef InteriorExteriorSpatialFunction< VDimension, TInput > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  /** Standard class type aliases. */
+  using Self = FiniteCylinderSpatialFunction;
+  using Superclass = InteriorExteriorSpatialFunction<VDimension, TInput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(FiniteCylinderSpatialFunction, InteriorExteriorSpatialFunction);
@@ -55,10 +54,10 @@ public:
   itkNewMacro(Self);
 
   /** Input type for the function */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Set/Get and set the center of the cylinder. */
   itkGetConstMacro(Center, InputType);
@@ -75,31 +74,28 @@ public:
   /** Set the orientation vectors (must be orthogonal) of the ellipsoid axes.
    * Must be normalized!!!!! */
   itkGetConstMacro(Orientation, InputType);
-  virtual void SetOrientation(const InputType _Orientation);
+  virtual void
+  SetOrientation(const InputType _Orientation);
 
   /** Evaluates the function at a given position. */
-  OutputType Evaluate(const InputType & position) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & position) const override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( DimensionShouldBe3,
-                   ( Concept::SameDimension< VDimension, 3u > ) );
-  itkConceptMacro( PointDimensionShouldBe3,
-                   ( Concept::SameDimension< InputType::Dimension, 3u > ) );
+  itkConceptMacro(DimensionShouldBe3, (Concept::SameDimension<VDimension, 3u>));
+  itkConceptMacro(PointDimensionShouldBe3, (Concept::SameDimension<InputType::Dimension, 3u>));
   // End concept checking
 #endif
 
 protected:
-
   FiniteCylinderSpatialFunction();
-  virtual ~FiniteCylinderSpatialFunction() ITK_OVERRIDE;
+  ~FiniteCylinderSpatialFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(FiniteCylinderSpatialFunction);
-
   /** The center of the cylinder. */
   InputType m_Center;
 
@@ -116,7 +112,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFiniteCylinderSpatialFunction.hxx"
+#  include "itkFiniteCylinderSpatialFunction.hxx"
 #endif
 
 #endif

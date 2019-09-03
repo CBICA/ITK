@@ -38,11 +38,11 @@ namespace fem
 class ITKFEM_EXPORT MaterialLinearElasticity : public Material
 {
 public:
-  /** Standard class typedefs. */
-  typedef MaterialLinearElasticity Self;
-  typedef Material                 Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MaterialLinearElasticity;
+  using Superclass = Material;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
@@ -52,7 +52,8 @@ public:
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
   /**
    * Default constructor only initializes the members.
@@ -60,68 +61,80 @@ public:
   MaterialLinearElasticity();
 
   /**
-  * Set cross-sectional area
-  */
-  void SetCrossSectionalArea(double area);
+   * Set cross-sectional area
+   */
+  void
+  SetCrossSectionalArea(double area);
 
   /**
-    * Get cross-sectional area
-    */
-  double GetCrossSectionalArea() const;
+   * Get cross-sectional area
+   */
+  double
+  GetCrossSectionalArea() const;
 
   /**
-  * Set youngs/elastic modulus
-  */
-  void SetYoungsModulus(double modulus);
+   * Set youngs/elastic modulus
+   */
+  void
+  SetYoungsModulus(double modulus);
 
   /**
    * Get youngs/elastic modulus
    */
-  double GetYoungsModulus() const;
+  double
+  GetYoungsModulus() const;
 
   /**
-  * Set thickness - for 2D plane stress/strain problems
-  */
-  void SetThickness(double t);
+   * Set thickness - for 2D plane stress/strain problems
+   */
+  void
+  SetThickness(double t);
 
   /**
    * Get thickness - for 2D plane stress/strain problems
    */
-  double GetThickness() const;
+  double
+  GetThickness() const;
 
   /**
-  * Set Moment of intertia - for beam elements
-  */
-  void SetMomentOfInertia(double iner);
+   * Set Moment of intertia - for beam elements
+   */
+  void
+  SetMomentOfInertia(double iner);
 
   /**
- * Get Moment of intertia - for beam elements
- */
-  double GetMomentOfInertia() const;
+   * Get Moment of intertia - for beam elements
+   */
+  double
+  GetMomentOfInertia() const;
 
   /**
- * Set poisson's ratio
- */
-  void SetPoissonsRatio(double poi);
+   * Set poisson's ratio
+   */
+  void
+  SetPoissonsRatio(double poi);
 
   /**
-* Get poisson's ratio
-*/
-  double GetPoissonsRatio() const;
+   * Get poisson's ratio
+   */
+  double
+  GetPoissonsRatio() const;
 
   /**
-* Set density heat product
-*/
-  void SetDensityHeatProduct(double dhp);
+   * Set density heat product
+   */
+  void
+  SetDensityHeatProduct(double dhp);
 
   /**
-  * Get density heat product
-  */
-  double GetDensityHeatProduct() const;
+   * Get density heat product
+   */
+  double
+  GetDensityHeatProduct() const;
 
 protected:
-
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /* Data members of MaterialLinearElasticity class */
 
@@ -133,7 +146,7 @@ protected:
   /**
    * Cross section area of a line element
    */
-  double m_CrossSectionalArea;  //
+  double m_CrossSectionalArea; //
 
   /**
    * Moment of inertia
@@ -159,8 +172,7 @@ protected:
    */
   double m_DensityHeatCapacity;
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMMaterialLinearElasticity_h
+#endif // itkFEMMaterialLinearElasticity_h

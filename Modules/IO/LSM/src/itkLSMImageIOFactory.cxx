@@ -33,15 +33,11 @@ namespace itk
 {
 LSMImageIOFactory::LSMImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkLSMImageIO",
-                          "LSM Image IO",
-                          1,
-                          CreateObjectFunction< LSMImageIO >::New() );
+  this->RegisterOverride(
+    "itkImageIOBase", "itkLSMImageIO", "LSM Image IO", true, CreateObjectFunction<LSMImageIO>::New());
 }
 
-LSMImageIOFactory::~LSMImageIOFactory()
-{}
+LSMImageIOFactory::~LSMImageIOFactory() = default;
 
 const char *
 LSMImageIOFactory::GetITKSourceVersion() const
@@ -60,13 +56,14 @@ LSMImageIOFactory::GetDescription() const
 
 static bool LSMImageIOFactoryHasBeenRegistered;
 
-void ITKIOLSM_EXPORT LSMImageIOFactoryRegister__Private(void)
+void ITKIOLSM_EXPORT
+     LSMImageIOFactoryRegister__Private()
 {
-  if( ! LSMImageIOFactoryHasBeenRegistered )
-    {
+  if (!LSMImageIOFactoryHasBeenRegistered)
+  {
     LSMImageIOFactoryHasBeenRegistered = true;
     LSMImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

@@ -29,62 +29,64 @@ namespace itk
  *
  * \ingroup ITKRegistrationCommon
  */
-template<typename TTransform>
+template <typename TTransform>
 class ITK_TEMPLATE_EXPORT GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor
-: public DisplacementFieldTransformParametersAdaptor<TTransform>
+  : public DisplacementFieldTransformParametersAdaptor<TTransform>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor);
 
-  /** Standard class typedefs. */
-  typedef GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor          Self;
-  typedef DisplacementFieldTransformParametersAdaptor<TTransform>                       Superclass;
-  typedef SmartPointer<Self>                                                            Pointer;
-  typedef SmartPointer<const Self>                                                      ConstPointer;
+  /** Standard class type aliases. */
+  using Self = GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor;
+  using Superclass = DisplacementFieldTransformParametersAdaptor<TTransform>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor,
-    DisplacementFieldTransformParametersAdaptor );
+  itkTypeMacro(GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor,
+               DisplacementFieldTransformParametersAdaptor);
 
-  typedef TTransform                               TransformType;
-  typedef typename TransformType::ScalarType       ScalarType;
+  using TransformType = TTransform;
+  using ScalarType = typename TransformType::ScalarType;
 
   /**
    * Get/Set the Gaussian smoothing standard deviation for the update field.
    */
-  virtual void SetGaussianSmoothingVarianceForTheUpdateField( ScalarType );
-  itkGetConstReferenceMacro( GaussianSmoothingVarianceForTheUpdateField, ScalarType );
+  virtual void SetGaussianSmoothingVarianceForTheUpdateField(ScalarType);
+  itkGetConstReferenceMacro(GaussianSmoothingVarianceForTheUpdateField, ScalarType);
 
   /**
    * Get/Set the Gaussian smoothing standard deviation for the total field.
    */
-  virtual void SetGaussianSmoothingVarianceForTheTotalField( const ScalarType );
-  itkGetConstReferenceMacro( GaussianSmoothingVarianceForTheTotalField, ScalarType );
+  virtual void
+  SetGaussianSmoothingVarianceForTheTotalField(const ScalarType);
+  itkGetConstReferenceMacro(GaussianSmoothingVarianceForTheTotalField, ScalarType);
 
-  virtual void AdaptTransformParameters() ITK_OVERRIDE;
+  void
+  AdaptTransformParameters() override;
 
 protected:
   GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor();
-  ~GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor() ITK_OVERRIDE;
+  ~GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor() override = default;
 
-  void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor);
+  ScalarType m_GaussianSmoothingVarianceForTheUpdateField;
+  ScalarType m_GaussianSmoothingVarianceForTheTotalField;
 
-  ScalarType          m_GaussianSmoothingVarianceForTheUpdateField;
-  ScalarType          m_GaussianSmoothingVarianceForTheTotalField;
+  ModifiedTimeType m_GaussianSmoothingVarianceForTheUpdateFieldSetTime{ 0 };
+  ModifiedTimeType m_GaussianSmoothingVarianceForTheTotalFieldSetTime{ 0 };
 
-  ModifiedTimeType    m_GaussianSmoothingVarianceForTheUpdateFieldSetTime;
-  ModifiedTimeType    m_GaussianSmoothingVarianceForTheTotalFieldSetTime;
-
-}; //class GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor
-}  // namespace itk
+}; // class GaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.hxx"
+#  include "itkGaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.hxx"
 #endif
 
 #endif /* itkGaussianSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor_h */

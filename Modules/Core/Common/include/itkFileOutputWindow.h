@@ -33,16 +33,22 @@ namespace itk
  * \ingroup OSSystemObjects
  *
  * \ingroup ITKCommon
+ *
+ * \sphinx
+ * \sphinxexample{Core/Common/DirectWarningToFile,Direct Warning To File}
+ * \endsphinx
  */
 
-class ITKCommon_EXPORT FileOutputWindow:public OutputWindow
+class ITKCommon_EXPORT FileOutputWindow : public OutputWindow
 {
 public:
-  /** Standard class typedefs. */
-  typedef FileOutputWindow           Self;
-  typedef OutputWindow               Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FileOutputWindow);
+
+  /** Standard class type aliases. */
+  using Self = FileOutputWindow;
+  using Superclass = OutputWindow;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -51,7 +57,8 @@ public:
   itkTypeMacro(FileOutputWindow, OutputWindow);
 
   /** Send a string to display. */
-  virtual void DisplayText(const char *) ITK_OVERRIDE;
+  void
+  DisplayText(const char *) override;
 
   /** Set the filename for the log file */
   itkSetStringMacro(FileName);
@@ -74,20 +81,19 @@ public:
 
 protected:
   FileOutputWindow();
-  virtual ~FileOutputWindow() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~FileOutputWindow() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void Initialize();
+  void
+  Initialize();
 
-  std::ofstream *m_Stream;
+  std::ofstream * m_Stream;
 
   std::string m_FileName;
 
   bool m_Flush;
   bool m_Append;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FileOutputWindow);
 };
 } // end namespace itk
 

@@ -37,25 +37,28 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TInternalType, typename TExternalType >
+template <typename TInternalType, typename TExternalType>
 class ComplexToModulusPixelAccessor
 {
 public:
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef TExternalType ExternalType;
+  using ExternalType = TExternalType;
 
-  /** Internal typedef. It defines the internal modulus
+  /** Internal type alias. It defines the internal modulus
    * representation of data. */
-  typedef TInternalType InternalType;
+  using InternalType = TInternalType;
 
-  static inline void Set(TInternalType & output, const TExternalType & input)
-  { output = (TInternalType)( input ); }
-
-  static inline TExternalType Get(const TInternalType & input)
+  static inline void
+  Set(TInternalType & output, const TExternalType & input)
   {
-    return (TExternalType)( std::sqrt( input.real() * input.real()
-                                      + input.imag() * input.imag() ) );
+    output = (TInternalType)(input);
+  }
+
+  static inline TExternalType
+  Get(const TInternalType & input)
+  {
+    return (TExternalType)(std::sqrt(input.real() * input.real() + input.imag() * input.imag()));
   }
 };
 } // end namespace Accessor
@@ -70,22 +73,20 @@ public:
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TImage, typename TOutputPixelType >
-class ComplexToModulusImageAdaptor:public
-  ImageAdaptor< TImage,
-                Accessor::ComplexToModulusPixelAccessor<
-                  typename TImage::PixelType,
-                  TOutputPixelType >   >
+template <typename TImage, typename TOutputPixelType>
+class ComplexToModulusImageAdaptor
+  : public ImageAdaptor<TImage, Accessor::ComplexToModulusPixelAccessor<typename TImage::PixelType, TOutputPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ComplexToModulusImageAdaptor Self;
-  typedef ImageAdaptor< TImage, Accessor::ComplexToModulusPixelAccessor<
-                          typename TImage::PixelType,
-                          TOutputPixelType > >  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToModulusImageAdaptor);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ComplexToModulusImageAdaptor;
+  using Superclass =
+    ImageAdaptor<TImage, Accessor::ComplexToModulusPixelAccessor<typename TImage::PixelType, TOutputPixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -94,11 +95,8 @@ public:
   itkTypeMacro(ComplexToModulusImageAdaptor, ImageAdaptor);
 
 protected:
-  ComplexToModulusImageAdaptor() {}
-  virtual ~ComplexToModulusImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToModulusImageAdaptor);
+  ComplexToModulusImageAdaptor() = default;
+  ~ComplexToModulusImageAdaptor() override = default;
 };
 } // end namespace itk
 

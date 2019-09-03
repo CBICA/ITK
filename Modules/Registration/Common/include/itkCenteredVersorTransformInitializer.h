@@ -36,22 +36,19 @@ namespace itk
  * \ingroup ITKRegistrationCommon
  * \ingroup ITKTransform
  */
-template< typename TFixedImage,
-          typename TMovingImage >
-class ITK_TEMPLATE_EXPORT CenteredVersorTransformInitializer:
-  public CenteredTransformInitializer<
-    VersorRigid3DTransform< double >,
-    TFixedImage, TMovingImage >
+template <typename TFixedImage, typename TMovingImage>
+class ITK_TEMPLATE_EXPORT CenteredVersorTransformInitializer
+  : public CenteredTransformInitializer<VersorRigid3DTransform<double>, TFixedImage, TMovingImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef CenteredVersorTransformInitializer Self;
-  typedef CenteredTransformInitializer<
-    VersorRigid3DTransform< double >,
-    TFixedImage, TMovingImage >          Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CenteredVersorTransformInitializer);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = CenteredVersorTransformInitializer;
+  using Superclass = CenteredTransformInitializer<VersorRigid3DTransform<double>, TFixedImage, TMovingImage>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer. */
   itkNewMacro(Self);
@@ -60,33 +57,32 @@ public:
   itkTypeMacro(CenteredVersorTransformInitializer, Object);
 
   /** Type of the transform to initialize */
-  typedef typename Superclass::TransformType    TransformType;
-  typedef typename Superclass::TransformPointer TransformPointer;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
 
   /** Dimension of parameters. */
-  itkStaticConstMacro(InputSpaceDimension, unsigned int,
-                      Superclass::InputSpaceDimension);
-  itkStaticConstMacro(OutputSpaceDimension, unsigned int,
-                      Superclass::OutputSpaceDimension);
+  static constexpr unsigned int InputSpaceDimension = Superclass::InputSpaceDimension;
+  static constexpr unsigned int OutputSpaceDimension = Superclass::OutputSpaceDimension;
 
   /** Image Types to use in the initialization of the transform */
-  typedef   typename Superclass::FixedImageType  FixedImageType;
-  typedef   typename Superclass::MovingImageType MovingImageType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using MovingImageType = typename Superclass::MovingImageType;
 
-  typedef   typename Superclass::FixedImagePointer  FixedImagePointer;
-  typedef   typename Superclass::MovingImagePointer MovingImagePointer;
+  using FixedImagePointer = typename Superclass::FixedImagePointer;
+  using MovingImagePointer = typename Superclass::MovingImagePointer;
 
   /** Offset type. */
-  typedef typename Superclass::OffsetType OffsetType;
+  using OffsetType = typename Superclass::OffsetType;
 
   /** Point type. */
-  typedef typename Superclass::InputPointType InputPointType;
+  using InputPointType = typename Superclass::InputPointType;
 
   /** Vector type. */
-  typedef typename Superclass::OutputVectorType OutputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
 
   /** Initialize the transform using data from the images */
-  void InitializeTransform() ITK_OVERRIDE;
+  void
+  InitializeTransform() override;
 
   /** Enable the use of the principal axes of each image to compute an
    * initial rotation that will align them. */
@@ -96,19 +92,18 @@ public:
 
 protected:
   CenteredVersorTransformInitializer();
-  ~CenteredVersorTransformInitializer() ITK_OVERRIDE {}
+  ~CenteredVersorTransformInitializer() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CenteredVersorTransformInitializer);
-
   bool m_ComputeRotation;
-}; //class CenteredVersorTransformInitializer
-}  // namespace itk
+}; // class CenteredVersorTransformInitializer
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCenteredVersorTransformInitializer.hxx"
+#  include "itkCenteredVersorTransformInitializer.hxx"
 #endif
 
 #endif /* itkCenteredVersorTransformInitializer_h */

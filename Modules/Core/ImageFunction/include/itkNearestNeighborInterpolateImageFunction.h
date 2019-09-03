@@ -34,38 +34,42 @@ namespace itk
  * \ingroup ImageFunctions ImageInterpolators
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = double >
-class ITK_TEMPLATE_EXPORT NearestNeighborInterpolateImageFunction:
-  public InterpolateImageFunction< TInputImage, TCoordRep >
+template <typename TInputImage, typename TCoordRep = double>
+class ITK_TEMPLATE_EXPORT NearestNeighborInterpolateImageFunction
+  : public InterpolateImageFunction<TInputImage, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef NearestNeighborInterpolateImageFunction            Self;
-  typedef InterpolateImageFunction< TInputImage, TCoordRep > Superclass;
-  typedef SmartPointer< Self >                               Pointer;
-  typedef SmartPointer< const Self >                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NearestNeighborInterpolateImageFunction);
+
+  /** Standard class type aliases. */
+  using Self = NearestNeighborInterpolateImageFunction;
+  using Superclass = InterpolateImageFunction<TInputImage, TCoordRep>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(NearestNeighborInterpolateImageFunction,
-               InterpolateImageFunction);
+  itkTypeMacro(NearestNeighborInterpolateImageFunction, InterpolateImageFunction);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
+  /** OutputType type alias support */
+  using OutputType = typename Superclass::OutputType;
 
-  /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = typename Superclass::InputImageType;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** Size type alias support */
+  using SizeType = typename Superclass::SizeType;
+
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
   /** Evaluate the function at a ContinuousIndex position
    *
@@ -75,23 +79,29 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const ITK_OVERRIDE
+  OutputType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const override
   {
     IndexType nindex;
 
     this->ConvertContinuousIndexToNearestIndex(index, nindex);
-    return static_cast< OutputType >( this->GetInputImage()->GetPixel(nindex) );
+    return static_cast<OutputType>(this->GetInputImage()->GetPixel(nindex));
+  }
+
+  SizeType
+  GetRadius() const override
+  {
+    return SizeType(); // zeroes by default
   }
 
 protected:
-  NearestNeighborInterpolateImageFunction(){}
-  ~NearestNeighborInterpolateImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-  { Superclass::PrintSelf(os, indent); }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NearestNeighborInterpolateImageFunction);
+  NearestNeighborInterpolateImageFunction() = default;
+  ~NearestNeighborInterpolateImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
+  }
 };
 } // end namespace itk
 

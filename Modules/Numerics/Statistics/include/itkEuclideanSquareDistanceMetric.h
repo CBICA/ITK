@@ -32,19 +32,18 @@ namespace Statistics
  * \sa ManhattanDistanceMetric
  * \ingroup ITKStatistics
  */
-template< typename TVector >
-class ITK_TEMPLATE_EXPORT EuclideanSquareDistanceMetric:
-  public DistanceMetric< TVector >
+template <typename TVector>
+class ITK_TEMPLATE_EXPORT EuclideanSquareDistanceMetric : public DistanceMetric<TVector>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef EuclideanSquareDistanceMetric Self;
-  typedef DistanceMetric< TVector >     Superclass;
-  typedef SmartPointer< Self >          Pointer;
-  typedef SmartPointer< const Self >    ConstPointer;
+  /** Standard "Self" type alias. */
+  using Self = EuclideanSquareDistanceMetric;
+  using Superclass = DistanceMetric<TVector>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename Superclass::MeasurementVectorSizeType MeasurementVectorSizeType;
-  typedef typename Superclass::MeasurementVectorType     MeasurementVectorType;
+  using MeasurementVectorSizeType = typename Superclass::MeasurementVectorSizeType;
+  using MeasurementVectorType = typename Superclass::MeasurementVectorType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(EuclideanSquareDistanceMetric, DistanceMetric);
@@ -53,20 +52,22 @@ public:
   itkNewMacro(Self);
 
   /** Gets the distance between the origin and x */
-  double Evaluate(const MeasurementVectorType & x) const ITK_OVERRIDE;
+  double
+  Evaluate(const MeasurementVectorType & x) const override;
 
   /** Gets the distance between x1 and x2 */
-  double Evaluate(const MeasurementVectorType & x1, const MeasurementVectorType & x2) const ITK_OVERRIDE;
+  double
+  Evaluate(const MeasurementVectorType & x1, const MeasurementVectorType & x2) const override;
 
 protected:
-  EuclideanSquareDistanceMetric() {}
-  virtual ~EuclideanSquareDistanceMetric() ITK_OVERRIDE {}
-};  // end of class
+  EuclideanSquareDistanceMetric() = default;
+  ~EuclideanSquareDistanceMetric() override = default;
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkEuclideanSquareDistanceMetric.hxx"
+#  include "itkEuclideanSquareDistanceMetric.hxx"
 #endif
 
 #endif

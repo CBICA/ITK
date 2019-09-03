@@ -30,18 +30,18 @@
  * '--compare' option.
  */
 
-namespace {
+namespace
+{
 
-template<typename TCoordRepType, unsigned int NDimensions>
-class NonlinearAffineTransform:
-  public itk::AffineTransform<TCoordRepType,NDimensions>
+template <typename TCoordRepType, unsigned int NDimensions>
+class NonlinearAffineTransform : public itk::AffineTransform<TCoordRepType, NDimensions>
 {
 public:
-  /** Standard class typedefs.   */
-  typedef NonlinearAffineTransform                           Self;
-  typedef itk::AffineTransform< TCoordRepType, NDimensions > Superclass;
-  typedef itk::SmartPointer< Self >                          Pointer;
-  typedef itk::SmartPointer< const Self >                    ConstPointer;
+  /** Standard class type aliases.   */
+  using Self = NonlinearAffineTransform;
+  using Superclass = itk::AffineTransform<TCoordRepType, NDimensions>;
+  using Pointer = itk::SmartPointer<Self>;
+  using ConstPointer = itk::SmartPointer<const Self>;
 
   /** New macro for creation of through a smart pointer. */
   itkSimpleNewMacro(Self);
@@ -50,62 +50,62 @@ public:
   itkTypeMacro(NonlinearAffineTransform, AffineTransform);
 
   /** Override this. See test below. */
-    virtual bool IsLinear() const ITK_OVERRIDE { return false; }
+  bool
+  IsLinear() const override
+  {
+    return false;
+  }
 };
-}
+} // namespace
 
-int itkResampleImageTest2(int argc, char * argv [] )
+int
+itkResampleImageTest2(int argc, char * argv[])
 {
 
-  if( argc < 5 )
-    {
-    std::cerr << "Missing arguments ! " << std::endl;
-    std::cerr << "Usage : " << std::endl;
-    std::cerr << argv[0] << "inputImage referenceImage "
-              << "resampledImageLinear resampledImageNonLinear "
-              << "resampledImageLinearNearestExtrapolate"
-              << "resampledImageNonLinearNearestExtrapolate";
-    std::cerr << std::endl;
+  if (argc < 8)
+  {
+    std::cerr << "Missing parameters." << std::endl;
+    std::cerr << "Usage: " << std::endl;
+    std::cerr << argv[0];
+    std::cerr << "inputImage "
+              << " referenceImage"
+              << " resampledImageLinear"
+              << " resampledImageNonLinear"
+              << " resampledImageLinearNearestExtrapolate"
+              << " resampledImageNonLinearNearestExtrapolate"
+              << " useReferenceImage"
+              << " [outputSpacing]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int NDimensions = 2;
+  constexpr unsigned int NDimensions = 2;
 
-  typedef unsigned char                          PixelType;
-  typedef itk::Image<PixelType, NDimensions>     ImageType;
-  typedef double                                 CoordRepType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, NDimensions>;
+  using CoordRepType = double;
 
-  typedef itk::AffineTransform<CoordRepType,NDimensions>
-                                                 AffineTransformType;
-  typedef NonlinearAffineTransform<CoordRepType,NDimensions>
-                                                 NonlinearAffineTransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,CoordRepType>
-                                                 InterpolatorType;
-  typedef itk::NearestNeighborExtrapolateImageFunction<ImageType,CoordRepType>
-                                                 ExtrapolatorType;
+  using AffineTransformType = itk::AffineTransform<CoordRepType, NDimensions>;
+  using NonlinearAffineTransformType = NonlinearAffineTransform<CoordRepType, NDimensions>;
+  using InterpolatorType = itk::LinearInterpolateImageFunction<ImageType, CoordRepType>;
+  using ExtrapolatorType = itk::NearestNeighborExtrapolateImageFunction<ImageType, CoordRepType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   ReaderType::Pointer reader1 = ReaderType::New();
   ReaderType::Pointer reader2 = ReaderType::New();
-  ReaderType::Pointer reader3 = ReaderType::New();
-  ReaderType::Pointer reader4 = ReaderType::New();
 
   WriterType::Pointer writer1 = WriterType::New();
   WriterType::Pointer writer2 = WriterType::New();
   WriterType::Pointer writer3 = WriterType::New();
   WriterType::Pointer writer4 = WriterType::New();
 
-  reader1->SetFileName( argv[1] );
-  reader2->SetFileName( argv[2] );
-  reader3->SetFileName( argv[3] );
-  reader4->SetFileName( argv[4] );
+  reader1->SetFileName(argv[1]);
 
-  writer1->SetFileName( argv[3] );
-  writer2->SetFileName( argv[4] );
-  writer3->SetFileName( argv[5] );
-  writer4->SetFileName( argv[6] );
+  writer1->SetFileName(argv[3]);
+  writer2->SetFileName(argv[4]);
+  writer3->SetFileName(argv[5]);
+  writer4->SetFileName(argv[6]);
 
   // Create an affine transformation
   AffineTransformType::Pointer affineTransform = AffineTransformType::New();
@@ -118,48 +118,103 @@ int itkResampleImageTest2(int argc, char * argv [] )
   ExtrapolatorType::Pointer extrapolator = ExtrapolatorType::New();
 
   // Create and configure a resampling filter
-  typedef itk::ResampleImageFilter< ImageType, ImageType > ResampleFilterType;
+  using ResampleFilterType = itk::ResampleImageFilter<ImageType, ImageType>;
 
   ResampleFilterType::Pointer resample = ResampleFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( resample, ResampleImageFilter, ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(resample, ResampleImageFilter, ImageToImageFilter);
 
-  resample->SetInput( reader1->GetOutput() );
-  TEST_SET_GET_VALUE( reader1->GetOutput(), resample->GetInput() );
 
-  resample->SetReferenceImage( reader2->GetOutput() );
-  TEST_SET_GET_VALUE( reader2->GetOutput(), resample->GetReferenceImage() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(reader1->Update());
 
-  resample->UseReferenceImageOn();
-  TEST_EXPECT_TRUE( resample->GetUseReferenceImage() );
+  resample->SetInput(reader1->GetOutput());
+  ITK_TEST_SET_GET_VALUE(reader1->GetOutput(), resample->GetInput());
 
-  resample->SetTransform( affineTransform );
-  TEST_SET_GET_VALUE( affineTransform, resample->GetTransform() );
+  resample->SetTransform(affineTransform);
+  ITK_TEST_SET_GET_VALUE(affineTransform, resample->GetTransform());
 
-  resample->SetInterpolator( interpolator );
-  TEST_SET_GET_VALUE( interpolator, resample->GetInterpolator() );
+  resample->SetInterpolator(interpolator);
+  ITK_TEST_SET_GET_VALUE(interpolator, resample->GetInterpolator());
 
-  writer1->SetInput( resample->GetOutput() );
+  bool useReferenceImage = std::stoi(argv[7]);
+  ITK_TEST_SET_GET_BOOLEAN(resample, UseReferenceImage, useReferenceImage);
 
-  // Check GetReferenceImage
-  if( resample->GetReferenceImage() != reader2->GetOutput() )
+
+  // If the reference image is to be used, read it and set it to the filter;
+  // else, create an image region for the output image.
+  if (useReferenceImage)
+  {
+    reader2->SetFileName(argv[2]);
+
+    ITK_TRY_EXPECT_NO_EXCEPTION(reader2->Update());
+
+    resample->SetReferenceImage(reader2->GetOutput());
+    ITK_TEST_SET_GET_VALUE(reader2->GetOutput(), resample->GetReferenceImage());
+  }
+  else
+  {
+    // Set a fixed, isotropic output spacing
+    typename ImageType::SpacingType::ValueType outputSpacingValue = 1.5;
+    if (argc > 7)
     {
-    std::cerr << "GetReferenceImage() failed ! " << std::endl;
-    return EXIT_FAILURE;
+      outputSpacingValue = std::stod(argv[8]);
     }
+
+    typename ImageType::SpacingType outputSpacing;
+    for (unsigned int i = 0; i < NDimensions; ++i)
+    {
+      outputSpacing[i] = outputSpacingValue;
+    }
+
+    const typename ImageType::SizeType &    inputSize = resample->GetInput()->GetLargestPossibleRegion().GetSize();
+    const typename ImageType::SpacingType & inputSpacing = resample->GetInput()->GetSpacing();
+
+    typename ImageType::SizeType outputSize;
+
+    using SizeValueType = typename ImageType::SizeType::SizeValueType;
+    for (unsigned int i = 0; i < NDimensions; ++i)
+    {
+      outputSize[i] = itk::Math::Ceil<SizeValueType>((double)inputSize[i] * inputSpacing[i] / outputSpacing[i]);
+    }
+
+    typename ImageType::DirectionType outputDirection = resample->GetInput()->GetDirection();
+
+    typename ImageType::PointType outputOrigin = resample->GetInput()->GetOrigin();
+
+    resample->SetOutputSpacing(outputSpacing);
+    ITK_TEST_SET_GET_VALUE(outputSpacing, resample->GetOutputSpacing());
+
+    resample->SetSize(outputSize);
+    ITK_TEST_SET_GET_VALUE(outputSize, resample->GetSize());
+
+    resample->SetOutputOrigin(outputOrigin);
+    ITK_TEST_SET_GET_VALUE(outputOrigin, resample->GetOutputOrigin());
+
+    resample->SetOutputDirection(outputDirection);
+    ITK_TEST_SET_GET_VALUE(outputDirection, resample->GetOutputDirection());
+  }
 
   // Run the resampling filter with the normal, linear, affine transform.
   // This will use ResampleImageFilter::LinearThreadedGenerateData().
   std::cout << "Test with normal AffineTransform." << std::endl;
-  try
+
+  ITK_TRY_EXPECT_NO_EXCEPTION(resample->Update());
+
+  writer1->SetInput(resample->GetOutput());
+
+  // Check GetReferenceImage
+  if (useReferenceImage)
+  {
+    if (resample->GetReferenceImage() != reader2->GetOutput())
     {
-    writer1->Update();
+      std::cerr << "Test failed!" << std::endl;
+      std::cerr << "GetReferenceImage() failed ! " << std::endl;
+      return EXIT_FAILURE;
     }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << excp << std::endl;
-    return EXIT_FAILURE;
-    }
+  }
+
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer1->Update());
+
 
   // Assign an affine transform that returns
   // false for IsLinear() instead of true, to force
@@ -167,82 +222,44 @@ int itkResampleImageTest2(int argc, char * argv [] )
   // instead of LinearThreadedGenerateData. This will test that
   // we get the same results for both methods.
   std::cout << "Test with NonlinearAffineTransform." << std::endl;
-  NonlinearAffineTransformType::Pointer nonlinearAffineTransform =
-                                    NonlinearAffineTransformType::New();
+  NonlinearAffineTransformType::Pointer nonlinearAffineTransform = NonlinearAffineTransformType::New();
 
   nonlinearAffineTransform->Scale(2.0);
-  resample->SetTransform( nonlinearAffineTransform );
-  writer2->SetInput( resample->GetOutput() );
-  try
-    {
-    writer2->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << excp << std::endl;
-    return EXIT_FAILURE;
-    }
+  resample->SetTransform(nonlinearAffineTransform);
+
+  ITK_TRY_EXPECT_NO_EXCEPTION(resample->Update());
+
+  writer2->SetInput(resample->GetOutput());
+
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer2->Update());
+
 
   // Instead of using the default pixel when sampling outside the input image,
   // we use a nearest neighbor extrapolator.
-  resample->SetTransform( affineTransform );
-  resample->SetExtrapolator( extrapolator );
-  writer3->SetInput( resample->GetOutput() );
   std::cout << "Test with nearest neighbor extrapolator, affine transform." << std::endl;
-  try
-    {
-    writer3->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << excp << std::endl;
-    return EXIT_FAILURE;
-    }
+  resample->SetTransform(affineTransform);
+  resample->SetExtrapolator(extrapolator);
+  ITK_TEST_SET_GET_VALUE(extrapolator, resample->GetExtrapolator());
+
+  ITK_TRY_EXPECT_NO_EXCEPTION(resample->Update());
+
+  writer3->SetInput(resample->GetOutput());
+
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer3->Update());
+
 
   // Instead of using the default pixel when sampling outside the input image,
   // we use a nearest neighbor extrapolator.
-  resample->SetTransform( nonlinearAffineTransform );
-  writer4->SetInput( resample->GetOutput() );
   std::cout << "Test with nearest neighbor extrapolator, nonlinear transform." << std::endl;
-  try
-    {
-    writer4->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << excp << std::endl;
-    return EXIT_FAILURE;
-    }
+  resample->SetTransform(nonlinearAffineTransform);
 
-  // Check UseReferenceImage methods
-  resample->UseReferenceImageOff();
-  if( resample->GetUseReferenceImage() )
-    {
-    std::cerr << "GetUseReferenceImage() or UseReferenceImageOff() failed ! ";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-    }
+  ITK_TRY_EXPECT_NO_EXCEPTION(resample->Update());
 
-  // Check UseReferenceImage methods
-  resample->UseReferenceImageOn();
-  if( !resample->GetUseReferenceImage() )
-    {
-    std::cerr << "GetUseReferenceImage() or UseReferenceImageOn() failed ! ";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-    }
+  writer4->SetInput(resample->GetOutput());
 
-  // Check UseReferenceImage methods
-  resample->SetUseReferenceImage( false );
-  if( resample->GetUseReferenceImage() )
-    {
-    std::cerr << "GetUseReferenceImage() or SetUseReferenceImage() failed ! ";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-    }
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer4->Update());
 
 
- std::cout << "Test passed." << std::endl;
- return EXIT_SUCCESS;
-
+  std::cout << "Test finished." << std::endl;
+  return EXIT_SUCCESS;
 }

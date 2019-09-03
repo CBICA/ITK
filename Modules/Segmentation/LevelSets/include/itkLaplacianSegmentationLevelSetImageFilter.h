@@ -98,28 +98,26 @@ namespace itk
  *   \sa SparseFieldLevelSetImageFilter
  * \ingroup ITKLevelSets
  */
-template< typename TInputImage,
-          typename TFeatureImage,
-          typename TOutputPixelType = float >
-class ITK_TEMPLATE_EXPORT LaplacianSegmentationLevelSetImageFilter:
-  public SegmentationLevelSetImageFilter< TInputImage, TFeatureImage, TOutputPixelType >
+template <typename TInputImage, typename TFeatureImage, typename TOutputPixelType = float>
+class ITK_TEMPLATE_EXPORT LaplacianSegmentationLevelSetImageFilter
+  : public SegmentationLevelSetImageFilter<TInputImage, TFeatureImage, TOutputPixelType>
 {
 public:
-  /** Standard class typedefs */
-  typedef LaplacianSegmentationLevelSetImageFilter Self;
-  typedef  SegmentationLevelSetImageFilter< TInputImage, TFeatureImage, TOutputPixelType >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianSegmentationLevelSetImageFilter);
 
-  /** Inherited typedef from the superclass. */
-  typedef typename Superclass::ValueType        ValueType;
-  typedef typename Superclass::OutputImageType  OutputImageType;
-  typedef typename Superclass::FeatureImageType FeatureImageType;
+  /** Standard class type aliases */
+  using Self = LaplacianSegmentationLevelSetImageFilter;
+  using Superclass = SegmentationLevelSetImageFilter<TInputImage, TFeatureImage, TOutputPixelType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Inherited type alias from the superclass. */
+  using ValueType = typename Superclass::ValueType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using FeatureImageType = typename Superclass::FeatureImageType;
 
   /** Type of the segmentation function */
-  typedef LaplacianSegmentationLevelSetFunction< OutputImageType,
-                                                 FeatureImageType > LaplacianFunctionType;
+  using LaplacianFunctionType = LaplacianSegmentationLevelSetFunction<OutputImageType, FeatureImageType>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LaplacianSegmentationLevelSetImageFilter, SegmentationLevelSetImageFilter);
@@ -128,20 +126,19 @@ public:
   itkNewMacro(Self);
 
 protected:
-  ~LaplacianSegmentationLevelSetImageFilter() ITK_OVERRIDE {}
+  ~LaplacianSegmentationLevelSetImageFilter() override = default;
   LaplacianSegmentationLevelSetImageFilter();
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianSegmentationLevelSetImageFilter);
-
   typename LaplacianFunctionType::Pointer m_LaplacianFunction;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLaplacianSegmentationLevelSetImageFilter.hxx"
+#  include "itkLaplacianSegmentationLevelSetImageFilter.hxx"
 #endif
 
 #endif

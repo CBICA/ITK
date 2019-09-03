@@ -57,74 +57,73 @@ namespace itk
  *
  * \ingroup ITKReview
  */
-template< typename TInputImage, typename TFeatureImage, typename TSingleData >
-class ConstrainedRegionBasedLevelSetFunctionSharedData:
-  public RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage, TSingleData >
+template <typename TInputImage, typename TFeatureImage, typename TSingleData>
+class ConstrainedRegionBasedLevelSetFunctionSharedData
+  : public RegionBasedLevelSetFunctionSharedData<TInputImage, TFeatureImage, TSingleData>
 {
 public:
+  using Self = ConstrainedRegionBasedLevelSetFunctionSharedData;
+  using Superclass = RegionBasedLevelSetFunctionSharedData<TInputImage, TFeatureImage, TSingleData>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef ConstrainedRegionBasedLevelSetFunctionSharedData Self;
-  typedef RegionBasedLevelSetFunctionSharedData< TInputImage, TFeatureImage, TSingleData >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-
-  itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TFeatureImage::ImageDimension;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   itkTypeMacro(ConstrainedRegionBasedLevelSetFunctionSharedData, RegionBasedLevelSetFunctionSharedData);
 
-  typedef TInputImage                                 InputImageType;
-  typedef typename Superclass::InputImagePointer      InputImagePointer;
-  typedef typename Superclass::InputImageConstPointer InputImageConstPointer;
-  typedef typename Superclass::InputPixelType         InputPixelType;
-  typedef typename Superclass::InputRegionType        InputRegionType;
-  typedef typename Superclass::InputSizeType          InputSizeType;
-  typedef typename Superclass::InputSizeValueType     InputSizeValueType;
-  typedef typename Superclass::InputSpacingType       InputSpacingType;
-  typedef typename Superclass::InputIndexType         InputIndexType;
-  typedef typename Superclass::InputIndexValueType    InputIndexValueType;
-  typedef typename Superclass::InputPointType         InputPointType;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputImageConstPointer = typename Superclass::InputImageConstPointer;
+  using InputPixelType = typename Superclass::InputPixelType;
+  using InputRegionType = typename Superclass::InputRegionType;
+  using InputSizeType = typename Superclass::InputSizeType;
+  using InputSizeValueType = typename Superclass::InputSizeValueType;
+  using InputSpacingType = typename Superclass::InputSpacingType;
+  using InputIndexType = typename Superclass::InputIndexType;
+  using InputIndexValueType = typename Superclass::InputIndexValueType;
+  using InputPointType = typename Superclass::InputPointType;
 
-  typedef TFeatureImage                                 FeatureImageType;
-  typedef typename Superclass::FeatureImagePointer      FeatureImagePointer;
-  typedef typename Superclass::FeatureImageConstPointer FeatureImageConstPointer;
-  typedef typename Superclass::FeaturePixelType         FeaturePixelType;
-  typedef typename Superclass::FeatureRegionType        FeatureRegionType;
-  typedef typename Superclass::FeatureSizeType          FeatureSizeType;
-  typedef typename Superclass::FeatureSizeValueType     FeatureSizeValueType;
-  typedef typename Superclass::FeatureSpacingType       FeatureSpacingType;
-  typedef typename Superclass::FeatureIndexType         FeatureIndexType;
-  typedef typename Superclass::FeaturePointType         FeaturePointType;
+  using FeatureImageType = TFeatureImage;
+  using FeatureImagePointer = typename Superclass::FeatureImagePointer;
+  using FeatureImageConstPointer = typename Superclass::FeatureImageConstPointer;
+  using FeaturePixelType = typename Superclass::FeaturePixelType;
+  using FeatureRegionType = typename Superclass::FeatureRegionType;
+  using FeatureSizeType = typename Superclass::FeatureSizeType;
+  using FeatureSizeValueType = typename Superclass::FeatureSizeValueType;
+  using FeatureSpacingType = typename Superclass::FeatureSpacingType;
+  using FeatureIndexType = typename Superclass::FeatureIndexType;
+  using FeaturePointType = typename Superclass::FeaturePointType;
 
-  typedef typename Superclass::ListPixelType         ListPixelType;
-  typedef typename Superclass::ListImageType         ListImageType;
-  typedef typename Superclass::ListImagePointer      ListImagePointer;
-  typedef typename Superclass::ListImageConstPointer ListImageConstPointer;
-  typedef typename Superclass::ListRegionType        ListRegionType;
-  typedef typename Superclass::ListSizeType          ListSizeType;
-  typedef typename Superclass::ListSizeValueType     ListSizeValueType;
-  typedef typename Superclass::ListSpacingType       ListSpacingType;
-  typedef typename Superclass::ListIndexType         ListIndexType;
-  typedef typename Superclass::ListIndexValueType    ListIndexValueType;
-  typedef typename Superclass::ListPointType         ListPointType;
-  typedef typename Superclass::ListIteratorType      ListIteratorType;
+  using ListPixelType = typename Superclass::ListPixelType;
+  using ListImageType = typename Superclass::ListImageType;
+  using ListImagePointer = typename Superclass::ListImagePointer;
+  using ListImageConstPointer = typename Superclass::ListImageConstPointer;
+  using ListRegionType = typename Superclass::ListRegionType;
+  using ListSizeType = typename Superclass::ListSizeType;
+  using ListSizeValueType = typename Superclass::ListSizeValueType;
+  using ListSpacingType = typename Superclass::ListSpacingType;
+  using ListIndexType = typename Superclass::ListIndexType;
+  using ListIndexValueType = typename Superclass::ListIndexValueType;
+  using ListPointType = typename Superclass::ListPointType;
+  using ListIteratorType = typename Superclass::ListIteratorType;
 
-  typedef typename Superclass::CentroidVectorType CentroidVectorType;
-  typedef typename Superclass::SampleType         SampleType;
-  typedef typename Superclass::TreeGeneratorType  TreeGeneratorType;
-  typedef typename Superclass::TreePointer        TreePointer;
-  typedef typename Superclass::TreeType           TreeType;
-  typedef typename Superclass::KdTreePointer      KdTreePointer;
+  using CentroidVectorType = typename Superclass::CentroidVectorType;
+  using SampleType = typename Superclass::SampleType;
+  using TreeGeneratorType = typename Superclass::TreeGeneratorType;
+  using TreePointer = typename Superclass::TreePointer;
+  using TreeType = typename Superclass::TreeType;
+  using KdTreePointer = typename Superclass::KdTreePointer;
 
-  typedef TSingleData                                            LevelSetDataType;
-  typedef typename Superclass::LevelSetDataPointer               LevelSetDataPointer;
-  typedef typename Superclass::LevelSetDataPointerVector         LevelSetDataPointerVector;
-  typedef typename Superclass::LevelSetDataPointerVectorIterator LevelSetDataPointerVectorIterator;
+  using LevelSetDataType = TSingleData;
+  using LevelSetDataPointer = typename Superclass::LevelSetDataPointer;
+  using LevelSetDataPointerVector = typename Superclass::LevelSetDataPointerVector;
+  using LevelSetDataPointerVectorIterator = typename Superclass::LevelSetDataPointerVectorIterator;
 
-  void PopulateListImage() ITK_OVERRIDE
+  void
+  PopulateListImage() override
   {
     ListSpacingType spacing = this->m_NearestNeighborListImage->GetSpacing();
 
@@ -132,62 +131,65 @@ public:
 
     ListIteratorType lIt(this->m_NearestNeighborListImage, region);
 
-    if ( this->m_KdTree.IsNotNull() )
+    if (this->m_KdTree.IsNotNull())
+    {
+      for (lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt)
       {
-      for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
-        {
         ListIndexType ind = lIt.GetIndex();
 
         float queryPoint[ImageDimension];
-        for ( unsigned int i = 0; i < ImageDimension; i++ )
-          {
+        for (unsigned int i = 0; i < ImageDimension; i++)
+        {
           queryPoint[i] = ind[i] * spacing[i];
-          }
+        }
 
         typename TreeType::InstanceIdentifierVectorType neighbors;
         this->m_KdTree->Search(queryPoint, this->m_NumberOfNeighbors, neighbors);
 
         ListPixelType L;
-        for ( unsigned int i = 0; i < this->m_NumberOfNeighbors; i++ )
-          {
-          if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
-            {
-            L.push_back(neighbors[i]);
-            }
-          }
-        lIt.Set(L);
-        }
-      }
-    else
-      {
-      for ( lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt )
+        for (unsigned int i = 0; i < this->m_NumberOfNeighbors; i++)
         {
+          if (this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind))
+          {
+            L.push_back(neighbors[i]);
+          }
+        }
+        lIt.Set(L);
+      }
+    }
+    else
+    {
+      for (lIt.GoToBegin(); !lIt.IsAtEnd(); ++lIt)
+      {
         ListIndexType ind = lIt.GetIndex();
         ListPixelType L;
-        for ( unsigned int i = 0; i < this->m_FunctionCount; i++ )
+        for (unsigned int i = 0; i < this->m_FunctionCount; i++)
+        {
+          if (this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind))
           {
-          if ( this->m_LevelSetDataPointerVector[i]->VerifyInsideRegion(ind) )
-            {
             L.push_back(i);
-            }
           }
-        lIt.Set(L);
         }
+        lIt.Set(L);
       }
+    }
   }
 
 protected:
-  ConstrainedRegionBasedLevelSetFunctionSharedData():Superclass(){}
-  ~ConstrainedRegionBasedLevelSetFunctionSharedData(){}
+  ConstrainedRegionBasedLevelSetFunctionSharedData()
+    : Superclass()
+  {}
+  ~ConstrainedRegionBasedLevelSetFunctionSharedData() override {}
 
 private:
-  ConstrainedRegionBasedLevelSetFunctionSharedData(const Self &); //purposely
+  ConstrainedRegionBasedLevelSetFunctionSharedData(const Self &); // purposely
                                                                   // not
                                                                   // implemented
-  void operator=(const Self &);                                   //purposely
-                                                                  // not
-                                                                  // implemented
+  void
+  operator=(const Self &); // purposely
+                           // not
+                           // implemented
 };
-} //end namespace itk
+} // end namespace itk
 
 #endif

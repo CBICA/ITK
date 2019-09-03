@@ -20,7 +20,8 @@
 
 #include "itkLaplacianDeformationQuadEdgeMeshFilter.h"
 
-namespace itk {
+namespace itk
+{
 /** \class LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints
  *
  *  \brief Laplacian deformation with soft constraints (approximating
@@ -38,81 +39,81 @@ namespace itk {
  *
  *  \ingroup ITKQuadEdgeMeshFiltering
  */
-template< class TInputMesh, class TOutputMesh, class TSolverTraits >
-class ITK_TEMPLATE_EXPORT LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints:
-  public LaplacianDeformationQuadEdgeMeshFilter< TInputMesh, TOutputMesh, TSolverTraits >
+template <class TInputMesh, class TOutputMesh, class TSolverTraits>
+class ITK_TEMPLATE_EXPORT LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints
+  : public LaplacianDeformationQuadEdgeMeshFilter<TInputMesh, TOutputMesh, TSolverTraits>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints);
+
   /** Basic types. */
-  typedef LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints Self;
-  typedef LaplacianDeformationQuadEdgeMeshFilter< TInputMesh,
-                                                  TOutputMesh,
-                                                  TSolverTraits >   Superclass;
-  typedef SmartPointer< Self >                                      Pointer;
-  typedef SmartPointer< const Self >                                ConstPointer;
+  using Self = LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints;
+  using Superclass = LaplacianDeformationQuadEdgeMeshFilter<TInputMesh, TOutputMesh, TSolverTraits>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Input types. */
-  typedef TInputMesh                              InputMeshType;
+  using InputMeshType = TInputMesh;
 
-  itkStaticConstMacro(InputPointDimension, unsigned int, InputMeshType::PointDimension);
+  static constexpr unsigned int InputPointDimension = InputMeshType::PointDimension;
 
   /** Output types. */
-  typedef TOutputMesh                                         OutputMeshType;
-  typedef typename Superclass::OutputPointType                OutputPointType;
-  typedef typename Superclass::OutputCoordRepType             OutputCoordRepType;
-  typedef typename Superclass::OutputPointIdentifier          OutputPointIdentifier;
+  using OutputMeshType = TOutputMesh;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using OutputCoordRepType = typename Superclass::OutputCoordRepType;
+  using OutputPointIdentifier = typename Superclass::OutputPointIdentifier;
 
-  itkStaticConstMacro(OutputPointDimension, unsigned int, OutputMeshType::PointDimension);
+  static constexpr unsigned int OutputPointDimension = OutputMeshType::PointDimension;
 
-  typedef TSolverTraits                     SolverTraits;
-  typedef typename Superclass::ValueType    ValueType;
-  typedef typename Superclass::MatrixType   MatrixType;
-  typedef typename Superclass::VectorType   VectorType;
+  using SolverTraits = TSolverTraits;
+  using ValueType = typename Superclass::ValueType;
+  using MatrixType = typename Superclass::MatrixType;
+  using VectorType = typename Superclass::VectorType;
 
   itkNewMacro(Self);
   itkTypeMacro(LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints, LaplacianDeformationQuadEdgeMeshFilter);
 
-  itkSetMacro(Lambda,OutputCoordRepType);
-  itkGetMacro(Lambda,OutputCoordRepType);
+  itkSetMacro(Lambda, OutputCoordRepType);
+  itkGetMacro(Lambda, OutputCoordRepType);
 
-  void SetLocalLambda( OutputPointIdentifier vId, OutputCoordRepType iL );
+  void
+  SetLocalLambda(OutputPointIdentifier vId, OutputCoordRepType iL);
 
 protected:
-
   LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints();
-  virtual ~LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    *  \brief Fill matrix iM and vectors Bx and m_By depending on if one
    *  vertex is on the border or not.
    */
-  void FillMatrix(MatrixType & iM, VectorType & iBx, VectorType & iBy, VectorType & iBz);
+  void
+  FillMatrix(MatrixType & iM, VectorType & iBx, VectorType & iBy, VectorType & iBz);
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  typedef typename Superclass::ConstraintMapType                ConstraintMapType;
-  typedef typename Superclass::ConstraintMapConstIterator       ConstraintMapConstIterator;
+  using ConstraintMapType = typename Superclass::ConstraintMapType;
+  using ConstraintMapConstIterator = typename Superclass::ConstraintMapConstIterator;
 
-  typedef typename Superclass::OutputMapPointIdentifier               OutputMapPointIdentifier;
-  typedef typename Superclass::OutputMapPointIdentifierIterator       OutputMapPointIdentifierIterator;
-  typedef typename Superclass::OutputMapPointIdentifierConstIterator  OutputMapPointIdentifierConstIterator;
+  using OutputMapPointIdentifier = typename Superclass::OutputMapPointIdentifier;
+  using OutputMapPointIdentifierIterator = typename Superclass::OutputMapPointIdentifierIterator;
+  using OutputMapPointIdentifierConstIterator = typename Superclass::OutputMapPointIdentifierConstIterator;
 
 
-  typedef typename Superclass::RowType          RowType;
-  typedef typename Superclass::RowConstIterator RowConstIterator;
-  typedef typename Superclass::RowIterator      RowIterator;
+  using RowType = typename Superclass::RowType;
+  using RowConstIterator = typename Superclass::RowConstIterator;
+  using RowIterator = typename Superclass::RowIterator;
 
-  virtual void ComputeVertexIdMapping() ITK_OVERRIDE;
+  void
+  ComputeVertexIdMapping() override;
 
   OutputCoordRepType m_Lambda;
   OutputCoordRepType m_LambdaSquare;
 
-  itksys::hash_map< OutputPointIdentifier, OutputCoordRepType > m_LocalLambdaSquare;
-
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianDeformationQuadEdgeMeshFilterWithSoftConstraints);
+  std::unordered_map<OutputPointIdentifier, OutputCoordRepType> m_LocalLambdaSquare;
 };
 } // end namespace itk
 

@@ -18,7 +18,7 @@
 #ifndef itkXorImageFilter_h
 #define itkXorImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkBitwiseOpsFunctors.h"
 #include "itkNumericTraits.h"
 
@@ -37,9 +37,9 @@ namespace itk
  *
  * The total operation over one pixel will be
  *
- * \code
- *  output_pixel = static_cast<OutputPixelType>( input1_pixel ^ input2_pixel )
- * \endcode
+   \code
+    output_pixel = static_cast<OutputPixelType>( input1_pixel ^ input2_pixel )
+   \endcode
  *
  * Where "^" is the boolean XOR operator in C++.
  *
@@ -47,55 +47,49 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/XorImageFilter,Binary XOR (exclusive OR) two images}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/BinaryXORTwoImages,Binary XOR Two Images}
+ * \endsphinx
  */
-template< typename TInputImage1, typename TInputImage2 = TInputImage1, typename TOutputImage = TInputImage1 >
-class XorImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::XOR<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
-
+template <typename TInputImage1, typename TInputImage2 = TInputImage1, typename TOutputImage = TInputImage1>
+class XorImageFilter : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef XorImageFilter Self;
-  typedef BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                                    Functor::XOR<
-                                      typename TInputImage1::PixelType,
-                                      typename TInputImage2::PixelType,
-                                      typename TOutputImage::PixelType >
-                                    >                                 Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(XorImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = XorImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType =
+    Functor::XOR<typename TInputImage1::PixelType, typename TInputImage2::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(XorImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(XorImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1Input2OutputBitwiseOperatorsCheck,
-                   ( Concept::BitwiseOperators< typename TInputImage1::PixelType,
-                                                typename TInputImage2::PixelType,
-                                                typename TOutputImage::PixelType > ) );
+  itkConceptMacro(Input1Input2OutputBitwiseOperatorsCheck,
+                  (Concept::BitwiseOperators<typename TInputImage1::PixelType,
+                                             typename TInputImage2::PixelType,
+                                             typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  XorImageFilter() {}
-  virtual ~XorImageFilter() ITK_OVERRIDE {}
+  XorImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(XorImageFilter);
+  ~XorImageFilter() override = default;
 };
 } // end namespace itk
 

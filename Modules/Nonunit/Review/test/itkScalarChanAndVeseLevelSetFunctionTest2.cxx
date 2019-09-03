@@ -21,79 +21,82 @@
 namespace itk
 {
 
-template < typename TInput, // LevelSetImageType
-  typename TFeature, // FeatureImageType
-  typename TSharedData >
-class ScalarChanAndVeseLevelSetFunctionTest2Helper :
- public ScalarChanAndVeseLevelSetFunction< TInput, TFeature, TSharedData >
+template <typename TInput,   // LevelSetImageType
+          typename TFeature, // FeatureImageType
+          typename TSharedData>
+class ScalarChanAndVeseLevelSetFunctionTest2Helper
+  : public ScalarChanAndVeseLevelSetFunction<TInput, TFeature, TSharedData>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ScalarChanAndVeseLevelSetFunctionTest2Helper                       Self;
-  typedef ScalarChanAndVeseLevelSetFunction<TInput,TFeature,TSharedData>    Superclass;
-  typedef SmartPointer<Self>                                          Pointer;
-  typedef SmartPointer<const Self>                                    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ScalarChanAndVeseLevelSetFunctionTest2Helper);
 
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  /** Standard class type aliases. */
+  using Self = ScalarChanAndVeseLevelSetFunctionTest2Helper;
+  using Superclass = ScalarChanAndVeseLevelSetFunction<TInput, TFeature, TSharedData>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro( ScalarChanAndVeseLevelSetFunctionTest2Helper, ScalarChanAndVeseLevelSetFunction );
+  itkTypeMacro(ScalarChanAndVeseLevelSetFunctionTest2Helper, ScalarChanAndVeseLevelSetFunction);
 
-  typedef typename Superclass::ScalarValueType     ScalarValueType;
-  typedef typename Superclass::FeaturePixelType    FeaturePixelType;
-  typedef typename Superclass::FeatureIndexType    FeatureIndexType;
+  using ScalarValueType = typename Superclass::ScalarValueType;
+  using FeaturePixelType = typename Superclass::FeaturePixelType;
+  using FeatureIndexType = typename Superclass::FeatureIndexType;
 
 
-  virtual ScalarValueType computeInternalTerm(const FeaturePixelType &,
-    const FeatureIndexType &, const unsigned int & )
-    {
-    return ScalarValueType( 0 );
-    }
+  virtual ScalarValueType
+  computeInternalTerm(const FeaturePixelType &, const FeatureIndexType &, const unsigned int &)
+  {
+    return ScalarValueType(0);
+  }
 
-  virtual ScalarValueType computeExternalTerm(const FeaturePixelType &,
-    const FeatureIndexType &, const unsigned int & )
-    {
-    return ScalarValueType( 0 );
-    }
+  virtual ScalarValueType
+  computeExternalTerm(const FeaturePixelType &, const FeatureIndexType &, const unsigned int &)
+  {
+    return ScalarValueType(0);
+  }
 
-  virtual void computeOverlapParameters( const FeatureIndexType,
-    unsigned int &, unsigned int & ) {}
+  virtual void
+  computeOverlapParameters(const FeatureIndexType, unsigned int &, unsigned int &)
+  {}
 
-  virtual void ComputeParameters() ITK_OVERRIDE {}
+  void
+  ComputeParameters() override
+  {}
 
 protected:
   ScalarChanAndVeseLevelSetFunctionTest2Helper() {}
-  ~ScalarChanAndVeseLevelSetFunctionTest2Helper() {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ScalarChanAndVeseLevelSetFunctionTest2Helper);
+  ~ScalarChanAndVeseLevelSetFunctionTest2Helper() override {}
 };
 
-}
+} // namespace itk
 
-int itkScalarChanAndVeseLevelSetFunctionTest2( int, char* [] )
+int
+itkScalarChanAndVeseLevelSetFunctionTest2(int, char *[])
 {
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
-  typedef double                                  PixelType;
-  typedef itk::Image< PixelType, Dimension >      ImageType;
-  typedef itk::Image< float, Dimension >          FeatureImageType;
+  using PixelType = double;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using FeatureImageType = itk::Image<float, Dimension>;
 
-  typedef itk::ScalarChanAndVeseLevelSetFunctionData< ImageType, FeatureImageType >  DataHelperType;
+  using DataHelperType = itk::ScalarChanAndVeseLevelSetFunctionData<ImageType, FeatureImageType>;
 
-  typedef itk::ConstrainedRegionBasedLevelSetFunctionSharedData< ImageType, FeatureImageType, DataHelperType >
-    SharedDataHelperType;
+  using SharedDataHelperType =
+    itk::ConstrainedRegionBasedLevelSetFunctionSharedData<ImageType, FeatureImageType, DataHelperType>;
 
 
-  typedef itk::ScalarChanAndVeseLevelSetFunctionTest2Helper<
-    ImageType, FeatureImageType, SharedDataHelperType >      ChanAndVeseLevelSetFunctionType;
+  using ChanAndVeseLevelSetFunctionType =
+    itk::ScalarChanAndVeseLevelSetFunctionTest2Helper<ImageType, FeatureImageType, SharedDataHelperType>;
 
   ChanAndVeseLevelSetFunctionType::Pointer function = ChanAndVeseLevelSetFunctionType::New();
 
   std::cout << "GetNameOfClass() = " << function->GetNameOfClass() << std::endl;
-  function->Print( std::cout );
+  function->Print(std::cout);
 
   return EXIT_SUCCESS;
 }

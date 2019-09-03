@@ -28,7 +28,6 @@ itkBSplineDownsampleImageFilterTest.cxx
 itkTileImageFilterTest.cxx
 itkInterpolateImageFilterTest.cxx
 itkPasteImageFilterTest.cxx
-itkVectorResampleImageFilterTest.cxx
 itkPermuteAxesImageFilterTest.cxx
 itkOrientedImage2DTest.cxx
 itkOrientedImage3DTest.cxx
@@ -43,12 +42,15 @@ itkWarpImageFilterTest2.cxx
 itkWarpVectorImageFilterTest.cxx
 itkWrapPadImageTest.cxx
 itkMirrorPadImageTest.cxx
+itkMirrorPadImageFilterTest.cxx
 itkResampleImageTest.cxx
 itkResampleImageTest2.cxx
+itkResampleImageTest2Streaming.cxx
 itkResampleImageTest3.cxx
 itkResampleImageTest4.cxx
 itkResampleImageTest5.cxx
 itkResampleImageTest6.cxx
+itkResampleImageTest7.cxx
 itkResamplePhasedArray3DSpecialCoordinatesImageTest.cxx
 itkPushPopTileImageFilterTest.cxx
 itkShrinkImageStreamingTest.cxx
@@ -73,20 +75,20 @@ itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest01
     itkBSplineScatteredDataPointSetToImageFilterTest DATA{${ITK_DATA_ROOT}/Input/cake_easy.png} ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest01.mha)
 itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest02
       COMMAND ITKImageGridTestDriver
-    --compare-MD5 ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest02.mha
-              1ffdb3ea274ec766af8fe2bb929f9624
+    --compare DATA{Baseline/itkBSplineScatteredDataPointSetToImageFilterTest02.mha}
+              ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest02.mha
     itkBSplineScatteredDataPointSetToImageFilterTest2 ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest02.mha)
 itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest03
       COMMAND ITKImageGridTestDriver
-    --compare-MD5 ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest03.mha
-              9df6a57780d641dca792877ee158c3d7
+    --compare DATA{Baseline/itkBSplineScatteredDataPointSetToImageFilterTest03.mha}
+              ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest03.mha
     itkBSplineScatteredDataPointSetToImageFilterTest3 DATA{${ITK_DATA_ROOT}/Input/BSplineScatteredApproximationDataPointsInput.txt} ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest03.mha)
 itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest04
       COMMAND ITKImageGridTestDriver itkBSplineScatteredDataPointSetToImageFilterTest4)
 itk_add_test(NAME itkBSplineScatteredDataPointSetToImageFilterTest05
       COMMAND ITKImageGridTestDriver
-    --compare-MD5 ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest05.mha
-              c2100a7dc86472006d77b62dffa1a8dd
+    --compare DATA{Baseline/itkBSplineScatteredDataPointSetToImageFilterTest05.mha}
+              ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest05.mha
     itkBSplineScatteredDataPointSetToImageFilterTest5 ${ITK_TEST_OUTPUT_DIR}/itkBSplineScatteredDataPointSetToImageFilterTest05.mha)
 itk_add_test(NAME itkBSplineControlPointImageFilterTest1
       COMMAND ITKImageGridTestDriver
@@ -172,11 +174,6 @@ itk_add_test(NAME itkPasteImageFilterTest
     --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/PasteImageFilterTest.png}
               ${ITK_TEST_OUTPUT_DIR}/PasteImageFilterTest.png
     itkPasteImageFilterTest DATA{${ITK_DATA_ROOT}/Input/cthead1.png} DATA{${ITK_DATA_ROOT}/Input/cake_easy.png} ${ITK_TEST_OUTPUT_DIR}/PasteImageFilterTest.png)
-itk_add_test(NAME itkVectorResampleImageFilterTest
-      COMMAND ITKImageGridTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/VectorResampleImageFilterTest.png}
-              ${ITK_TEST_OUTPUT_DIR}/VectorResampleImageFilterTest.png
-    itkVectorResampleImageFilterTest ${ITK_TEST_OUTPUT_DIR}/VectorResampleImageFilterTest.png)
 itk_add_test(NAME itkPermuteAxesImageFilterTest
       COMMAND ITKImageGridTestDriver itkPermuteAxesImageFilterTest)
 itk_add_test(NAME itkOrientedImage2DTest01
@@ -205,24 +202,82 @@ itk_add_test(NAME itkWrapPadImageTest
       COMMAND ITKImageGridTestDriver itkWrapPadImageTest)
 itk_add_test(NAME itkMirrorPadImageTest
       COMMAND ITKImageGridTestDriver itkMirrorPadImageTest)
+itk_add_test(NAME itkMirrorPadImageFilterTest
+      COMMAND ITKImageGridTestDriver
+    --compare DATA{Baseline/SwirledMirrored_0-11-7.nrrd}
+              ${ITK_TEST_OUTPUT_DIR}/SwirledMirrored_0-11-7.nrrd
+    itkMirrorPadImageFilterTest float
+                                DATA{Input/Swirled.png}
+                                ${ITK_TEST_OUTPUT_DIR}/SwirledMirrored_0-11-7.nrrd
+                                1.0 11 7)
+itk_add_test(NAME itkMirrorPadWithExponentialDecayTestFloat
+      COMMAND ITKImageGridTestDriver
+    --compare DATA{Baseline/SwirledMirroredFloat_0.75-11-7.nrrd}
+              ${ITK_TEST_OUTPUT_DIR}/SwirledMirroredFloat_0.75-11-7.nrrd
+    itkMirrorPadImageFilterTest float
+                                DATA{Input/Swirled.png}
+                                ${ITK_TEST_OUTPUT_DIR}/SwirledMirroredFloat_0.75-11-7.nrrd
+                                0.75 11 7)
+itk_add_test(NAME itkMirrorPadWithExponentialDecayTestUChar
+      COMMAND ITKImageGridTestDriver
+    --compare DATA{Baseline/SwirledMirroredUChar_0.75-11-7.nrrd}
+              ${ITK_TEST_OUTPUT_DIR}/SwirledMirroredUChar_0.75-11-7.nrrd
+    itkMirrorPadImageFilterTest uchar
+                                DATA{Input/Swirled.png}
+                                ${ITK_TEST_OUTPUT_DIR}/SwirledMirroredUChar_0.75-11-7.nrrd
+                                0.75 11 7)
 itk_add_test(NAME itkResampleImageTest
       COMMAND ITKImageGridTestDriver itkResampleImageTest)
-itk_add_test(NAME itkResampleImageTest2
+itk_add_test(NAME itkResampleImageTest2UseRefImageOff
       COMMAND ITKImageGridTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/ResampleImageTest2.png}
-              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2a.png
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/ResampleImageTest2.png}
-              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2b.png
-    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolate.png}
-              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2c.png
-    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolate.png}
-              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2d.png
+    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/ResampleImageTest2UseRefImageOff.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2aUseRefImageOff.png
+    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/ResampleImageTest2UseRefImageOff.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2bUseRefImageOff.png
+    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolateUseRefImageOff.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2cUseRefImageOff.png
+    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolateUseRefImageOff.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2dUseRefImageOff.png
     itkResampleImageTest2 DATA{${ITK_DATA_ROOT}/Input/cthead1.png}
-                          DATA{${ITK_DATA_ROOT}/Input/circle.png}
-                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2a.png
-                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2b.png
-                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2c.png
-                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2d.png)
+                          DATA{Input/circle.png}
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2aUseRefImageOff.png
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2bUseRefImageOff.png
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2cUseRefImageOff.png
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2dUseRefImageOff.png
+                          0 0.8)
+itk_add_test(NAME itkResampleImageTest2UseRefImageOn
+      COMMAND ITKImageGridTestDriver
+    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/ResampleImageTest2UseRefImageOn.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2aUseRefImageOn.png
+    --compare DATA{${ITK_DATA_ROOT}/Baseline/BasicFilters/ResampleImageTest2UseRefImageOn.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2bUseRefImageOn.png
+    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolateUseRefImageOn.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2cUseRefImageOn.png
+    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolateUseRefImageOn.png}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2dUseRefImageOn.png
+    itkResampleImageTest2 DATA{${ITK_DATA_ROOT}/Input/cthead1.png}
+                          DATA{Input/circle.png}
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2aUseRefImageOn.png
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2bUseRefImageOn.png
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2cUseRefImageOn.png
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2dUseRefImageOn.png
+                          1)
+itk_add_test(NAME itkResampleImageTest2Streaming
+      COMMAND ITKImageGridTestDriver
+    --compare DATA{Baseline/ResampleImageTest2.mha}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2aStreaming.mha
+    --compare DATA{Baseline/ResampleImageTest2.mha}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2bStreaming.mha
+    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolate.mha}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2cStreaming.mha
+    --compare DATA{Baseline/ResampleImageTest2NearestExtrapolate.mha}
+              ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2dStreaming.mha
+    itkResampleImageTest2Streaming DATA{Input/cthead1.mha}
+                          DATA{Input/circle.png}
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2aStreaming.mha
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2bStreaming.mha
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2cStreaming.mha
+                          ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest2dStreaming.mha)
 itk_add_test(NAME itkResampleImageTest3
       COMMAND ITKImageGridTestDriver
     --compare DATA{Baseline/ResampleImageTest3.png}
@@ -241,6 +296,8 @@ itk_add_test(NAME itkResampleImageTest6
     --compare DATA{Baseline/ResampleImageTest6.png}
               ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest6.png
     itkResampleImageTest6 10 ${ITK_TEST_OUTPUT_DIR}/ResampleImageTest6.png)
+itk_add_test(NAME itkResampleImageTest7
+      COMMAND ITKImageGridTestDriver itkResampleImageTest7)
 itk_add_test(NAME itkResamplePhasedArray3DSpecialCoordinatesImageTest
       COMMAND ITKImageGridTestDriver itkResamplePhasedArray3DSpecialCoordinatesImageTest)
 itk_add_test(NAME itkPushPopTileImageFilterTest
@@ -267,5 +324,8 @@ itk_add_test(NAME itkPadImageFilterTest
       COMMAND ITKImageGridTestDriver itkPadImageFilterTest)
 
 set( ITKImageGridGTests
-  itkSliceImageFilterTest.cxx )
+  itkResampleImageFilterGTest.cxx
+  itkSliceImageFilterTest.cxx
+  itkTileImageFilterGTest.cxx )
+
 CreateGoogleTestDriver(ITKImageGrid "${ITKImageGrid-Test_LIBRARIES}" "${ITKImageGridGTests}")

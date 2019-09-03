@@ -63,119 +63,128 @@ namespace itk
  * (and of course it requires that the output have some itk::Vector for point
  * data and cell data.
  * \ingroup ITKQuadEdgeMeshFiltering
+ *
+ * \sphinx
+ * \sphinxexample{Filtering/QuadEdgeMeshFiltering/ComputeNormalsOfAMesh,Compute Normals Of A Mesh}
+ * \endsphinx
  */
-template< typename TInputMesh, typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT NormalQuadEdgeMeshFilter:
-  public QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT NormalQuadEdgeMeshFilter : public QuadEdgeMeshToQuadEdgeMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  typedef NormalQuadEdgeMeshFilter                                    Self;
-  typedef QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, TOutputMesh > Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  using Self = NormalQuadEdgeMeshFilter;
+  using Superclass = QuadEdgeMeshToQuadEdgeMeshFilter<TInputMesh, TOutputMesh>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkNewMacro (Self);
+  itkNewMacro(Self);
 
-  itkTypeMacro (NormalQuadEdgeMeshFilter,
-                QuadEdgeMeshToQuadEdgeMeshFilter);
+  itkTypeMacro(NormalQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter);
 
-  typedef TInputMesh                              InputMeshType;
-  typedef typename InputMeshType::Pointer         InputMeshPointer;
-  typedef typename InputMeshType::PointIdentifier InputPointIdentifier;
-  typedef typename InputMeshType::PointType       InputPointType;
-  typedef typename InputMeshType::VectorType      InputVectorType;
-  typedef typename InputMeshType::QEType          InputQEType;
+  using InputMeshType = TInputMesh;
+  using InputMeshPointer = typename InputMeshType::Pointer;
+  using InputPointIdentifier = typename InputMeshType::PointIdentifier;
+  using InputPointType = typename InputMeshType::PointType;
+  using InputVectorType = typename InputMeshType::VectorType;
+  using InputQEType = typename InputMeshType::QEType;
 
-  typedef TOutputMesh                                          OutputMeshType;
-  typedef typename OutputMeshType::Pointer                     OutputMeshPointer;
-  typedef typename OutputMeshType::PointType                   OutputPointType;
-  typedef typename OutputPointType::VectorType                 OutputVectorType;
-  typedef typename OutputMeshType::QEType                      OutputQEType;
-  typedef typename OutputMeshType::PointIdentifier             OutputPointIdentifier;
-  typedef typename OutputMeshType::PointIdIterator             OutputPointIdIterator;
-  typedef typename OutputMeshType::PointsContainerPointer      OutputPointsContainerPointer;
-  typedef typename OutputMeshType::PointsContainerIterator     OutputPointsContainerIterator;
-  typedef typename OutputMeshType::CellType                    OutputCellType;
-  typedef typename OutputMeshType::CellIdentifier              OutputCellIdentifier;
-  typedef typename OutputMeshType::CellAutoPointer             OutputCellAutoPointer;
-  typedef typename OutputMeshType::CellsContainerConstIterator OutputCellsContainerPointer;
-  typedef typename OutputMeshType::CellsContainerConstIterator OutputCellsContainerConstIterator;
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
+  using OutputPointType = typename OutputMeshType::PointType;
+  using OutputVectorType = typename OutputPointType::VectorType;
+  using OutputQEType = typename OutputMeshType::QEType;
+  using OutputPointIdentifier = typename OutputMeshType::PointIdentifier;
+  using OutputPointIdIterator = typename OutputMeshType::PointIdIterator;
+  using OutputPointsContainerPointer = typename OutputMeshType::PointsContainerPointer;
+  using OutputPointsContainerIterator = typename OutputMeshType::PointsContainerIterator;
+  using OutputCellType = typename OutputMeshType::CellType;
+  using OutputCellIdentifier = typename OutputMeshType::CellIdentifier;
+  using OutputCellAutoPointer = typename OutputMeshType::CellAutoPointer;
+  using OutputCellsContainerPointer = typename OutputMeshType::CellsContainerConstIterator;
+  using OutputCellsContainerConstIterator = typename OutputMeshType::CellsContainerConstIterator;
 
-  typedef TriangleHelper< OutputPointType > TriangleType;
+  using TriangleType = TriangleHelper<OutputPointType>;
 
-  typedef QuadEdgeMeshPolygonCell< OutputCellType >   OutputPolygonType;
-  typedef typename OutputPolygonType::SelfAutoPointer OutputPolygonAutoPointer;
+  using OutputPolygonType = QuadEdgeMeshPolygonCell<OutputCellType>;
+  using OutputPolygonAutoPointer = typename OutputPolygonType::SelfAutoPointer;
 
-  typedef typename OutputMeshType::CellDataContainer  OutputCellDataContainer;
-  typedef typename OutputMeshType::PointDataContainer OutputPointDataContainer;
+  using OutputCellDataContainer = typename OutputMeshType::CellDataContainer;
+  using OutputPointDataContainer = typename OutputMeshType::PointDataContainer;
 
-  typedef typename OutputMeshType::MeshTraits        OutputMeshTraits;
-  typedef typename OutputMeshTraits::PixelType       OutputVertexNormalType;
-  typedef typename OutputVertexNormalType::ValueType OutputVertexNormalComponentType;
+  using OutputMeshTraits = typename OutputMeshType::MeshTraits;
+  using OutputVertexNormalType = typename OutputMeshTraits::PixelType;
+  using OutputVertexNormalComponentType = typename OutputVertexNormalType::ValueType;
 
-  typedef typename OutputMeshTraits::CellPixelType OutputFaceNormalType;
-  typedef typename OutputFaceNormalType::ValueType OutputFaceNormalComponentType;
+  using OutputFaceNormalType = typename OutputMeshTraits::CellPixelType;
+  using OutputFaceNormalComponentType = typename OutputFaceNormalType::ValueType;
 
-  enum WeightType {
+  enum WeightType
+  {
     GOURAUD = 0, // Uniform weights
     THURMER,     // Angle on a triangle at the given vertex
     AREA
-    };
+  };
 
-  itkSetMacro (Weight, WeightType);
-  itkGetConstMacro (Weight, WeightType);
+  itkSetMacro(Weight, WeightType);
+  itkGetConstMacro(Weight, WeightType);
 
 protected:
   NormalQuadEdgeMeshFilter();
-  ~NormalQuadEdgeMeshFilter() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~NormalQuadEdgeMeshFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   WeightType m_Weight;
 
   /** \brief Compute the normal to a face iPoly. It assumes that iPoly != 0
-  * and
-  * iPoly is a Triangle, i.e. 3 points only.
-  * \note The normal computation itself can be further improved by making
-  * possible to cast a CellType into a TriangleType.
-  */
-  OutputFaceNormalType ComputeFaceNormal(OutputPolygonType *iPoly);
+   * and
+   * iPoly is a Triangle, i.e. 3 points only.
+   * \note The normal computation itself can be further improved by making
+   * possible to cast a CellType into a TriangleType.
+   */
+  OutputFaceNormalType
+  ComputeFaceNormal(OutputPolygonType * iPoly);
 
   /** \brief Compute the normal to all faces on the mesh.
-  * \note This method should be implemented in a multi-thread way in order
-  * to reduce the processing time.
-  */
-  void ComputeAllFaceNormals();
+   * \note This method should be implemented in a multi-thread way in order
+   * to reduce the processing time.
+   */
+  void
+  ComputeAllFaceNormals();
 
   /** \brief Compute the normal to all vertices on the mesh.
-  * \note This method should be implemented in a multi-thread way in order
-  * to reduce the processing time.
-  */
-  void ComputeAllVertexNormals();
+   * \note This method should be implemented in a multi-thread way in order
+   * to reduce the processing time.
+   */
+  void
+  ComputeAllVertexNormals();
 
   /** \brief Compute the normal to one vertex by a weighted sum of the faces
-  * normal in the 0-ring.
-  * \note The weight is chosen by the member m_Weight.
-  */
-  OutputVertexNormalType ComputeVertexNormal(const OutputPointIdentifier & iId, OutputMeshType *outputMesh);
+   * normal in the 0-ring.
+   * \note The weight is chosen by the member m_Weight.
+   */
+  OutputVertexNormalType
+  ComputeVertexNormal(const OutputPointIdentifier & iId, OutputMeshType * outputMesh);
 
   /** \brief Definition of the weight in the 0-ring used for the vertex
-  * normal computation. By default m_Weight = THURMER;
-  */
-  OutputVertexNormalComponentType Weight(const OutputPointIdentifier & iPId,
-                                         const OutputCellIdentifier & iCId,
-                                         OutputMeshType *outputMesh);
+   * normal computation. By default m_Weight = THURMER;
+   */
+  OutputVertexNormalComponentType
+  Weight(const OutputPointIdentifier & iPId, const OutputCellIdentifier & iCId, OutputMeshType * outputMesh);
 
   /** \note Calling Superclass::GenerateData( ) is the longest part in the
-  * filter! Something must be done in the class
-  * itkQuadEdgeMeshToQuadEdgeMeshFilter.
-  */
-  void GenerateData() ITK_OVERRIDE;
+   * filter! Something must be done in the class
+   * itkQuadEdgeMeshToQuadEdgeMeshFilter.
+   */
+  void
+  GenerateData() override;
 
 private:
-  NormalQuadEdgeMeshFilter (const Self &);
-  void operator=(const Self &);
+  NormalQuadEdgeMeshFilter(const Self &) = delete;
+  void
+  operator=(const Self &) = delete;
 };
-}
+} // namespace itk
 
 #include "itkNormalQuadEdgeMeshFilter.hxx"
 #endif

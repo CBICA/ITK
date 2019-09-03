@@ -23,156 +23,142 @@
 #include "itkGroupSpatialObject.h"
 #include "itkSpatialObjectToImageFilter.h"
 #include "itkBoxSpatialObject.h"
+#include "itkTestingMacros.h"
 
-int itkBoxSpatialObjectTest( int argc, char *argv[] )
+int
+itkBoxSpatialObjectTest(int argc, char * argv[])
 {
   if (argc < 2)
-    {
-    std::cerr << "Missing Parameters: Usage " << argv[0] << "OutputImageFile"
-                                        << std::endl;
-    }
+  {
+    std::cerr << "Missing Parameters: Usage " << itkNameOfTestExecutableMacro(argv) << "OutputImageFile" << std::endl;
+  }
 
-  const unsigned int Dimension = 2;
-  typedef itk::GroupSpatialObject< Dimension >       SceneType;
-  typedef itk::BoxSpatialObject< Dimension >         BoxType;
-  typedef itk::Image< unsigned char, Dimension >     OutputImageType;
-  typedef itk::ImageFileWriter< OutputImageType >    WriterType;
-  typedef itk::SpatialObjectToImageFilter< SceneType, OutputImageType >
-                                      SpatialObjectToImageFilterType;
+  constexpr unsigned int Dimension = 2;
+  using SceneType = itk::GroupSpatialObject<Dimension>;
+  using BoxType = itk::BoxSpatialObject<Dimension>;
+  using OutputImageType = itk::Image<unsigned char, Dimension>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
+  using SpatialObjectToImageFilterType = itk::SpatialObjectToImageFilter<SceneType, OutputImageType>;
 
-  SceneType::Pointer scene =  SceneType::New();
-  BoxType::Pointer box1 =     BoxType::New();
+  SceneType::Pointer scene = SceneType::New();
+  BoxType::Pointer   box1 = BoxType::New();
   box1->Print(std::cout);
-  BoxType::Pointer box2 =     BoxType::New();
+  BoxType::Pointer box2 = BoxType::New();
   box1->SetId(1);
 
   // Test the SetProperty()
-  typedef BoxType::PropertyType PropertyType;
-  PropertyType::Pointer prop = PropertyType::New();
-  box1->SetProperty(prop);
+  scene->AddChild(box1);
+  scene->AddChild(box2);
 
-  scene->AddSpatialObject(box1);
-  scene->AddSpatialObject(box2);
-
-  BoxType::SizeType  boxsize1;
-  BoxType::SizeType  boxsize2;
+  BoxType::SizeType boxsize1;
+  BoxType::SizeType boxsize2;
 
   boxsize1[0] = 30;
   boxsize1[1] = 30;
-  box1->SetSize( boxsize1 );
+  box1->SetSizeInObjectSpace(boxsize1);
   boxsize2[0] = 30;
   boxsize2[1] = 30;
-  box2->SetSize( boxsize2 );
+  box2->SetSizeInObjectSpace(boxsize2);
 
   BoxType::TransformType::OffsetType offset1;
   BoxType::TransformType::OffsetType offset2;
 
-  offset1[0] =  29.0;
-  offset1[1] =  29.0;
-  box1->GetObjectToParentTransform()->SetOffset( offset1 );
-  box1->ComputeObjectToWorldTransform();
+  offset1[0] = 29.0;
+  offset1[1] = 29.0;
+  box1->GetModifiableObjectToParentTransform()->SetOffset(offset1);
+  box1->Update();
 
   offset2[0] = 50.0;
   offset2[1] = 50.0;
-  box2->GetObjectToParentTransform()->SetOffset( offset2 );
-  box2->ComputeObjectToWorldTransform();
+  box2->SetPositionInObjectSpace(offset2);
+  box2->Update();
 
-  box1->ComputeBoundingBox();
-  box2->ComputeBoundingBox();
+  scene->Update();
 
-  std::cout <<"Test ComputeBoundingBox: " << std::endl;
-  std::cout << box1->GetBoundingBox()->GetBounds() << std::endl;
-  std::cout << box2->GetBoundingBox()->GetBounds() << std::endl;
-  BoxType::BoundingBoxType * boundingBox = box1->GetBoundingBox();
+  std::cout << "Test Update(): " << std::endl;
+  std::cout << box1->GetMyBoundingBoxInWorldSpace()->GetBounds() << std::endl;
+  std::cout << box2->GetMyBoundingBoxInWorldSpace()->GetBounds() << std::endl;
+  const BoxType::BoundingBoxType * boundingBox = box1->GetMyBoundingBoxInWorldSpace();
 
-  if(     itk::Math::NotAlmostEquals(boundingBox->GetBounds()[0], 29)
-      ||  itk::Math::NotAlmostEquals(boundingBox->GetBounds()[1], 59)
-      ||  itk::Math::NotAlmostEquals(boundingBox->GetBounds()[2], 29)
-      ||  itk::Math::NotAlmostEquals(boundingBox->GetBounds()[3], 59) )
-    {
+  if (itk::Math::NotAlmostEquals(boundingBox->GetBounds()[0], 29) ||
+      itk::Math::NotAlmostEquals(boundingBox->GetBounds()[1], 59) ||
+      itk::Math::NotAlmostEquals(boundingBox->GetBounds()[2], 29) ||
+      itk::Math::NotAlmostEquals(boundingBox->GetBounds()[3], 59))
+  {
     std::cout << "[FAILED] Test returned" << std::endl;
-    std::cout << box1->GetBoundingBox()->GetBounds() << std::endl;
+    std::cout << box1->GetMyBoundingBoxInWorldSpace()->GetBounds() << std::endl;
     std::cout << "Instead of [29 59 29 59]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  BoxType::BoundingBoxType * boundingBox2 = box2->GetBoundingBox();
-  if(     itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[0], 50)
-      ||  itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[1], 80)
-      ||  itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[2], 50)
-      ||  itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[3], 80) )
-    {
+  box2->ComputeFamilyBoundingBox();
+  const BoxType::BoundingBoxType * boundingBox2 = box2->GetFamilyBoundingBoxInWorldSpace();
+  if (itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[0], 50) ||
+      itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[1], 80) ||
+      itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[2], 50) ||
+      itk::Math::NotAlmostEquals(boundingBox2->GetBounds()[3], 80))
+  {
     std::cout << "[FAILED] Test returned" << std::endl;
-    std::cout << box2->GetBoundingBox()->GetBounds() << std::endl;
+    std::cout << box2->GetMyBoundingBoxInWorldSpace()->GetBounds() << std::endl;
     std::cout << "Instead of [50 80 50 80]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "[PASSED]" << std::endl;
 
   // Point consistency
   std::cout << "Test Is Inside: ";
-  itk::Point<double,2> in;
-  in[0]=30.0;in[1]=30.0;
-  itk::Point<double,2> out;
-  out[0]=0;out[1]=4;
+  itk::Point<double, 2> in;
+  in[0] = 30.0;
+  in[1] = 30.0;
+  itk::Point<double, 2> out;
+  out[0] = 0;
+  out[1] = 4;
 
-  if(!box1->IsInside(in))
+  if (!box1->IsInsideInWorldSpace(in))
   {
-    std::cout<<"[FAILED]"<<std::endl;
+    std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
   }
-  if(box1->IsInside(out))
+  if (box1->IsInsideInWorldSpace(out))
   {
-    std::cout<<"[FAILED]"<<std::endl;
+    std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
   }
   std::cout << "[PASSED]" << std::endl;
 
-  std::cout << "Test ObjectToWorldTransform " << std::endl;
-
-  BoxType::TransformType::OffsetType translation;
-  translation[0] =  5.0;
-  translation[1] =  5.0;
-  box1->GetObjectToParentTransform()->Translate( translation );
-  box1->GetObjectToParentTransform()->SetOffset( offset1 );
-  box1->ComputeObjectToWorldTransform();
-  box2->GetObjectToParentTransform()->Translate( translation );
-  box2->GetObjectToParentTransform()->SetOffset( offset2 );
-  box2->ComputeObjectToWorldTransform();
-
-  SpatialObjectToImageFilterType::Pointer imageFilter =
-                            SpatialObjectToImageFilterType::New();
-  imageFilter->SetInput(  scene  );
+  std::cout << "Test SpatialObjectToImageFilter / IsInside " << std::endl;
+  SpatialObjectToImageFilterType::Pointer imageFilter = SpatialObjectToImageFilterType::New();
+  imageFilter->SetInput(scene);
 
   OutputImageType::SizeType size;
-  size[ 0 ] = 100;
-  size[ 1 ] = 100;
-  imageFilter->SetSize( size );
+  size[0] = 100;
+  size[1] = 100;
+  imageFilter->SetSize(size);
 
   SpatialObjectToImageFilterType::PointType origin;
-  origin[0]=0;
-  origin[1]=0;
-  imageFilter->SetOrigin( origin );
+  origin[0] = 0;
+  origin[1] = 0;
+  imageFilter->SetOrigin(origin);
 
-  imageFilter->SetInsideValue( 255 );
-  imageFilter->SetOutsideValue( 0 );
+  imageFilter->SetInsideValue(255);
+  imageFilter->SetOutsideValue(0);
   imageFilter->Update();
 
-  const char * outputFilename = argv[1];
+  const char *        outputFilename = argv[1];
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outputFilename );
-  writer->SetInput( imageFilter->GetOutput() );
+  writer->SetFileName(outputFilename);
+  writer->SetInput(imageFilter->GetOutput());
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "ExceptionObject caught !" << std::endl;
     std::cout << err << std::endl;
-    return -1;
-    }
+    return EXIT_FAILURE;
+  }
   box1->Print(std::cout);
   return EXIT_SUCCESS;
 }

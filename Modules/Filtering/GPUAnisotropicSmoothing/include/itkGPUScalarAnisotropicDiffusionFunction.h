@@ -34,49 +34,46 @@ namespace itk
 /** Create a helper GPU Kernel class for GPUScalarAnisotropicDiffusionFunction */
 itkGPUKernelClassMacro(GPUScalarAnisotropicDiffusionFunctionKernel);
 
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT GPUScalarAnisotropicDiffusionFunction :
-  public GPUAnisotropicDiffusionFunction< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT GPUScalarAnisotropicDiffusionFunction : public GPUAnisotropicDiffusionFunction<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUScalarAnisotropicDiffusionFunction     Self;
-  typedef GPUAnisotropicDiffusionFunction< TImage > Superclass;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUScalarAnisotropicDiffusionFunction);
+
+  /** Standard class type aliases. */
+  using Self = GPUScalarAnisotropicDiffusionFunction;
+  using Superclass = GPUAnisotropicDiffusionFunction<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkTypeMacro(GPUScalarAnisotropicDiffusionFunction, GPUAnisotropicDiffusionFunction);
 
   /** Inherit some parameters from the superclass type. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Inherit some parameters from the superclass type. */
-  typedef typename Superclass::ImageType        ImageType;
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::PixelRealType    PixelRealType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelType = typename Superclass::PixelType;
+  using PixelRealType = typename Superclass::PixelRealType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
   /** Get OpenCL Kernel source as a string, creates a GetOpenCLSource method */
   itkGetOpenCLSourceFromKernelMacro(GPUScalarAnisotropicDiffusionFunctionKernel);
 
   /** Compute average squared gradient of magnitude using the GPU */
-  virtual void GPUCalculateAverageGradientMagnitudeSquared(TImage *) ITK_OVERRIDE;
+  void
+  GPUCalculateAverageGradientMagnitudeSquared(TImage *) override;
 
 protected:
   GPUScalarAnisotropicDiffusionFunction();
-  ~GPUScalarAnisotropicDiffusionFunction() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUScalarAnisotropicDiffusionFunction);
-
+  ~GPUScalarAnisotropicDiffusionFunction() override {}
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUScalarAnisotropicDiffusionFunction.hxx"
+#  include "itkGPUScalarAnisotropicDiffusionFunction.hxx"
 #endif
 
 #endif

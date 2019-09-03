@@ -38,30 +38,31 @@ namespace itk
  * \sa TransformMeshFilter
  * \ingroup ITKMesh
  */
-template< typename TInputMesh, typename TOutputMesh, typename TDisplacementField >
-class ITK_TEMPLATE_EXPORT WarpMeshFilter:
-  public MeshToMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh, typename TDisplacementField>
+class ITK_TEMPLATE_EXPORT WarpMeshFilter : public MeshToMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  /** Standard class typedefs. */
-  typedef WarpMeshFilter                              Self;
-  typedef MeshToMeshFilter< TInputMesh, TOutputMesh > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(WarpMeshFilter);
 
-  typedef TInputMesh                      InputMeshType;
-  typedef typename InputMeshType::Pointer InputMeshPointer;
+  /** Standard class type aliases. */
+  using Self = WarpMeshFilter;
+  using Superclass = MeshToMeshFilter<TInputMesh, TOutputMesh>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TOutputMesh                      OutputMeshType;
-  typedef typename OutputMeshType::Pointer OutputMeshPointer;
+  using InputMeshType = TInputMesh;
+  using InputMeshPointer = typename InputMeshType::Pointer;
+
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
 
   /** Type for representing coordinates. */
-  typedef typename TInputMesh::CoordRepType CoordRepType;
+  using CoordRepType = typename TInputMesh::CoordRepType;
 
-  /** Deformation field typedef support. */
-  typedef TDisplacementField                           DisplacementFieldType;
-  typedef typename DisplacementFieldType::ConstPointer DisplacementFieldPointer;
-  typedef typename DisplacementFieldType::PixelType    DisplacementType;
+  /** Deformation field type alias support */
+  using DisplacementFieldType = TDisplacementField;
+  using DisplacementFieldPointer = typename DisplacementFieldType::ConstPointer;
+  using DisplacementType = typename DisplacementFieldType::PixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -70,26 +71,27 @@ public:
   itkTypeMacro(WarpMeshFilter, MeshToMeshFilter);
 
   /** Set the deformation field. */
-  void SetDisplacementField(const DisplacementFieldType *field);
+  void
+  SetDisplacementField(const DisplacementFieldType * field);
 
   /** Get a pointer the deformation field. */
-  const DisplacementFieldType * GetDisplacementField() const;
+  const DisplacementFieldType *
+  GetDisplacementField() const;
 
 protected:
   WarpMeshFilter();
-  ~WarpMeshFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~WarpMeshFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Generate Requested Data */
-  virtual void GenerateData() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(WarpMeshFilter);
+  void
+  GenerateData() override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWarpMeshFilter.hxx"
+#  include "itkWarpMeshFilter.hxx"
 #endif
 
 #endif

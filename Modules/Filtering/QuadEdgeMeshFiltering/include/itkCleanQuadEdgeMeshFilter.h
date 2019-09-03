@@ -32,16 +32,16 @@ namespace itk
  * \brief TODO
  * \ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TInputMesh, typename TOutputMesh=TInputMesh >
-class ITK_TEMPLATE_EXPORT CleanQuadEdgeMeshFilter:
-  public QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh = TInputMesh>
+class ITK_TEMPLATE_EXPORT CleanQuadEdgeMeshFilter : public QuadEdgeMeshToQuadEdgeMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  typedef CleanQuadEdgeMeshFilter                             Self;
-  typedef SmartPointer< Self >                                Pointer;
-  typedef SmartPointer< const Self >                          ConstPointer;
-  typedef QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-                                                              Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CleanQuadEdgeMeshFilter);
+
+  using Self = CleanQuadEdgeMeshFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = QuadEdgeMeshToQuadEdgeMeshFilter<TInputMesh, TOutputMesh>;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(CleanQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter);
@@ -49,56 +49,54 @@ public:
   /** New macro for creation of through a Smart Pointer   */
   itkNewMacro(Self);
 
-  typedef TInputMesh                                InputMeshType;
-  typedef typename Superclass::InputMeshPointer     InputMeshPointer;
-  typedef typename Superclass::InputCoordRepType    InputCoordRepType;
-  typedef typename Superclass::InputPointType       InputPointType;
-  typedef typename Superclass::InputPointIdentifier InputPointIdentifier;
-  typedef typename Superclass::InputQEPrimal        InputQEPrimal;
-  typedef typename Superclass::InputVectorType      InputVectorType;
+  using InputMeshType = TInputMesh;
+  using InputMeshPointer = typename Superclass::InputMeshPointer;
+  using InputCoordRepType = typename Superclass::InputCoordRepType;
+  using InputPointType = typename Superclass::InputPointType;
+  using InputPointIdentifier = typename Superclass::InputPointIdentifier;
+  using InputQEPrimal = typename Superclass::InputQEPrimal;
+  using InputVectorType = typename Superclass::InputVectorType;
 
-  typedef typename Superclass::InputEdgeCellType             InputEdgeCellType;
-  typedef typename Superclass::InputPolygonCellType          InputPolygonCellType;
-  typedef typename Superclass::InputPointIdList              InputPointIdList;
-  typedef typename Superclass::InputCellTraits               InputCellTraits;
-  typedef typename Superclass::InputPointsIdInternalIterator InputPointsIdInternalIterator;
-  typedef typename Superclass::InputQEIterator               InputQEIterator;
+  using InputEdgeCellType = typename Superclass::InputEdgeCellType;
+  using InputPolygonCellType = typename Superclass::InputPolygonCellType;
+  using InputPointIdList = typename Superclass::InputPointIdList;
+  using InputCellTraits = typename Superclass::InputCellTraits;
+  using InputPointsIdInternalIterator = typename Superclass::InputPointsIdInternalIterator;
+  using InputQEIterator = typename Superclass::InputQEIterator;
 
-  typedef typename InputMeshType::PointsContainer         InputPointsContainer;
-  typedef typename InputMeshType::PointsContainerPointer  InputPointsContainerPointer;
-  typedef typename InputMeshType::PointsContainerIterator InputPointsContainerIterator;
+  using InputPointsContainer = typename InputMeshType::PointsContainer;
+  using InputPointsContainerPointer = typename InputMeshType::PointsContainerPointer;
+  using InputPointsContainerIterator = typename InputMeshType::PointsContainerIterator;
 
-  typedef typename InputMeshType::CellsContainerIterator InputCellsContainerIterator;
+  using InputCellsContainerIterator = typename InputMeshType::CellsContainerIterator;
 
-  itkStaticConstMacro(PointDimension, unsigned int, InputMeshType::PointDimension);
+  static constexpr unsigned int PointDimension = InputMeshType::PointDimension;
 
-  typedef TOutputMesh                                OutputMeshType;
-  typedef typename Superclass::OutputMeshPointer     OutputMeshPointer;
-  typedef typename Superclass::OutputCoordRepType    OutputCoordRepType;
-  typedef typename Superclass::OutputPointType       OutputPointType;
-  typedef typename Superclass::OutputPointIdentifier OutputPointIdentifier;
-  typedef typename Superclass::OutputQEPrimal        OutputQEPrimal;
-  typedef typename Superclass::OutputVectorType      OutputVectorType;
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename Superclass::OutputMeshPointer;
+  using OutputCoordRepType = typename Superclass::OutputCoordRepType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using OutputPointIdentifier = typename Superclass::OutputPointIdentifier;
+  using OutputQEPrimal = typename Superclass::OutputQEPrimal;
+  using OutputVectorType = typename Superclass::OutputVectorType;
 
-  typedef typename OutputMeshType::QEType                  OutputQEType;
-  typedef typename OutputMeshType::PointsContainer         OutputPointsContainer;
-  typedef typename OutputMeshType::PointsContainerPointer  OutputPointsContainerPointer;
-  typedef typename OutputMeshType::PointsContainerIterator OutputPointsContainerIterator;
+  using OutputQEType = typename OutputMeshType::QEType;
+  using OutputPointsContainer = typename OutputMeshType::PointsContainer;
+  using OutputPointsContainerPointer = typename OutputMeshType::PointsContainerPointer;
+  using OutputPointsContainerIterator = typename OutputMeshType::PointsContainerIterator;
 
-  typedef typename OutputMeshType::CellsContainerIterator OutputCellsContainerIterator;
+  using OutputCellsContainerIterator = typename OutputMeshType::CellsContainerIterator;
 
-  typedef BoundingBox< InputPointIdentifier, itkGetStaticConstMacro(PointDimension),
-                       InputCoordRepType, InputPointsContainer > BoundingBoxType;
+  using BoundingBoxType =
+    BoundingBox<InputPointIdentifier, Self::PointDimension, InputCoordRepType, InputPointsContainer>;
 
-  typedef typename BoundingBoxType::Pointer BoundingBoxPointer;
+  using BoundingBoxPointer = typename BoundingBoxType::Pointer;
 
-  typedef MaxMeasureBoundCriterion< OutputMeshType > CriterionType;
-  typedef typename CriterionType::Pointer            CriterionPointer;
+  using CriterionType = MaxMeasureBoundCriterion<OutputMeshType>;
+  using CriterionPointer = typename CriterionType::Pointer;
 
-  typedef SquaredEdgeLengthDecimationQuadEdgeMeshFilter< InputMeshType,
-                                                   InputMeshType,
-                                                   CriterionType >                          DecimationType;
-  typedef typename DecimationType::Pointer DecimationPointer;
+  using DecimationType = SquaredEdgeLengthDecimationQuadEdgeMeshFilter<InputMeshType, InputMeshType, CriterionType>;
+  using DecimationPointer = typename DecimationType::Pointer;
 
   /** TODO */
   itkSetMacro(AbsoluteTolerance, InputCoordRepType);
@@ -111,31 +109,32 @@ public:
 protected:
   CleanQuadEdgeMeshFilter();
 
-  virtual ~CleanQuadEdgeMeshFilter() ITK_OVERRIDE {}
+  ~CleanQuadEdgeMeshFilter() override = default;
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void MergePoints( const InputCoordRepType absoluteToleranceSquared );
+  virtual void
+  MergePoints(const InputCoordRepType absoluteToleranceSquared);
 
-  virtual void CleanPoints();
+  virtual void
+  CleanPoints();
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CleanQuadEdgeMeshFilter);
-
   InputCoordRepType m_AbsoluteTolerance;
   InputCoordRepType m_RelativeTolerance;
 
   BoundingBoxPointer m_BoundingBox;
   CriterionPointer   m_Criterion;
   DecimationPointer  m_Decimation;
-
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCleanQuadEdgeMeshFilter.hxx"
+#  include "itkCleanQuadEdgeMeshFilter.hxx"
 #endif
 
 #endif

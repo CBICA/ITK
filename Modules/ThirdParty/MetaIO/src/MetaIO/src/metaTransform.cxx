@@ -15,8 +15,8 @@
 #pragma warning(disable:4702)
 #endif
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 #if (METAIO_USE_NAMESPACE)
@@ -29,7 +29,7 @@ MetaTransform::
 MetaTransform()
 :MetaObject()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform()" << std::endl;
   Clear();
 }
 
@@ -38,7 +38,7 @@ MetaTransform::
 MetaTransform(const char *_headerName)
 :MetaObject()
 {
-  if(META_DEBUG)  METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG)  std::cout << "MetaTransform()" << std::endl;
   Clear();
   Read(_headerName);
 }
@@ -48,7 +48,7 @@ MetaTransform::
 MetaTransform(const MetaTransform *_group)
 :MetaObject()
 {
-  if(META_DEBUG)  METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG)  std::cout << "MetaTransform()" << std::endl;
   Clear();
   CopyInfo(_group);
 }
@@ -57,7 +57,7 @@ MetaTransform::
 MetaTransform(unsigned int dim)
 :MetaObject(dim)
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform()" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform()" << std::endl;
   Clear();
 }
 
@@ -84,15 +84,12 @@ CopyInfo(const MetaObject * _object)
 
 /** Clear group information */
 void MetaTransform::
-Clear(void)
+Clear()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform: Clear" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform: Clear" << std::endl;
   MetaObject::Clear();
-  if(parameters)
-    {
-    delete parameters;
-    }
-  parameters = NULL;
+  delete parameters;
+  parameters = nullptr;
   parametersDimension = 0;
   transformOrder = 0;
 
@@ -108,16 +105,16 @@ Clear(void)
 
 /** Destroy group information */
 void MetaTransform::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaTransform::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
-  if(META_DEBUG) METAIO_STREAM::cout << "MetaTransform: M_SetupReadFields" << METAIO_STREAM::endl;
+  if(META_DEBUG) std::cout << "MetaTransform: M_SetupReadFields" << std::endl;
   MetaObject::M_SetupReadFields();
 
   int nDimsRecordNumber = MET_GetFieldRecordNumber("NDims", &m_Fields);
@@ -154,7 +151,7 @@ M_SetupReadFields(void)
 }
 
 void MetaTransform::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Transform");
   MetaObject::M_SetupWriteFields();
@@ -314,14 +311,14 @@ M_SetupWriteFields(void)
 }
 
 bool MetaTransform::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())
-  {
-    METAIO_STREAM::cout << "MetaLandmark: M_Read: Error parsing file" << METAIO_STREAM::endl;
+{
+    std::cout << "MetaLandmark: M_Read: Error parsing file" << std::endl;
     return false;
-  }
+}
 
   /** Then copy all points */
   if(m_BinaryData)
@@ -343,7 +340,7 @@ M_Write(void)
       {
       *m_WriteStream << parameters[i] << " ";
       }
-      *m_WriteStream << METAIO_STREAM::endl;
+      *m_WriteStream << std::endl;
     }
 
   return true;
@@ -352,7 +349,7 @@ M_Write(void)
 
 
 // Set/Get the spacing
-const double * MetaTransform::GridSpacing(void) const
+const double * MetaTransform::GridSpacing() const
 {
   return gridSpacing;
 }
@@ -366,7 +363,7 @@ void  MetaTransform::GridSpacing(const double * _gridSpacing)
 }
 
 // Set/Get the grid index
-const double * MetaTransform::GridOrigin(void) const
+const double * MetaTransform::GridOrigin() const
 {
   return gridOrigin;
 }
@@ -380,7 +377,7 @@ void  MetaTransform::GridOrigin(const double * _gridOrigin)
 }
 
 // Set/Get the region size
-const double * MetaTransform::GridRegionSize(void) const
+const double * MetaTransform::GridRegionSize() const
 {
   return gridRegionSize;
 }
@@ -394,7 +391,7 @@ void  MetaTransform::GridRegionSize(const double * _gridRegionSize)
 }
 
 // Set/Get the region index
-const double * MetaTransform::GridRegionIndex(void) const
+const double * MetaTransform::GridRegionIndex() const
 {
   return gridRegionIndex;
 }
@@ -407,7 +404,7 @@ void  MetaTransform::GridRegionIndex(const double * _gridRegionIndex)
     }
 }
 
-const double * MetaTransform::Parameters(void) const
+const double * MetaTransform::Parameters() const
 {
   return parameters;
 }
@@ -417,10 +414,7 @@ void  MetaTransform::Parameters(unsigned int dimension, const double * _paramete
 {
   parametersDimension = dimension;
 
-  if(parameters)
-    {
-    delete parameters;
-    }
+  delete parameters;
 
   parameters = new double[parametersDimension];
 
@@ -432,22 +426,22 @@ void  MetaTransform::Parameters(unsigned int dimension, const double * _paramete
 }
 
 bool MetaTransform::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTransform: M_Read: Loading Header" << METAIO_STREAM::endl;
+    std::cout << "MetaTransform: M_Read: Loading Header" << std::endl;
     }
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaTransform: M_Read: Error parsing file" << METAIO_STREAM::endl;
+    std::cout << "MetaTransform: M_Read: Error parsing file" << std::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaTransform: M_Read: Parsing Header" << METAIO_STREAM::endl;
+    std::cout << "MetaTransform: M_Read: Parsing Header" << std::endl;
     }
 
   MET_FieldRecordType * mF;
@@ -502,10 +496,7 @@ M_Read(void)
     transformOrder = (unsigned int)mF->value[0];
     }
 
-  if(parameters)
-    {
-    delete parameters;
-    }
+  delete parameters;
 
   parameters = new double[parametersDimension];
 
@@ -517,9 +508,9 @@ M_Read(void)
     unsigned int gc = static_cast<unsigned int>(m_ReadStream->gcount());
     if(gc != parametersDimension*sizeof(double))
       {
-      METAIO_STREAM::cout << "MetaTransform: m_Read: data not read completely"
-                << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << METAIO_STREAM::endl;
+      std::cout << "MetaTransform: m_Read: data not read completely"
+                << std::endl;
+      std::cout << "   ideal = " << parametersDimension*sizeof(double) << " : actual = " << gc << std::endl;
       delete [] _data;
       return false;
       }
@@ -532,7 +523,7 @@ M_Read(void)
       k += sizeof(double);
       }
     delete [] _data;
-  }
+}
   else
     {
     for(unsigned int k=0; k<parametersDimension; k++)

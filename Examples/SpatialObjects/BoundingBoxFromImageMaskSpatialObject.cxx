@@ -36,44 +36,44 @@
 
 #include "itkImageFileReader.h"
 
-int main( int argc, char * argv [] )
+int
+main(int argc, char * argv[])
 {
 
-  if ( argc < 2 )
-    {
+  if (argc < 2)
+  {
     std::cerr << "Missing Parameters " << std::endl;
     std::cerr << "Usage: " << argv[0];
     std::cerr << " inputBinaryImageFile  ";
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::ImageMaskSpatialObject<3>      ImageMaskSpatialObject;
+  using ImageMaskSpatialObject = itk::ImageMaskSpatialObject<3>;
 
-  typedef ImageMaskSpatialObject::ImageType   ImageType;
-  typedef ImageType::RegionType               RegionType;
-  typedef itk::ImageFileReader< ImageType >   ReaderType;
+  using ImageType = ImageMaskSpatialObject::ImageType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   ImageMaskSpatialObject::Pointer maskSO = ImageMaskSpatialObject::New();
 
-  maskSO->SetImage ( reader->GetOutput() );
+  maskSO->SetImage(reader->GetOutput());
+  maskSO->Update();
 
-  RegionType boundingBoxRegion  = maskSO->GetAxisAlignedBoundingBoxRegion();
-
-  std::cout << "Bounding Box Region: " << boundingBoxRegion << std::endl;
+  std::cout << "Bounding Box Region: "
+            << maskSO->GetMyBoundingBoxInWorldSpace()->GetBounds() << std::endl;
 
   return EXIT_SUCCESS;
 }

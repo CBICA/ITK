@@ -39,23 +39,23 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  *
- * \wiki
- * \wikiexample{Functions/MedianImageFunction,Compute the median of an image at a pixels (in a regular neighborhood)}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/ImageFunction/ComputeMedianOfImageAtPixel,Compute Median Of Image At Pixel}
+ * \endsphinx
  */
-template< typename TInputImage, typename TCoordRep = float >
-class ITK_TEMPLATE_EXPORT MedianImageFunction:
-  public ImageFunction< TInputImage, typename TInputImage::PixelType,
-                        TCoordRep >
+template <typename TInputImage, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT MedianImageFunction
+  : public ImageFunction<TInputImage, typename TInputImage::PixelType, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MedianImageFunction Self;
-  typedef ImageFunction< TInputImage, typename TInputImage::PixelType,
-                         TCoordRep >                     Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MedianImageFunction);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MedianImageFunction;
+  using Superclass = ImageFunction<TInputImage, typename TInputImage::PixelType, TCoordRep>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(MedianImageFunction, ImageFunction);
@@ -63,31 +63,32 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** InputImageType typedef support. */
-  typedef TInputImage                         InputImageType;
-  typedef typename Superclass::InputPixelType InputPixelType;
+  /** InputImageType type alias support */
+  using InputImageType = TInputImage;
+  using InputPixelType = typename Superclass::InputPixelType;
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
+  /** OutputType type alias support */
+  using OutputType = typename Superclass::OutputType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
   /** Dimension of the underlying image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
   /** Evalulate the function at specified index */
-  virtual OutputType EvaluateAtIndex(const IndexType & index) const ITK_OVERRIDE;
+  OutputType
+  EvaluateAtIndex(const IndexType & index) const override;
 
   /** Evaluate the function at non-integer positions */
-  virtual OutputType Evaluate(const PointType & point) const ITK_OVERRIDE
+  OutputType
+  Evaluate(const PointType & point) const override
   {
     IndexType index;
 
@@ -95,8 +96,8 @@ public:
     return this->EvaluateAtIndex(index);
   }
 
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & cindex) const ITK_OVERRIDE
+  OutputType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & cindex) const override
   {
     IndexType index;
 
@@ -106,24 +107,22 @@ public:
 
   /** Get/Set the radius of the neighborhood over which the
       statistics are evaluated */
-  itkSetMacro( NeighborhoodRadius, unsigned int );
-  itkGetConstReferenceMacro( NeighborhoodRadius, unsigned int );
+  itkSetMacro(NeighborhoodRadius, unsigned int);
+  itkGetConstReferenceMacro(NeighborhoodRadius, unsigned int);
 
 protected:
   MedianImageFunction();
-  ~MedianImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MedianImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MedianImageFunction);
-
-  unsigned int m_NeighborhoodRadius;
-
+  unsigned int m_NeighborhoodRadius{ 1 };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMedianImageFunction.hxx"
+#  include "itkMedianImageFunction.hxx"
 #endif
 
 #endif

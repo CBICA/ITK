@@ -44,23 +44,24 @@ namespace fem
 class ITKFEM_EXPORT Element3DC0LinearTetrahedronMembrane : public Element3DMembrane<Element3DC0LinearTetrahedron>
 {
 public:
-  /** Standard class typedefs. */
-  typedef Element3DC0LinearTetrahedronMembrane            Self;
-  typedef Element3DMembrane<Element3DC0LinearTetrahedron> Superclass;
-  typedef SmartPointer<Self>                              Pointer;
-  typedef SmartPointer<const Self>                        ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Element3DC0LinearTetrahedronMembrane;
+  using Superclass = Element3DMembrane<Element3DC0LinearTetrahedron>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(Element3DC0LinearTetrahedronMembrane, Element3DMembrane<Element3DC0LinearTetrahedron> );
+  itkTypeMacro(Element3DC0LinearTetrahedronMembrane, Element3DMembrane<Element3DC0LinearTetrahedron>);
 
   /**
    * CreateAnother method will clone the existing instance of this type,
    * including its internal member variables.
    */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
   /**
    * Default constructor only clears the internal storage
@@ -74,11 +75,11 @@ public:
   Element3DC0LinearTetrahedronMembrane(NodeIDType ns_[], Material::ConstPointer p_);
 
 protected:
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-};  // class Element3DC0LinearTetrahedronMembrane
+}; // class Element3DC0LinearTetrahedronMembrane
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif  // #ifndef itkFEMElement3DC0LinearTetrahedronMembrane_h
+#endif // itkFEMElement3DC0LinearTetrahedronMembrane_h

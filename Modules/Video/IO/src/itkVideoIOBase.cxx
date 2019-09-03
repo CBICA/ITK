@@ -15,8 +15,8 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#if defined( _MSC_VER )
-#pragma warning ( disable : 4786 )
+#if defined(_MSC_VER)
+#  pragma warning(disable : 4786)
 #endif
 
 #include "itkVideoIOBase.h"
@@ -24,27 +24,38 @@
 namespace itk
 {
 
-VideoIOBase::VideoIOBase() :
-  m_ReadType(ReadFromFile),
-  m_FramesPerSecond(0.0),
-  m_FrameTotal(NumericTraits<SizeValueType>::ZeroValue()),
-  m_CurrentFrame(NumericTraits<SizeValueType>::ZeroValue()),
-  m_IFrameInterval(NumericTraits<SizeValueType>::ZeroValue()),
-  m_LastIFrame(NumericTraits<SizeValueType>::ZeroValue()),
-  m_Ratio(0.0),
-  m_PositionInMSec(0.0),
-  m_WriterOpen(false),
-  m_ReaderOpen(false)
+VideoIOBase::VideoIOBase()
+  : m_FrameTotal(NumericTraits<SizeValueType>::ZeroValue())
+  , m_CurrentFrame(NumericTraits<SizeValueType>::ZeroValue())
+  , m_IFrameInterval(NumericTraits<SizeValueType>::ZeroValue())
+  , m_LastIFrame(NumericTraits<SizeValueType>::ZeroValue())
+
+{}
+
+VideoIOBase::~VideoIOBase() = default;
+
+void
+VideoIOBase::PrintSelf(std::ostream & os, Indent indent) const
 {
+  Superclass::PrintSelf(os, indent);
 }
 
-VideoIOBase::~VideoIOBase()
+/** Print Enumerations */
+std::ostream &
+operator<<(std::ostream & out, const VideoIOBase::ReadType value)
 {
+  const char * s = 0;
+  switch (value)
+  {
+    case VideoIOBase::ReadType::ReadFromFile:
+      s = "VideoIOBase::ReadType::ReadFromFile";
+      break;
+    case VideoIOBase::ReadType::ReadFromCamera:
+      s = "VideoIOBase::ReadType::ReadFromCamera";
+      break;
+    default:
+      s = "INVALID VALUE FOR VideoIOBase::ReadType";
+  }
+  return out << s;
 }
-
-void VideoIOBase::PrintSelf(std::ostream & os, Indent indent) const
-{
-  Superclass::PrintSelf(os,indent);
-}
-
-} //namespace itk end
+} // namespace itk

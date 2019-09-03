@@ -21,32 +21,31 @@
 // This example is a convinience program that lists all of the registered Image
 // IO factories in the ITK build. If an ImageIO module is enabled, the
 // corresponding IO factory will be automatically registered.
-int main()
+int
+main()
 {
-  std::list<itk::ObjectFactoryBase *> factories =
+  const std::list<itk::ObjectFactoryBase *> & factories =
     itk::ObjectFactoryBase::GetRegisteredFactories();
   const std::size_t numFactories = factories.size();
 
   std::cout << numFactories << " Image IO factories registered:" << std::endl;
 
-  if (!factories.empty() )
+  if (!factories.empty())
+  {
+    for (const auto & factory : factories)
     {
-    for ( std::list<itk::ObjectFactoryBase*>::iterator
-          f = factories.begin();
-          f != factories.end(); ++f )
-      {
-      std::istringstream iss( (*f)->GetDescription() );
+      std::istringstream iss(factory->GetDescription());
       std::string        IOType;
       iss >> IOType; // the first word of the description
       std::cout << IOType << " ";
-      }
-    std::cout << std::endl;
     }
+    std::cout << std::endl;
+  }
   else
-    {
+  {
     std::cout << "Failed to load any factories" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

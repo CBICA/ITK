@@ -18,15 +18,9 @@
 #ifndef itkBinaryImageToLabelMapFilter_h
 #define itkBinaryImageToLabelMapFilter_h
 
-#include "itkImageToImageFilter.h"
-#include <list>
-#include <map>
-#include <vector>
-#include "itkProgressReporter.h"
-#include "itkBarrier.h"
+#include "itkScanlineFilterCommon.h"
 #include "itkLabelMap.h"
 #include "itkLabelObject.h"
-#include "itkImageRegionSplitterDirection.h"
 
 namespace itk
 {
@@ -52,25 +46,29 @@ namespace itk
  * \sa ConnectedComponentImageFilter, LabelImageToLabelMapFilter, LabelMap, LabelObject
  * \ingroup ITKLabelMap
  *
- * \wiki
- * \wikiexample{ImageProcessing/BinaryImageToLabelMapFilter,Label binary regions in an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/LabelMap/LabelBinaryRegionsInImage,Label Binary Regions In Image}
+ * \endsphinx
  */
 
-template< typename TInputImage,
-          typename TOutputImage =
-            LabelMap< LabelObject< SizeValueType, TInputImage::ImageDimension > > >
-class ITK_TEMPLATE_EXPORT BinaryImageToLabelMapFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage,
+          typename TOutputImage = LabelMap<LabelObject<SizeValueType, TInputImage::ImageDimension>>>
+class ITK_TEMPLATE_EXPORT BinaryImageToLabelMapFilter
+  : public ImageToImageFilter<TInputImage, TOutputImage>
+  , protected ScanlineFilterCommon<TInputImage, TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryImageToLabelMapFilter);
+
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef BinaryImageToLabelMapFilter                     Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  using Self = BinaryImageToLabelMapFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass::Register;
+  using Superclass::UnRegister;
 
   /**
    * Method for creation through the object factory.
@@ -85,36 +83,34 @@ public:
   /**
    * Types from the Superclass
    */
-  typedef typename Superclass::InputImagePointer InputImagePointer;
+  using InputImagePointer = typename Superclass::InputImagePointer;
 
   /**
    * Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same.
    */
-  typedef typename TOutputImage::PixelType      OutputPixelType;
-  typedef typename TInputImage::PixelType       InputPixelType;
-  typedef typename TInputImage::SizeValueType   SizeValueType;
-  typedef typename TInputImage::OffsetValueType OffsetValueType;
-  itkStaticConstMacro(ImageDimension, unsigned int, TOutputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
-  itkStaticConstMacro(InputImageDimension, unsigned int, TInputImage::ImageDimension);
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using SizeValueType = typename TInputImage::SizeValueType;
+  using OffsetValueType = typename TInputImage::OffsetValueType;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
 
   /**
-   * Image typedef support
+   * Image type alias support
    */
-  typedef TInputImage                      InputImageType;
-  typedef typename TInputImage::IndexType  IndexType;
-  typedef typename TInputImage::SizeType   SizeType;
-  typedef typename TInputImage::OffsetType OffsetType;
+  using InputImageType = TInputImage;
+  using IndexType = typename TInputImage::IndexType;
+  using SizeType = typename TInputImage::SizeType;
+  using OffsetType = typename TInputImage::OffsetType;
 
-  typedef TOutputImage                      OutputImageType;
-  typedef typename TOutputImage::RegionType RegionType;
-  typedef typename TOutputImage::IndexType  OutputIndexType;
-  typedef typename TOutputImage::SizeType   OutputSizeType;
-  typedef typename TOutputImage::OffsetType OutputOffsetType;
-  typedef typename TOutputImage::PixelType  OutputImagePixelType;
-
-  typedef std::list< IndexType > ListType;
+  using OutputImageType = TOutputImage;
+  using RegionType = typename TOutputImage::RegionType;
+  using OutputIndexType = typename TOutputImage::IndexType;
+  using OutputSizeType = typename TOutputImage::SizeType;
+  using OutputOffsetType = typename TOutputImage::OffsetType;
+  using OutputImagePixelType = typename TOutputImage::PixelType;
 
   /**
    * Set/Get whether the connected components are defined strictly by
@@ -143,123 +139,57 @@ public:
   itkSetMacro(InputForegroundValue, InputPixelType);
   itkGetConstMacro(InputForegroundValue, InputPixelType);
 
-#ifdef ITK_USE_CONCEPT_CHECKING
-  // Concept checking -- input and output dimensions must be the same
-  itkConceptMacro( SameDimension,
-                   ( Concept::SameDimension< itkGetStaticConstMacro(InputImageDimension),
-                                             itkGetStaticConstMacro(OutputImageDimension) > ) );
-#endif
-
 protected:
   BinaryImageToLabelMapFilter();
-  virtual ~BinaryImageToLabelMapFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryImageToLabelMapFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  typedef SizeValueType InternalLabelType;
+  void
+  DynamicThreadedGenerateData(const RegionType & outputRegionForThread) override;
 
-  /**
-   * Standard pipeline method.
-   */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
-
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
-
-  void ThreadedGenerateData(const RegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** BinaryImageToLabelMapFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
    * \sa ProcessObject::GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** BinaryImageToLabelMapFilter will produce all of the output.
    * Therefore it must provide an implementation of
    * EnlargeOutputRequestedRegion().
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
-  /** Provide an ImageRegionSplitter that does not split along the first
-   * dimension -- we assume the data is complete along this dimension when
-   * threading. */
-  virtual const ImageRegionSplitterBase* GetImageRegionSplitter() const ITK_OVERRIDE;
+  using ScanlineFunctions = ScanlineFilterCommon<TInputImage, TOutputImage>;
+
+  using InternalLabelType = typename ScanlineFunctions::InternalLabelType;
+  using OutSizeType = typename ScanlineFunctions::OutSizeType;
+  using RunLength = typename ScanlineFunctions::RunLength;
+  using LineEncodingType = typename ScanlineFunctions::LineEncodingType;
+  using LineEncodingIterator = typename ScanlineFunctions::LineEncodingIterator;
+  using LineEncodingConstIterator = typename ScanlineFunctions::LineEncodingConstIterator;
+  using OffsetVectorType = typename ScanlineFunctions::OffsetVectorType;
+  using OffsetVectorConstIterator = typename ScanlineFunctions::OffsetVectorConstIterator;
+  using LineMapType = typename ScanlineFunctions::LineMapType;
+  using UnionFindType = typename ScanlineFunctions::UnionFindType;
+  using ConsecutiveVectorType = typename ScanlineFunctions::ConsecutiveVectorType;
+  using WorkUnitData = typename ScanlineFunctions::WorkUnitData;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryImageToLabelMapFilter);
-
-  // some additional types
-  typedef typename TOutputImage::RegionType::SizeType OutSizeType;
-
-  // types to support the run length encoding of lines
-  class runLength
-  {
-  public:
-    // run length information - may be a more type safe way of doing this
-    SizeValueType length;
-    typename InputImageType::IndexType where; // Index of the start of the run
-    InternalLabelType label;                  // the initial label of the run
-  };
-
-  typedef std::vector< runLength > lineEncoding;
-
-  // the map storing lines
-  typedef std::vector< lineEncoding > LineMapType;
-
-  typedef std::vector< OffsetValueType > OffsetVectorType;
-
-  // the types to support union-find operations
-  typedef std::vector< InternalLabelType > UnionFindType;
-  UnionFindType m_UnionFind;
-
-  typedef std::vector< OutputPixelType > ConsecutiveVectorType;
-  ConsecutiveVectorType m_Consecutive;
-
-  // functions to support union-find operations
-  void InitUnion(const InternalLabelType size);
-
-  void InsertSet(const InternalLabelType label);
-
-  InternalLabelType LookupSet(const InternalLabelType label);
-
-  void LinkLabels(const InternalLabelType lab1, const InternalLabelType lab2);
-
-  SizeValueType CreateConsecutive();
-
-  //////////////////
-  bool CheckNeighbors(const OutputIndexType & A,
-                      const OutputIndexType & B);
-
-  void CompareLines(lineEncoding & current, const lineEncoding & Neighbour);
-
-  void FillOutput(const LineMapType & LineMap,
-                  ProgressReporter & progress);
-
-  void SetupLineOffsets(OffsetVectorType & LineOffsets);
-
-  void Wait();
-
   OutputPixelType m_OutputBackgroundValue;
   InputPixelType  m_InputForegroundValue;
-
-  SizeValueType m_NumberOfObjects;
-
-  bool m_FullyConnected;
-
-  std::vector< SizeValueType >   m_NumberOfLabels;
-  std::vector< SizeValueType >   m_FirstLineIdToJoin;
-
-  typename Barrier::Pointer m_Barrier;
-
-  ImageRegionSplitterDirection::Pointer m_ImageRegionSplitter;
-
-#if !defined( ITK_WRAPPING_PARSER )
-  LineMapType m_LineMap;
-#endif
+  SizeValueType   m_NumberOfObjects;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#if !defined( ITK_WRAPPING_PARSER )
-#include "itkBinaryImageToLabelMapFilter.hxx"
-#endif
+#  if !defined(ITK_WRAPPING_PARSER)
+#    include "itkBinaryImageToLabelMapFilter.hxx"
+#  endif
 #endif
 
 #endif

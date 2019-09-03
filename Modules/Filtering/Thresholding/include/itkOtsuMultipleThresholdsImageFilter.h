@@ -50,18 +50,23 @@ namespace itk
  * \sa ThresholdLabelerImageFilter
  * \ingroup IntensityImageFilters  MultiThreaded
  * \ingroup ITKThresholding
+ *
+ * \sphinx
+ * \sphinxexample{Filtering/Thresholding/ThresholdAnImageUsingOtsu,Threshold An Image Using Otsu}
+ * \endsphinx
  */
 
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT OtsuMultipleThresholdsImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT OtsuMultipleThresholdsImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard Self typedef */
-  typedef OtsuMultipleThresholdsImageFilter               Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OtsuMultipleThresholdsImageFilter);
+
+  /** Standard Self type alias */
+  using Self = OtsuMultipleThresholdsImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -69,44 +74,44 @@ public:
   /** Runtime information support. */
   itkTypeMacro(OtsuMultipleThresholdsImageFilter, ImageToImageFilter);
 
-  /** Image pixel value typedef. */
-  typedef typename TInputImage::PixelType  InputPixelType;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  /** Image pixel value type alias. */
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
-  /** Image related typedefs. */
-  typedef typename TInputImage::Pointer  InputImagePointer;
-  typedef typename TOutputImage::Pointer OutputImagePointer;
+  /** Image related type alias. */
+  using InputImagePointer = typename TInputImage::Pointer;
+  using OutputImagePointer = typename TOutputImage::Pointer;
 
-  typedef typename TInputImage::SizeType    InputSizeType;
-  typedef typename TInputImage::IndexType   InputIndexType;
-  typedef typename TInputImage::RegionType  InputImageRegionType;
-  typedef typename TOutputImage::SizeType   OutputSizeType;
-  typedef typename TOutputImage::IndexType  OutputIndexType;
-  typedef typename TOutputImage::RegionType OutputImageRegionType;
+  using InputSizeType = typename TInputImage::SizeType;
+  using InputIndexType = typename TInputImage::IndexType;
+  using InputImageRegionType = typename TInputImage::RegionType;
+  using OutputSizeType = typename TOutputImage::SizeType;
+  using OutputIndexType = typename TOutputImage::IndexType;
+  using OutputImageRegionType = typename TOutputImage::RegionType;
 
   /** Threshold vector types. */
-  typedef itk::Statistics::ScalarImageToHistogramGenerator< TInputImage > HistogramGeneratorType;
-  typedef typename HistogramGeneratorType::HistogramType                  HistogramType;
-  typedef OtsuMultipleThresholdsCalculator< HistogramType >               OtsuCalculatorType;
-  typedef typename OtsuCalculatorType::OutputType                         ThresholdVectorType;
+  using HistogramGeneratorType = itk::Statistics::ScalarImageToHistogramGenerator<TInputImage>;
+  using HistogramType = typename HistogramGeneratorType::HistogramType;
+  using OtsuCalculatorType = OtsuMultipleThresholdsCalculator<HistogramType>;
+  using ThresholdVectorType = typename OtsuCalculatorType::OutputType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Set/Get the number of histogram bins. Default is 128. */
-  itkSetClampMacro( NumberOfHistogramBins, SizeValueType, 1, NumericTraits< SizeValueType >::max() );
+  itkSetClampMacro(NumberOfHistogramBins, SizeValueType, 1, NumericTraits<SizeValueType>::max());
   itkGetConstMacro(NumberOfHistogramBins, SizeValueType);
 
   /** Set/Get the number of thresholds. Default is 1. */
-  itkSetClampMacro( NumberOfThresholds, SizeValueType, 1, NumericTraits< SizeValueType >::max() );
+  itkSetClampMacro(NumberOfThresholds, SizeValueType, 1, NumericTraits<SizeValueType>::max());
   itkGetConstMacro(NumberOfThresholds, SizeValueType);
 
   /** Set/Get the offset which labels have to start from. Default is 0. */
-  itkSetClampMacro( LabelOffset, OutputPixelType, NumericTraits< OutputPixelType >::ZeroValue(),
-                    NumericTraits< OutputPixelType >::max() );
+  itkSetClampMacro(LabelOffset,
+                   OutputPixelType,
+                   NumericTraits<OutputPixelType>::ZeroValue(),
+                   NumericTraits<OutputPixelType>::max());
   itkGetConstMacro(LabelOffset, OutputPixelType);
 
   /** Set/Get the use of valley emphasis. Default is false. */
@@ -114,43 +119,54 @@ public:
   itkGetConstReferenceMacro(ValleyEmphasis, bool);
   itkBooleanMacro(ValleyEmphasis);
 
+  /** Should the threshold value be mid-point of the bin or the maximum?
+   * Default is to return bin maximum. */
+  itkSetMacro(ReturnBinMidpoint, bool);
+  itkGetConstReferenceMacro(ReturnBinMidpoint, bool);
+  itkBooleanMacro(ReturnBinMidpoint);
+
   /** Get the computed threshold. */
-  const ThresholdVectorType & GetThresholds() const
+  const ThresholdVectorType &
+  GetThresholds() const
   {
     return m_Thresholds;
   }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputComparableCheck,
-                   ( Concept::Comparable< OutputPixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< OutputPixelType > ) );
+  itkConceptMacro(OutputComparableCheck, (Concept::Comparable<OutputPixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
   OtsuMultipleThresholdsImageFilter();
-  ~OtsuMultipleThresholdsImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~OtsuMultipleThresholdsImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OtsuMultipleThresholdsImageFilter);
-
-  SizeValueType       m_NumberOfHistogramBins;
-  SizeValueType       m_NumberOfThresholds;
+  SizeValueType       m_NumberOfHistogramBins{ 128 };
+  SizeValueType       m_NumberOfThresholds{ 1 };
   OutputPixelType     m_LabelOffset;
   ThresholdVectorType m_Thresholds;
-  bool                m_ValleyEmphasis;
+  bool                m_ValleyEmphasis{ false };
+#if defined(ITKV4_COMPATIBILITY)
+  bool m_ReturnBinMidpoint{ true };
+#else
+  bool m_ReturnBinMidpoint{ false };
+#endif
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkOtsuMultipleThresholdsImageFilter.hxx"
+#  include "itkOtsuMultipleThresholdsImageFilter.hxx"
 #endif
 
 #endif

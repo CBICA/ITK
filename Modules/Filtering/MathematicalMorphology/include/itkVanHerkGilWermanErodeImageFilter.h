@@ -24,50 +24,45 @@
 
 namespace itk
 {
-template< typename TPixel >
+template <typename TPixel>
 class MinFunctor
 {
 public:
-  MinFunctor(){}
-  ~MinFunctor(){}
-  inline TPixel operator()(const TPixel & A, const TPixel & B) const
+  MinFunctor() = default;
+  ~MinFunctor() = default;
+  inline TPixel
+  operator()(const TPixel & A, const TPixel & B) const
   {
     return std::min(A, B);
   }
 };
 
-template< typename TImage, typename TKernel >
-class VanHerkGilWermanErodeImageFilter:
-  public VanHerkGilWermanErodeDilateImageFilter< TImage, TKernel, MinFunctor< typename TImage::PixelType > >
+template <typename TImage, typename TKernel>
+class VanHerkGilWermanErodeImageFilter
+  : public VanHerkGilWermanErodeDilateImageFilter<TImage, TKernel, MinFunctor<typename TImage::PixelType>>
 
 {
 public:
-  typedef VanHerkGilWermanErodeImageFilter Self;
-  typedef VanHerkGilWermanErodeDilateImageFilter< TImage, TKernel,
-                                                  MinFunctor< typename TImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VanHerkGilWermanErodeImageFilter);
+
+  using Self = VanHerkGilWermanErodeImageFilter;
+  using Superclass = VanHerkGilWermanErodeDilateImageFilter<TImage, TKernel, MinFunctor<typename TImage::PixelType>>;
 
   /** Runtime information support. */
-  itkTypeMacro(VanHerkGilWermanErodeImageFilter,
-               VanHerkGilWermanErodeDilateImageFilter);
+  itkTypeMacro(VanHerkGilWermanErodeImageFilter, VanHerkGilWermanErodeDilateImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef typename TImage::PixelType PixelType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using PixelType = typename TImage::PixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
 protected:
-
-  VanHerkGilWermanErodeImageFilter()
-  {
-    this->m_Boundary = NumericTraits< PixelType >::max();
-  }
-  virtual ~VanHerkGilWermanErodeImageFilter() ITK_OVERRIDE {}
+  VanHerkGilWermanErodeImageFilter() { this->m_Boundary = NumericTraits<PixelType>::max(); }
+  ~VanHerkGilWermanErodeImageFilter() override = default;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(VanHerkGilWermanErodeImageFilter);
 };
 } // namespace itk
 

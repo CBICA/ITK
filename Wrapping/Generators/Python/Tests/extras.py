@@ -18,9 +18,6 @@
 
 # also test the import callback feature
 
-from __future__ import print_function
-
-
 def custom_callback(name, progress):
     if progress == 0:
         print("Loading %s..." % name, file=sys.stderr)
@@ -31,6 +28,7 @@ itkConfig.ImportCallback = custom_callback
 
 import itk
 import sys
+import os
 
 # test the force load function
 itk.force_load()
@@ -43,6 +41,8 @@ ImageType = itk.Image[PixelType, dim]
 ReaderType = itk.ImageFileReader[ImageType]
 reader = ReaderType.New(FileName=fileName)
 
+# test snake_case keyword arguments
+reader = ReaderType.New(file_name=fileName)
 
 # test echo
 itk.echo(reader)
@@ -126,7 +126,6 @@ assert itk.range(reader.GetOutput()) == (0, 255)
 
 # test write
 itk.imwrite(reader, sys.argv[2])
-itk.write(reader, sys.argv[2])
 itk.imwrite(reader, sys.argv[2], True)
 
 # test read
@@ -134,6 +133,18 @@ image=itk.imread(fileName)
 assert type(image) == itk.Image[itk.RGBPixel[itk.UC],2]
 image=itk.imread(fileName, itk.F)
 assert type(image) == itk.Image[itk.F,2]
+image=itk.imread(fileName, itk.F, fallback_only=True)
+assert type(image) == itk.Image[itk.RGBPixel[itk.UC],2]
+try:
+  image=itk.imread(fileName, fallback_only=True)
+  # Should never reach this point if test passes since an exception
+  # is expected.
+  raise Exception('`itk.imread()` fallback_only should have failed')
+except Exception as e:
+  if str(e) == "`pixel_type` must be set when using `fallback_only` option":
+    pass
+  else:
+    raise e
 
 # test search
 res = itk.search("Index")
@@ -153,6 +164,55 @@ down_casted = itk.down_cast(obj)
 assert down_casted == reader
 assert down_casted.__class__ == ReaderType
 
+# test setting the IO manually
+png_io = itk.PNGImageIO.New()
+assert png_io.GetFileName() == ''
+reader=itk.ImageFileReader.New(FileName=fileName, ImageIO=png_io)
+reader.Update()
+assert png_io.GetFileName() == fileName
+
+# test reading image series
+series_reader = itk.ImageSeriesReader.New(FileNames=[fileName,fileName])
+series_reader.Update()
+assert series_reader.GetOutput().GetImageDimension() == 3
+assert series_reader.GetOutput().GetLargestPossibleRegion().GetSize()[2] == 2
+
+# test reading image series and check that dimension is not increased if
+# last dimension is 1.
+image_series = itk.Image[itk.UC, 3].New()
+image_series.SetRegions([10, 7, 1])
+image_series.Allocate()
+image_series.FillBuffer(0)
+image_series3d_filename = os.path.join(
+    sys.argv[3], "image_series_extras_py.mha")
+itk.imwrite(image_series, image_series3d_filename)
+series_reader = itk.ImageSeriesReader.New(
+    FileNames=[image_series3d_filename, image_series3d_filename])
+series_reader.Update()
+assert series_reader.GetOutput().GetImageDimension() == 3
+
+# test reading image series with itk.imread()
+image_series = itk.imread([fileName, fileName])
+assert image_series.GetImageDimension() == 3
+
+# Numeric series filename generation without any integer index. It is
+# only to produce an ITK object that users could set as an input to
+# `itk.ImageSeriesReader.New()` or `itk.imread()` and test that it works.
+numeric_series_filename = itk.NumericSeriesFileNames.New()
+numeric_series_filename.SetStartIndex(0)
+numeric_series_filename.SetEndIndex(3)
+numeric_series_filename.SetIncrementIndex(1)
+numeric_series_filename.SetSeriesFormat(fileName)
+image_series = itk.imread(numeric_series_filename.GetFileNames())
+number_of_files = len(numeric_series_filename.GetFileNames())
+assert image_series.GetImageDimension() == 3
+assert image_series.GetLargestPossibleRegion().GetSize()[2] == number_of_files
+
+# test reading image series with `itk.imread()` and check that dimension is
+# not increased if last dimension is 1.
+image_series = itk.imread([image_series3d_filename, image_series3d_filename])
+assert image_series.GetImageDimension() == 3
+
 # pipeline, auto_pipeline and templated class are tested in other files
 
 # BridgeNumPy
@@ -161,6 +221,9 @@ try:
     import numpy as np
     image = itk.imread(fileName)
     arr = itk.GetArrayFromImage(image)
+    arr.fill(1)
+    assert np.any(arr != itk.GetArrayFromImage(image))
+    arr = itk.array_from_image(image)
     arr.fill(1)
     assert np.any(arr != itk.GetArrayFromImage(image))
     view = itk.GetArrayViewFromImage(image)
@@ -172,31 +235,39 @@ try:
     image = itk.GetImageViewFromArray(arr)
     image.FillBuffer(2)
     assert np.all(arr == itk.GetArrayFromImage(image))
-    image = itk.GetImageFromArray(arr, isVector=True)
+    image = itk.GetImageFromArray(arr, is_vector=True)
     assert image.GetImageDimension() == 2
-    image = itk.GetImageViewFromArray(arr, isVector=True)
+    image = itk.GetImageViewFromArray(arr, is_vector=True)
     assert image.GetImageDimension() == 2
     arr = np.array([[1,2,3],[4,5,6]]).astype(np.uint8)
     assert arr.shape[0] == 2
     assert arr.shape[1] == 3
     assert arr[1,1] == 5
     image = itk.GetImageFromArray(arr)
-    arrKeepAxes = itk.GetArrayFromImage(image, keepAxes=True)
+    arrKeepAxes = itk.GetArrayFromImage(image, keep_axes=True)
     assert arrKeepAxes.shape[0] == 3
     assert arrKeepAxes.shape[1] == 2
     assert arrKeepAxes[1,1] == 4
-    arr = itk.GetArrayFromImage(image, keepAxes=False)
+    arr = itk.GetArrayFromImage(image, keep_axes=False)
     assert arr.shape[0] == 2
     assert arr.shape[1] == 3
     assert arr[1,1] == 5
-    arrKeepAxes = itk.GetArrayViewFromImage(image, keepAxes=True)
+    arrKeepAxes = itk.GetArrayViewFromImage(image, keep_axes=True)
     assert arrKeepAxes.shape[0] == 3
     assert arrKeepAxes.shape[1] == 2
     assert arrKeepAxes[1,1] == 4
-    arr = itk.GetArrayViewFromImage(image, keepAxes=False)
+    arr = itk.GetArrayViewFromImage(image, keep_axes=False)
     assert arr.shape[0] == 2
     assert arr.shape[1] == 3
     assert arr[1,1] == 5
+    arr = arr.copy()
+    image = itk.GetImageFromArray(arr)
+    image2 = type(image).New()
+    image2.Graft(image)
+    del image # Delete image but pixel data should be kept in img2
+    image = itk.GetImageFromArray(arr+1) # Fill former memory if wrongly released
+    assert np.array_equal(arr, itk.GetArrayViewFromImage(image2))
+    image2.SetPixel([0]*image2.GetImageDimension(), 3) # For mem check in dynamic analysis
     # VNL Vectors
     v1 = itk.vnl_vector.D(2)
     v1.fill(1)
@@ -225,6 +296,26 @@ try:
     m_vnl.put(0,0,3)
     assert m_vnl(0,0) == 3
     assert arr[0,0] == 0
+    # ITK Matrix
+    arr = np.zeros([3,3],float)
+    m_itk = itk.GetMatrixFromArray(arr)
+    # Test snake case function
+    m_itk = itk.matrix_from_array(arr)
+    m_itk.SetIdentity()
+    # Test that the numpy array has not changed,...
+    assert arr[0,0] == 0
+    # but that the ITK matrix has the correct value.
+    assert m_itk(0,0) == 1
+    arr2 = itk.GetArrayFromMatrix(m_itk)
+    # Check that snake case function also works
+    arr2 = itk.array_from_matrix(m_itk)
+    # Check that the new array has the new value.
+    assert arr2[0,0] == 1
+    arr2[0,0]=2
+    # Change the array value,...
+    assert arr2[0,0] == 2
+    # and make sure that the matrix hasn't changed.
+    assert m_itk(0,0) == 1
 
 except ImportError:
     print("NumPy not imported. Skipping BridgeNumPy tests")

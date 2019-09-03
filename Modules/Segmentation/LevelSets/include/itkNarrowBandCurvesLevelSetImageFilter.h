@@ -97,34 +97,33 @@ namespace itk
  *   \ingroup LevelSetSegmentation
  * \ingroup ITKLevelSets
  */
-template< typename TInputImage,
-          typename TFeatureImage,
-          typename TOutputPixelType = float >
-class ITK_TEMPLATE_EXPORT NarrowBandCurvesLevelSetImageFilter:
-  public NarrowBandLevelSetImageFilter< TInputImage, TFeatureImage, TOutputPixelType,
-                                        Image< TOutputPixelType,
-                                               TInputImage::ImageDimension > >
+template <typename TInputImage, typename TFeatureImage, typename TOutputPixelType = float>
+class ITK_TEMPLATE_EXPORT NarrowBandCurvesLevelSetImageFilter
+  : public NarrowBandLevelSetImageFilter<TInputImage,
+                                         TFeatureImage,
+                                         TOutputPixelType,
+                                         Image<TOutputPixelType, TInputImage::ImageDimension>>
 {
 public:
-  /** Standard class typedefs */
-  typedef NarrowBandCurvesLevelSetImageFilter Self;
-  typedef  NarrowBandLevelSetImageFilter< TInputImage, TFeatureImage, TOutputPixelType,
-                                          Image< TOutputPixelType,
-                                                 TInputImage::ImageDimension > >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NarrowBandCurvesLevelSetImageFilter);
 
-  /** Inherited typedef from the superclass. */
-  typedef typename Superclass::ValueType        ValueType;
-  typedef typename Superclass::OutputImageType  OutputImageType;
-  typedef typename Superclass::FeatureImageType FeatureImageType;
+  /** Standard class type aliases */
+  using Self = NarrowBandCurvesLevelSetImageFilter;
+  using Superclass = NarrowBandLevelSetImageFilter<TInputImage,
+                                                   TFeatureImage,
+                                                   TOutputPixelType,
+                                                   Image<TOutputPixelType, TInputImage::ImageDimension>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Inherited type alias from the superclass. */
+  using ValueType = typename Superclass::ValueType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using FeatureImageType = typename Superclass::FeatureImageType;
 
   /** Type of the segmentation function */
-  typedef CurvesLevelSetFunction< OutputImageType,
-                                  FeatureImageType > CurvesFunctionType;
-  typedef typename CurvesFunctionType::Pointer
-  CurvesFunctionPointer;
+  using CurvesFunctionType = CurvesLevelSetFunction<OutputImageType, FeatureImageType>;
+  using CurvesFunctionPointer = typename CurvesFunctionType::Pointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(NarrowBandCurvesLevelSetImageFilter, NarrowBandLevelSetImageFilter);
@@ -133,33 +132,36 @@ public:
   itkNewMacro(Self);
 
   /** Set the value of sigma used to compute derivatives */
-  void SetDerivativeSigma(float value)
+  void
+  SetDerivativeSigma(float value)
   {
     m_CurvesFunction->SetDerivativeSigma(value);
     this->Modified();
   }
 
-  float GetDerivativeSigma() const
-  { return m_CurvesFunction->GetDerivativeSigma(); }
+  float
+  GetDerivativeSigma() const
+  {
+    return m_CurvesFunction->GetDerivativeSigma();
+  }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< TOutputPixelType > ) );
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<TOutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  ~NarrowBandCurvesLevelSetImageFilter() ITK_OVERRIDE {}
+  ~NarrowBandCurvesLevelSetImageFilter() override = default;
   NarrowBandCurvesLevelSetImageFilter();
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(NarrowBandCurvesLevelSetImageFilter);
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Overridden from Superclass to handle the case when Propagation
    *  Scaling is zero.*/
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
   CurvesFunctionPointer m_CurvesFunction;
@@ -167,7 +169,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkNarrowBandCurvesLevelSetImageFilter.hxx"
+#  include "itkNarrowBandCurvesLevelSetImageFilter.hxx"
 #endif
 
 #endif

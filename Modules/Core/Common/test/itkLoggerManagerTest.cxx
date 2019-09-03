@@ -20,44 +20,19 @@
 #include <fstream>
 #include "itkStdStreamLogOutput.h"
 #include "itkLoggerManager.h"
+#include "itkLogTester.h"
 
-class LogTester
-{
-public:
-  LogTester(){ this->m_Logger = ITK_NULLPTR; }
-  itk::Logger* GetLogger() { return m_Logger; }
-  void SetLogger(itk::Logger* logger) { m_Logger = logger; }
-  void log() {
-    itkLogMacro( DEBUG, "DEBUG message by itkLogMacro\n" );
-    itkLogMacro( INFO, "INFO message by itkLogMacro\n" );
-    itkLogMacro( WARNING, "WARNING message by itkLogMacro\n" );
-    itkLogMacro( CRITICAL, "CRITICAL message by itkLogMacro\n" );
-    itkLogMacro( FATAL, "FATAL message by itkLogMacro\n" );
-    itkLogMacro( MUSTFLUSH, "MUSTFLUSH message by itkLogMacro\n" );
-  }
-  static void logStatic(LogTester* tester)
-  {
-    itkLogMacroStatic( tester, DEBUG, "DEBUG message by itkLogMacroStatic\n" );
-    itkLogMacroStatic( tester, INFO, "INFO message by itkLogMacroStatic\n" );
-    itkLogMacroStatic( tester, WARNING, "WARNING message by itkLogMacroStatic\n" );
-    itkLogMacroStatic( tester, CRITICAL, "CRITICAL message by itkLogMacroStatic\n" );
-    itkLogMacroStatic( tester, FATAL, "FATAL message by itkLogMacroStatic\n" );
-    itkLogMacroStatic( tester, MUSTFLUSH, "MUSTFLUSH message by itkLogMacroStatic\n" );
-  }
 
-private:
-  itk::Logger* m_Logger;
-};
-
-int itkLoggerManagerTest( int argc, char *argv [] )
+int
+itkLoggerManagerTest(int argc, char * argv[])
 {
   try
-    {
+  {
     if (argc < 2)
-      {
-      std::cout << "Usage: " << argv[0] << " logFilename" << std::endl;
+    {
+      std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " logFilename" << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     // Create an ITK StdStreamLogOutputs
     itk::StdStreamLogOutput::Pointer coutput = itk::StdStreamLogOutput::New();
@@ -69,11 +44,13 @@ int itkLoggerManagerTest( int argc, char *argv [] )
     // Create an ITK Loggers using itk::LoggerManager
     itk::LoggerManager::Pointer manager = itk::LoggerManager::New();
 
-    itk::Logger::Pointer logger = manager->CreateLogger( "org.itk.logTester.logger",
-      itk::LoggerBase::DEBUG, itk::LoggerBase::CRITICAL );
+    itk::Logger::Pointer logger = manager->CreateLogger("org.itk.logTester.logger",
+                                                        itk::LoggerBase::PriorityLevelType::DEBUG,
+                                                        itk::LoggerBase::PriorityLevelType::CRITICAL);
 
-    itk::ThreadLogger::Pointer t_logger = manager->CreateThreadLogger( "org.itk.ThreadLogger",
-      itk::LoggerBase::WARNING, itk::LoggerBase::CRITICAL );
+    itk::ThreadLogger::Pointer t_logger = manager->CreateThreadLogger("org.itk.ThreadLogger",
+                                                                      itk::LoggerBase::PriorityLevelType::WARNING,
+                                                                      itk::LoggerBase::PriorityLevelType::CRITICAL);
 
     std::cout << "Testing itk::LoggerManager" << std::endl;
 
@@ -82,43 +59,45 @@ int itkLoggerManagerTest( int argc, char *argv [] )
     t_logger->AddLogOutput(foutput);
 
     // Logging by the itkLogMacro from a class with itk::ThreadLogger
-    LogTester tester;
+    itk::Testing::LogTester tester;
     tester.SetLogger(logger);
     tester.log();
     // Logging by the itkLogMacroStatic from a class with itk::ThreadLogger
-    LogTester::logStatic(&tester);
+    itk::Testing::LogTester::logStatic(&tester);
 
-    std::cout << "  The printed order of 'Messages ##' below might not be predictable because of multi-threaded logging" << std::endl;
+    std::cout << "  The printed order of 'Messages ##' below might not be predictable because of multi-threaded logging"
+              << std::endl;
     std::cout << "  But the logged messages will be in order." << std::endl;
     std::cout << "  Each line is an atom for synchronization." << std::endl;
     // Writing by the logger
-    manager->Write(itk::LoggerBase::DEBUG, "This is the DEBUG message.\n");
+    manager->Write(itk::LoggerBase::PriorityLevelType::DEBUG, "This is the DEBUG message.\n");
     std::cout << "  Message #1" << std::endl;
-    manager->Write(itk::LoggerBase::INFO, "This is the INFO message.\n");
-    manager->Write(itk::LoggerBase::WARNING, "This is the WARNING message.\n");
+    manager->Write(itk::LoggerBase::PriorityLevelType::INFO, "This is the INFO message.\n");
+    manager->Write(itk::LoggerBase::PriorityLevelType::WARNING, "This is the WARNING message.\n");
     std::cout << "  Message #2" << std::endl;
-    manager->Write(itk::LoggerBase::CRITICAL, "This is the CRITICAL message.\n");
-    manager->Write(itk::Logger::FATAL, "This is the FATAL message.\n");
-    manager->Write(itk::LoggerBase::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
+    manager->Write(itk::LoggerBase::PriorityLevelType::CRITICAL, "This is the CRITICAL message.\n");
+    manager->Write(itk::Logger::PriorityLevelType::FATAL, "This is the FATAL message.\n");
+    manager->Write(itk::LoggerBase::PriorityLevelType::MUSTFLUSH, "This is the MUSTFLUSH message.\n");
     std::cout << "  Message #3" << std::endl;
-    itk::Logger* pLogger;
+    itk::Logger * pLogger;
     pLogger = manager->GetLogger("org.itk.logTester.logger");
-    if( pLogger == ITK_NULLPTR )
+    if (pLogger == nullptr)
     {
       throw "LoggerManager::GetLogger() failed";
     }
-    pLogger->Write(itk::LoggerBase::INFO, "This is the message from the logger got from a LoggerManager");
-    if( manager->GetLogger("abc") != ITK_NULLPTR )
+    pLogger->Write(itk::LoggerBase::PriorityLevelType::INFO,
+                   "This is the message from the logger got from a LoggerManager");
+    if (manager->GetLogger("abc") != nullptr)
     {
-      throw "LoggerManager::GetLogger() must return ITK_NULLPTR";
+      throw "LoggerManager::GetLogger() must return nullptr";
     }
     manager->Flush();
-    }
-  catch(const char * errmsg)
-    {
-    std::cerr << "Exception catched !! : " << errmsg << std::endl;
+  }
+  catch (const char * errmsg)
+  {
+    std::cerr << "Exception caught! : " << errmsg << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "[PASSED]" << std::endl;
   return EXIT_SUCCESS;

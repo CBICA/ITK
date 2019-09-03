@@ -38,57 +38,61 @@ namespace itk
 
 namespace Function
 {
-template< typename TInput, typename TOutput = SizeValueType >
+template <typename TInput, typename TOutput = SizeValueType>
 class HistogramIntensityFunction
 {
 public:
+  // Intensity function returns pixels of SizeValueType.
+  using OutputPixelType = TOutput;
 
-  //Intensity function returns pixels of SizeValueType.
-  typedef TOutput OutputPixelType;
+  HistogramIntensityFunction() {}
 
-  HistogramIntensityFunction():
-    m_TotalFrequency(1) {}
+  ~HistogramIntensityFunction() = default;
 
-  ~HistogramIntensityFunction() {}
-
-  inline OutputPixelType operator()(const TInput & A) const
+  inline OutputPixelType
+  operator()(const TInput & A) const
   {
-    return static_cast< OutputPixelType >( A );
+    return static_cast<OutputPixelType>(A);
   }
 
-  void SetTotalFrequency(SizeValueType n)
+  void
+  SetTotalFrequency(SizeValueType n)
   {
     m_TotalFrequency = n;
   }
 
-  SizeValueType GetTotalFrequency() const
+  SizeValueType
+  GetTotalFrequency() const
   {
     return m_TotalFrequency;
   }
 
 private:
-  SizeValueType m_TotalFrequency;
+  SizeValueType m_TotalFrequency{ 1 };
 };
-}
+} // namespace Function
 
-template< typename THistogram, typename TImage=Image< SizeValueType, 3 > >
-class HistogramToIntensityImageFilter:
-  public HistogramToImageFilter< THistogram, TImage,
-                                 Function::HistogramIntensityFunction< SizeValueType, typename TImage::PixelType > >
+template <typename THistogram, typename TImage = Image<SizeValueType, 3>>
+class HistogramToIntensityImageFilter
+  : public HistogramToImageFilter<THistogram,
+                                  TImage,
+                                  Function::HistogramIntensityFunction<SizeValueType, typename TImage::PixelType>>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(HistogramToIntensityImageFilter);
 
-  /** Standard class typedefs. */
-  typedef HistogramToIntensityImageFilter Self;
+  /** Standard class type aliases. */
+  using Self = HistogramToIntensityImageFilter;
 
-  /** Standard "Superclass" typedef. */
-  typedef HistogramToImageFilter< THistogram, TImage,
-                                 Function::HistogramIntensityFunction< SizeValueType, typename TImage::PixelType > >
-  Superclass;
+  /** Standard "Superclass" type alias. */
+  using Superclass =
+    HistogramToImageFilter<THistogram,
+                           TImage,
+                           Function::HistogramIntensityFunction<SizeValueType, typename TImage::PixelType>>;
 
-  //typedef typename Function::HistogramIntensityFunction  FunctorType;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  // using FunctorType = typename Function::HistogramIntensityFunction;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(HistogramToIntensityImageFilter, HistogramToImageFilter);
@@ -97,11 +101,8 @@ public:
   itkNewMacro(Self);
 
 protected:
-  HistogramToIntensityImageFilter() {}
-  virtual ~HistogramToIntensityImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HistogramToIntensityImageFilter);
+  HistogramToIntensityImageFilter() = default;
+  ~HistogramToIntensityImageFilter() override = default;
 };
 } // end namespace itk
 

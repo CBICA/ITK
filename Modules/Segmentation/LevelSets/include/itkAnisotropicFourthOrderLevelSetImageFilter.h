@@ -79,60 +79,60 @@ namespace itk
  * number of iterations is set to be extremely large.
  * \ingroup ITKLevelSets
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT AnisotropicFourthOrderLevelSetImageFilter:
-  public SparseFieldFourthOrderLevelSetImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT AnisotropicFourthOrderLevelSetImageFilter
+  : public SparseFieldFourthOrderLevelSetImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs */
-  typedef AnisotropicFourthOrderLevelSetImageFilter Self;
-  typedef SparseFieldFourthOrderLevelSetImageFilter< TInputImage,
-                                                     TOutputImage > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AnisotropicFourthOrderLevelSetImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases */
+  using Self = AnisotropicFourthOrderLevelSetImageFilter;
+  using Superclass = SparseFieldFourthOrderLevelSetImageFilter<TInputImage, TOutputImage>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(AnisotropicFourthOrderLevelSetImageFilter,
-               SparseFieldFourthOrderLevelSetImageFilter);
+  itkTypeMacro(AnisotropicFourthOrderLevelSetImageFilter, SparseFieldFourthOrderLevelSetImageFilter);
 
   /** Standard new macro */
   itkNewMacro(Self);
 
   /** The sparse image type used in LevelSetFunctionWithRefitTerm */
-  typedef typename Superclass::SparseImageType SparseImageType;
+  using SparseImageType = typename Superclass::SparseImageType;
 
   /** The level set function class with a refit term that forces the curvature
       of the moving front to match a prescribed curvature image. */
-  typedef LevelSetFunctionWithRefitTerm< TOutputImage, SparseImageType > FunctionType;
+  using FunctionType = LevelSetFunctionWithRefitTerm<TOutputImage, SparseImageType>;
 
   /** The radius type for the neighborhoods. */
-  typedef typename FunctionType::RadiusType RadiusType;
+  using RadiusType = typename FunctionType::RadiusType;
 
   itkGetConstMacro(MaxFilterIteration, unsigned int);
   itkSetMacro(MaxFilterIteration, unsigned int);
 
 protected:
   AnisotropicFourthOrderLevelSetImageFilter();
-  ~AnisotropicFourthOrderLevelSetImageFilter() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~AnisotropicFourthOrderLevelSetImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** This filter halts when the iteration count reaches the specified count. */
-  virtual bool Halt() ITK_OVERRIDE
+  bool
+  Halt() override
   {
-    if ( this->GetElapsedIterations() == m_MaxFilterIteration )
-      {
+    if (this->GetElapsedIterations() == m_MaxFilterIteration)
+    {
       return true;
-      }
+    }
     else
-      {
+    {
       return false;
-      }
+    }
   }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AnisotropicFourthOrderLevelSetImageFilter);
-
   /** The LevelSetFunctionWithRefitTerm object. */
   typename FunctionType::Pointer m_Function;
 
@@ -142,7 +142,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAnisotropicFourthOrderLevelSetImageFilter.hxx"
+#  include "itkAnisotropicFourthOrderLevelSetImageFilter.hxx"
 #endif
 
 #endif

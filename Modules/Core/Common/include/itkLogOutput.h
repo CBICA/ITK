@@ -36,35 +36,37 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT LogOutput:public Object
+class ITKCommon_EXPORT LogOutput : public Object
 {
 public:
-
-  typedef LogOutput                  Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = LogOutput;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** flush a buffer */
-  virtual void Flush() = 0;
+  virtual void
+  Flush() = 0;
 
   /** Write to a buffer */
-  virtual void Write(double timestamp) = 0;
+  virtual void
+  Write(double timestamp) = 0;
 
   /** Write to a buffer */
-  virtual void Write(const std::string & content) = 0;
+  virtual void
+  Write(const std::string & content) = 0;
 
   /** Write to a buffer */
-  virtual void Write(const std::string & content, double timestamp) = 0;
+  virtual void
+  Write(const std::string & content, double timestamp) = 0;
 
 protected:
-
   /** Destructor */
   LogOutput();
 
   /** Destructor */
-  virtual ~LogOutput();
+  ~LogOutput() override;
 };
-}
+} // namespace itk
 
-#endif //itkLogOutput_h
+#endif // itkLogOutput_h

@@ -41,51 +41,58 @@ template <unsigned VDimension = 3>
 class ITK_TEMPLATE_EXPORT MetaConverterBase : public Object
 {
 public:
-  /** standard class typedefs */
-  typedef MetaConverterBase          Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** standard class type alias */
+  using Self = MetaConverterBase;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(MetaConverterBase, Object);
 
-  typedef SpatialObject<VDimension>           SpatialObjectType;
-  typedef typename SpatialObjectType::Pointer SpatialObjectPointer;
-  typedef MetaObject                          MetaObjectType;
+  using SpatialObjectType = SpatialObject<VDimension>;
+  using SpatialObjectPointer = typename SpatialObjectType::Pointer;
+  using MetaObjectType = MetaObject;
 
   /** Read a MetaIO file, return a SpatialObject */
-  virtual SpatialObjectPointer  ReadMeta(const char *name);
+  virtual SpatialObjectPointer
+  ReadMeta(const char * name);
 
   /** Write a MetaIO file based on this SpatialObject */
-  virtual bool WriteMeta(const SpatialObjectType *spatialObject, const char *name);
+  virtual bool
+  WriteMeta(const SpatialObjectType * spatialObject, const char * name);
 
   /** Convert the MetaObject to Spatial Object */
-  virtual SpatialObjectPointer MetaObjectToSpatialObject(const MetaObjectType *mo) = 0;
+  virtual SpatialObjectPointer
+  MetaObjectToSpatialObject(const MetaObjectType * mo) = 0;
 
   /** Convert the SpatialObject to MetaObject */
-  virtual MetaObjectType *SpatialObjectToMetaObject(const SpatialObjectType *spatialObject) = 0;
+  virtual MetaObjectType *
+  SpatialObjectToMetaObject(const SpatialObjectType * spatialObject) = 0;
 
   /** Set/Get flag for writing images to separate files in metaImage
    * instances
    */
-  void SetWriteImagesInSeparateFile(bool writeImagesInSeparateFile);
-  bool GetWriteImagesInSeparateFile();
+  itkSetMacro(WriteImagesInSeparateFile, bool);
+  itkGetConstMacro(WriteImagesInSeparateFile, bool);
 
 protected:
+  MetaConverterBase() {}
+  ~MetaConverterBase() override = default;
+
   /** Creator for specific metaObject, defined in subclass */
-  virtual MetaObjectType *CreateMetaObject() = 0;
-  MetaConverterBase() : m_WriteImagesInSeparateFile(false)
-    {}
+  virtual MetaObjectType *
+  CreateMetaObject() = 0;
+
 
 private:
-  bool m_WriteImagesInSeparateFile;
+  bool m_WriteImagesInSeparateFile{ false };
 };
 
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTATIATION
-  #include "itkMetaConverterBase.hxx"
+#  include "itkMetaConverterBase.hxx"
 #endif
 
 #endif // itkMetaConverterBase_h

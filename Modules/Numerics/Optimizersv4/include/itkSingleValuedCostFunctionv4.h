@@ -45,52 +45,51 @@ namespace itk
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizersv4
  */
-template< typename TInternalComputationValueType >
-class SingleValuedCostFunctionv4Template:
-  public CostFunctionTemplate< TInternalComputationValueType >
+template <typename TInternalComputationValueType>
+class SingleValuedCostFunctionv4Template : public CostFunctionTemplate<TInternalComputationValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SingleValuedCostFunctionv4Template                    Self;
-  typedef CostFunctionTemplate< TInternalComputationValueType > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SingleValuedCostFunctionv4Template);
+
+  /** Standard class type aliases. */
+  using Self = SingleValuedCostFunctionv4Template;
+  using Superclass = CostFunctionTemplate<TInternalComputationValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SingleValuedCostFunctionv4Template, CostFunctionTemplate);
 
-  /**  MeasureType typedef.
+  /**  MeasureType type alias.
    *  It defines a type used to return the cost function value. */
-  typedef TInternalComputationValueType                  MeasureType;
+  using MeasureType = TInternalComputationValueType;
 
-  /**  ParametersType typedef.
+  /**  ParametersType type alias.
    *  It defines a position in the optimization search space. */
-  typedef typename Superclass::ParametersType      ParametersType;
+  using ParametersType = typename Superclass::ParametersType;
 
-  /** DerivativeType typedef.
+  /** DerivativeType type alias.
    *  It defines a type used to return the cost function derivative.  */
-  typedef Array< TInternalComputationValueType > DerivativeType;
+  using DerivativeType = Array<TInternalComputationValueType>;
 
   /** This method returns the value of the cost function corresponding
-    * to the specified parameters.    */
-  virtual MeasureType GetValue() const = 0;
+   * to the specified parameters.    */
+  virtual MeasureType
+  GetValue() const = 0;
 
   /** This method returns the value and derivative of the cost function.
    * \c derivative will be sized and allocated as needed by metric.
    * If it's already proper size, no new allocation is done. */
-  virtual void GetValueAndDerivative(MeasureType & value,
-                                     DerivativeType & derivative) const = 0;
+  virtual void
+  GetValueAndDerivative(MeasureType & value, DerivativeType & derivative) const = 0;
 
 protected:
-  SingleValuedCostFunctionv4Template() {}
-  virtual ~SingleValuedCostFunctionv4Template() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SingleValuedCostFunctionv4Template);
+  SingleValuedCostFunctionv4Template() = default;
+  ~SingleValuedCostFunctionv4Template() override = default;
 };
 
 /** This helps to meet backward compatibility */
-typedef SingleValuedCostFunctionv4Template<double> SingleValuedCostFunctionv4;
+using SingleValuedCostFunctionv4 = SingleValuedCostFunctionv4Template<double>;
 
 } // end namespace itk
 

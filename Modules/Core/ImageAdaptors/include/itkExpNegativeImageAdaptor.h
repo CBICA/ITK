@@ -36,23 +36,29 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TInternalType, typename TExternalType >
+template <typename TInternalType, typename TExternalType>
 class ExpNegativePixelAccessor
 {
 public:
-  /** External typedef. It defines the external aspect
-    * that this class will exhibit. */
-  typedef TExternalType ExternalType;
+  /** External type alias. It defines the external aspect
+   * that this class will exhibit. */
+  using ExternalType = TExternalType;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data. */
-  typedef TInternalType InternalType;
+  using InternalType = TInternalType;
 
-  static inline void Set(TInternalType & output, const TExternalType & input)
-  { output = static_cast< TInternalType >( std::exp( -static_cast< double >( input ) ) ); }
+  static inline void
+  Set(TInternalType & output, const TExternalType & input)
+  {
+    output = static_cast<TInternalType>(std::exp(-static_cast<double>(input)));
+  }
 
-  static inline TExternalType Get(const TInternalType & input)
-  { return static_cast< TExternalType >( std::exp( -static_cast< double >( input ) ) ); }
+  static inline TExternalType
+  Get(const TInternalType & input)
+  {
+    return static_cast<TExternalType>(std::exp(-static_cast<double>(input)));
+  }
 };
 } // end namespace Accessor
 
@@ -65,21 +71,20 @@ public:
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TImage, typename TOutputPixelType >
-class ExpNegativeImageAdaptor:public
-  ImageAdaptor< TImage, Accessor::ExpNegativePixelAccessor<
-                  typename TImage::PixelType,
-                  TOutputPixelType >   >
+template <typename TImage, typename TOutputPixelType>
+class ExpNegativeImageAdaptor
+  : public ImageAdaptor<TImage, Accessor::ExpNegativePixelAccessor<typename TImage::PixelType, TOutputPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ExpNegativeImageAdaptor Self;
-  typedef ImageAdaptor<
-    TImage, Accessor::ExpNegativePixelAccessor<
-      typename TImage::PixelType, TOutputPixelType > >     Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ExpNegativeImageAdaptor);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ExpNegativeImageAdaptor;
+  using Superclass =
+    ImageAdaptor<TImage, Accessor::ExpNegativePixelAccessor<typename TImage::PixelType, TOutputPixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -88,11 +93,8 @@ public:
   itkTypeMacro(ExpNegativeImageAdaptor, ImageAdaptor);
 
 protected:
-  ExpNegativeImageAdaptor() {}
-  virtual ~ExpNegativeImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ExpNegativeImageAdaptor);
+  ExpNegativeImageAdaptor() = default;
+  ~ExpNegativeImageAdaptor() override = default;
 };
 } // end namespace itk
 

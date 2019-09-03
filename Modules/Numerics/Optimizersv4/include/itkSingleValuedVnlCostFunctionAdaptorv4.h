@@ -33,67 +33,73 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-class SingleValuedVnlCostFunctionAdaptorv4:
-  public vnl_cost_function
+class SingleValuedVnlCostFunctionAdaptorv4 : public vnl_cost_function
 {
 public:
+  /** InternalMeasureType type alias. */
+  using InternalMeasureType = double;
 
-  /** InternalMeasureType typedef. */
-  typedef   double InternalMeasureType;
+  /** InternalParametersType type alias. */
+  using InternalParametersType = vnl_vector<InternalMeasureType>;
 
-  /** InternalParametersType typedef. */
-  typedef   vnl_vector< InternalMeasureType > InternalParametersType;
-
-  /** InternalGradientType typedef. */
-  typedef   vnl_vector< InternalMeasureType > InternalDerivativeType;
+  /** InternalGradientType type alias. */
+  using InternalDerivativeType = vnl_vector<InternalMeasureType>;
 
   /** Parameters of the SingleValuedCostFunction */
-  typedef ObjectToObjectMetricBase::ParametersType ParametersType;
+  using ParametersType = ObjectToObjectMetricBase::ParametersType;
 
   /** Derivatives of the SingleValuedCostFunction */
-  typedef ObjectToObjectMetricBase::DerivativeType DerivativeType;
+  using DerivativeType = ObjectToObjectMetricBase::DerivativeType;
 
   /** Type of the SingleValuedCostFunction value */
-  typedef ObjectToObjectMetricBase::MeasureType MeasureType;
+  using MeasureType = ObjectToObjectMetricBase::MeasureType;
 
-  /** Scales typedef */
-  typedef OptimizerParameters< InternalMeasureType > ScalesType;
+  /** Scales type alias */
+  using ScalesType = OptimizerParameters<InternalMeasureType>;
 
   /** Constructor with size */
   SingleValuedVnlCostFunctionAdaptorv4(unsigned int spaceDimension);
 
   /** Set the CostFunction deriving from SingleValuedCostFunction */
-  void SetCostFunction(ObjectToObjectMetricBase *costFunction)
+  void
+  SetCostFunction(ObjectToObjectMetricBase * costFunction)
   {
     m_ObjectMetric = costFunction;
   }
 
   /** Get the CostFunction deriving from SingleValuedCostFunction */
-  const ObjectToObjectMetricBase * GetCostFunction(void) const
+  const ObjectToObjectMetricBase *
+  GetCostFunction() const
   {
     return m_ObjectMetric;
   }
 
   /**  Delegate computation of the value to the CostFunction. */
-  virtual InternalMeasureType f(const InternalParametersType & inparameters) ITK_OVERRIDE;
+  InternalMeasureType
+  f(const InternalParametersType & inparameters) override;
 
   /**  Delegate computation of the gradient to the costFunction.  */
-  virtual void gradf(const InternalParametersType   & inparameters, InternalDerivativeType   & gradient) ITK_OVERRIDE;
+  void
+  gradf(const InternalParametersType & inparameters, InternalDerivativeType & gradient) override;
 
   /**  Delegate computation of value and gradient to the costFunction.     */
-  virtual void compute(const InternalParametersType & x, InternalMeasureType *f, InternalDerivativeType *g) ITK_OVERRIDE;
+  void
+  compute(const InternalParametersType & x, InternalMeasureType * f, InternalDerivativeType * g) override;
 
   /**  Convert external derviative measures into internal type   */
-  void ConvertExternalToInternalGradient( const DerivativeType & input, InternalDerivativeType & output) const;
+  void
+  ConvertExternalToInternalGradient(const DerivativeType & input, InternalDerivativeType & output) const;
 
   /** Set current parameters scaling. */
-  void SetScales(const ScalesType & scales);
+  void
+  SetScales(const ScalesType & scales);
 
   /** This AddObserver method allows to simulate that this class derives from
    * an itkObject for the purpose of reporting iteration events. The goal of
    * this method is to allow ITK-vnl optimizer adaptors to get iteration events
    * despite the fact that VNL does not provide callbacks. */
-  unsigned long AddObserver(const EventObject & event, Command *) const;
+  unsigned long
+  AddObserver(const EventObject & event, Command *) const;
 
   /** Return the value of the last evaluation to the value of the cost function.
    *  Note that this method DOES NOT triggers a computation of the function or
@@ -104,25 +110,25 @@ public:
   itkGetConstReferenceMacro(CachedDerivative, DerivativeType);
 
   /** Return the parameters directly from the assigned metric. */
-  const ParametersType & GetCachedCurrentParameters() const;
+  const ParametersType &
+  GetCachedCurrentParameters() const;
 
 protected:
-
   /** This method is intended to be called by the derived classes in order to
    * notify of an iteration event to any Command/Observers */
-  void ReportIteration(const EventObject & event) const;
+  void
+  ReportIteration(const EventObject & event) const;
 
 private:
-
-  ObjectToObjectMetricBase::Pointer   m_ObjectMetric;
-  bool                                m_ScalesInitialized;
-  ScalesType                          m_Scales;
-  Object::Pointer                     m_Reporter;
+  ObjectToObjectMetricBase::Pointer m_ObjectMetric;
+  bool                              m_ScalesInitialized;
+  ScalesType                        m_Scales;
+  Object::Pointer                   m_Reporter;
 
   mutable MeasureType    m_CachedValue;
   mutable DerivativeType m_CachedDerivative;
 
-};  // end of Class CostFunction
+}; // end of Class CostFunction
 
 } // end namespace itk
 

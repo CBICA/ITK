@@ -43,16 +43,15 @@ namespace itk
  * \ingroup MRFFilters
  * \ingroup ITKMarkovRandomFieldsClassifiers
  */
-template< typename TInputImage, typename TClassifiedImage >
-class ITK_TEMPLATE_EXPORT RGBGibbsPriorFilter:public MRFImageFilter< TInputImage,
-                                                            TClassifiedImage >
+template <typename TInputImage, typename TClassifiedImage>
+class ITK_TEMPLATE_EXPORT RGBGibbsPriorFilter : public MRFImageFilter<TInputImage, TClassifiedImage>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef RGBGibbsPriorFilter                             Self;
-  typedef MRFImageFilter< TInputImage, TClassifiedImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  /** Standard "Self" type alias. */
+  using Self = RGBGibbsPriorFilter;
+  using Superclass = MRFImageFilter<TInputImage, TClassifiedImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,92 +60,102 @@ public:
   itkTypeMacro(RGBGibbsPriorFilter, MRFImageFilter);
 
   /** Types from superclass.  */
-  typedef typename Superclass::InputImagePixelType           InputImagePixelType;
-  typedef typename Superclass::InputImageRegionConstIterator InputImageRegionConstIterator;
-  typedef typename Superclass::InputImageRegionIterator      InputImageRegionIterator;
-  typedef typename Superclass::LabelledImageRegionIterator   LabelledImageRegionIterator;
-  typedef typename Superclass::LabelledImagePixelType        LabelledImagePixelType;
-  typedef typename Superclass::IndexValueType                IndexValueType;
+  using InputImagePixelType = typename Superclass::InputImagePixelType;
+  using InputImageRegionConstIterator = typename Superclass::InputImageRegionConstIterator;
+  using InputImageRegionIterator = typename Superclass::InputImageRegionIterator;
+  using LabelledImageRegionIterator = typename Superclass::LabelledImageRegionIterator;
+  using LabelledImagePixelType = typename Superclass::LabelledImagePixelType;
+  using IndexValueType = typename Superclass::IndexValueType;
 
   /** A smart pointer to the input image type. */
-  typedef TInputImage                        InputImageType;
-  typedef typename TInputImage::Pointer      InputImagePointer;
-  typedef typename TInputImage::ConstPointer InputImageConstPointer;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename TInputImage::Pointer;
+  using InputImageConstPointer = typename TInputImage::ConstPointer;
 
   /** Type definition for the input image pixel type. */
-  typedef typename TInputImage::PixelType InputPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
 
   /** Type definitions for the training image. */
-  typedef TClassifiedImage                   ClassifiedImageType;
-  typedef typename TClassifiedImage::Pointer TrainingImageType;
+  using ClassifiedImageType = TClassifiedImage;
+  using TrainingImageType = typename TClassifiedImage::Pointer;
 
   /** Type definitions for the labelled image.
    *  It is derived from the training image. */
-  typedef typename TClassifiedImage::Pointer LabelledImageType;
+  using LabelledImageType = typename TClassifiedImage::Pointer;
 
   /** Type definition for the classified image index type. */
-  typedef typename TClassifiedImage::IndexType LabelledImageIndexType;
+  using LabelledImageIndexType = typename TClassifiedImage::IndexType;
 
   /** Type used as identifier for the Labels
    \warning -1 cannot be used as the identifier for unlabeled pixels
    the NumericTraits<>::max() value is used for indicating unlabeled pixels */
-  typedef unsigned int LabelType;
+  using LabelType = unsigned int;
 
   /** Type definitions for classifier to be used for the MRF lavbelling. */
-  typedef ImageClassifierBase< TInputImage, TClassifiedImage > ClassifierType;
+  using ClassifierType = ImageClassifierBase<TInputImage, TClassifiedImage>;
 
   /** The type of input pixel. */
-  typedef typename TInputImage::PixelType InputImageVecType;
-  typedef typename TInputImage::IndexType IndexType;
+  using InputImageVecType = typename TInputImage::PixelType;
+  using IndexType = typename TInputImage::IndexType;
 
   /** Set the image required for training type classifiers. */
-  void SetTrainingImage(TrainingImageType image);
+  void
+  SetTrainingImage(TrainingImageType image);
 
   /** Set the labelled image. */
-  void SetLabelledImage(LabelledImageType LabelledImage);
+  void
+  SetLabelledImage(LabelledImageType LabelledImage);
 
   /** Get the labelled image. */
-  LabelledImageType GetLabelledImage()
-  { return m_LabelledImage; }
+  LabelledImageType
+  GetLabelledImage()
+  {
+    return m_LabelledImage;
+  }
 
   /** Set the pointer to the classifer being used. */
-  void SetClassifier(typename ClassifierType::Pointer ptrToClassifier);
+  void
+  SetClassifier(typename ClassifierType::Pointer ptrToClassifier);
 
   /** Set the Number of classes. */
-  virtual void SetNumberOfClasses( const unsigned int numberOfClasses ) ITK_OVERRIDE
+  void
+  SetNumberOfClasses(const unsigned int numberOfClasses) override
+  {
+    itkDebugMacro("setting NumberOfClasses to " << numberOfClasses);
+    if (this->m_NumberOfClasses != numberOfClasses)
     {
-    itkDebugMacro("setting NumberOfClasses to " << numberOfClasses );
-    if ( this->m_NumberOfClasses != numberOfClasses )
-      {
       this->m_NumberOfClasses = numberOfClasses;
       this->Modified();
-      }
     }
+  }
 
   /** Get the Number of classes. */
-  virtual unsigned int GetNumberOfClasses() const ITK_OVERRIDE
-    {
+  unsigned int
+  GetNumberOfClasses() const override
+  {
     return this->m_NumberOfClasses;
-    }
+  }
 
   /** Set/Get the number of iteration of the Iterated Conditional Mode
    * (ICM) algorithm. A default value is set at 50 iterations. */
-  virtual void SetMaximumNumberOfIterations( const unsigned int numberOfIterations ) ITK_OVERRIDE
-    {
+  void
+  SetMaximumNumberOfIterations(const unsigned int numberOfIterations) override
+  {
     itkDebugMacro("setting MaximumNumberOfIterations to " << numberOfIterations);
-    if ( this->m_MaximumNumberOfIterations != numberOfIterations )
-      {
+    if (this->m_MaximumNumberOfIterations != numberOfIterations)
+    {
       this->m_MaximumNumberOfIterations = numberOfIterations;
       this->Modified();
-      }
     }
+  }
 
   /** Get the number of iterations of the Iterated Conditional Mode
    * (ICM) algorithm. */
-  virtual unsigned int GetMaximumNumberOfIterations() const ITK_OVERRIDE
-    {
+  unsigned int
+  GetMaximumNumberOfIterations() const override
+  {
     return this->m_MaximumNumberOfIterations;
-    }
+  }
 
   /** Set the threshold for the object size. */
   itkSetMacro(ClusterSize, unsigned int);
@@ -155,8 +164,7 @@ public:
   itkSetMacro(ObjectLabel, LabelType);
 
   /** Extract the input image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   itkSetMacro(StartPoint, IndexType);
 
@@ -179,112 +187,125 @@ public:
   itkGetConstMacro(CliqueWeight_6, double);
 
   /** Specify the type of matrix to use. */
-  typedef vnl_matrix< double > MatrixType;
+  using MatrixType = vnl_matrix<double>;
 
 protected:
   RGBGibbsPriorFilter();
-  ~RGBGibbsPriorFilter() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~RGBGibbsPriorFilter() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void Allocate(); /** allocate memory space for the filter. */
+  void
+  Allocate(); /** allocate memory space for the filter. */
 
-  virtual void MinimizeFunctional() ITK_OVERRIDE;
+  void
+  MinimizeFunctional() override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void ApplyGibbsLabeller();
+  virtual void
+  ApplyGibbsLabeller();
 
-  virtual void ApplyGPImageFilter();
+  virtual void
+  ApplyGPImageFilter();
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimension,
-                   ( Concept::SameDimension< itkGetStaticConstMacro(InputImageType::ImageDimension),
-                                             itkGetStaticConstMacro(ClassifiedImageType::ImageDimension) > ) );
-  itkConceptMacro( DimensionShouldBe3,
-                   ( Concept::SameDimension< itkGetStaticConstMacro(InputImageType::ImageDimension), 3 > ) );
+  itkConceptMacro(
+    SameDimension,
+    (Concept::SameDimension<Self::InputImageType::ImageDimension, Self::ClassifiedImageType::ImageDimension>));
+  itkConceptMacro(DimensionShouldBe3, (Concept::SameDimension<Self::InputImageType::ImageDimension, 3>));
   // End concept checking
 #endif
 
 private:
-  RGBGibbsPriorFilter(const Self &);
-  void operator=(const Self &);
+  RGBGibbsPriorFilter(const Self &) = delete;
+  void
+  operator=(const Self &) = delete;
 
-  typedef typename TInputImage::SizeType InputImageSizeType;
+  using InputImageSizeType = typename TInputImage::SizeType;
 
-  InputImageConstPointer m_InputImage;                /** the input */
-  TrainingImageType      m_TrainingImage;             /** image to train the
-                                                        filter. */
-  LabelledImageType      m_LabelledImage;             /** output */
-  unsigned int           m_NumberOfClasses;           /** the number of class
-                                                        need to be classified.
-                                                        */
-  unsigned int           m_MaximumNumberOfIterations; /** number of the
-                                                        iteration. */
+  InputImageConstPointer m_InputImage;            /** the input */
+  TrainingImageType      m_TrainingImage;         /** image to train the
+                                                    filter. */
+  LabelledImageType m_LabelledImage;              /** output */
+  unsigned int      m_NumberOfClasses{ 0 };       /** the number of class
+                                                 need to be classified.
+                                                 */
+  unsigned int m_MaximumNumberOfIterations{ 10 }; /** number of the
+                                                iteration. */
 
   typename ClassifierType::Pointer m_ClassifierPtr;
 
-  unsigned int m_BoundaryGradient; /** the threshold for the existence of a
-                                     boundary. */
-  double       m_BoundaryWeight;   /** weight for H_1 */
-  double       m_GibbsPriorWeight; /** weight for H_2 */
-  int          m_StartRadius;      /** define the start region of the object. */
-  int          m_RecursiveNumber;  /** number of SA iterations. */
-  LabelType *  m_LabelStatus;      /** array for the state of each pixel. */
+  unsigned int m_BoundaryGradient{ 7 }; /** the threshold for the existence of a
+                                       boundary. */
+  double      m_BoundaryWeight{ 1 };    /** weight for H_1 */
+  double      m_GibbsPriorWeight{ 1 };  /** weight for H_2 */
+  int         m_StartRadius{ 10 };      /** define the start region of the object. */
+  int         m_RecursiveNumber{ 0 };   /** number of SA iterations. */
+  LabelType * m_LabelStatus{ nullptr }; /** array for the state of each pixel. */
 
-  InputImagePointer m_MediumImage;    /** the medium image to store intermedium
-                                        result */
+  InputImagePointer m_MediumImage; /** the medium image to store intermedium
+                                     result */
 
-  unsigned int m_Temp;            /** for SA algo. */
-  IndexType    m_StartPoint;      /** the seed of object */
+  unsigned int m_Temp{ 0 };  /** for SA algo. */
+  IndexType    m_StartPoint; /** the seed of object */
 
-  unsigned int   m_ImageWidth;    /** image size. */
-  unsigned int   m_ImageHeight;
-  unsigned int   m_ImageDepth;
-  unsigned int   m_ClusterSize;  /** region size smaller than the threshold will
+  unsigned int m_ImageWidth{ 0 }; /** image size. */
+  unsigned int m_ImageHeight{ 0 };
+  unsigned int m_ImageDepth{ 0 };
+  unsigned int m_ClusterSize{ 10 };  /** region size smaller than the threshold will
                                    be erased. */
-  LabelType      m_ObjectLabel;  /** the label for object region. */
-  unsigned int   m_VecDim;       /** the channel number in the image. */
-  InputPixelType m_LowPoint;     /** the point give lowest value of H-1 in
-                                   neighbor. */
+  LabelType      m_ObjectLabel{ 1 }; /** the label for object region. */
+  unsigned int   m_VecDim{ 0 };      /** the channel number in the image. */
+  InputPixelType m_LowPoint;         /** the point give lowest value of H-1 in
+                                       neighbor. */
 
-  unsigned short *m_Region;      /** for region erase. */
-  unsigned short *m_RegionCount; /** for region erase. */
+  unsigned short * m_Region{ nullptr };      /** for region erase. */
+  unsigned short * m_RegionCount{ nullptr }; /** for region erase. */
 
   /** weights for different clique configuration. */
-  double m_CliqueWeight_1;  /** weight for cliques that v/h smooth boundayr */
-  double m_CliqueWeight_2;  /** weight for clique that has an intermadiate
-                              smooth boundary */
-  double m_CliqueWeight_3;  /** weight for clique that has a diagonal smooth
-                              boundary */
-  double m_CliqueWeight_4;  /** weight for clique consists only object pixels */
-  double m_CliqueWeight_5;  /** weight for clique consists only background
-                              pixels */
-  double m_CliqueWeight_6;  /** weight for clique other than these */
+  double m_CliqueWeight_1{ 0.0 }; /** weight for cliques that v/h smooth boundayr */
+  double m_CliqueWeight_2{ 0.0 }; /** weight for clique that has an intermadiate
+                               smooth boundary */
+  double m_CliqueWeight_3{ 0.0 }; /** weight for clique that has a diagonal smooth
+                               boundary */
+  double m_CliqueWeight_4{ 0.0 }; /** weight for clique consists only object pixels */
+  double m_CliqueWeight_5{ 0.0 }; /** weight for clique consists only background
+                               pixels */
+  double m_CliqueWeight_6{ 0.0 }; /** weight for clique other than these */
 
   /** calculate H_2. */
-  void  GibbsTotalEnergy(int i);
+  void
+  GibbsTotalEnergy(int i);
 
   /** calculate the energy in each cluster. */
-  double GibbsEnergy(unsigned int i, unsigned int k, unsigned int k1);
+  double
+  GibbsEnergy(unsigned int i, unsigned int k, unsigned int k1);
 
-  int Sim(int a, int b);         /** method to return 1 when a equal to b. */
+  int
+  Sim(int a, int b); /** method to return 1 when a equal to b. */
 
-  unsigned int LabelRegion(int i, int l, int change);  /** help to erase the
-                                                         small region. */
+  unsigned int
+  LabelRegion(int i, int l, int change); /** help to erase the
+                                           small region. */
 
-  void  RegionEraser();                       /** erase the small region. */
+  void
+  RegionEraser(); /** erase the small region. */
 
-  void  GenerateMediumImage();                /** create the intermedium image.
-                                                */
+  void
+  GenerateMediumImage(); /** create the intermedium image.
+                          */
 
-  void  GreyScalarBoundary(LabelledImageIndexType Index3D); /** calculate H_1.
-                                                              */
+  void
+  GreyScalarBoundary(LabelledImageIndexType Index3D); /** calculate H_1.
+                                                       */
 
-  double m_ObjectThreshold;
+  double m_ObjectThreshold{ 5.0 };
 };
 } // end namespace itk
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRGBGibbsPriorFilter.hxx"
+#  include "itkRGBGibbsPriorFilter.hxx"
 #endif
 #endif

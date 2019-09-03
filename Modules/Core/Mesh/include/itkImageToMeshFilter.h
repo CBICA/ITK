@@ -32,67 +32,73 @@ namespace itk
  * \ingroup ImageFilters
  * \ingroup ITKMesh
  */
-template< typename TInputImage, typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT ImageToMeshFilter:public MeshSource< TOutputMesh >
+template <typename TInputImage, typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT ImageToMeshFilter : public MeshSource<TOutputMesh>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageToMeshFilter          Self;
-  typedef MeshSource< TOutputMesh >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToMeshFilter);
+
+  /** Standard class type aliases. */
+  using Self = ImageToMeshFilter;
+  using Superclass = MeshSource<TOutputMesh>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToMeshFilter, MeshSource);
 
   /** Create a valid output. */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  DataObject::Pointer  MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObject::Pointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
 
-  /** Some Image related typedefs. */
-  typedef   TInputImage                           InputImageType;
-  typedef   typename InputImageType::Pointer      InputImagePointer;
-  typedef   typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef   typename InputImageType::RegionType   InputImageRegionType;
-  typedef   typename InputImageType::PixelType    InputImagePixelType;
+  /** Some Image related type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
-  /** Some Mesh related typedefs. */
-  typedef   TOutputMesh                      OutputMeshType;
-  typedef   typename OutputMeshType::Pointer OutputMeshPointer;
+  /** Some Mesh related type alias. */
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
 
   /** Set the input image of this process object.  */
   using Superclass::SetInput;
-  void SetInput(unsigned int idx, const InputImageType *input);
-  void SetInput(const InputImageType *input)
-    {
+  void
+  SetInput(unsigned int idx, const InputImageType * input);
+  void
+  SetInput(const InputImageType * input)
+  {
     this->SetInput(0, input);
-    }
+  }
 
   /** Get the input image of this process object.  */
-  const InputImageType * GetInput(unsigned int idx);
-  const InputImageType * GetInput()
-    {
+  const InputImageType *
+  GetInput(unsigned int idx);
+  const InputImageType *
+  GetInput()
+  {
     return this->GetInput(0);
-    }
+  }
 
   /** Get the output Mesh of this process object.  */
-  OutputMeshType * GetOutput();
+  OutputMeshType *
+  GetOutput();
 
   /** Prepare the output */
-  void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 protected:
   ImageToMeshFilter();
-  ~ImageToMeshFilter() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToMeshFilter);
+  ~ImageToMeshFilter() override = default;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToMeshFilter.hxx"
+#  include "itkImageToMeshFilter.hxx"
 #endif
 
 #endif

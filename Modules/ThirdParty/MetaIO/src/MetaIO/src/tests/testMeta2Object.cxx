@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <fstream>
-#include <ctype.h>
+#include <iostream>
+#include <cstdlib>
 
 #include <metaObject.h>
 
@@ -61,31 +60,39 @@ int main(int, char * [])
   char* name = static_cast<char*>(tObj.GetUserField("MyName"));
   if(strcmp(name,"Julien"))
   {
-    METAIO_STREAM::cout << "MyName: FAIL" << METAIO_STREAM::endl;
-    return 0;
+    std::cout << "MyName: FAIL" << std::endl;
+    return EXIT_FAILURE;
   }
 
-  int* array = static_cast<int*>(tObj.GetUserField("MyArray"));
+  delete[] name;
 
+  int* array = static_cast<int*>(tObj.GetUserField("MyArray"));
   for(i=0;i<3;i++)
   {
     if(array[i] != i+1)
     {
-      METAIO_STREAM::cout << "MyArray: FAIL" << METAIO_STREAM::endl;
-      return 0;
+      std::cout << "MyArray: FAIL" << std::endl;
+      delete[] array;
+      return EXIT_FAILURE;
     }
   }
+
+  delete[] array;
 
   float* matrix = static_cast<float*>(tObj.GetUserField("MyMatrix"));
   for(i=0; i<4; i++)
   {
     if(matrix[i] != i)
     {
-      METAIO_STREAM::cout << "MyMatrix: FAIL" << METAIO_STREAM::endl;
+      std::cout << "MyMatrix: FAIL" << std::endl;
+      delete[] matrix;
+      return EXIT_FAILURE;
     }
   }
 
-  METAIO_STREAM::cout << "PASSED!" << METAIO_STREAM::endl;
+  delete[] matrix;
+
+  std::cout << "PASSED!" << std::endl;
 
   tObj.Clear();
   tObj.ClearUserFields();
@@ -102,31 +109,68 @@ int main(int, char * [])
   tObj.PrintInfo();
   if(tObj.NDims() != 2)
     {
-    METAIO_STREAM::cout << "NDims: FAIL" << METAIO_STREAM::endl;
+    std::cout << "NDims: FAIL" << std::endl;
+    return EXIT_FAILURE;
     }
   else
     {
-    METAIO_STREAM::cout << "NDims: PASS" << METAIO_STREAM::endl;
+    std::cout << "NDims: PASS" << std::endl;
     }
 
   int zero = 0;
   if(tObj.Position(zero) != 4)
     {
-    METAIO_STREAM::cout << "Position: FAIL :" << tObj.Position(zero) << METAIO_STREAM::endl;
+    std::cout << "Position: FAIL :" << tObj.Position(zero) << std::endl;
+    return EXIT_FAILURE;
     }
   else
     {
-    METAIO_STREAM::cout << "Position: PASS" << METAIO_STREAM::endl;
+    std::cout << "Position: PASS" << std::endl;
     }
 
   if(tObj.ElementSpacing(zero) != 2)
     {
-    METAIO_STREAM::cout << "ElementSpacing: FAIL: " << tObj.ElementSpacing(zero) << METAIO_STREAM::endl;
+    std::cout << "ElementSpacing: FAIL: " << tObj.ElementSpacing(zero) << std::endl;
+    return EXIT_FAILURE;
     }
   else
     {
-    METAIO_STREAM::cout << "ElementSpacing: PASS" << METAIO_STREAM::endl;
+    std::cout << "ElementSpacing: PASS" << std::endl;
     }
 
-  return 1;
+  auto * inDataChar = new char[1];
+  inDataChar[0]=1;
+  auto * outDataChar = new char[1];
+  if(!MET_ValueToValue(MET_CHAR_ARRAY,inDataChar,0,MET_CHAR_ARRAY,outDataChar))
+    {
+    std::cout << "MET_ValueToValue: FAIL" << std::endl;
+    return EXIT_FAILURE;
+    }
+  else
+    {
+    std::cout << "outDataChar = " << static_cast<int>(outDataChar[0]) << std::endl;
+    }
+
+  delete[] inDataChar;
+  delete[] outDataChar;
+
+  auto * inDataUChar = new unsigned char[1];
+  inDataUChar[0]=1;
+  auto * outDataUChar = new unsigned char[1];
+  if(!MET_ValueToValue(MET_UCHAR_ARRAY,inDataUChar,0,MET_UCHAR_ARRAY,outDataUChar))
+    {
+    std::cout << "MET_ValueToValue: FAIL" << std::endl;
+    return EXIT_FAILURE;
+    }
+  else
+    {
+    std::cout << "outDataUChar = " << static_cast<int>(outDataUChar[0]) << std::endl;
+    }
+
+  delete[] inDataUChar;
+  delete[] outDataUChar;
+
+
+  std::cout << "[DONE]" << std::endl;
+  return EXIT_SUCCESS;
   }

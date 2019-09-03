@@ -18,55 +18,69 @@
 #ifndef itkTransformIOFactory_h
 #define itkTransformIOFactory_h
 
-#include "ITKIOTransformBaseExport.h"
-
 #include "itkObject.h"
 #include "itkTransformIOBase.h"
+#include "ITKIOTransformBaseExport.h"
 
 namespace itk
 {
 
-/** Mode in which the files is intended to be used */
-typedef enum { ReadMode, WriteMode } TransformIOFactoryFileModeType;
+/** \class TransformIOFactorFileModeType
+ * \ingroup ITKIOTransformBase
+ * Mode in which the files is intended to be used */
+enum class TransformIOFactoryFileModeType : uint8_t
+{
+  ReadMode,
+  WriteMode
+};
+#if !defined(ITK_LEGACY_REMOVE)
+// We need to expose the enum values at the class level
+// for backwards compatibility
+static constexpr TransformIOFactoryFileModeType ReadMode = TransformIOFactoryFileModeType::ReadMode;
+static constexpr TransformIOFactoryFileModeType WriteMode = TransformIOFactoryFileModeType::WriteMode;
+#endif
+
+// Define how to print enumeration
+extern ITKIOTransformBase_EXPORT std::ostream &
+                                 operator<<(std::ostream & out, const TransformIOFactoryFileModeType value);
 
 /** \class TransformIOFactoryTemplate
  * \brief Create instances of TransformIO objects using an object factory.
  * \ingroup ITKIOTransformBase
  */
-template<typename TParametersValueType>
-class ITK_TEMPLATE_EXPORT TransformIOFactoryTemplate:public Object
+template <typename TParametersValueType>
+class ITK_TEMPLATE_EXPORT TransformIOFactoryTemplate : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef TransformIOFactoryTemplate Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer<Self>         Pointer;
-  typedef SmartPointer<const Self>   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TransformIOFactoryTemplate);
+
+  /** Standard class type aliases. */
+  using Self = TransformIOFactoryTemplate;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class Methods used to interface with the registered factories */
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(TransformIOFactoryTemplate, Object);
 
-  /** Convenient typedefs. */
-  typedef typename TransformIOBaseTemplate<TParametersValueType>::Pointer TransformIOBasePointer;
+  /** Convenient type alias. */
+  using TransformIOBasePointer = typename TransformIOBaseTemplate<TParametersValueType>::Pointer;
 
   /** Create the appropriate TransformIO depending on
    *  the particulars of the file.
    */
   static TransformIOBasePointer
-  CreateTransformIO(const char *path, TransformIOFactoryFileModeType mode);
+  CreateTransformIO(const char * path, TransformIOFactoryFileModeType mode);
 
 protected:
   TransformIOFactoryTemplate();
-  virtual ~TransformIOFactoryTemplate() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TransformIOFactoryTemplate);
+  ~TransformIOFactoryTemplate() override;
 };
 
 /** This helps to meet backward compatibility */
-typedef TransformIOFactoryTemplate<double> TransformIOFactory;
+using TransformIOFactory = TransformIOFactoryTemplate<double>;
 
 } // end namespace itk
 
@@ -84,30 +98,24 @@ typedef TransformIOFactoryTemplate<double> TransformIOFactory;
 //            need to be considered. This code *MUST* be *OUTSIDE* the header
 //            guards.
 //
-#  if defined( ITKIOTransformBase_EXPORTS )
+#if defined(ITKIOTransformBase_EXPORTS)
 //   We are building this library
-#    define ITKIOTransformBase_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
-#  else
+#  define ITKIOTransformBase_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
+#else
 //   We are using this library
-#    define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_EXPORT
-#  endif
+#  define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_EXPORT
+#endif
 namespace itk
 {
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
 
-extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformIOFactoryTemplate< double >;
-extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformIOFactoryTemplate< float >;
+extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformIOFactoryTemplate<double>;
+extern template class ITKIOTransformBase_EXPORT_EXPLICIT TransformIOFactoryTemplate<float>;
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+ITK_GCC_PRAGMA_DIAG_POP()
 
 } // end namespace itk
-#  undef ITKIOTransformBase_EXPORT_EXPLICIT
+#undef ITKIOTransformBase_EXPORT_EXPLICIT
 #endif

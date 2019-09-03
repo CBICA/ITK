@@ -33,24 +33,20 @@ namespace itk
 {
 StimulateImageIOFactory::StimulateImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkStimulateImageIO",
-                          "Stimulate Image IO",
-                          1,
-                          CreateObjectFunction< StimulateImageIO >::New() );
+  this->RegisterOverride(
+    "itkImageIOBase", "itkStimulateImageIO", "Stimulate Image IO", true, CreateObjectFunction<StimulateImageIO>::New());
 }
 
-StimulateImageIOFactory::~StimulateImageIOFactory()
-{}
+StimulateImageIOFactory::~StimulateImageIOFactory() = default;
 
 const char *
-StimulateImageIOFactory::GetITKSourceVersion(void) const
+StimulateImageIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
 
 const char *
-StimulateImageIOFactory::GetDescription(void) const
+StimulateImageIOFactory::GetDescription() const
 {
   return "Stimulate ImageIO Factory, allows the loading of Stimulate images into ITK";
 }
@@ -60,13 +56,14 @@ StimulateImageIOFactory::GetDescription(void) const
 
 static bool StimulateImageIOFactoryHasBeenRegistered;
 
-void ITKIOStimulate_EXPORT StimulateImageIOFactoryRegister__Private(void)
+void ITKIOStimulate_EXPORT
+     StimulateImageIOFactoryRegister__Private()
 {
-  if( ! StimulateImageIOFactoryHasBeenRegistered )
-    {
+  if (!StimulateImageIOFactoryHasBeenRegistered)
+  {
     StimulateImageIOFactoryHasBeenRegistered = true;
     StimulateImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

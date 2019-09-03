@@ -19,16 +19,19 @@
 #include "itkDataObject.h"
 #include "itkRealTimeClock.h"
 
-namespace itk {
+namespace itk
+{
 
 class DataObjectTestHelper : public DataObject
 {
 public:
-  /** Standard typedefs. */
-  typedef DataObjectTestHelper       Self;
-  typedef DataObject                 Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DataObjectTestHelper);
+
+  /** Standard type alias. */
+  using Self = DataObjectTestHelper;
+  using Superclass = DataObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -37,21 +40,19 @@ public:
   itkTypeMacro(DataObjectTestHelper, DataObject);
 
 protected:
-  DataObjectTestHelper() {}
-  ~DataObjectTestHelper() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-    {
-    this->Superclass::PrintSelf( os, indent );
-    }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DataObjectTestHelper);
-
+  DataObjectTestHelper() = default;
+  ~DataObjectTestHelper() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    this->Superclass::PrintSelf(os, indent);
+  }
 };
 
-}
+} // namespace itk
 
-int itkDataObjectTest( int , char * [] )
+int
+itkDataObjectTest(int, char *[])
 {
   itk::DataObjectTestHelper::Pointer dataObject = itk::DataObjectTestHelper::New();
 
@@ -59,9 +60,9 @@ int itkDataObjectTest( int , char * [] )
   dataObject->SetRealTimeStamp(clock->GetRealTimeStamp());
   itk::RealTimeStamp timeStamp = dataObject->GetRealTimeStamp();
   dataObject->DataHasBeenGenerated();
-  if( timeStamp != dataObject->GetRealTimeStamp() )
-    {
+  if (timeStamp != dataObject->GetRealTimeStamp())
+  {
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

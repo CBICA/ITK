@@ -21,7 +21,7 @@
 
 #include "itkObject.h"
 #include "itkHeavisideStepFunctionBase.h"
-#include "itksys/hash_set.hxx"
+#include <unordered_set>
 
 namespace itk
 {
@@ -44,153 +44,156 @@ namespace itk
  *
  *  \ingroup ITKLevelSetsv4
  */
-template< typename TInputImage, // Input image
-          typename TLevelSetContainer >
+template <typename TInputImage, // Input image
+          typename TLevelSetContainer>
 class ITK_TEMPLATE_EXPORT LevelSetEquationTermBase : public Object
 {
 public:
-  typedef LevelSetEquationTermBase   Self;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef Object                     Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationTermBase);
+
+  using Self = LevelSetEquationTermBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = Object;
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationTermBase, Object );
+  itkTypeMacro(LevelSetEquationTermBase, Object);
 
-  typedef TInputImage                                     InputImageType;
-  typedef typename InputImageType::Pointer                InputImagePointer;
-  typedef typename InputImageType::PixelType              InputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType
-                                                          InputPixelRealType;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputPixelType = typename InputImageType::PixelType;
+  using InputPixelRealType = typename NumericTraits<InputPixelType>::RealType;
 
   /** Level-set function container type */
-  typedef TLevelSetContainer                              LevelSetContainerType;
-  typedef typename LevelSetContainerType::LevelSetIdentifierType
-                                                          LevelSetIdentifierType;
-  typedef typename LevelSetContainerType::Pointer         LevelSetContainerPointer;
-  typedef typename LevelSetContainerType::LevelSetType    LevelSetType;
-  typedef typename LevelSetContainerType::LevelSetPointer LevelSetPointer;
-  typedef typename LevelSetContainerType::OutputType      LevelSetOutputPixelType;
-  typedef typename LevelSetContainerType::OutputRealType  LevelSetOutputRealType;
-  typedef typename LevelSetContainerType::InputIndexType  LevelSetInputIndexType;
-  typedef typename LevelSetContainerType::GradientType    LevelSetGradientType;
-  typedef typename LevelSetContainerType::HessianType     LevelSetHessianType;
-  typedef typename LevelSetContainerType::LevelSetDataType
-                                                          LevelSetDataType;
+  using LevelSetContainerType = TLevelSetContainer;
+  using LevelSetIdentifierType = typename LevelSetContainerType::LevelSetIdentifierType;
+  using LevelSetContainerPointer = typename LevelSetContainerType::Pointer;
+  using LevelSetType = typename LevelSetContainerType::LevelSetType;
+  using LevelSetPointer = typename LevelSetContainerType::LevelSetPointer;
+  using LevelSetOutputPixelType = typename LevelSetContainerType::OutputType;
+  using LevelSetOutputRealType = typename LevelSetContainerType::OutputRealType;
+  using LevelSetInputIndexType = typename LevelSetContainerType::InputIndexType;
+  using LevelSetGradientType = typename LevelSetContainerType::GradientType;
+  using LevelSetHessianType = typename LevelSetContainerType::HessianType;
+  using LevelSetDataType = typename LevelSetContainerType::LevelSetDataType;
 
-  typedef typename LevelSetContainerType::DomainMapImageFilterType  DomainMapImageFilterType;
-  typedef typename LevelSetContainerType::CacheImageType            CacheImageType;
+  using DomainMapImageFilterType = typename LevelSetContainerType::DomainMapImageFilterType;
+  using CacheImageType = typename LevelSetContainerType::CacheImageType;
 
-  typedef HeavisideStepFunctionBase< LevelSetOutputRealType,
-                                     LevelSetOutputRealType >
-                                          HeavisideType;
-//  typedef typename HeavisideType::Pointer HeavisidePointer;
-  typedef typename HeavisideType::ConstPointer HeavisideConstPointer;
+  using HeavisideType = HeavisideStepFunctionBase<LevelSetOutputRealType, LevelSetOutputRealType>;
+  //  using HeavisidePointer = typename HeavisideType::Pointer;
+  using HeavisideConstPointer = typename HeavisideType::ConstPointer;
 
   /** Set/Get the image to be segmented */
-  itkSetObjectMacro( Input, InputImageType );
-  itkGetModifiableObjectMacro(Input, InputImageType );
+  itkSetObjectMacro(Input, InputImageType);
+  itkGetModifiableObjectMacro(Input, InputImageType);
 
-  itkSetMacro( Coefficient, LevelSetOutputRealType );
-  itkGetMacro( Coefficient, LevelSetOutputRealType );
+  itkSetMacro(Coefficient, LevelSetOutputRealType);
+  itkGetMacro(Coefficient, LevelSetOutputRealType);
 
-  itkSetMacro( CurrentLevelSetId, LevelSetIdentifierType );
-  itkGetMacro( CurrentLevelSetId, LevelSetIdentifierType );
+  itkSetMacro(CurrentLevelSetId, LevelSetIdentifierType);
+  itkGetMacro(CurrentLevelSetId, LevelSetIdentifierType);
 
-  itkGetModifiableObjectMacro(CurrentLevelSetPointer, LevelSetType );
+  itkGetModifiableObjectMacro(CurrentLevelSetPointer, LevelSetType);
 
-  virtual void SetLevelSetContainer( LevelSetContainerType*ptr );
-  itkGetModifiableObjectMacro(LevelSetContainer, LevelSetContainerType );
+  virtual void
+  SetLevelSetContainer(LevelSetContainerType * ptr);
+  itkGetModifiableObjectMacro(LevelSetContainer, LevelSetContainerType);
 
   /** Returns the weighted term contribution at the given location iP, i.e.
    *  \f$ \alpha_i \cdot \omega_i( p ) \f$
    */
-  virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP );
+  virtual LevelSetOutputRealType
+  Evaluate(const LevelSetInputIndexType & iP);
 
-  virtual LevelSetOutputRealType Evaluate( const LevelSetInputIndexType& iP,
-                                           const LevelSetDataType& iData );
+  virtual LevelSetOutputRealType
+  Evaluate(const LevelSetInputIndexType & iP, const LevelSetDataType & iData);
 
   /** \todo to be documented. */
-  virtual void Initialize( const LevelSetInputIndexType& iP ) = 0;
+  virtual void
+  Initialize(const LevelSetInputIndexType & iP) = 0;
 
   /** Initialize the parameters in the terms prior to an iteration */
-  virtual void InitializeParameters() = 0;
+  virtual void
+  InitializeParameters() = 0;
 
   /** Supply updates at pixels to keep the term parameters always updated */
-  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
-                           const LevelSetOutputRealType & oldValue,
-                           const LevelSetOutputRealType & newValue ) = 0;
+  virtual void
+  UpdatePixel(const LevelSetInputIndexType & iP,
+              const LevelSetOutputRealType & oldValue,
+              const LevelSetOutputRealType & newValue) = 0;
 
   /** Get the CFL contribution for the given term */
-  itkGetConstMacro( CFLContribution, LevelSetOutputRealType );
+  itkGetConstMacro(CFLContribution, LevelSetOutputRealType);
 
   /** Set/Get the term name */
-  itkSetStringMacro( TermName );
-  itkGetStringMacro( TermName );
+  itkSetStringMacro(TermName);
+  itkGetStringMacro(TermName);
 
   /** Update the term parameter values at end of iteration */
-  virtual void Update() = 0;
+  virtual void
+  Update() = 0;
 
-  typedef itksys::hash_set< std::string > RequiredDataType;
+  using RequiredDataType = std::unordered_set<std::string>;
 
-  const RequiredDataType & GetRequiredData() const;
+  const RequiredDataType &
+  GetRequiredData() const;
 
 protected:
   /** Default Constructor */
   LevelSetEquationTermBase();
 
   /** Destructor */
-  virtual ~LevelSetEquationTermBase() ITK_OVERRIDE;
+  ~LevelSetEquationTermBase() override = default;
 
-  void SetUp();
+  void
+  SetUp();
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. This method must be implemented in all
    *  class which inherits from this class.
    */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP ) = 0;
+  virtual LevelSetOutputRealType
+  Value(const LevelSetInputIndexType & iP) = 0;
 
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP,
-                                        const LevelSetDataType& iData ) = 0;
+  virtual LevelSetOutputRealType
+  Value(const LevelSetInputIndexType & iP, const LevelSetDataType & iData) = 0;
 
   /** Input image */
-  InputImagePointer        m_Input;
+  InputImagePointer m_Input;
 
   /** Container of level-set function */
   LevelSetContainerPointer m_LevelSetContainer;
 
   /** Id of the current level-set function */
-  LevelSetIdentifierType   m_CurrentLevelSetId;
+  LevelSetIdentifierType m_CurrentLevelSetId;
 
-  LevelSetPointer          m_CurrentLevelSetPointer;
+  LevelSetPointer m_CurrentLevelSetPointer;
 
   /** Coefficient \f$ \alpha_i \f$ */
-  LevelSetOutputRealType   m_Coefficient;
+  LevelSetOutputRealType m_Coefficient;
 
   /** Contribution to the CFL condition (which will be used to compute the
    *  the time step at the next iteration
    */
-  LevelSetOutputRealType   m_CFLContribution;
+  LevelSetOutputRealType m_CFLContribution;
 
   /** Heaviside function to be used. Depending on the term expression,
    *  this one may need to be provided
    */
-  HeavisideConstPointer         m_Heaviside;
+  HeavisideConstPointer m_Heaviside;
 
   /** Name to be given to the term. Note by default, one name is provided,
    *  but end-users may rename differently each term.
    */
-  std::string               m_TermName;
+  std::string m_TermName;
 
-  RequiredDataType          m_RequiredData;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationTermBase);
+  RequiredDataType m_RequiredData;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetEquationTermBase.hxx"
+#  include "itkLevelSetEquationTermBase.hxx"
 #endif
 
 #endif

@@ -28,14 +28,13 @@ namespace itk
  * If restrictMovement is true, then individual steps are allowed to move
  * through only one dimension at a time; for 2D paths this results in an
  * 8-connected chain code. */
-template< typename TChainCodePath, typename TPathInput >
-void MakeChainCodeTracePath(TChainCodePath & chainPath,
-                            const TPathInput & inPath,
-                            bool restrictMovement = false)
+template <typename TChainCodePath, typename TPathInput>
+void
+MakeChainCodeTracePath(TChainCodePath & chainPath, const TPathInput & inPath, bool restrictMovement = false)
 {
-  typedef typename TChainCodePath::OffsetType OffsetType;
-  typedef typename TChainCodePath::InputType  ChainInputType;
-  typedef typename TPathInput::InputType      InPathInputType;
+  using OffsetType = typename TChainCodePath::OffsetType;
+  using ChainInputType = typename TChainCodePath::InputType;
+  using InPathInputType = typename TPathInput::InputType;
 
   OffsetType      offset, tempOffset, zeroOffset;
   InPathInputType inPathInput;
@@ -45,27 +44,30 @@ void MakeChainCodeTracePath(TChainCodePath & chainPath,
 
   chainPath.Clear();
   inPathInput = inPath.StartOfInput();
-  chainPath.SetStart( inPath.EvaluateToIndex(inPathInput) );
+  chainPath.SetStart(inPath.EvaluateToIndex(inPathInput));
 
-  for ( ChainInputType chainInput = 0;; )
+  for (ChainInputType chainInput = 0;;)
+  {
+    offset = inPath.IncrementInput(inPathInput);
+    if (zeroOffset == offset)
     {
-    offset  = inPath.IncrementInput(inPathInput);
-    if ( zeroOffset == offset ) { break; }
+      break;
+    }
 
-    if ( !restrictMovement )
-      {
+    if (!restrictMovement)
+    {
       chainPath.InsertStep(chainInput++, offset);
-      }
+    }
     else
+    {
+      for (int d = 0; d < dimension; d++)
       {
-      for ( int d = 0; d < dimension; d++ )
-        {
         tempOffset.Fill(0);
         tempOffset[d] = offset[d];
         chainPath.InsertStep(chainInput++, tempOffset);
-        }
       }
     }
+  }
 }
 
 /** Make a Fourier series path trace a chain code path of same dimensionality.
@@ -74,62 +76,63 @@ void MakeChainCodeTracePath(TChainCodePath & chainPath,
  * calculate numHarmonics (due to the Nyquist criterion), then as many harmonics
  * as possible (chainPath->NumberOfSteps()/2) will be calculated.  No fewer than
  * 2 harmonics will be calcualted. */
-template< typename TFourierSeriesPath, typename TChainCodePath >
-void MakeFourierSeriesPathTraceChainCode(TFourierSeriesPath & FSPath,
-                                         const TChainCodePath & chainPath,
-                                         unsigned int numHarmonics = 8)
+template <typename TFourierSeriesPath, typename TChainCodePath>
+void
+MakeFourierSeriesPathTraceChainCode(TFourierSeriesPath &   FSPath,
+                                    const TChainCodePath & chainPath,
+                                    unsigned int           numHarmonics = 8)
 {
-  typedef typename TFourierSeriesPath::IndexType  IndexType;
-  typedef typename TFourierSeriesPath::OffsetType OffsetType;
-  typedef typename TFourierSeriesPath::VectorType VectorType;
+  using IndexType = typename TFourierSeriesPath::IndexType;
+  using OffsetType = typename TFourierSeriesPath::OffsetType;
+  using VectorType = typename TFourierSeriesPath::VectorType;
 
-  typedef typename TFourierSeriesPath::InputType  FSInputType;
-  typedef typename TChainCodePath::InputType      ChainInputType;
+  using FSInputType = typename TFourierSeriesPath::InputType;
+  using ChainInputType = typename TChainCodePath::InputType;
 
   IndexType   index;
   VectorType  indexVector;
   VectorType  cosCoefficient;
   VectorType  sinCoefficient;
   FSInputType theta;
-  int         dimension =     OffsetType::GetOffsetDimension();
-  size_t      numSteps  =     chainPath.NumberOfSteps();
+  int         dimension = OffsetType::GetOffsetDimension();
+  size_t      numSteps = chainPath.NumberOfSteps();
 
   const double PI = 4.0 * std::atan(1.0);
 
   FSPath.Clear();
 
   // Adjust our private copy of numHarmonics if necessary
-  if ( numHarmonics <= 1 )
-    {
+  if (numHarmonics <= 1)
+  {
     numHarmonics = 2;
-    }
-  else if ( numHarmonics * 2 > numSteps )
-    {
+  }
+  else if (numHarmonics * 2 > numSteps)
+  {
     numHarmonics = numSteps / 2;
-    }
+  }
 
-  for ( unsigned n = 0; n < numHarmonics; n++ )
-    {
+  for (unsigned n = 0; n < numHarmonics; n++)
+  {
     index = chainPath.GetStart();
     cosCoefficient.Fill(0.0);
     sinCoefficient.Fill(0.0);
 
-    for ( ChainInputType step = 0; step < numSteps; step++ )
-      {
+    for (ChainInputType step = 0; step < numSteps; step++)
+    {
       index += chainPath.Evaluate(step);
-      theta = 2 * n * PI * ( double(step + 1) ) / numSteps;
+      theta = 2 * n * PI * (double(step + 1)) / numSteps;
 
       // turn the current index into a vector
-      for ( int d = 0; d < dimension; d++ )
-        {
+      for (int d = 0; d < dimension; d++)
+      {
         indexVector[d] = index[d];
-        }
-      cosCoefficient += indexVector * ( std::cos(theta) / numSteps );
-      sinCoefficient += indexVector * ( std::sin(theta) / numSteps );
       }
+      cosCoefficient += indexVector * (std::cos(theta) / numSteps);
+      sinCoefficient += indexVector * (std::sin(theta) / numSteps);
+    }
 
     FSPath.AddHarmonic(cosCoefficient, sinCoefficient);
-    }
+  }
 }
 } // end namespace itk
 

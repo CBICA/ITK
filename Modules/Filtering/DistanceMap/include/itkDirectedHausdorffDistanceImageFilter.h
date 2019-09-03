@@ -68,16 +68,17 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup ITKDistanceMap
  */
-template< typename TInputImage1, typename TInputImage2 >
-class ITK_TEMPLATE_EXPORT DirectedHausdorffDistanceImageFilter:
-  public ImageToImageFilter< TInputImage1, TInputImage1 >
+template <typename TInputImage1, typename TInputImage2>
+class ITK_TEMPLATE_EXPORT DirectedHausdorffDistanceImageFilter : public ImageToImageFilter<TInputImage1, TInputImage1>
 {
 public:
-  /** Standard Self typedef */
-  typedef DirectedHausdorffDistanceImageFilter             Self;
-  typedef ImageToImageFilter< TInputImage1, TInputImage1 > Superclass;
-  typedef SmartPointer< Self >                             Pointer;
-  typedef SmartPointer< const Self >                       ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DirectedHausdorffDistanceImageFilter);
+
+  /** Standard Self type alias */
+  using Self = DirectedHausdorffDistanceImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage1, TInputImage1>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -85,43 +86,46 @@ public:
   /** Runtime information support. */
   itkTypeMacro(DirectedHausdorffDistanceImageFilter, ImageToImageFilter);
 
-  /** Image related typedefs. */
-  typedef TInputImage1                        InputImage1Type;
-  typedef TInputImage2                        InputImage2Type;
-  typedef typename TInputImage1::Pointer      InputImage1Pointer;
-  typedef typename TInputImage2::Pointer      InputImage2Pointer;
-  typedef typename TInputImage1::ConstPointer InputImage1ConstPointer;
-  typedef typename TInputImage2::ConstPointer InputImage2ConstPointer;
+  /** Image related type alias. */
+  using InputImage1Type = TInputImage1;
+  using InputImage2Type = TInputImage2;
+  using InputImage1Pointer = typename TInputImage1::Pointer;
+  using InputImage2Pointer = typename TInputImage2::Pointer;
+  using InputImage1ConstPointer = typename TInputImage1::ConstPointer;
+  using InputImage2ConstPointer = typename TInputImage2::ConstPointer;
 
-  typedef typename TInputImage1::RegionType RegionType;
-  typedef typename TInputImage1::SizeType   SizeType;
-  typedef typename TInputImage1::IndexType  IndexType;
+  using RegionType = typename TInputImage1::RegionType;
+  using SizeType = typename TInputImage1::SizeType;
+  using IndexType = typename TInputImage1::IndexType;
 
-  typedef typename TInputImage1::PixelType InputImage1PixelType;
-  typedef typename TInputImage2::PixelType InputImage2PixelType;
+  using InputImage1PixelType = typename TInputImage1::PixelType;
+  using InputImage2PixelType = typename TInputImage2::PixelType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage1::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage1::ImageDimension;
 
   /** Type to use form computations. */
-  typedef typename NumericTraits< InputImage1PixelType >::RealType RealType;
+  using RealType = typename NumericTraits<InputImage1PixelType>::RealType;
 
   /** Set the first input. */
-  void SetInput1(const InputImage1Type *image);
+  void
+  SetInput1(const InputImage1Type * image);
 
   /** Set the second input. */
-  void SetInput2(const InputImage2Type *image);
+  void
+  SetInput2(const InputImage2Type * image);
 
   /** Get the first input. */
-  const InputImage1Type * GetInput1();
+  const InputImage1Type *
+  GetInput1();
 
   /** Get the second input. */
-  const InputImage2Type * GetInput2();
+  const InputImage2Type *
+  GetInput2();
 
   /** Set if image spacing should be used in computing distances. */
   itkSetMacro(UseImageSpacing, bool);
-  itkGetConstMacro( UseImageSpacing, bool );
+  itkGetConstMacro(UseImageSpacing, bool);
 
   /** Return the computed directed Hausdorff distance. */
   itkGetConstMacro(DirectedHausdorffDistance, RealType);
@@ -129,61 +133,69 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputImage1PixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputImage1PixelType>));
   // End concept checking
 #endif
 
 protected:
   DirectedHausdorffDistanceImageFilter();
-  ~DirectedHausdorffDistanceImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DirectedHausdorffDistanceImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Pass the input through unmodified. Do this by Grafting in the
    * AllocateOutputs method. */
-  void AllocateOutputs() ITK_OVERRIDE;
+  void
+  AllocateOutputs() override;
 
   /** Initialize some accumulators before the threads run. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /** Do final mean and variance computation from data accumulated in threads.
-    */
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+   */
+  void
+  AfterThreadedGenerateData() override;
 
   /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const RegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  ThreadedGenerateData(const RegionType & outputRegionForThread, ThreadIdType threadId) override;
+
+  void
+  DynamicThreadedGenerateData(const RegionType &) override
+  {
+    itkExceptionMacro("This class requires threadId so it must use classic multi-threading model");
+  }
 
   // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   // Override since the filter produces all of its output
-  void EnlargeOutputRequestedRegion(DataObject *data) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * data) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DirectedHausdorffDistanceImageFilter);
-
-  typedef Image< RealType, itkGetStaticConstMacro(ImageDimension) > DistanceMapType;
-  typedef typename DistanceMapType::Pointer                         DistanceMapPointer;
+  using DistanceMapType = Image<RealType, Self::ImageDimension>;
+  using DistanceMapPointer = typename DistanceMapType::Pointer;
 
 
-  DistanceMapPointer      m_DistanceMap;
+  DistanceMapPointer m_DistanceMap;
 
-  Array< RealType >       m_MaxDistance;
-  Array< IdentifierType > m_PixelCount;
+  Array<RealType>       m_MaxDistance;
+  Array<IdentifierType> m_PixelCount;
 
-  typedef itk::CompensatedSummation< RealType > CompensatedSummationType;
-  std::vector< CompensatedSummationType >       m_Sum;
+  using CompensatedSummationType = itk::CompensatedSummation<RealType>;
+  std::vector<CompensatedSummationType> m_Sum;
 
-  RealType                m_DirectedHausdorffDistance;
-  RealType                m_AverageHausdorffDistance;
-  bool                    m_UseImageSpacing;
+  RealType m_DirectedHausdorffDistance;
+  RealType m_AverageHausdorffDistance;
+  bool     m_UseImageSpacing;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDirectedHausdorffDistanceImageFilter.hxx"
+#  include "itkDirectedHausdorffDistanceImageFilter.hxx"
 #endif
 
 #endif

@@ -45,44 +45,44 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< unsigned int VDimension = 3, typename TInput = Point< double, VDimension > >
-class ITK_TEMPLATE_EXPORT InteriorExteriorSpatialFunction:public
-  SpatialFunction< bool, VDimension, TInput >
+template <unsigned int VDimension = 3, typename TInput = Point<double, VDimension>>
+class ITK_TEMPLATE_EXPORT InteriorExteriorSpatialFunction : public SpatialFunction<bool, VDimension, TInput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef InteriorExteriorSpatialFunction             Self;
-  typedef SpatialFunction< bool, VDimension, TInput > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(InteriorExteriorSpatialFunction);
+
+  /** Standard class type aliases. */
+  using Self = InteriorExteriorSpatialFunction;
+  using Superclass = SpatialFunction<bool, VDimension, TInput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(InteriorExteriorSpatialFunction, SpatialFunction);
 
   /** Input type for the function */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Evaluate the function at a given position.
    * A return of 1 means inside or on the surface of the function,
    * 0 means outside the function
    * The actual definition of inside/outside is left up to the subclass */
-  virtual OutputType Evaluate(const InputType & input) const ITK_OVERRIDE = 0;
+  OutputType
+  Evaluate(const InputType & input) const override = 0;
 
 protected:
-  InteriorExteriorSpatialFunction();
-  virtual ~InteriorExteriorSpatialFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(InteriorExteriorSpatialFunction);
+  InteriorExteriorSpatialFunction() = default;
+  ~InteriorExteriorSpatialFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkInteriorExteriorSpatialFunction.hxx"
+#  include "itkInteriorExteriorSpatialFunction.hxx"
 #endif
 
 #endif

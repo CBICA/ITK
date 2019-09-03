@@ -24,15 +24,16 @@
 #include "itkFileListVideoIO.h"
 #include "itkImageFileReader.h"
 #include "itkImageRegionConstIterator.h"
+#include "itkTestingMacros.h"
 
-// typedefs
-const unsigned int Dimension =                      2;
-typedef unsigned char                               PixelType;
-typedef itk::Image< PixelType, Dimension >          FrameType;
-typedef itk::VideoStream< FrameType >               VideoType;
-typedef itk::DecimateFramesVideoFilter< VideoType > FilterType;
-typedef itk::VideoFileReader< VideoType >           ReaderType;
-typedef itk::VideoFileWriter< VideoType >           WriterType;
+// type alias
+constexpr unsigned int Dimension = 2;
+using PixelType = unsigned char;
+using FrameType = itk::Image<PixelType, Dimension>;
+using VideoType = itk::VideoStream<FrameType>;
+using FilterType = itk::DecimateFramesVideoFilter<VideoType>;
+using ReaderType = itk::VideoFileReader<VideoType>;
+using WriterType = itk::VideoFileWriter<VideoType>;
 
 namespace itk
 {
@@ -42,43 +43,46 @@ namespace DecimateFramesVideoFilterTest
 /**
  * Compare two images pixel by pixel
  */
-bool FramesAreEqual(const FrameType* f1, const FrameType* f2)
+bool
+FramesAreEqual(const FrameType * f1, const FrameType * f2)
 {
-  typedef ImageRegionConstIterator<FrameType> IterType;
+  using IterType = ImageRegionConstIterator<FrameType>;
   IterType it1(f1, f1->GetLargestPossibleRegion());
   IterType it2(f2, f2->GetLargestPossibleRegion());
 
   while (!it1.IsAtEnd())
-    {
+  {
     if (it1.Get() != it2.Get())
-      {
+    {
       return false;
-      }
+    }
     ++it1;
     ++it2;
-    }
+  }
 
   return true;
 }
 
-}
-}
+} // namespace DecimateFramesVideoFilterTest
+} // namespace itk
 
 
 /**
  * Main test
  */
-int itkDecimateFramesVideoFilterTest( int argc, char* argv[] )
+int
+itkDecimateFramesVideoFilterTest(int argc, char * argv[])
 {
 
   //////
   // Check Arguments
   //////
   if (argc < 3)
-    {
-    std::cout << "Usage: " << argv[0] << " input_file_string output_file_string" << std::endl;
+  {
+    std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " input_file_string output_file_string"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //////
   // Set up pipeline
@@ -106,10 +110,10 @@ int itkDecimateFramesVideoFilterTest( int argc, char* argv[] )
   //////
 
   // Register FileListIO with the factory -- shouldn't have to do this. Needs fixing
-  itk::ObjectFactoryBase::RegisterFactory( itk::FileListVideoIOFactory::New() );
+  itk::ObjectFactoryBase::RegisterFactory(itk::FileListVideoIOFactory::New());
 
   // For the sake of debugging output, just use one thread
-  filter->SetNumberOfThreads(1);
+  filter->SetNumberOfWorkUnits(1);
 
   // Update the writer to run everything
   writer->Update();
@@ -125,7 +129,7 @@ int itkDecimateFramesVideoFilterTest( int argc, char* argv[] )
 
   // Set up two readers to read in the frames that should have been written and
   // compare against those that actually were
-  typedef itk::ImageFileReader<FrameType> FrameReaderType;
+  using FrameReaderType = itk::ImageFileReader<FrameType>;
   FrameReaderType::Pointer inputFrameReader = FrameReaderType::New();
   FrameReaderType::Pointer outputFrameReader = FrameReaderType::New();
 
@@ -134,24 +138,24 @@ int itkDecimateFramesVideoFilterTest( int argc, char* argv[] )
   inputFrameReader->Update();
   outputFrameReader->SetFileName(outputFiles[0]);
   outputFrameReader->Update();
-  if (!itk::DecimateFramesVideoFilterTest::FramesAreEqual(
-        inputFrameReader->GetOutput(), outputFrameReader->GetOutput()))
-    {
+  if (!itk::DecimateFramesVideoFilterTest::FramesAreEqual(inputFrameReader->GetOutput(),
+                                                          outputFrameReader->GetOutput()))
+  {
     std::cerr << "Input frame 0 and output frame 0 don't match" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Compare input frame 3 and output frame 1
   inputFrameReader->SetFileName(inputFiles[3]);
   inputFrameReader->Update();
   outputFrameReader->SetFileName(outputFiles[1]);
   outputFrameReader->Update();
-  if (!itk::DecimateFramesVideoFilterTest::FramesAreEqual(
-        inputFrameReader->GetOutput(), outputFrameReader->GetOutput()))
-    {
+  if (!itk::DecimateFramesVideoFilterTest::FramesAreEqual(inputFrameReader->GetOutput(),
+                                                          outputFrameReader->GetOutput()))
+  {
     std::cerr << "Input frame 3 and output frame 1 don't match" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //////
   // Return successfully

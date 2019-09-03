@@ -38,91 +38,98 @@ namespace itk
  * \ingroup FiniteDifferenceFunctions
  * \ingroup ITKCurvatureFlow
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT MinMaxCurvatureFlowFunction:
-  public CurvatureFlowFunction< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT MinMaxCurvatureFlowFunction : public CurvatureFlowFunction<TImage>
 {
 public:
-  /**  Standard class typedefs. */
-  typedef MinMaxCurvatureFlowFunction     Self;
-  typedef CurvatureFlowFunction< TImage > Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MinMaxCurvatureFlowFunction);
+
+  /**  Standard class type aliases. */
+  using Self = MinMaxCurvatureFlowFunction;
+  using Superclass = CurvatureFlowFunction<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(MinMaxCurvatureFlowFunction,
-               CurvatureFlowFunction);
+  itkTypeMacro(MinMaxCurvatureFlowFunction, CurvatureFlowFunction);
 
   /** Inherit some parameters from the superclass type. */
-  typedef typename Superclass::ImageType        ImageType;
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::FloatOffsetType  FloatOffsetType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelType = typename Superclass::PixelType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
 
   /** Extract superclass dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Typedef support for the stencil radius. */
-  typedef typename RadiusType::SizeValueType RadiusValueType;
+  using RadiusValueType = typename RadiusType::SizeValueType;
 
   /** Set/Get the stencil radius. */
-  void SetStencilRadius(const RadiusValueType radius);
+  void
+  SetStencilRadius(const RadiusValueType radius);
 
-  const RadiusValueType & GetRadiusValueType() const
-  { return m_StencilRadius; }
+  const RadiusValueType &
+  GetRadiusValueType() const
+  {
+    return m_StencilRadius;
+  }
 
   /** Convenience function for symmetry with SetStencilRadius. */
-  const RadiusValueType & GetStencilRadius() const
-  { return GetRadiusValueType(); }
+  const RadiusValueType &
+  GetStencilRadius() const
+  {
+    return GetRadiusValueType();
+  }
 
   /** This method computes the solution update for each pixel that does not
    * lie on a the data set boundary. */
-  virtual PixelType ComputeUpdate(const NeighborhoodType & neighborhood,
-                                  void *globalData,
-                                  const FloatOffsetType & offset = FloatOffsetType(0.0)
-                                  ) ITK_OVERRIDE;
+  PixelType
+  ComputeUpdate(const NeighborhoodType & neighborhood,
+                void *                   globalData,
+                const FloatOffsetType &  offset = FloatOffsetType(0.0)) override;
 
 protected:
   MinMaxCurvatureFlowFunction();
-  ~MinMaxCurvatureFlowFunction() ITK_OVERRIDE {}
+  ~MinMaxCurvatureFlowFunction() override = default;
 
-  typedef Neighborhood< PixelType, itkGetStaticConstMacro(ImageDimension) > StencilOperatorType;
+  using StencilOperatorType = Neighborhood<PixelType, Self::ImageDimension>;
   StencilOperatorType m_StencilOperator;
 
   /** Initialize the stencil opearator to be an N-Dimensional sphere
    * of radius m_StencilRadius. */
-  void InitializeStencilOperator();
+  void
+  InitializeStencilOperator();
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MinMaxCurvatureFlowFunction);
-
   RadiusValueType m_StencilRadius;
 
   // To control overloaded versions of ComputeThreshold
-  struct DispatchBase {};
-  template< signed int VDimension >
-  struct Dispatch: public DispatchBase {};
+  struct DispatchBase
+  {};
+  template <signed int VDimension>
+  struct Dispatch : public DispatchBase
+  {};
 
   /** This method computes the threshold by averaging the intensity
    *  in direction perpendicular to the image gradient. */
-  PixelType ComputeThreshold(const Dispatch< 2 > &,
-                             const NeighborhoodType & neighborhood) const;
+  PixelType
+  ComputeThreshold(const Dispatch<2> &, const NeighborhoodType & neighborhood) const;
 
-  PixelType ComputeThreshold(const Dispatch< 3 > &,
-                             const NeighborhoodType & neighborhood) const;
+  PixelType
+  ComputeThreshold(const Dispatch<3> &, const NeighborhoodType & neighborhood) const;
 
-  PixelType ComputeThreshold(const DispatchBase &,
-                             const NeighborhoodType & neighborhood) const;
+  PixelType
+  ComputeThreshold(const DispatchBase &, const NeighborhoodType & neighborhood) const;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMinMaxCurvatureFlowFunction.hxx"
+#  include "itkMinMaxCurvatureFlowFunction.hxx"
 #endif
 
 #endif

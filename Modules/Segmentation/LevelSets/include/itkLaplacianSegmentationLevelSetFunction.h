@@ -30,18 +30,19 @@ namespace itk
  * Assumes a strictly POSITIVE feature image
  * \ingroup ITKLevelSets
  */
-template< typename TImageType, typename TFeatureImageType = TImageType >
-class ITK_TEMPLATE_EXPORT LaplacianSegmentationLevelSetFunction:
-  public SegmentationLevelSetFunction< TImageType, TFeatureImageType >
+template <typename TImageType, typename TFeatureImageType = TImageType>
+class ITK_TEMPLATE_EXPORT LaplacianSegmentationLevelSetFunction
+  : public SegmentationLevelSetFunction<TImageType, TFeatureImageType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LaplacianSegmentationLevelSetFunction Self;
-  typedef SegmentationLevelSetFunction< TImageType, TFeatureImageType >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef TFeatureImageType          FeatureImageType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianSegmentationLevelSetFunction);
+
+  /** Standard class type aliases. */
+  using Self = LaplacianSegmentationLevelSetFunction;
+  using Superclass = SegmentationLevelSetFunction<TImageType, TFeatureImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FeatureImageType = TFeatureImageType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -50,24 +51,25 @@ public:
   itkTypeMacro(LaplacianSegmentationLevelSetFunction, SegmentationLevelSetFunction);
 
   /** Extract some parameters from the superclass. */
-  typedef typename Superclass::ImageType         ImageType;
-  typedef typename Superclass::ScalarValueType   ScalarValueType;
-  typedef typename Superclass::FeatureScalarType FeatureScalarType;
-  typedef typename Superclass::RadiusType        RadiusType;
+  using ImageType = typename Superclass::ImageType;
+  using ScalarValueType = typename Superclass::ScalarValueType;
+  using FeatureScalarType = typename Superclass::FeatureScalarType;
+  using RadiusType = typename Superclass::RadiusType;
 
   /** Extract some parameters from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
-  virtual void CalculateSpeedImage() ITK_OVERRIDE;
+  void
+  CalculateSpeedImage() override;
 
-  virtual void Initialize(const RadiusType & r) ITK_OVERRIDE
+  void
+  Initialize(const RadiusType & r) override
   {
     Superclass::Initialize(r);
 
-    this->SetAdvectionWeight(NumericTraits< ScalarValueType >::ZeroValue());
-    this->SetPropagationWeight(-1.0 * NumericTraits< ScalarValueType >::OneValue());
-    this->SetCurvatureWeight(NumericTraits< ScalarValueType >::OneValue());
+    this->SetAdvectionWeight(NumericTraits<ScalarValueType>::ZeroValue());
+    this->SetPropagationWeight(-1.0 * NumericTraits<ScalarValueType>::OneValue());
+    this->SetCurvatureWeight(NumericTraits<ScalarValueType>::OneValue());
   }
 
   /**
@@ -76,16 +78,16 @@ public:
    * otherwise. in fact, SegmentationLevelSetImageFilter tries to set
    * it when SetFeatureScaling is called.
    */
-  void SetAdvectionWeight(const ScalarValueType value) ITK_OVERRIDE
+  void
+  SetAdvectionWeight(const ScalarValueType value) override
   {
-    if ( Math::ExactlyEquals(value, NumericTraits< ScalarValueType >::ZeroValue()) )
-      {
+    if (Math::ExactlyEquals(value, NumericTraits<ScalarValueType>::ZeroValue()))
+    {
       Superclass::SetAdvectionWeight(value);
-      }
+    }
   }
 
 protected:
-
   LaplacianSegmentationLevelSetFunction()
   {
     this->SetAdvectionWeight(0.0);
@@ -93,15 +95,13 @@ protected:
     this->SetCurvatureWeight(1.0);
   }
 
-  virtual ~LaplacianSegmentationLevelSetFunction() ITK_OVERRIDE {}
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianSegmentationLevelSetFunction);
+  ~LaplacianSegmentationLevelSetFunction() override = default;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLaplacianSegmentationLevelSetFunction.hxx"
-#include "itkMath.h"
+#  include "itkLaplacianSegmentationLevelSetFunction.hxx"
+#  include "itkMath.h"
 #endif
 
 #endif

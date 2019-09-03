@@ -43,55 +43,51 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TInputImage >
-class ITK_TEMPLATE_EXPORT BinaryShapeKeepNObjectsImageFilter:
-  public ImageToImageFilter< TInputImage, TInputImage >
+template <typename TInputImage>
+class ITK_TEMPLATE_EXPORT BinaryShapeKeepNObjectsImageFilter : public ImageToImageFilter<TInputImage, TInputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryShapeKeepNObjectsImageFilter             Self;
-  typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryShapeKeepNObjectsImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                            InputImageType;
-  typedef TInputImage                            OutputImageType;
-  typedef typename InputImageType::Pointer       InputImagePointer;
-  typedef typename InputImageType::ConstPointer  InputImageConstPointer;
-  typedef typename InputImageType::RegionType    InputImageRegionType;
-  typedef typename InputImageType::PixelType     InputImagePixelType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
+  /** Standard class type aliases. */
+  using Self = BinaryShapeKeepNObjectsImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TInputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef SizeValueType LabelType;
+  using LabelType = SizeValueType;
 
-  typedef ShapeLabelObject< LabelType, itkGetStaticConstMacro(ImageDimension) >     LabelObjectType;
-  typedef LabelMap< LabelObjectType >                                               LabelMapType;
-  typedef BinaryImageToLabelMapFilter< InputImageType, LabelMapType >               LabelizerType;
-  typedef Image< typename OutputImageType::PixelType, itkGetStaticConstMacro(OutputImageDimension) >
-  ShapeLabelFilterOutput;
-  typedef ShapeLabelMapFilter< LabelMapType, ShapeLabelFilterOutput >  LabelObjectValuatorType;
-  typedef typename LabelObjectType::AttributeType                      AttributeType;
-  typedef ShapeKeepNObjectsLabelMapFilter< LabelMapType >              KeepNObjectsType;
-  typedef LabelMapToBinaryImageFilter< LabelMapType, OutputImageType > BinarizerType;
+  using LabelObjectType = ShapeLabelObject<LabelType, Self::ImageDimension>;
+  using LabelMapType = LabelMap<LabelObjectType>;
+  using LabelizerType = BinaryImageToLabelMapFilter<InputImageType, LabelMapType>;
+  using ShapeLabelFilterOutput = Image<typename OutputImageType::PixelType, Self::OutputImageDimension>;
+  using LabelObjectValuatorType = ShapeLabelMapFilter<LabelMapType, ShapeLabelFilterOutput>;
+  using AttributeType = typename LabelObjectType::AttributeType;
+  using KeepNObjectsType = ShapeKeepNObjectsLabelMapFilter<LabelMapType>;
+  using BinarizerType = LabelMapToBinaryImageFilter<LabelMapType, OutputImageType>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BinaryShapeKeepNObjectsImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(BinaryShapeKeepNObjectsImageFilter, ImageToImageFilter);
 
   /**
    * Set/Get whether the connected components are defined strictly by
@@ -105,12 +101,9 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputImagePixelType > ) );
-  itkConceptMacro( IntConvertibleToInputCheck,
-                   ( Concept::Convertible< int, InputImagePixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputImagePixelType > ) );
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputImagePixelType>));
+  itkConceptMacro(IntConvertibleToInputCheck, (Concept::Convertible<int, InputImagePixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<InputImagePixelType>));
   // End concept checking
 #endif
 
@@ -149,42 +142,45 @@ public:
    */
   itkGetConstMacro(Attribute, AttributeType);
   itkSetMacro(Attribute, AttributeType);
-  void SetAttribute(const std::string & s)
+  void
+  SetAttribute(const std::string & s)
   {
-    this->SetAttribute( LabelObjectType::GetAttributeFromName(s) );
+    this->SetAttribute(LabelObjectType::GetAttributeFromName(s));
   }
 
 protected:
   BinaryShapeKeepNObjectsImageFilter();
-  ~BinaryShapeKeepNObjectsImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryShapeKeepNObjectsImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** BinaryShapeKeepNObjectsImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** BinaryShapeKeepNObjectsImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /** Single-threaded version of GenerateData.  This filter delegates
    * to GrayscaleGeodesicErodeImageFilter. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryShapeKeepNObjectsImageFilter);
-
-  bool                 m_FullyConnected;
+  bool                 m_FullyConnected{ false };
   OutputImagePixelType m_BackgroundValue;
   OutputImagePixelType m_ForegroundValue;
-  SizeValueType        m_NumberOfObjects;
-  bool                 m_ReverseOrdering;
+  SizeValueType        m_NumberOfObjects{ 0 };
+  bool                 m_ReverseOrdering{ false };
   AttributeType        m_Attribute;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryShapeKeepNObjectsImageFilter.hxx"
+#  include "itkBinaryShapeKeepNObjectsImageFilter.hxx"
 #endif
 
 #endif

@@ -24,30 +24,34 @@
 namespace itk
 {
 /** Constructor */
-template< unsigned int TDimension >
-GroupSpatialObject< TDimension >
-::GroupSpatialObject()
+template <unsigned int TDimension>
+GroupSpatialObject<TDimension>::GroupSpatialObject()
 {
-  this->SetDimension(TDimension);
   this->SetTypeName("GroupSpatialObject");
-  this->GetProperty()->SetRed(1);
-  this->GetProperty()->SetGreen(0);
-  this->GetProperty()->SetBlue(0);
-  this->GetProperty()->SetAlpha(1);
-  this->ComputeBoundingBox();
 }
 
-/** Destructor */
-template< unsigned int TDimension >
-GroupSpatialObject< TDimension >
-::~GroupSpatialObject()
-{}
+/** InternalClone */
+template <unsigned int TDimension>
+typename LightObject::Pointer
+GroupSpatialObject<TDimension>::InternalClone() const
+{
+  // Default implementation just copies the parameters from
+  // this to new transform.
+  typename LightObject::Pointer loPtr = Superclass::InternalClone();
+
+  typename Self::Pointer rval = dynamic_cast<Self *>(loPtr.GetPointer());
+  if (rval.IsNull())
+  {
+    itkExceptionMacro(<< "downcast to type " << this->GetNameOfClass() << " failed.");
+  }
+
+  return loPtr;
+}
 
 /** Print the object */
-template< unsigned int TDimension >
+template <unsigned int TDimension>
 void
-GroupSpatialObject< TDimension >
-::PrintSelf(std::ostream & os, Indent indent) const
+GroupSpatialObject<TDimension>::PrintSelf(std::ostream & os, Indent indent) const
 {
   os << indent << "GroupSpatialObject(" << this << ")" << std::endl;
   Superclass::PrintSelf(os, indent);

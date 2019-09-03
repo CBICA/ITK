@@ -27,55 +27,55 @@ namespace itk
 /** \class LevelSetEvolutionStoppingCriterion
 \ingroup ITKLevelSetsv4
 */
-template< typename TLevelSetContainer >
-class ITK_TEMPLATE_EXPORT LevelSetEvolutionNumberOfIterationsStoppingCriterion :
-  public LevelSetEvolutionStoppingCriterion< TLevelSetContainer >
+template <typename TLevelSetContainer>
+class ITK_TEMPLATE_EXPORT LevelSetEvolutionNumberOfIterationsStoppingCriterion
+  : public LevelSetEvolutionStoppingCriterion<TLevelSetContainer>
 {
 public:
-  typedef LevelSetEvolutionNumberOfIterationsStoppingCriterion     Self;
-  typedef LevelSetEvolutionStoppingCriterion< TLevelSetContainer > Superclass;
-  typedef SmartPointer< Self >                                     Pointer;
-  typedef SmartPointer< const Self >                               ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEvolutionNumberOfIterationsStoppingCriterion);
+
+  using Self = LevelSetEvolutionNumberOfIterationsStoppingCriterion;
+  using Superclass = LevelSetEvolutionStoppingCriterion<TLevelSetContainer>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through object factory */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( LevelSetEvolutionNumberOfIterationsStoppingCriterion,
-                LevelSetEvolutionStoppingCriterion );
+  itkTypeMacro(LevelSetEvolutionNumberOfIterationsStoppingCriterion, LevelSetEvolutionStoppingCriterion);
 
-  typedef TLevelSetContainer                               LevelSetContainerType;
-  typedef typename LevelSetContainerType::Pointer          LevelSetContainerPointer;
+  using LevelSetContainerType = TLevelSetContainer;
+  using LevelSetContainerPointer = typename LevelSetContainerType::Pointer;
 
-  typedef typename LevelSetContainerType::LevelSetIdentifierType  LevelSetIdentifierType;
-  typedef typename LevelSetContainerType::LevelSetType            LevelSetType;
-  typedef typename LevelSetContainerType::LevelSetPointer         LevelSetPointer;
+  using LevelSetIdentifierType = typename LevelSetContainerType::LevelSetIdentifierType;
+  using LevelSetType = typename LevelSetContainerType::LevelSetType;
+  using LevelSetPointer = typename LevelSetContainerType::LevelSetPointer;
 
-  typedef typename LevelSetContainerType::InputIndexType   InputIndexType;
-  typedef typename LevelSetContainerType::OutputType       OutputType;
-  typedef typename LevelSetContainerType::OutputRealType   OutputRealType;
-  typedef typename LevelSetContainerType::GradientType     GradientType;
-  typedef typename LevelSetContainerType::HessianType      HessianType;
+  using InputIndexType = typename LevelSetContainerType::InputIndexType;
+  using OutputType = typename LevelSetContainerType::OutputType;
+  using OutputRealType = typename LevelSetContainerType::OutputRealType;
+  using GradientType = typename LevelSetContainerType::GradientType;
+  using HessianType = typename LevelSetContainerType::HessianType;
 
-  typedef typename LevelSetContainerType::HeavisideType    HeavisideType;
-  typedef typename LevelSetContainerType::HeavisideType    HeavisidePointer;
+  using HeavisideType = typename LevelSetContainerType::HeavisideType;
+  using HeavisidePointer = typename LevelSetContainerType::HeavisideType;
 
-  virtual bool IsSatisfied() const ITK_OVERRIDE;
+  bool
+  IsSatisfied() const override;
 
-  virtual std::string GetDescription() const ITK_OVERRIDE;
+  std::string
+  GetDescription() const override;
 
 protected:
   /** Constructor */
-  LevelSetEvolutionNumberOfIterationsStoppingCriterion();
+  LevelSetEvolutionNumberOfIterationsStoppingCriterion() = default;
 
   /** Destructor */
-  virtual ~LevelSetEvolutionNumberOfIterationsStoppingCriterion() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEvolutionNumberOfIterationsStoppingCriterion);
- };
- }
+  ~LevelSetEvolutionNumberOfIterationsStoppingCriterion() override = default;
+};
+} // namespace itk
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.hxx"
+#  include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.hxx"
 #endif
 #endif

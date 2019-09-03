@@ -23,24 +23,20 @@ namespace itk
 {
 JPEGImageIOFactory::JPEGImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkJPEGImageIO",
-                          "JPEG Image IO",
-                          1,
-                          CreateObjectFunction< JPEGImageIO >::New() );
+  this->RegisterOverride(
+    "itkImageIOBase", "itkJPEGImageIO", "JPEG Image IO", true, CreateObjectFunction<JPEGImageIO>::New());
 }
 
-JPEGImageIOFactory::~JPEGImageIOFactory()
-{}
+JPEGImageIOFactory::~JPEGImageIOFactory() = default;
 
 const char *
-JPEGImageIOFactory::GetITKSourceVersion(void) const
+JPEGImageIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
 
 const char *
-JPEGImageIOFactory::GetDescription(void) const
+JPEGImageIOFactory::GetDescription() const
 {
   return "JPEG ImageIO Factory, allows the loading of JPEG images into insight";
 }
@@ -50,13 +46,14 @@ JPEGImageIOFactory::GetDescription(void) const
 
 static bool JPEGImageIOFactoryHasBeenRegistered;
 
-void ITKIOJPEG_EXPORT JPEGImageIOFactoryRegister__Private(void)
+void ITKIOJPEG_EXPORT
+     JPEGImageIOFactoryRegister__Private()
 {
-  if( ! JPEGImageIOFactoryHasBeenRegistered )
-    {
+  if (!JPEGImageIOFactoryHasBeenRegistered)
+  {
     JPEGImageIOFactoryHasBeenRegistered = true;
     JPEGImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

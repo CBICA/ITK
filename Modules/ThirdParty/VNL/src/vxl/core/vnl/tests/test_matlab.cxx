@@ -1,16 +1,13 @@
 // This is core/vnl/tests/test_matlab.cxx
 #include <iostream>
-#include <cstring>
+#include <cassert>
 #include <fstream>
 #include <testlib/testlib_test.h>
 //:
 // \file
 // \author fsm
 
-#include <vcl_compiler.h>
-
 #include <vpl/vpl.h>
-
 #include <vul/vul_temp_filename.h>
 
 #include <vnl/vnl_vector.h>
@@ -20,7 +17,6 @@
 #include <vnl/vnl_matlab_print.h>
 #include <vnl/vnl_matlab_write.h>
 #include <vnl/vnl_matlab_read.h>
-#include <vnl/vnl_matlab_header.h>
 
 #if VXL_LITTLE_ENDIAN
 # define NONnative_BYTE_ORDER vnl_matlab_header::vnl_BIG_ENDIAN
@@ -32,7 +28,7 @@
 // get a byte-swapped file, short of reading in a native file and swapping it
 // and writing it back out, and that isn't any easier.
 void matlab_write_swapped(std::ostream &f,
-                          float *array,
+                          const float *array,
                           unsigned size,
                           char const *name)
 {

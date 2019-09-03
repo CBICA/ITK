@@ -49,16 +49,17 @@ namespace itk
  *
  * \ingroup ITKImageNoise
  */
-template <class TInputImage, class TOutputImage=TInputImage>
-class ITK_TEMPLATE_EXPORT AdditiveGaussianNoiseImageFilter :
-  public NoiseBaseImageFilter<TInputImage,TOutputImage >
+template <class TInputImage, class TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT AdditiveGaussianNoiseImageFilter : public NoiseBaseImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef AdditiveGaussianNoiseImageFilter                 Self;
-  typedef NoiseBaseImageFilter< TInputImage,TOutputImage > Superclass;
-  typedef SmartPointer<Self>                               Pointer;
-  typedef SmartPointer<const Self>                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AdditiveGaussianNoiseImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = AdditiveGaussianNoiseImageFilter;
+  using Superclass = NoiseBaseImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,18 +67,18 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(AdditiveGaussianNoiseImageFilter, NoiseBaseImageFilter);
 
-  /** Superclass typedefs. */
-  typedef typename Superclass::OutputImageType       OutputImageType;
-  typedef typename Superclass::OutputImagePointer    OutputImagePointer;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename Superclass::OutputImagePixelType  OutputImagePixelType;
+  /** Superclass type alias. */
+  using OutputImageType = typename Superclass::OutputImageType;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** Set/Get the mean of the Gaussian distribution.
    * Defaults to 0.0. */
@@ -92,30 +93,29 @@ public:
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
   itkConceptMacro(InputConvertibleToOutputCheck,
-                  (Concept::Convertible<typename TInputImage::PixelType,
-                                        typename TOutputImage::PixelType>) );
+                  (Concept::Convertible<typename TInputImage::PixelType, typename TOutputImage::PixelType>));
   /** End concept checking */
 #endif
 
 protected:
   AdditiveGaussianNoiseImageFilter();
-  virtual ~AdditiveGaussianNoiseImageFilter() ITK_OVERRIDE {}
+  ~AdditiveGaussianNoiseImageFilter() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void ThreadedGenerateData(const OutputImageRegionType& outputRegionForThread, ThreadIdType threadId ) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AdditiveGaussianNoiseImageFilter);
-
-  double m_Mean;
-  double m_StandardDeviation;
-
+  double m_Mean{ 0.0 };
+  double m_StandardDeviation{ 1.0 };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAdditiveGaussianNoiseImageFilter.hxx"
+#  include "itkAdditiveGaussianNoiseImageFilter.hxx"
 #endif
 
 #endif

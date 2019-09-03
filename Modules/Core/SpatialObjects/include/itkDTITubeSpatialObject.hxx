@@ -24,26 +24,34 @@
 namespace itk
 {
 /** Constructor */
-template< unsigned int TDimension >
-DTITubeSpatialObject< TDimension >
-::DTITubeSpatialObject()
+template <unsigned int TDimension>
+DTITubeSpatialObject<TDimension>::DTITubeSpatialObject()
 {
-  this->m_ParentPoint = -1;
-  this->SetDimension(TDimension);
   this->SetTypeName("DTITubeSpatialObject");
 }
 
-/** Destructor */
-template< unsigned int TDimension >
-DTITubeSpatialObject< TDimension >
-::~DTITubeSpatialObject()
-{}
+/** InternalClone */
+template <unsigned int TDimension>
+typename LightObject::Pointer
+DTITubeSpatialObject<TDimension>::InternalClone() const
+{
+  // Default implementation just copies the parameters from
+  // this to new transform.
+  typename LightObject::Pointer loPtr = Superclass::InternalClone();
+
+  typename Self::Pointer rval = dynamic_cast<Self *>(loPtr.GetPointer());
+  if (rval.IsNull())
+  {
+    itkExceptionMacro(<< "downcast to type " << this->GetNameOfClass() << " failed.");
+  }
+
+  return loPtr;
+}
 
 /** Print the object */
-template< unsigned int TDimension >
+template <unsigned int TDimension>
 void
-DTITubeSpatialObject< TDimension >
-::PrintSelf(std::ostream & os, Indent indent) const
+DTITubeSpatialObject<TDimension>::PrintSelf(std::ostream & os, Indent indent) const
 {
   os << indent << "DTITubeSpatialObject(" << this << ")" << std::endl;
   Superclass::PrintSelf(os, indent);

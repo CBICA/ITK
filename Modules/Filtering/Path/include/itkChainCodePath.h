@@ -45,57 +45,62 @@ namespace itk
  * \ingroup PathObjects
  * \ingroup ITKPath
  */
-template< unsigned int VDimension >
-class ITK_TEMPLATE_EXPORT ChainCodePath:public
-  Path< unsigned int, Offset< VDimension >, VDimension >
+template <unsigned int VDimension>
+class ITK_TEMPLATE_EXPORT ChainCodePath : public Path<unsigned int, Offset<VDimension>, VDimension>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ChainCodePath);
+
   /** Dimension underlying input image. */
-  itkStaticConstMacro(Dimension, unsigned int, VDimension);
+  static constexpr unsigned int Dimension = VDimension;
 
-  /** Standard class typedefs. */
-  typedef ChainCodePath< VDimension >                            Self;
-  typedef Path< unsigned int, Offset< VDimension >, VDimension > Superclass;
+  /** Standard class type aliases. */
+  using Self = ChainCodePath<VDimension>;
+  using Superclass = Path<unsigned int, Offset<VDimension>, VDimension>;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ChainCodePath, Path);
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
-  typedef typename Superclass::InputType  InputType;
+  /** OutputType type alias support */
+  using OutputType = typename Superclass::OutputType;
+  using InputType = typename Superclass::InputType;
 
   /** The output type of this function is an Index */
-  typedef OutputType          OffsetType;
-  typedef Index< VDimension > IndexType;
+  using OffsetType = OutputType;
+  using IndexType = Index<VDimension>;
 
-  typedef std::vector< OffsetType > ChainCodeType;
+  using ChainCodeType = std::vector<OffsetType>;
 
-  typedef typename ChainCodeType::size_type ChainCodeSizeType;
+  using ChainCodeSizeType = typename ChainCodeType::size_type;
 
   // Functions inherited from Path
 
   /** Evaluate the chaincode for the offset at the specified path-position. */
-  virtual OutputType Evaluate(const InputType & input) const ITK_OVERRIDE
+  OutputType
+  Evaluate(const InputType & input) const override
   {
     return m_Chain[input];
   }
 
   /** Like Evaluate(), but returns the index at the specified path-position. */
-  virtual IndexType EvaluateToIndex(const InputType & input) const ITK_OVERRIDE;
+  IndexType
+  EvaluateToIndex(const InputType & input) const override;
 
   /** Increment the input variable passed by reference and then return the
    * offset stored at the new path-position.  If the chaincode is unable to be
    * incremented, input is not changed and an offset of zero is returned, which
    * may be used to check for the end of the chain code. */
-  virtual OffsetType IncrementInput(InputType & input) const ITK_OVERRIDE;
+  OffsetType
+  IncrementInput(InputType & input) const override;
 
   /** Where does the path end (what is the last valid input value)? */
-  virtual InputType EndOfInput() const ITK_OVERRIDE
+  InputType
+  EndOfInput() const override
   {
-    return static_cast<InputType>(NumberOfSteps());  // 0 is before the first step, 1 is after it
+    return static_cast<InputType>(NumberOfSteps()); // 0 is before the first step, 1 is after it
   }
 
   /** New() method for dynamic construction */
@@ -106,34 +111,39 @@ public:
   itkGetConstReferenceMacro(Start, IndexType);
 
   /** Insert a new step into the chaincode at a specified position */
-  virtual inline void InsertStep(InputType position, OffsetType step)
+  virtual inline void
+  InsertStep(InputType position, OffsetType step)
   {
     m_Chain.insert(m_Chain.begin() + position, step);
     this->Modified();
   }
 
   /** Change the direction of a step in the chaincode */
-  virtual inline void ChangeStep(InputType position, OffsetType step)
+  virtual inline void
+  ChangeStep(InputType position, OffsetType step)
   {
     m_Chain[position] = step;
     this->Modified();
   }
 
   /** Remove all steps from the chain code */
-  virtual inline void Clear()
+  virtual inline void
+  Clear()
   {
     m_Chain.clear();
     this->Modified();
   }
 
   /** How many steps in the chaincode? */
-  virtual inline ChainCodeSizeType NumberOfSteps() const
+  virtual inline ChainCodeSizeType
+  NumberOfSteps() const
   {
     return m_Chain.size();
   }
 
   /** Needed for Pipelining */
-  virtual void Initialize(void) ITK_OVERRIDE
+  void
+  Initialize() override
   {
     m_Start = this->GetZeroIndex();
     this->Clear();
@@ -141,19 +151,18 @@ public:
 
 protected:
   ChainCodePath();
-  ~ChainCodePath() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ChainCodePath() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ChainCodePath);
-
-  IndexType     m_Start;            // origin image index for the path
-  ChainCodeType m_Chain;            // the chain code (vector of offsets)
+  IndexType     m_Start; // origin image index for the path
+  ChainCodeType m_Chain; // the chain code (vector of offsets)
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkChainCodePath.hxx"
+#  include "itkChainCodePath.hxx"
 #endif
 
 #endif

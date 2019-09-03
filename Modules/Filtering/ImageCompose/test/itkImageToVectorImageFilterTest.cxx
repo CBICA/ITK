@@ -20,53 +20,53 @@
 
 #include "itkImageFileReader.h"
 #include "itkImageSeriesWriter.h"
+#include "itkTestingMacros.h"
 
-int itkImageToVectorImageFilterTest(int argc, char *argv[] )
+int
+itkImageToVectorImageFilterTest(int argc, char * argv[])
 {
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image<PixelType,2>        ScalarImageType;
-  typedef itk::VectorImage<PixelType,2>  VectorImageType;
+  using ScalarImageType = itk::Image<PixelType, 2>;
+  using VectorImageType = itk::VectorImage<PixelType, 2>;
 
-  typedef itk::ImageFileReader<ScalarImageType>                ReaderType;
-  typedef itk::ImageFileWriter<VectorImageType>                WriterType;
+  using ReaderType = itk::ImageFileReader<ScalarImageType>;
+  using WriterType = itk::ImageFileWriter<VectorImageType>;
 
-  typedef itk::ComposeImageFilter<ScalarImageType> FilterType;
+  using FilterType = itk::ComposeImageFilter<ScalarImageType>;
 
   if (argc < 3)
-    {
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  input1 input2 ... inputn output" << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << "  input1 input2 ... inputn output" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   FilterType::Pointer filter = FilterType::New();
-  int f = 0;
-  for (int i=1; i < argc - 1; i++)
-    {
+  int                 f = 0;
+  for (int i = 1; i < argc - 1; i++)
+  {
     ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName (argv[i]);
+    reader->SetFileName(argv[i]);
     reader->Update();
-    filter->SetInput(f++,reader->GetOutput());
-    }
+    filter->SetInput(f++, reader->GetOutput());
+  }
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName (  argv[argc-1] );
+  writer->SetFileName(argv[argc - 1]);
 
   try
-    {
+  {
     writer->SetInput(filter->GetOutput());
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error while writing the file" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-
-    }
+  }
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;
-
 }

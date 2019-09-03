@@ -41,23 +41,24 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = float >
-class ITK_TEMPLATE_EXPORT ScatterMatrixImageFunction:
-  public ImageFunction< TInputImage,
-                        vnl_matrix<
-                          typename NumericTraits< typename TInputImage::PixelType::ValueType >::RealType >,
-                        TCoordRep >
+template <typename TInputImage, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT ScatterMatrixImageFunction
+  : public ImageFunction<TInputImage,
+                         vnl_matrix<typename NumericTraits<typename TInputImage::PixelType::ValueType>::RealType>,
+                         TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ScatterMatrixImageFunction Self;
-  typedef ImageFunction< TInputImage,
-                         vnl_matrix<
-                           typename NumericTraits< typename TInputImage::PixelType::ValueType >::RealType >,
-                         TCoordRep >                      Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ScatterMatrixImageFunction);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ScatterMatrixImageFunction;
+  using Superclass =
+    ImageFunction<TInputImage,
+                  vnl_matrix<typename NumericTraits<typename TInputImage::PixelType::ValueType>::RealType>,
+                  TCoordRep>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ScatterMatrixImageFunction, ImageFunction);
@@ -65,35 +66,34 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** InputImageType typedef support. */
-  typedef TInputImage InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = TInputImage;
 
   /** OutputType typdef support. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
   /** Dimension of the underlying image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
   /** Datatype used for the covariance matrix */
-  typedef vnl_matrix<
-    typename NumericTraits< typename InputImageType::PixelType::ValueType >::RealType >
-  RealType;
+  using RealType = vnl_matrix<typename NumericTraits<typename InputImageType::PixelType::ValueType>::RealType>;
 
   /** Evalulate the function at specified index */
-  virtual RealType EvaluateAtIndex(const IndexType & index) const ITK_OVERRIDE;
+  RealType
+  EvaluateAtIndex(const IndexType & index) const override;
 
   /** Evaluate the function at non-integer positions */
-  virtual RealType Evaluate(const PointType & point) const ITK_OVERRIDE
+  RealType
+  Evaluate(const PointType & point) const override
   {
     IndexType index;
 
@@ -101,8 +101,8 @@ public:
     return this->EvaluateAtIndex(index);
   }
 
-  virtual RealType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & cindex) const ITK_OVERRIDE
+  RealType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & cindex) const override
   {
     IndexType index;
 
@@ -117,18 +117,17 @@ public:
 
 protected:
   ScatterMatrixImageFunction();
-  ~ScatterMatrixImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ScatterMatrixImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ScatterMatrixImageFunction);
-
   unsigned int m_NeighborhoodRadius;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScatterMatrixImageFunction.hxx"
+#  include "itkScatterMatrixImageFunction.hxx"
 #endif
 
 #endif

@@ -32,63 +32,59 @@ namespace itk
  *
  * \ingroup ITKVideoFiltering
  */
-template<typename TInputVideoStream, typename TOutputVideoStream>
-class ITK_TEMPLATE_EXPORT FrameDifferenceVideoFilter :
-  public VideoToVideoFilter<TInputVideoStream, TOutputVideoStream>
+template <typename TInputVideoStream, typename TOutputVideoStream>
+class ITK_TEMPLATE_EXPORT FrameDifferenceVideoFilter : public VideoToVideoFilter<TInputVideoStream, TOutputVideoStream>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(FrameDifferenceVideoFilter);
 
-  /** Standard class typedefs */
-  typedef TInputVideoStream                                InputVideoStreamType;
-  typedef TOutputVideoStream                               OutputVideoStreamType;
-  typedef FrameDifferenceVideoFilter< InputVideoStreamType,
-                                   OutputVideoStreamType > Self;
-  typedef VideoToVideoFilter< InputVideoStreamType,
-                              OutputVideoStreamType >      Superclass;
-  typedef SmartPointer< Self >                             Pointer;
-  typedef SmartPointer< const Self >                       ConstPointer;
-  typedef WeakPointer< const Self >                        ConstWeakPointer;
+  /** Standard class type aliases */
+  using InputVideoStreamType = TInputVideoStream;
+  using OutputVideoStreamType = TOutputVideoStream;
+  using Self = FrameDifferenceVideoFilter<InputVideoStreamType, OutputVideoStreamType>;
+  using Superclass = VideoToVideoFilter<InputVideoStreamType, OutputVideoStreamType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ConstWeakPointer = WeakPointer<const Self>;
 
-  typedef typename TInputVideoStream::FrameType  InputFrameType;
-  typedef typename InputFrameType::PixelType     InputPixelType;
-  typedef typename InputFrameType::RegionType    InputFrameSpatialRegionType;
-  typedef typename TOutputVideoStream::FrameType OutputFrameType;
-  typedef typename OutputFrameType::PixelType    OutputPixelType;
-  typedef typename OutputFrameType::RegionType   OutputFrameSpatialRegionType;
+  using InputFrameType = typename TInputVideoStream::FrameType;
+  using InputPixelType = typename InputFrameType::PixelType;
+  using InputFrameSpatialRegionType = typename InputFrameType::RegionType;
+  using OutputFrameType = typename TOutputVideoStream::FrameType;
+  using OutputPixelType = typename OutputFrameType::PixelType;
+  using OutputFrameSpatialRegionType = typename OutputFrameType::RegionType;
 
   itkNewMacro(Self);
 
   itkTypeMacro(FrameDifferenceVideoFilter, VideoToVideoFilter);
 
   /** Get/Set the offset for computing frame differences. Defaults to 1. */
-  void SetFrameOffset(SizeValueType numFrames);
-  SizeValueType GetFrameOffset();
+  void
+  SetFrameOffset(SizeValueType numFrames);
+  SizeValueType
+  GetFrameOffset();
 
 protected:
-
   /** Constructor and Destructor */
   FrameDifferenceVideoFilter();
-  virtual ~FrameDifferenceVideoFilter() ITK_OVERRIDE {}
+  ~FrameDifferenceVideoFilter() override = default;
 
   /** PrintSelf */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** FrameDifferenceVideoFilter is implemented as a temporal streaming and
    * spatially multithreaded filter, so we override ThreadedGenerateData */
-  virtual void ThreadedGenerateData(
-                const OutputFrameSpatialRegionType& outputRegionForThread,
-                int threadId) ITK_OVERRIDE;
+  void
+  ThreadedGenerateData(const OutputFrameSpatialRegionType & outputRegionForThread, int threadId) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FrameDifferenceVideoFilter);
-
-
-};  // end class FrameDifferenceVideoFilter
+}; // end class FrameDifferenceVideoFilter
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFrameDifferenceVideoFilter.hxx"
+#  include "itkFrameDifferenceVideoFilter.hxx"
 #endif
 
 #endif

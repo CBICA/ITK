@@ -21,8 +21,10 @@
 #include "itkSpatialNeighborSubsampler.h"
 #include "itkMersenneTwisterRandomVariateGenerator.h"
 
-namespace itk {
-namespace Statistics {
+namespace itk
+{
+namespace Statistics
+{
 /** \class UniformRandomSpatialNeighborSubsampler
  * \brief A subsampler that uniformly randomly selects points
  * within the specified radius of the query point.
@@ -42,16 +44,18 @@ namespace Statistics {
  * \ingroup ITKStatistics
  */
 
-template < typename TSample, typename TRegion >
-  class ITK_TEMPLATE_EXPORT UniformRandomSpatialNeighborSubsampler : public SpatialNeighborSubsampler<TSample, TRegion>
+template <typename TSample, typename TRegion>
+class ITK_TEMPLATE_EXPORT UniformRandomSpatialNeighborSubsampler : public SpatialNeighborSubsampler<TSample, TRegion>
 {
 public:
-  /** Standard class typedefs */
-  typedef UniformRandomSpatialNeighborSubsampler<TSample, TRegion>  Self;
-  typedef SpatialNeighborSubsampler<TSample, TRegion>               Superclass;
-  typedef typename Superclass::Baseclass                            Baseclass;
-  typedef SmartPointer<Self>                                        Pointer;
-  typedef SmartPointer<const Self>                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(UniformRandomSpatialNeighborSubsampler);
+
+  /** Standard class type aliases */
+  using Self = UniformRandomSpatialNeighborSubsampler<TSample, TRegion>;
+  using Superclass = SpatialNeighborSubsampler<TSample, TRegion>;
+  using Baseclass = typename Superclass::Baseclass;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(UniformRandomSpatialNeighborSubsampler, SpatialNeighborSubsampler);
@@ -59,40 +63,42 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** typedef alias for the source data container */
-  typedef typename Superclass::SampleType                  SampleType;
-  typedef typename Superclass::SampleConstPointer          SampleConstPointer;
-  typedef typename Superclass::MeasurementVectorType       MeasurementVectorType;
-  typedef typename Superclass::InstanceIdentifier          InstanceIdentifier;
+  /** type alias alias for the source data container */
+  using SampleType = typename Superclass::SampleType;
+  using SampleConstPointer = typename Superclass::SampleConstPointer;
+  using MeasurementVectorType = typename Superclass::MeasurementVectorType;
+  using InstanceIdentifier = typename Superclass::InstanceIdentifier;
 
-  typedef typename Superclass::SubsampleType            SubsampleType;
-  typedef typename Superclass::SubsamplePointer         SubsamplePointer;
-  typedef typename Superclass::SubsampleConstIterator   SubsampleConstIterator;
-  typedef typename Superclass::InstanceIdentifierHolder InstanceIdentifierHolder;
-  typedef typename Baseclass::SeedType                  SeedType;
+  using SubsampleType = typename Superclass::SubsampleType;
+  using SubsamplePointer = typename Superclass::SubsamplePointer;
+  using SubsampleConstIterator = typename Superclass::SubsampleConstIterator;
+  using InstanceIdentifierHolder = typename Superclass::InstanceIdentifierHolder;
+  using SeedType = typename Baseclass::SeedType;
 
-  typedef unsigned long                       SearchSizeType;
-  typedef unsigned int                        RandomIntType;
+  using SearchSizeType = unsigned long;
+  using RandomIntType = unsigned int;
 
-  /** typedefs related to image region */
-  typedef typename Superclass::RadiusType      RadiusType;
-  typedef typename Superclass::RegionType      RegionType;
-  typedef typename Superclass::IndexType       IndexType;
-  typedef typename Superclass::IndexValueType  IndexValueType;
-  typedef typename Superclass::SizeType        SizeType;
-  typedef typename Superclass::ImageHelperType ImageHelperType;
+  /** type alias related to image region */
+  using RadiusType = typename Superclass::RadiusType;
+  using RegionType = typename Superclass::RegionType;
+  using IndexType = typename Superclass::IndexType;
+  using IndexValueType = typename Superclass::IndexValueType;
+  using SizeType = typename Superclass::SizeType;
+  using ImageHelperType = typename Superclass::ImageHelperType;
 
 
-  /** typedefs related to random variate generator */
-  typedef itk::Statistics::MersenneTwisterRandomVariateGenerator RandomGeneratorType;
+  /** type alias related to random variate generator */
+  using RandomGeneratorType = Statistics::MersenneTwisterRandomVariateGenerator;
 
-  virtual void SetSeed(const SeedType seed) ITK_OVERRIDE
+  void
+  SetSeed(const SeedType seed) override
   {
     Superclass::SetSeed(seed);
     this->m_RandomNumberGenerator->SetSeed(this->m_Seed);
   }
 
-  virtual void SetUseClockForSeed(const bool& useClock)
+  virtual void
+  SetUseClockForSeed(const bool & useClock)
   {
     if (useClock != this->m_UseClockForSeed)
     {
@@ -108,11 +114,11 @@ public:
   itkBooleanMacro(UseClockForSeed);
   itkGetConstMacro(UseClockForSeed, bool);
 
-  virtual void SetNumberOfResultsRequested(const SearchSizeType& numberRequested)
+  virtual void
+  SetNumberOfResultsRequested(const SearchSizeType & numberRequested)
   {
     itkDebugMacro("setting NumberOfResultsRequested to " << numberRequested);
-    if (this->m_RequestMaximumNumberOfResults ||
-        this->m_NumberOfResultsRequested != numberRequested)
+    if (this->m_RequestMaximumNumberOfResults || this->m_NumberOfResultsRequested != numberRequested)
     {
       this->m_NumberOfResultsRequested = numberRequested;
       this->m_RequestMaximumNumberOfResults = false;
@@ -126,8 +132,8 @@ public:
    * them as a Subsample.  The definition of similar will be subclass-
    * specific.  And could mean spatial similarity or feature similarity
    * etc.  */
-  virtual void Search(const InstanceIdentifier& query,
-                      SubsamplePointer& results) ITK_OVERRIDE;
+  void
+  Search(const InstanceIdentifier & query, SubsamplePointer & results) override;
 
 protected:
   /**
@@ -135,35 +141,32 @@ protected:
    * This does a complete copy of the subsampler state
    * to the new subsampler
    */
-  virtual typename LightObject::Pointer InternalClone() const ITK_OVERRIDE;
+  typename LightObject::Pointer
+  InternalClone() const override;
 
   UniformRandomSpatialNeighborSubsampler();
-  virtual ~UniformRandomSpatialNeighborSubsampler() ITK_OVERRIDE {};
+  ~UniformRandomSpatialNeighborSubsampler() override = default;
 
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** method to randomly generate an integer in the closed range
    * [lowerBound, upperBound]
    * using a uniform sampling selection method.
    * override this method to do gaussian selection */
-  virtual RandomIntType GetIntegerVariate(RandomIntType lowerBound,
-                                          RandomIntType upperBound,
-                                          RandomIntType itkNotUsed(mean));
+  virtual RandomIntType
+  GetIntegerVariate(RandomIntType lowerBound, RandomIntType upperBound, RandomIntType itkNotUsed(mean));
 
   SearchSizeType               m_NumberOfResultsRequested;
   RandomGeneratorType::Pointer m_RandomNumberGenerator;
   bool                         m_UseClockForSeed;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(UniformRandomSpatialNeighborSubsampler);
-
 }; // end of class UniformRandomSpatialNeighborSubsampler
 
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkUniformRandomSpatialNeighborSubsampler.hxx"
+#  include "itkUniformRandomSpatialNeighborSubsampler.hxx"
 #endif
 
 #endif

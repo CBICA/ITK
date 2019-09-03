@@ -54,38 +54,37 @@ namespace itk
  * \ingroup ImageFeatureExtraction
  * \ingroup ITKImageFeature
  *
- * \wiki
- * \wikiexample{ImageProcessing/LaplacianImageFilter,Compute the Laplacian of an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageFeature/ComputeLaplacian,Compute Laplacian}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT LaplacianImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LaplacianImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard "Self" & Superclass typedef.   */
-  typedef LaplacianImageFilter                            Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianImageFilter);
+
+  /** Standard "Self" & Superclass type alias.   */
+  using Self = LaplacianImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
 
   /** Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same. */
-  typedef typename TOutputImage::PixelType         OutputPixelType;
-  typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
-  typedef typename TInputImage::PixelType          InputPixelType;
-  typedef typename TInputImage::InternalPixelType  InputInternalPixelType;
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using OutputInternalPixelType = typename TOutputImage::InternalPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputInternalPixelType = typename TInputImage::InternalPixelType;
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
-  /** Image typedef support. */
-  typedef TInputImage                      InputImageType;
-  typedef TOutputImage                     OutputImageType;
-  typedef typename InputImageType::Pointer InputImagePointer;
+  /** Image type alias support */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
 
-  /** Smart pointer typedef support.   */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Smart pointer type alias support   */
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods)  */
   itkTypeMacro(LaplacianImageFilter, ImageToImageFilter);
@@ -100,12 +99,13 @@ public:
    * inform the pipeline execution model.
    *
    * \sa ImageToImageFilter::GenerateInputRequestedRegion()  */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
- /** Enable/Disable using the image spacing information in
+  /** Enable/Disable using the image spacing information in
    *  calculations. Use this option if you  want derivatives in
    *  physical space. Default  is UseImageSpacingOn. */
-  itkBooleanMacro( UseImageSpacing );
+  itkBooleanMacro(UseImageSpacing);
 
   /** Set/Get whether or not the filter will use the spacing of the input
       image in its calculations */
@@ -114,41 +114,35 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, ImageDimension > ) );
-  itkConceptMacro( InputPixelTypeIsFloatingPointCheck,
-                   ( Concept::IsFloatingPoint< InputPixelType > ) );
-  itkConceptMacro( OutputPixelTypeIsFloatingPointCheck,
-                   ( Concept::IsFloatingPoint< OutputPixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, ImageDimension>));
+  itkConceptMacro(InputPixelTypeIsFloatingPointCheck, (Concept::IsFloatingPoint<InputPixelType>));
+  itkConceptMacro(OutputPixelTypeIsFloatingPointCheck, (Concept::IsFloatingPoint<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  LaplacianImageFilter()
-  {
-    m_UseImageSpacing = true;
-  }
+  LaplacianImageFilter() { m_UseImageSpacing = true; }
 
-  virtual ~LaplacianImageFilter() ITK_OVERRIDE {}
+  ~LaplacianImageFilter() override = default;
 
   /** Standard pipeline method. While this class does not implement a
    * ThreadedGenerateData(), its GenerateData() delegates all
    * calculations to an NeighborhoodOperatorImageFilter.  Since the
    * NeighborhoodOperatorImageFilter is multithreaded, this filter is
    * multithreaded by default.   */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void PrintSelf(std::ostream &, Indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream &, Indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LaplacianImageFilter);
-
   bool m_UseImageSpacing;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLaplacianImageFilter.hxx"
+#  include "itkLaplacianImageFilter.hxx"
 #endif
 
 #endif

@@ -50,37 +50,42 @@ namespace itk
  * \sa ForwardFFTImageFilter
  * \ingroup ITKFFT
  */
-template< typename TInputImage, typename TOutputImage=Image< std::complex<typename TInputImage::PixelType>, TInputImage::ImageDimension> >
-class ITK_TEMPLATE_EXPORT RealToHalfHermitianForwardFFTImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage,
+          typename TOutputImage = Image<std::complex<typename TInputImage::PixelType>, TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT RealToHalfHermitianForwardFFTImageFilter
+  : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TInputImage                          InputImageType;
-  typedef typename InputImageType::PixelType   InputPixelType;
-  typedef typename InputImageType::IndexType   InputIndexType;
-  typedef typename InputImageType::SizeType    InputSizeType;
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::PixelType  OutputPixelType;
-  typedef typename OutputImageType::IndexType  OutputIndexType;
-  typedef typename OutputIndexType::SizeType   OutputSizeType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RealToHalfHermitianForwardFFTImageFilter);
 
-  typedef RealToHalfHermitianForwardFFTImageFilter              Self;
-  typedef ImageToImageFilter< InputImageType, OutputImageType > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  /** Standard class type aliases. */
+  using InputImageType = TInputImage;
+  using InputPixelType = typename InputImageType::PixelType;
+  using InputIndexType = typename InputImageType::IndexType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using OutputIndexType = typename OutputImageType::IndexType;
+  using OutputSizeType = typename OutputIndexType::SizeType;
+
+  using Self = RealToHalfHermitianForwardFFTImageFilter;
+  using Superclass = ImageToImageFilter<InputImageType, OutputImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Customized object creation methods that support configuration-based
-    * selection of FFT implementation.
-    *
-    * Default implementation is VnlFFT. */
-  static Pointer New();
+   * selection of FFT implementation.
+   *
+   * Default implementation is VnlFFT. */
+  static Pointer
+  New();
 
   /* Return the prefered greatest prime factor supported for the input image
    * size. Defaults to 2 as many implementations work only for sizes that are
    * power of 2.
    */
-  virtual SizeValueType GetSizeGreatestPrimeFactor() const;
+  virtual SizeValueType
+  GetSizeGreatestPrimeFactor() const;
 
   /** Get whether the actual X dimension of the image is odd or not in the full
    * representation */
@@ -88,35 +93,27 @@ public:
 
 protected:
   RealToHalfHermitianForwardFFTImageFilter();
-  virtual ~RealToHalfHermitianForwardFFTImageFilter() {}
+  ~RealToHalfHermitianForwardFFTImageFilter() override = default;
 
   /** The output is a different size from the input because of
    * Hermitian symmetry. */
-  virtual void GenerateOutputInformation();
+  void
+  GenerateOutputInformation() override;
 
   /** This class requires the entire input. */
-  virtual void GenerateInputRequestedRegion();
+  void
+  GenerateInputRequestedRegion() override;
 
   /** This class produces the entire output. */
-  virtual void EnlargeOutputRequestedRegion(DataObject *output);
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
   itkSetDecoratedOutputMacro(ActualXDimensionIsOdd, bool);
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RealToHalfHermitianForwardFFTImageFilter);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#ifndef itkVnlRealToHalfHermitianForwardFFTImageFilter_h
-#ifndef itkVnlRealToHalfHermitianForwardFFTImageFilter_hxx
-#ifndef itkFFTWRealToHalfHermitianForwardFFTImageFilter_h
-#ifndef itkFFTWRealToHalfHermitianForwardFFTImageFilter_hxx
-#include "itkRealToHalfHermitianForwardFFTImageFilter.hxx"
-#endif
-#endif
-#endif
-#endif
+#  include "itkRealToHalfHermitianForwardFFTImageFilter.hxx"
 #endif
 
 #endif

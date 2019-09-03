@@ -1,9 +1,14 @@
-#
-# Build the documentation
-#
-include (${CMAKE_ROOT}/Modules/Documentation.cmake)
+option(ITK_BUILD_DOCUMENTATION "Build the documentation (Doxygen)." OFF)
+mark_as_advanced(ITK_BUILD_DOCUMENTATION)
+if(ITK_BUILD_DOCUMENTATION)
+  find_package(UnixCommands)
+  find_package(Doxygen)
+  find_package(Gnuplot)
+  find_package(HTMLHelp)
+  find_package(Perl)
+  find_package(Wget)
+endif()
 
-mark_as_advanced(BUILD_DOCUMENTATION)
 
 # -------------------------------------------------------------
 #
@@ -51,7 +56,7 @@ set( ITK_DOXYGEN_OUTPUT_DIR ${ITK_BINARY_DIR}/Utilities/Doxygen )
 
 set( ITK_DOXYGEN_INPUT ${DOXYGEN_INCLUDE_DIRS} )
 
-SET( ITK_DOXYGEN_DIAGRAMS YES )
+set( ITK_DOXYGEN_DIAGRAMS YES )
 
 option( ITK_DOXYGEN_HTML "Doxygen will generate HTML Output" ON )
 option( ITK_DOXYGEN_DOCSET "Doxygen will generate additional index files for Xcode 3" OFF )
@@ -103,21 +108,6 @@ else()
   set( ITK_DOXYGEN_INPUT_FILTER )
 endif()
 
-# When updating Doxygen versions, also re-run workbox-sw to regenerate the
-# service worker pre-cache. Do this by running:
-#
-#  npm install -g workbox-cli
-#  cd ITK-Doxygen-build
-#  make Documentation
-#  cd Utilites/Doxygen
-#  workbox inject:manifest
-#  cp ./html/serviceWorker.js ~/src/ITK/Utilies/Doxygen/
-#
-# If workbox has changed version, we also need to update workbox-sw.prod*.js
-# referenced below
-file(COPY workbox-cli-config.js serviceWorker.js.in
-  DESTINATION ${ITK_BINARY_DIR}/Utilities/Doxygen/)
-
 configure_file(${ITK_SOURCE_DIR}/Utilities/Doxygen/doxygen.config.in
                ${ITK_BINARY_DIR}/Utilities/Doxygen/doxygen.config)
 
@@ -133,7 +123,22 @@ configure_file(${ITK_SOURCE_DIR}/Utilities/Doxygen/doxygen.config.in
                ${ITK_BINARY_DIR}/single-doxygen.config)
 
 # -------------------------------------------------------------
-if (BUILD_DOCUMENTATION)
+if (ITK_BUILD_DOCUMENTATION)
+
+  # When updating Doxygen versions, also re-run workbox-sw to regenerate the
+  # service worker pre-cache. Do this by running:
+  #
+  #  npm install -g workbox-cli
+  #  cd ITK-Doxygen-build
+  #  make Documentation
+  #  cd Utilites/Doxygen
+  #  workbox inject:manifest
+  #  cp ./html/serviceWorker.js ~/src/ITK/Utilies/Doxygen/
+  #
+  # If workbox has changed version, we also need to update workbox-sw.prod*.js
+  # referenced below
+  file(COPY workbox-cli-config.js serviceWorker.js.in
+    DESTINATION ${ITK_BINARY_DIR}/Utilities/Doxygen/)
 
   find_package( LATEX )
 
@@ -164,7 +169,7 @@ if (BUILD_DOCUMENTATION)
   add_custom_command(TARGET Documentation
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-      ${ITK_SOURCE_DIR}/Documentation/Art/itkLogoSmall.jpg # logo
+      ${ITK_SOURCE_DIR}/Documentation/Art/itkLogoSmall.png # logo
       ${ITK_DOXYGEN_OUTPUT_DIR}/html # output doxygen directory
     )
 
@@ -172,4 +177,4 @@ if (BUILD_DOCUMENTATION)
            "To generate Doxygen's documentation, you need to build the Documentation target"
          )
 
-endif (BUILD_DOCUMENTATION)
+endif ()

@@ -41,40 +41,41 @@ namespace itk
  * \ingroup PathObjects
  * \ingroup ITKPath
  */
-class ITK_TEMPLATE_EXPORT
-  OrthogonallyCorrected2DParametricPath:public
-  ParametricPath< 2 >
+class ITK_TEMPLATE_EXPORT OrthogonallyCorrected2DParametricPath : public ParametricPath<2>
 {
 public:
-  /** Standard class typedefs. */
-  typedef OrthogonallyCorrected2DParametricPath Self;
-  typedef ParametricPath< 2 >                   Superclass;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OrthogonallyCorrected2DParametricPath);
+
+  /** Standard class type aliases. */
+  using Self = OrthogonallyCorrected2DParametricPath;
+  using Superclass = ParametricPath<2>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(OrthogonallyCorrected2DParametricPath, ParametricPath);
 
   /** Input type */
-  typedef Superclass::InputType InputType;
+  using InputType = Superclass::InputType;
 
   /** Output type */
-  typedef Superclass::OutputType OutputType;
+  using OutputType = Superclass::OutputType;
 
   /** Basic data-structure types used */
-  typedef ContinuousIndex< double, 2 >           ContinuousIndexType;
-  typedef Index< 2 >                             IndexType;
-  typedef Offset< 2 >                            OffsetType;
-  typedef Superclass::VectorType                 VectorType;
-  typedef ParametricPath< 2 >                    OriginalPathType;
-  typedef OriginalPathType::ConstPointer         OriginalPathConstPointer;
-  typedef VectorContainer< unsigned, double >    OrthogonalCorrectionTableType;
-  typedef OrthogonalCorrectionTableType::Pointer OrthogonalCorrectionTablePointer;
+  using ContinuousIndexType = ContinuousIndex<double, 2>;
+  using IndexType = Index<2>;
+  using OffsetType = Offset<2>;
+  using VectorType = Superclass::VectorType;
+  using OriginalPathType = ParametricPath<2>;
+  using OriginalPathConstPointer = OriginalPathType::ConstPointer;
+  using OrthogonalCorrectionTableType = VectorContainer<unsigned, double>;
+  using OrthogonalCorrectionTablePointer = OrthogonalCorrectionTableType::Pointer;
 
-  typedef OrthogonalCorrectionTableType::ElementIdentifier  OrthogonalCorrectionTableSizeType;
+  using OrthogonalCorrectionTableSizeType = OrthogonalCorrectionTableType::ElementIdentifier;
 
   /** Return the location of the parametric path at the specified location. */
-  virtual OutputType Evaluate(const InputType & input) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & input) const override;
 
   /** Set pointer to the original path.  The path MUST be continuous in its
    * first derivative to prevent discontinuities in the corrected path.  The
@@ -82,40 +83,43 @@ public:
    * the beginnning and the end of the original path. */
   // The usual itkSetObjectMacro can not be used here because
   // m_DefaultInputStepSize must also be copied over.
-  void SetOriginalPath(const OriginalPathType *originalPath);
+  void
+  SetOriginalPath(const OriginalPathType * originalPath);
 
   /** Set table of evenly-spaced orthogonal offsets for the original path. */
   itkSetObjectMacro(OrthogonalCorrectionTable, OrthogonalCorrectionTableType)
 
-  /** New() method for dynamic construction */
-  itkNewMacro(Self);
+    /** New() method for dynamic construction */
+    itkNewMacro(Self);
 
   /** Needed for Pipelining */
-  virtual void Initialize(void) ITK_OVERRIDE
+  void
+  Initialize() override
   {
-    this->m_OriginalPath = ITK_NULLPTR;
-    this->m_OrthogonalCorrectionTable = ITK_NULLPTR;
+    this->m_OriginalPath = nullptr;
+    this->m_OrthogonalCorrectionTable = nullptr;
   }
 
   /** These are determined by the original path */
-  virtual InputType StartOfInput() const ITK_OVERRIDE
+  InputType
+  StartOfInput() const override
   {
     return m_OriginalPath->StartOfInput();
   }
 
-  virtual InputType EndOfInput() const ITK_OVERRIDE
+  InputType
+  EndOfInput() const override
   {
     return m_OriginalPath->EndOfInput();
   }
 
 protected:
   OrthogonallyCorrected2DParametricPath();
-  ~OrthogonallyCorrected2DParametricPath() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~OrthogonallyCorrected2DParametricPath() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OrthogonallyCorrected2DParametricPath);
-
   OriginalPathConstPointer         m_OriginalPath;
   OrthogonalCorrectionTablePointer m_OrthogonalCorrectionTable;
 };

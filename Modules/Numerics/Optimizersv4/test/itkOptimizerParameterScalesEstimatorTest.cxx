@@ -21,65 +21,65 @@
  *  \class OptimizerParameterScalesEstimatorTest for test.
  *  Create a simple scales estimator class to use for testing here.
  */
-class OptimizerParameterScalesEstimatorTest:
-  public itk::OptimizerParameterScalesEstimator
+class OptimizerParameterScalesEstimatorTest : public itk::OptimizerParameterScalesEstimator
 {
 public:
-  /** Standard class typedefs. */
-  typedef OptimizerParameterScalesEstimatorTest                   Self;
-  typedef itk::OptimizerParameterScalesEstimator                  Superclass;
-  typedef itk::SmartPointer< Self >                               Pointer;
-  typedef itk::SmartPointer< const Self >                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OptimizerParameterScalesEstimatorTest);
+
+  /** Standard class type aliases. */
+  using Self = OptimizerParameterScalesEstimatorTest;
+  using Superclass = itk::OptimizerParameterScalesEstimator;
+  using Pointer = itk::SmartPointer<Self>;
+  using ConstPointer = itk::SmartPointer<const Self>;
 
   itkNewMacro(Self);
 
   itkTypeMacro(OptimizerParameterScalesEstimatorTest, OptimizerParameterScalesEstimator);
 
   /** Estimate parameter scales */
-  virtual void EstimateScales(ScalesType &scales) ITK_OVERRIDE
-    {
+  void
+  EstimateScales(ScalesType & scales) override
+  {
     scales.SetSize(2);
     scales.Fill(1.0);
-    }
+  }
 
-  virtual double EstimateStepScale(const ParametersType &step) ITK_OVERRIDE
-    {
+  double
+  EstimateStepScale(const ParametersType & step) override
+  {
     double norm = step.two_norm();
     return norm;
-    }
+  }
 
   /** Estimate the scales of local steps. */
-  virtual void EstimateLocalStepScales(const ParametersType &step,
-    ScalesType &localStepScales) ITK_OVERRIDE
-    {
+  void
+  EstimateLocalStepScales(const ParametersType & step, ScalesType & localStepScales) override
+  {
     localStepScales.SetSize(step.size());
-    }
+  }
 
   /** Estimate the trusted scale for steps. */
-  virtual double EstimateMaximumStepSize() ITK_OVERRIDE
-    {
+  double
+  EstimateMaximumStepSize() override
+  {
     return 1.0;
-    }
+  }
 
 protected:
-  OptimizerParameterScalesEstimatorTest(){};
-  ~OptimizerParameterScalesEstimatorTest() ITK_OVERRIDE {};
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OptimizerParameterScalesEstimatorTest);
-
+  OptimizerParameterScalesEstimatorTest() = default;
+  ~OptimizerParameterScalesEstimatorTest() override = default;
 };
 
 /**
  * The test program for OptimizerParameterScalesEstimator.
  */
-int itkOptimizerParameterScalesEstimatorTest(int , char* [])
+int
+itkOptimizerParameterScalesEstimatorTest(int, char *[])
 {
-  OptimizerParameterScalesEstimatorTest::Pointer scalesEstimator =
-    OptimizerParameterScalesEstimatorTest::New();
+  OptimizerParameterScalesEstimatorTest::Pointer scalesEstimator = OptimizerParameterScalesEstimatorTest::New();
 
   OptimizerParameterScalesEstimatorTest::ScalesType scales;
-  scalesEstimator->Print( std::cout );
+  scalesEstimator->Print(std::cout);
 
   scalesEstimator->EstimateScales(scales);
 

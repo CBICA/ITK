@@ -34,90 +34,101 @@ namespace itk
  *
  * \ingroup ITKGPUAnisotropicSmoothing
  */
-template< typename TImage >
-class GPUAnisotropicDiffusionFunction :
-  public GPUFiniteDifferenceFunction< TImage >
+template <typename TImage>
+class GPUAnisotropicDiffusionFunction : public GPUFiniteDifferenceFunction<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUAnisotropicDiffusionFunction       Self;
-  typedef GPUFiniteDifferenceFunction< TImage > Superclass;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUAnisotropicDiffusionFunction);
+
+  /** Standard class type aliases. */
+  using Self = GPUAnisotropicDiffusionFunction;
+  using Superclass = GPUFiniteDifferenceFunction<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(GPUAnisotropicDiffusionFunction, GPUFiniteDifferenceFunction);
 
   /** Inherit some parameters from the superclass type */
-  typedef typename Superclass::ImageType        ImageType;
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::PixelRealType    PixelrealType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
-  typedef typename Superclass::FloatOffsetType  FloatOffsetType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelType = typename Superclass::PixelType;
+  using PixelrealType = typename Superclass::PixelRealType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
 
   /** Inherit some parameters from the superclass type */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** This method is called before each iteration.  It calculates a scalar
       value that is the average of the gradient magnitude squared at each pixel
       in the output image (intermediate solution). The average gradient magnitude
       value is typically used in the anisotropic diffusion equations to
       calibrate the conductance term. */
-  virtual void GPUCalculateAverageGradientMagnitudeSquared(ImageType *) = 0;
+  virtual void
+  GPUCalculateAverageGradientMagnitudeSquared(ImageType *) = 0;
 
   /** Set/Get the time step. For this class of anisotropic diffusion filters,
       the time-step is supplied by the user and remains fixed for all
       updates. */
-  void SetTimeStep(const TimeStepType & t)
+  void
+  SetTimeStep(const TimeStepType & t)
   {
     m_TimeStep = t;
   }
 
-  const TimeStepType & GetTimeStep() const
+  const TimeStepType &
+  GetTimeStep() const
   {
     return m_TimeStep;
   }
 
   /** Set/Get the conductance parameter.  The conductance parameter. */
-  void SetConductanceParameter(const double & c)
+  void
+  SetConductanceParameter(const double & c)
   {
     m_ConductanceParameter = c;
   }
 
-  const double & GetConductanceParameter() const
+  const double &
+  GetConductanceParameter() const
   {
     return m_ConductanceParameter;
   }
 
   /** Set/Get the average gradient magnitude squared. */
-  const double & GetAverageGradientMagnitudeSquared() const
+  const double &
+  GetAverageGradientMagnitudeSquared() const
   {
     return m_AverageGradientMagnitudeSquared;
   }
 
-  void SetAverageGradientMagnitudeSquared(const double & c)
+  void
+  SetAverageGradientMagnitudeSquared(const double & c)
   {
     m_AverageGradientMagnitudeSquared = c;
   }
 
   /** Returns the time step supplied by the user.  We don't need to use the
    * global data supplied since we are returning a fixed value.  */
-  virtual TimeStepType ComputeGlobalTimeStep( void *itkNotUsed(GlobalData) ) const ITK_OVERRIDE
+  TimeStepType
+  ComputeGlobalTimeStep(void * itkNotUsed(GlobalData)) const override
   {
     return this->GetTimeStep();
   }
 
   /** The anisotropic diffusion classes don't use this particular parameter
    * so it's safe to return a null value. */
-  virtual void * GetGlobalDataPointer() const ITK_OVERRIDE
+  void *
+  GetGlobalDataPointer() const override
   {
-    return ITK_NULLPTR;
+    return nullptr;
   }
 
   /** Does nothing.  No global data is used in this class of equations.   */
-  virtual void ReleaseGlobalDataPointer( void *itkNotUsed(GlobalData) ) const ITK_OVERRIDE
+  void
+  ReleaseGlobalDataPointer(void * itkNotUsed(GlobalData)) const override
   {
     /* do nothing */
   }
@@ -126,18 +137,18 @@ protected:
   GPUAnisotropicDiffusionFunction()
   {
     m_AverageGradientMagnitudeSquared = 0.0;
-    m_ConductanceParameter     = 1.0;     // default value
-    m_TimeStep                 = 0.125f;  // default value
+    m_ConductanceParameter = 1.0; // default value
+    m_TimeStep = 0.125f;          // default value
   }
 
-  ~GPUAnisotropicDiffusionFunction() ITK_OVERRIDE {}
+  ~GPUAnisotropicDiffusionFunction() override {}
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     Superclass::PrintSelf(os, indent);
     os << indent << "TimeStep: " << m_TimeStep << std::endl;
-    os << indent << "ConductanceParameter: " << m_ConductanceParameter
-       << std::endl;
+    os << indent << "ConductanceParameter: " << m_ConductanceParameter << std::endl;
   }
 
   // GPU buffer for Computing Average Squared Gradient Magnitude
@@ -148,8 +159,6 @@ protected:
   int m_AverageGradientMagnitudeSquaredGPUKernelHandle;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUAnisotropicDiffusionFunction);
-
   double       m_AverageGradientMagnitudeSquared;
   double       m_ConductanceParameter;
   TimeStepType m_TimeStep;

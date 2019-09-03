@@ -21,7 +21,8 @@
 #include "itkInPlaceLabelMapFilter.h"
 #include "itkAttributeLabelObject.h"
 
-namespace itk {
+namespace itk
+{
 /** \class BinaryReconstructionLabelMapFilter
  * \brief Mark the objects at least partially at the same position as the objects in a binary image
  *
@@ -40,79 +41,84 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template<typename TImage, typename TMarkerImage, typename TAttributeAccessor=
-  typename Functor::AttributeLabelObjectAccessor< typename TImage::LabelObjectType > >
-class ITK_TEMPLATE_EXPORT BinaryReconstructionLabelMapFilter :
-    public InPlaceLabelMapFilter<TImage>
+template <typename TImage,
+          typename TMarkerImage,
+          typename TAttributeAccessor =
+            typename Functor::AttributeLabelObjectAccessor<typename TImage::LabelObjectType>>
+class ITK_TEMPLATE_EXPORT BinaryReconstructionLabelMapFilter : public InPlaceLabelMapFilter<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryReconstructionLabelMapFilter Self;
-  typedef InPlaceLabelMapFilter<TImage>      Superclass;
-  typedef SmartPointer<Self>                 Pointer;
-  typedef SmartPointer<const Self>           ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryReconstructionLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                              ImageType;
-  typedef typename ImageType::Pointer         ImagePointer;
-  typedef typename ImageType::ConstPointer    ImageConstPointer;
-  typedef typename ImageType::PixelType       PixelType;
-  typedef typename ImageType::IndexType       IndexType;
-  typedef typename ImageType::LabelObjectType LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = BinaryReconstructionLabelMapFilter;
+  using Superclass = InPlaceLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TMarkerImage                              MarkerImageType;
-  typedef typename MarkerImageType::Pointer         MarkerImagePointer;
-  typedef typename MarkerImageType::ConstPointer    MarkerImageConstPointer;
-  typedef typename MarkerImageType::PixelType       MarkerImagePixelType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
 
-  typedef TAttributeAccessor AttributeAccessorType;
+  using MarkerImageType = TMarkerImage;
+  using MarkerImagePointer = typename MarkerImageType::Pointer;
+  using MarkerImageConstPointer = typename MarkerImageType::ConstPointer;
+  using MarkerImagePixelType = typename MarkerImageType::PixelType;
+
+  using AttributeAccessorType = TAttributeAccessor;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BinaryReconstructionLabelMapFilter,
-               InPlaceLabelMapFilter);
+  itkTypeMacro(BinaryReconstructionLabelMapFilter, InPlaceLabelMapFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-/*  itkConceptMacro(InputEqualityComparableCheck,
-    (Concept::EqualityComparable<PixelType>));
-  itkConceptMacro(IntConvertibleToInputCheck,
-    (Concept::Convertible<int, PixelType>));
-  itkConceptMacro(InputOStreamWritableCheck,
-    (Concept::OStreamWritable<PixelType>));*/
+  /*  itkConceptMacro(InputEqualityComparableCheck,
+      (Concept::EqualityComparable<PixelType>));
+    itkConceptMacro(IntConvertibleToInputCheck,
+      (Concept::Convertible<int, PixelType>));
+    itkConceptMacro(InputOStreamWritableCheck,
+      (Concept::OStreamWritable<PixelType>));*/
   // End concept checking
 #endif
 
-   /** Set the marker image */
-  void SetMarkerImage(TMarkerImage *input)
-    {
+  /** Set the marker image */
+  void
+  SetMarkerImage(TMarkerImage * input)
+  {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast<TMarkerImage *>(input) );
-    }
+    this->SetNthInput(1, const_cast<TMarkerImage *>(input));
+  }
 
   /** Get the marker image */
-  MarkerImageType * GetMarkerImage()
-    {
-    return static_cast<MarkerImageType*>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
-    }
+  MarkerImageType *
+  GetMarkerImage()
+  {
+    return static_cast<MarkerImageType *>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
+  }
 
-   /** Set the input image */
-  void SetInput1(TImage *input)
-    {
-    this->SetInput( input );
-    }
+  /** Set the input image */
+  void
+  SetInput1(TImage * input)
+  {
+    this->SetInput(input);
+  }
 
   /** Set the marker image */
-  void SetInput2(TMarkerImage *input)
-    {
-    this->SetMarkerImage( input );
-    }
+  void
+  SetInput2(TMarkerImage * input)
+  {
+    this->SetMarkerImage(input);
+  }
 
   /**
    * Set/Get the value used as "foreground" in the output image.
@@ -123,15 +129,15 @@ public:
 
 protected:
   BinaryReconstructionLabelMapFilter();
-  ~BinaryReconstructionLabelMapFilter() ITK_OVERRIDE {};
+  ~BinaryReconstructionLabelMapFilter() override = default;
 
-  virtual void ThreadedProcessLabelObject( LabelObjectType * labelObject ) ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
 
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryReconstructionLabelMapFilter);
-
   MarkerImagePixelType m_ForegroundValue;
 
 }; // end of class
@@ -139,7 +145,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryReconstructionLabelMapFilter.hxx"
+#  include "itkBinaryReconstructionLabelMapFilter.hxx"
 #endif
 
 #endif

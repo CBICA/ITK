@@ -35,11 +35,13 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TCellInterface >
-class ITK_TEMPLATE_EXPORT VertexCell:public TCellInterface
+template <typename TCellInterface>
+class ITK_TEMPLATE_EXPORT VertexCell : public TCellInterface
 {
 public:
-  /** Standard class typedefs. */
+  ITK_DISALLOW_COPY_AND_ASSIGN(VertexCell);
+
+  /** Standard class type aliases. */
   itkCellCommonTypedefs(VertexCell);
   itkCellInheritedTypedefs(TCellInterface);
 
@@ -47,75 +49,87 @@ public:
   itkTypeMacro(VertexCell, CellInterface);
 
   /** Vertex-specific topology numbers. */
-  itkStaticConstMacro(NumberOfPoints, unsigned int, 1);
-  itkStaticConstMacro(CellDimension, unsigned int, 0);
+  static constexpr unsigned int NumberOfPoints = 1;
+  static constexpr unsigned int CellDimension = 0;
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::VERTEX_CELL; }
-  virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
+  CellGeometry
+  GetType() const override
+  {
+    return Superclass::VERTEX_CELL;
+  }
+  void
+  MakeCopy(CellAutoPointer &) const override;
 
-  virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
+  unsigned int
+  GetDimension() const override;
 
-  virtual unsigned int GetNumberOfPoints(void) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfPoints() const override;
 
-  virtual CellFeatureCount GetNumberOfBoundaryFeatures(int dimension) const ITK_OVERRIDE;
+  CellFeatureCount
+  GetNumberOfBoundaryFeatures(int dimension) const override;
 
-  virtual bool GetBoundaryFeature(int dimension, CellFeatureIdentifier,
-                                  CellAutoPointer &) ITK_OVERRIDE;
-  virtual void SetPointIds(PointIdConstIterator first) ITK_OVERRIDE;
+  bool
+  GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) override;
+  void
+  SetPointIds(PointIdConstIterator first) override;
 
-  virtual void SetPointIds(PointIdConstIterator first,
-                           PointIdConstIterator last) ITK_OVERRIDE;
+  void
+  SetPointIds(PointIdConstIterator first, PointIdConstIterator last) override;
 
-  virtual void SetPointId(int localId, PointIdentifier) ITK_OVERRIDE;
-  virtual PointIdIterator      PointIdsBegin(void) ITK_OVERRIDE;
+  void
+  SetPointId(int localId, PointIdentifier) override;
+  PointIdIterator
+  PointIdsBegin() override;
 
-  virtual PointIdConstIterator PointIdsBegin(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsBegin() const override;
 
-  virtual PointIdIterator      PointIdsEnd(void) ITK_OVERRIDE;
+  PointIdIterator
+  PointIdsEnd() override;
 
-  virtual PointIdConstIterator PointIdsEnd(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsEnd() const override;
 
   /** Vertex-specific interface. */
   virtual void SetPointId(PointIdentifier);
-  virtual PointIdentifier GetPointId();
+  virtual PointIdentifier
+  GetPointId();
 
   /** Cell visitor interface */
   itkCellVisitMacro(Superclass::VERTEX_CELL);
 
   /** Evaluate the position of a given point */
-  virtual bool EvaluatePosition(CoordRepType *,
-                                PointsContainer *,
-                                CoordRepType *,
-                                CoordRepType[],
-                                double *,
-                                InterpolationWeightType *) ITK_OVERRIDE;
+  bool
+  EvaluatePosition(CoordRepType *,
+                   PointsContainer *,
+                   CoordRepType *,
+                   CoordRepType[],
+                   double *,
+                   InterpolationWeightType *) override;
 
 public:
   VertexCell()
   {
-    for ( PointIdentifier i = 0; i < itkGetStaticConstMacro(NumberOfPoints); i++ )
-      {
-      m_PointIds[i] = NumericTraits< PointIdentifier >::max();
-      }
+    for (PointIdentifier i = 0; i < Self::NumberOfPoints; i++)
+    {
+      m_PointIds[i] = NumericTraits<PointIdentifier>::max();
+    }
   }
 
-  ~VertexCell() ITK_OVERRIDE {}
+  ~VertexCell() override = default;
 
 protected:
   /**
    * Store the number of points needed for a vertex.
    */
   PointIdentifier m_PointIds[NumberOfPoints];
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VertexCell);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVertexCell.hxx"
+#  include "itkVertexCell.hxx"
 #endif
 
 #endif

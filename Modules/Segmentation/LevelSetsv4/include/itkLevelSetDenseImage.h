@@ -37,70 +37,77 @@ namespace itk
  *
  *  \ingroup ITKLevelSetsv4
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT LevelSetDenseImage :
-  public DiscreteLevelSetImage< typename TImage::PixelType, TImage::ImageDimension >
-  {
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT LevelSetDenseImage
+  : public DiscreteLevelSetImage<typename TImage::PixelType, TImage::ImageDimension>
+{
 public:
-  typedef TImage                         ImageType;
-  typedef typename ImageType::Pointer    ImagePointer;
-  typedef typename ImageType::IndexType  IndexType;
-  typedef typename ImageType::PixelType  PixelType;
-  typedef typename ImageType::RegionType RegionType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDenseImage);
 
-  typedef LevelSetDenseImage                                            Self;
-  typedef SmartPointer< Self >                                          Pointer;
-  typedef SmartPointer< const Self >                                    ConstPointer;
-  typedef DiscreteLevelSetImage< PixelType, ImageType::ImageDimension > Superclass;
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using IndexType = typename ImageType::IndexType;
+  using PixelType = typename ImageType::PixelType;
+  using RegionType = typename ImageType::RegionType;
+
+  using Self = LevelSetDenseImage;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = DiscreteLevelSetImage<PixelType, ImageType::ImageDimension>;
 
   /** Method for creation through object factory */
-  itkNewMacro ( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information */
-  itkTypeMacro ( LevelSetDenseImage, DiscreteLevelSetImage );
+  itkTypeMacro(LevelSetDenseImage, DiscreteLevelSetImage);
 
-  itkStaticConstMacro ( Dimension, unsigned int, Superclass::Dimension );
+  static constexpr unsigned int Dimension = Superclass::Dimension;
 
-  typedef typename Superclass::InputType        InputType;
-  typedef typename Superclass::OutputType       OutputType;
-  typedef typename Superclass::OutputRealType   OutputRealType;
-  typedef typename Superclass::GradientType     GradientType;
-  typedef typename Superclass::HessianType      HessianType;
-  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+  using InputType = typename Superclass::InputType;
+  using OutputType = typename Superclass::OutputType;
+  using OutputRealType = typename Superclass::OutputRealType;
+  using GradientType = typename Superclass::GradientType;
+  using HessianType = typename Superclass::HessianType;
+  using LevelSetDataType = typename Superclass::LevelSetDataType;
 
-  virtual void SetImage( ImageType* iImage );
-  itkGetModifiableObjectMacro(Image, ImageType );
+  virtual void
+  SetImage(ImageType * iImage);
+  itkGetModifiableObjectMacro(Image, ImageType);
 
   /** Returns the value of the level set function at a given location inputIndex */
-  virtual OutputType Evaluate( const InputType& inputIndex ) const ITK_OVERRIDE;
-  virtual void Evaluate( const InputType& inputIndex, LevelSetDataType& data ) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & inputIndex) const override;
+  void
+  Evaluate(const InputType & inputIndex, LevelSetDataType & data) const override;
 
 protected:
-  LevelSetDenseImage();
+  LevelSetDenseImage() = default;
 
-  virtual ~LevelSetDenseImage() ITK_OVERRIDE;
+  ~LevelSetDenseImage() override = default;
 
   ImagePointer m_Image;
 
-  virtual bool IsInsideDomain( const InputType& inputIndex ) const ITK_OVERRIDE;
+  bool
+  IsInsideDomain(const InputType & inputIndex) const override;
 
   /** Initial the level set pointer */
-  virtual void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /** Copy level set information from data object */
-  virtual void CopyInformation(const DataObject *data) ITK_OVERRIDE;
+  void
+  CopyInformation(const DataObject * data) override;
 
   /** Graft data object as level set object */
-  virtual void Graft( const DataObject* data ) ITK_OVERRIDE;
+  void
+  Graft(const DataObject * data) override;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDenseImage);
-  };
-}
+};
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetDenseImage.hxx"
+#  include "itkLevelSetDenseImage.hxx"
 #endif
 
 #endif // itkLevelSetDenseImage_h

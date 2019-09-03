@@ -24,7 +24,8 @@
 #include <set>
 
 
-namespace itk {
+namespace itk
+{
 /** \class LabelUniqueLabelMapFilter
  * \brief Make sure that the objects are not overlapping
  *
@@ -42,57 +43,54 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template<typename TImage>
-class LabelUniqueLabelMapFilter :
-    public AttributeUniqueLabelMapFilter<TImage, typename Functor::LabelLabelObjectAccessor< typename TImage::LabelObjectType > >
+template <typename TImage>
+class LabelUniqueLabelMapFilter
+  : public AttributeUniqueLabelMapFilter<TImage,
+                                         typename Functor::LabelLabelObjectAccessor<typename TImage::LabelObjectType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelUniqueLabelMapFilter Self;
-  typedef AttributeUniqueLabelMapFilter<TImage, typename Functor::LabelLabelObjectAccessor< typename TImage::LabelObjectType > >
-                                       Superclass;
-  typedef SmartPointer<Self>           Pointer;
-  typedef SmartPointer<const Self>     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelUniqueLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                              ImageType;
-  typedef typename ImageType::Pointer         ImagePointer;
-  typedef typename ImageType::ConstPointer    ImageConstPointer;
-  typedef typename ImageType::PixelType       PixelType;
-  typedef typename ImageType::IndexType       IndexType;
+  /** Standard class type aliases. */
+  using Self = LabelUniqueLabelMapFilter;
+  using Superclass =
+    AttributeUniqueLabelMapFilter<TImage, typename Functor::LabelLabelObjectAccessor<typename TImage::LabelObjectType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename Superclass::AttributeAccessorType AttributeAccessorType;
-  typedef typename Superclass::AttributeValueType    AttributeValueType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+
+  using AttributeAccessorType = typename Superclass::AttributeAccessorType;
+  using AttributeValueType = typename Superclass::AttributeValueType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(LabelUniqueLabelMapFilter,
-               AttributeUniqueLabelMapFilter);
+  itkTypeMacro(LabelUniqueLabelMapFilter, AttributeUniqueLabelMapFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-/*  itkConceptMacro(InputEqualityComparableCheck,
-    (Concept::EqualityComparable<InputImagePixelType>));
-  itkConceptMacro(IntConvertibleToInputCheck,
-    (Concept::Convertible<int, InputImagePixelType>));
-  itkConceptMacro(InputOStreamWritableCheck,
-    (Concept::OStreamWritable<InputImagePixelType>));*/
+  /*  itkConceptMacro(InputEqualityComparableCheck,
+      (Concept::EqualityComparable<InputImagePixelType>));
+    itkConceptMacro(IntConvertibleToInputCheck,
+      (Concept::Convertible<int, InputImagePixelType>));
+    itkConceptMacro(InputOStreamWritableCheck,
+      (Concept::OStreamWritable<InputImagePixelType>));*/
   // End concept checking
 #endif
 
 protected:
-  LabelUniqueLabelMapFilter() {};
-  ~LabelUniqueLabelMapFilter() ITK_OVERRIDE {};
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelUniqueLabelMapFilter);
-
+  LabelUniqueLabelMapFilter() = default;
+  ~LabelUniqueLabelMapFilter() override = default;
 }; // end of class
 
 } // end namespace itk

@@ -34,74 +34,75 @@
 // Software Guide : EndCodeSnippet
 #include "itkEllipseSpatialObject.h"
 
-int main( int , char *[] )
+int
+main(int, char *[])
 {
-// Software Guide : BeginLatex
-//
-// The \doxygen{GroupSpatialObject} is templated
-// over the dimensionality of the object.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // The \doxygen{GroupSpatialObject} is templated
+  // over the dimensionality of the object.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
-  typedef itk::GroupSpatialObject<3>   GroupType;
+  // Software Guide : BeginCodeSnippet
+  using GroupType = itk::GroupSpatialObject<3>;
   GroupType::Pointer myGroup = GroupType::New();
-// Software Guide : EndCodeSnippet
+  // Software Guide : EndCodeSnippet
 
-// Software Guide : BeginLatex
-//
-// Next, we create an \doxygen{EllipseSpatialObject} and add it to
-// the group.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // Next, we create an \doxygen{EllipseSpatialObject} and add it to
+  // the group.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
-  typedef itk::EllipseSpatialObject<3>   EllipseType;
+  // Software Guide : BeginCodeSnippet
+  using EllipseType = itk::EllipseSpatialObject<3>;
   EllipseType::Pointer myEllipse = EllipseType::New();
-  myEllipse->SetRadius(2);
+  myEllipse->SetRadiusInObjectSpace(2);
 
-  myGroup->AddSpatialObject(myEllipse);
-// Software Guide : EndCodeSnippet
+  myGroup->AddChild(myEllipse);
+  // Software Guide : EndCodeSnippet
 
-// Software Guide : BeginLatex
-//
-// We then translate the group by 10mm in each direction.
-// Therefore the ellipse is translated in physical space at the same time.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // We then translate the group by 10mm in each direction.
+  // Therefore the ellipse is translated in physical space at the same time.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
+  // Software Guide : BeginCodeSnippet
   GroupType::VectorType offset;
   offset.Fill(10);
-  myGroup->GetObjectToParentTransform()->SetOffset(offset);
-  myGroup->ComputeObjectToWorldTransform();
-// Software Guide : EndCodeSnippet
+  myGroup->GetModifiableObjectToParentTransform()->SetOffset(offset);
+  myGroup->Update();
+  // Software Guide : EndCodeSnippet
 
-// Software Guide : BeginLatex
-//
-// We can then query if a point is inside the group using the
-// \code{IsInside()} function. We need to specify in this case that
-// we want to consider all the hierarchy, therefore we set the depth to 2.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // We can then query if a point is inside the group using the
+  // \code{IsInsideInWorldSpace()} function. We need to specify in this case that
+  // we want to consider all the hierarchy, therefore we set the depth to 2.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
+  // Software Guide : BeginCodeSnippet
   GroupType::PointType point;
   point.Fill(10);
-  std::cout << "Is my point " << point << " inside?: "
-    <<  myGroup->IsInside(point,2) << std::endl;
-// Software Guide : EndCodeSnippet
+  std::cout << "Is my point " << point
+            << " inside?: " << myGroup->IsInsideInWorldSpace(point, 2) << std::endl;
+  // Software Guide : EndCodeSnippet
 
-// Software Guide : BeginLatex
-//
-// Like any other SpatialObjects we can remove the ellipse from the group
-// using the \code{RemoveSpatialObject()} method.
-//
-// Software Guide : EndLatex
+  // Software Guide : BeginLatex
+  //
+  // Like any other SpatialObjects we can remove the ellipse from the group
+  // using the \code{RemoveChild()} method.
+  //
+  // Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
-  myGroup->RemoveSpatialObject(myEllipse);
-// Software Guide : EndCodeSnippet
+  // Software Guide : BeginCodeSnippet
+  myGroup->RemoveChild(myEllipse);
+  // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;
 }

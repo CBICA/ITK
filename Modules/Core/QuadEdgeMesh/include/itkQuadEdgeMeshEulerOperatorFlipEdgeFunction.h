@@ -35,29 +35,30 @@ namespace itk
  * \ingroup QEMeshModifierFunctions
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh, typename TQEType >
-class ITK_TEMPLATE_EXPORT QuadEdgeMeshEulerOperatorFlipEdgeFunction:
-  public QuadEdgeMeshFunctionBase< TMesh, TQEType * >
+template <typename TMesh, typename TQEType>
+class ITK_TEMPLATE_EXPORT QuadEdgeMeshEulerOperatorFlipEdgeFunction : public QuadEdgeMeshFunctionBase<TMesh, TQEType *>
 {
 public:
-  /** Standard class typedefs. */
-  typedef QuadEdgeMeshEulerOperatorFlipEdgeFunction    Self;
-  typedef QuadEdgeMeshFunctionBase< TMesh, TQEType * > Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshEulerOperatorFlipEdgeFunction);
+
+  /** Standard class type aliases. */
+  using Self = QuadEdgeMeshEulerOperatorFlipEdgeFunction;
+  using Superclass = QuadEdgeMeshFunctionBase<TMesh, TQEType *>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkNewMacro(Self);
   /** Run-time type information (and related methods). */
-  itkTypeMacro(QuadEdgeMeshEulerOperatorFlipEdgeFunction,
-               QuadEdgeMeshFunctionBase);
+  itkTypeMacro(QuadEdgeMeshEulerOperatorFlipEdgeFunction, QuadEdgeMeshFunctionBase);
 
   /** Type of QuadEdge with which to apply slicing. */
-  typedef TQEType QEType;
+  using QEType = TQEType;
 
-  typedef typename Superclass::MeshType   MeshType;
-  typedef typename Superclass::OutputType OutputType;
+  using MeshType = typename Superclass::MeshType;
+  using OutputType = typename Superclass::OutputType;
 
-  enum EdgeStatusType {
+  enum EdgeStatusType
+  {
     STANDARD_CONFIG = 0,
     EDGE_NULL,
     MESH_NULL,
@@ -65,32 +66,31 @@ public:
     NON_TRIANGULAR_RIGHT_FACE,
     NON_TRIANGULAR_LEFT_FACE,
     EXISTING_OPPOSITE_EDGE
-    };
+  };
 
   /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(QEType *h);
+  virtual OutputType
+  Evaluate(QEType * h);
 
   // itkGetConstMacro( EdgeStatus, EdgeStatusType );
 
 protected:
   QuadEdgeMeshEulerOperatorFlipEdgeFunction();
-  ~QuadEdgeMeshEulerOperatorFlipEdgeFunction() ITK_OVERRIDE {}
+  ~QuadEdgeMeshEulerOperatorFlipEdgeFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   EdgeStatusType m_EdgeStatus;
 
-  void CheckStatus(QEType *h);
+  void
+  CheckStatus(QEType * h);
 
-  OutputType Process(QEType *h);
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshEulerOperatorFlipEdgeFunction);
+  OutputType
+  Process(QEType * h);
 };
-} // namespace itkQE
+} // end namespace itk
 
 #include "itkQuadEdgeMeshEulerOperatorFlipEdgeFunction.hxx"
 
 #endif
-
-// eof - itkQuadEdgeMeshEulerOperatorFlipEdgeFunction.h

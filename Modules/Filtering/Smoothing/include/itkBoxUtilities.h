@@ -39,89 +39,94 @@
  *
  */
 
-namespace
+namespace itk_impl_details
 {
 
-template< typename TIterator >
-TIterator *
-setConnectivityEarlyBox(TIterator *it, bool fullyConnected = false)
+template <typename TIterator>
+inline TIterator *
+setConnectivityEarlyBox(TIterator * it, bool fullyConnected = false)
 {
   // activate the "previous" neighbours
   typename TIterator::OffsetType offset;
   it->ClearActiveList();
-  if ( !fullyConnected )
-    {
+  if (!fullyConnected)
+  {
     // only activate the neighbors that are face connected
     // to the current pixel. do not include the center pixel
     offset.Fill(0);
-    for ( unsigned int d = 0; d < TIterator::Dimension; ++d )
-      {
+    for (unsigned int d = 0; d < TIterator::Dimension; ++d)
+    {
       offset[d] = -1;
       it->ActivateOffset(offset);
       offset[d] = 0;
-      }
     }
+  }
   else
-    {
+  {
     // activate all neighbors that are face+edge+vertex
     // connected to the current pixel. do not include the center pixel
     unsigned int centerIndex = it->GetCenterNeighborhoodIndex();
-    for ( unsigned int d = 0; d < centerIndex; d++ )
-      {
+    for (unsigned int d = 0; d < centerIndex; d++)
+    {
       offset = it->GetOffset(d);
       // check for positives in any dimension
       bool keep = true;
-      for ( unsigned int i = 0; i < TIterator::Dimension; i++ )
+      for (unsigned int i = 0; i < TIterator::Dimension; i++)
+      {
+        if (offset[i] > 0)
         {
-        if ( offset[i] > 0 )
-          {
           keep = false;
           break;
-          }
-        }
-      if ( keep )
-        {
-        it->ActivateOffset(offset);
         }
       }
+      if (keep)
+      {
+        it->ActivateOffset(offset);
+      }
+    }
     offset.Fill(0);
     it->DeactivateOffset(offset);
-    }
+  }
   return it;
 }
 
-}
+} // namespace itk_impl_details
 
 namespace itk
 {
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-BoxAccumulateFunction(const TInputImage *inputImage,
-                      const TOutputImage *outputImage,
-                      typename TInputImage::RegionType inputRegion,
-                      typename TOutputImage::RegionType outputRegion,
+BoxAccumulateFunction(const TInputImage *               inputImage,
+                      const TOutputImage *              outputImage,
+                      typename TInputImage::RegionType  inputRegion,
+                      typename TOutputImage::RegionType outputRegion
+#if defined(ITKV4_COMPATIBILITY)
+                      ,
                       ProgressReporter & progress)
+#else
+)
+#endif
 {
-  // typedefs
-  typedef TInputImage                      InputImageType;
-  typedef typename TInputImage::OffsetType OffsetType;
-  typedef TOutputImage                     OutputImageType;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  // type alias
+  using InputImageType = TInputImage;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
-  typedef ImageRegionConstIterator< TInputImage > InputIterator;
+  using InputIterator = ImageRegionConstIterator<TInputImage>;
 
-  typedef ShapedNeighborhoodIterator< TOutputImage > NOutputIterator;
-  InputIterator inIt(inputImage, inputRegion);
+  using NOutputIterator = ShapedNeighborhoodIterator<TOutputImage>;
+  InputIterator                  inIt(inputImage, inputRegion);
   typename TInputImage::SizeType kernelRadius;
   kernelRadius.Fill(1);
 
   NOutputIterator noutIt(kernelRadius, outputImage, outputRegion);
   // this iterator is fully connected
-  setConnectivityEarlyBox(&noutIt, true);
+  itk_impl_details::setConnectivityEarlyBox(&noutIt, true);
 
-  ConstantBoundaryCondition< OutputImageType > oBC;
-  oBC.SetConstant(NumericTraits< OutputPixelType >::ZeroValue() );
+  ConstantBoundaryCondition<OutputImageType> oBC;
+  oBC.SetConstant(NumericTraits<OutputPixelType>::ZeroValue());
   noutIt.OverrideBoundaryCondition(&oBC);
   // This uses several iterators. An alternative and probably better
   // approach would be to copy the input to the output and convolve
@@ -132,97 +137,102 @@ BoxAccumulateFunction(const TInputImage *inputImage,
   // image being convolved so that the accumulation propagates
   // This should be implementable with neighborhood operators.
 
-  std::vector< int > weights;
+  std::vector<int>                        weights;
   typename NOutputIterator::ConstIterator sIt;
-  for ( typename NOutputIterator::IndexListType::const_iterator idxIt = noutIt.GetActiveIndexList().begin();
-        idxIt != noutIt.GetActiveIndexList().end();
-        idxIt++ )
-    {
+  for (auto idxIt = noutIt.GetActiveIndexList().begin(); idxIt != noutIt.GetActiveIndexList().end(); idxIt++)
+  {
     OffsetType offset = noutIt.GetOffset(*idxIt);
     int        w = -1;
-    for ( unsigned int k = 0; k < InputImageType::ImageDimension; k++ )
-      {
-      if ( offset[k] != 0 )
-        {
-        w *= offset[k];
-        }
-      }
-//     std::cout << offset << "  " << w << std::endl;
-    weights.push_back(w);
-    }
-
-  for ( inIt.GoToBegin(), noutIt.GoToBegin(); !noutIt.IsAtEnd(); ++inIt, ++noutIt )
+    for (unsigned int k = 0; k < InputImageType::ImageDimension; k++)
     {
+      if (offset[k] != 0)
+      {
+        w *= offset[k];
+      }
+    }
+    //     std::cout << offset << "  " << w << std::endl;
+    weights.push_back(w);
+  }
+
+  for (inIt.GoToBegin(), noutIt.GoToBegin(); !noutIt.IsAtEnd(); ++inIt, ++noutIt)
+  {
     OutputPixelType sum = 0;
     int             k;
-    for ( k = 0, sIt = noutIt.Begin(); !sIt.IsAtEnd(); ++sIt, ++k )
-      {
+    for (k = 0, sIt = noutIt.Begin(); !sIt.IsAtEnd(); ++sIt, ++k)
+    {
       sum += sIt.Get() * weights[k];
-      }
-    noutIt.SetCenterPixel( sum + inIt.Get() );
-    progress.CompletedPixel();
     }
+    noutIt.SetCenterPixel(sum + inIt.Get());
+#if defined(ITKV4_COMPATIBILITY)
+    progress.CompletedPixel();
+#endif
+  }
 }
 
 // a function to generate corners of arbitrary dimension box
-template< typename TImage >
-std::vector< typename TImage::OffsetType >
-CornerOffsets(const TImage *im)
+template <typename TImage>
+std::vector<typename TImage::OffsetType>
+CornerOffsets(const TImage * im)
 {
-  typedef ShapedNeighborhoodIterator< TImage > NIterator;
+  using NIterator = ShapedNeighborhoodIterator<TImage>;
   typename TImage::SizeType unitradius;
   unitradius.Fill(1);
-  NIterator    n1( unitradius, im, im->GetRequestedRegion() );
-  unsigned int centerIndex = n1.GetCenterNeighborhoodIndex();
-  typename NIterator::OffsetType offset;
-  std::vector< typename TImage::OffsetType > result;
-  for ( unsigned int d = 0; d < centerIndex * 2 + 1; d++ )
-    {
+  NIterator                                n1(unitradius, im, im->GetRequestedRegion());
+  unsigned int                             centerIndex = n1.GetCenterNeighborhoodIndex();
+  typename NIterator::OffsetType           offset;
+  std::vector<typename TImage::OffsetType> result;
+  for (unsigned int d = 0; d < centerIndex * 2 + 1; d++)
+  {
     offset = n1.GetOffset(d);
     // check whether this is a corner - corners have no zeros
     bool corner = true;
-    for ( unsigned int k = 0; k < TImage::ImageDimension; k++ )
+    for (unsigned int k = 0; k < TImage::ImageDimension; k++)
+    {
+      if (offset[k] == 0)
       {
-      if ( offset[k] == 0 )
-        {
         corner = false;
         break;
-        }
-      }
-    if ( corner )
-      {
-      result.push_back(offset);
       }
     }
-  return ( result );
+    if (corner)
+    {
+      result.push_back(offset);
+    }
+  }
+  return (result);
 }
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-BoxMeanCalculatorFunction(const TInputImage *accImage,
-                          TOutputImage *outputImage,
-                          typename TInputImage::RegionType inputRegion,
+BoxMeanCalculatorFunction(const TInputImage *               accImage,
+                          TOutputImage *                    outputImage,
+                          typename TInputImage::RegionType  inputRegion,
                           typename TOutputImage::RegionType outputRegion,
-                          typename TInputImage::SizeType radius,
+                          typename TInputImage::SizeType    radius
+#if defined(ITKV4_COMPATIBILITY)
+                          ,
                           ProgressReporter & progress)
+#else
+)
+#endif
 {
-  // typedefs
-  typedef TInputImage                           InputImageType;
-  typedef typename TInputImage::RegionType      RegionType;
-  typedef typename TInputImage::SizeType        SizeType;
-  typedef typename TInputImage::IndexType       IndexType;
-  typedef typename TInputImage::OffsetType      OffsetType;
-  typedef TOutputImage                          OutputImageType;
-  typedef typename TOutputImage::PixelType      OutputPixelType;
+  // type alias
+  using InputImageType = TInputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename TOutputImage::PixelType;
   // use the face generator for speed
-  typedef NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType > FaceCalculatorType;
-  typedef typename FaceCalculatorType::FaceListType                             FaceListType;
-  typedef typename FaceCalculatorType::FaceListType::iterator                   FaceListTypeIt;
+  using FaceCalculatorType = NeighborhoodAlgorithm::ImageBoundaryFacesCalculator<InputImageType>;
+  using FaceListType = typename FaceCalculatorType::FaceListType;
+  using FaceListTypeIt = typename FaceCalculatorType::FaceListType::iterator;
   FaceCalculatorType faceCalculator;
 
-  FaceListType                                    faceList;
-  FaceListTypeIt                                  fit;
-  ZeroFluxNeumannBoundaryCondition< TInputImage > nbc;
+  FaceListType                                  faceList;
+  FaceListTypeIt                                fit;
+  ZeroFluxNeumannBoundaryCondition<TInputImage> nbc;
 
   // this process is actually slightly asymmetric because we need to
   // subtract rectangles that are next to our kernel, not overlapping it
@@ -231,93 +241,95 @@ BoxMeanCalculatorFunction(const TInputImage *accImage,
   SizeType regionLimit;
 
   IndexType regionStart = inputRegion.GetIndex();
-  for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-    {
+  for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+  {
     kernelSize[i] = radius[i] * 2 + 1;
     internalRadius[i] = radius[i] + 1;
     regionLimit[i] = inputRegion.GetSize()[i] + regionStart[i] - 1;
-    }
+  }
 
-  typedef typename NumericTraits< OutputPixelType >::RealType AccPixType;
+  using AccPixType = typename NumericTraits<OutputPixelType>::RealType;
   // get a set of offsets to corners for a unit hypercube in this image
-  std::vector< OffsetType > unitCorners = CornerOffsets< TInputImage >(accImage);
-  std::vector< OffsetType > realCorners;
-  std::vector< AccPixType > weights;
+  std::vector<OffsetType> unitCorners = CornerOffsets<TInputImage>(accImage);
+  std::vector<OffsetType> realCorners;
+  std::vector<AccPixType> weights;
   // now compute the weights
-  for ( unsigned int k = 0; k < unitCorners.size(); k++ )
-    {
+  for (unsigned int k = 0; k < unitCorners.size(); k++)
+  {
     int        prod = 1;
     OffsetType thisCorner;
-    for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-      {
+    for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+    {
       prod *= unitCorners[k][i];
-      if ( unitCorners[k][i] > 0 )
-        {
+      if (unitCorners[k][i] > 0)
+      {
         thisCorner[i] = radius[i];
-        }
-      else
-        {
-        thisCorner[i] = -( static_cast<OffsetValueType>(radius[i]) + 1 );
-        }
       }
-    weights.push_back( (AccPixType)prod );
-    realCorners.push_back(thisCorner);
+      else
+      {
+        thisCorner[i] = -(static_cast<OffsetValueType>(radius[i]) + 1);
+      }
     }
+    weights.push_back((AccPixType)prod);
+    realCorners.push_back(thisCorner);
+  }
 
   faceList = faceCalculator(accImage, outputRegion, internalRadius);
   // start with the body region
-  for ( fit = faceList.begin(); fit != faceList.end(); ++fit )
+  for (fit = faceList.begin(); fit != faceList.end(); ++fit)
+  {
+    if (fit == faceList.begin())
     {
-    if ( fit == faceList.begin() )
-      {
       // this is the body region. This is meant to be an optimized
       // version that doesn't use neighborhood regions
       // compute the various offsets
       AccPixType pixelscount = 1;
-      for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-        {
-        pixelscount *= (AccPixType)( 2 * radius[i] + 1 );
-        }
+      for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+      {
+        pixelscount *= (AccPixType)(2 * radius[i] + 1);
+      }
 
-      typedef ImageRegionIterator< OutputImageType >     OutputIteratorType;
-      typedef ImageRegionConstIterator< InputImageType > InputIteratorType;
+      using OutputIteratorType = ImageRegionIterator<OutputImageType>;
+      using InputIteratorType = ImageRegionConstIterator<InputImageType>;
 
-      typedef std::vector< InputIteratorType > CornerItVecType;
+      using CornerItVecType = std::vector<InputIteratorType>;
       CornerItVecType cornerItVec;
       // set up the iterators for each corner
-      for ( unsigned int k = 0; k < realCorners.size(); k++ )
-        {
-        typename InputImageType::RegionType tReg = ( *fit );
+      for (unsigned int k = 0; k < realCorners.size(); k++)
+      {
+        typename InputImageType::RegionType tReg = (*fit);
         tReg.SetIndex(tReg.GetIndex() + realCorners[k]);
         InputIteratorType tempIt(accImage, tReg);
         tempIt.GoToBegin();
         cornerItVec.push_back(tempIt);
-        }
+      }
       // set up the output iterator
       OutputIteratorType oIt(outputImage, *fit);
       // now do the work
-      for ( oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt )
-        {
+      for (oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt)
+      {
         AccPixType sum = 0;
         // check each corner
-        for ( unsigned int k = 0; k < cornerItVec.size(); k++ )
-          {
+        for (unsigned int k = 0; k < cornerItVec.size(); k++)
+        {
           sum += weights[k] * cornerItVec[k].Get();
           // increment each corner iterator
-          ++( cornerItVec[k] );
-          }
-        oIt.Set( static_cast< OutputPixelType >( sum / pixelscount ) );
-        progress.CompletedPixel();
+          ++(cornerItVec[k]);
         }
+        oIt.Set(static_cast<OutputPixelType>(sum / pixelscount));
+#if defined(ITKV4_COMPATIBILITY)
+        progress.CompletedPixel();
+#endif
       }
+    }
     else
-      {
+    {
       // now we need to deal with the border regions
-      typedef ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
+      using OutputIteratorType = ImageRegionIteratorWithIndex<OutputImageType>;
       OutputIteratorType oIt(outputImage, *fit);
       // now do the work
-      for ( oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt )
-        {
+      for (oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt)
+      {
         // figure out the number of pixels in the box by creating an
         // equivalent region and cropping - this could probably be
         // included in the loop below.
@@ -326,14 +338,14 @@ BoxMeanCalculatorFunction(const TInputImage *accImage,
         // compute the region's index
         IndexType kernelRegionIdx = oIt.GetIndex();
         IndexType centIndex = kernelRegionIdx;
-        for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-          {
+        for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+        {
           kernelRegionIdx[i] -= radius[i];
-          }
+        }
         currentKernelRegion.SetIndex(kernelRegionIdx);
         currentKernelRegion.Crop(inputRegion);
         OffsetValueType edgepixelscount = currentKernelRegion.GetNumberOfPixels();
-        AccPixType sum = 0;
+        AccPixType      sum = 0;
         // rules are : for each corner,
         //               for each dimension
         //                  if dimension offset is positive -> this is
@@ -342,70 +354,77 @@ BoxMeanCalculatorFunction(const TInputImage *accImage,
         //                  if dimension offset is negative -> this is
         //                  a trailing edge. Ignore if it is outside
         //                  image region
-        for ( unsigned int k = 0; k < realCorners.size(); k++ )
-          {
+        for (unsigned int k = 0; k < realCorners.size(); k++)
+        {
           IndexType thisCorner = centIndex + realCorners[k];
           bool      includeCorner = true;
-          for ( unsigned int j = 0; j < TInputImage::ImageDimension; j++ )
+          for (unsigned int j = 0; j < TInputImage::ImageDimension; j++)
+          {
+            if (unitCorners[k][j] > 0)
             {
-            if ( unitCorners[k][j] > 0 )
-              {
               // leading edge - crop it
-              if ( thisCorner[j] > static_cast< OffsetValueType >( regionLimit[j] ) )
-                {
-                thisCorner[j] = static_cast< OffsetValueType >( regionLimit[j] );
-                }
-              }
-            else
+              if (thisCorner[j] > static_cast<OffsetValueType>(regionLimit[j]))
               {
+                thisCorner[j] = static_cast<OffsetValueType>(regionLimit[j]);
+              }
+            }
+            else
+            {
               // trailing edge - check bounds
-              if ( thisCorner[j] < regionStart[j] )
-                {
+              if (thisCorner[j] < regionStart[j])
+              {
                 includeCorner = false;
                 break;
-                }
               }
             }
-          if ( includeCorner )
-            {
-            sum += accImage->GetPixel(thisCorner) * weights[k];
-            }
           }
-
-        oIt.Set( static_cast< OutputPixelType >( sum / (AccPixType)edgepixelscount ) );
-        progress.CompletedPixel();
+          if (includeCorner)
+          {
+            sum += accImage->GetPixel(thisCorner) * weights[k];
+          }
         }
+
+        oIt.Set(static_cast<OutputPixelType>(sum / (AccPixType)edgepixelscount));
+#if defined(ITKV4_COMPATIBILITY)
+        progress.CompletedPixel();
+#endif
       }
     }
+  }
 }
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-BoxSigmaCalculatorFunction(const TInputImage *accImage,
-                           TOutputImage *outputImage,
-                           typename TInputImage::RegionType inputRegion,
+BoxSigmaCalculatorFunction(const TInputImage *               accImage,
+                           TOutputImage *                    outputImage,
+                           typename TInputImage::RegionType  inputRegion,
                            typename TOutputImage::RegionType outputRegion,
-                           typename TInputImage::SizeType radius,
+                           typename TInputImage::SizeType    radius
+#if defined(ITKV4_COMPATIBILITY)
+                           ,
                            ProgressReporter & progress)
+#else
+)
+#endif
 {
-  // typedefs
-  typedef TInputImage                           InputImageType;
-  typedef typename TInputImage::RegionType      RegionType;
-  typedef typename TInputImage::SizeType        SizeType;
-  typedef typename TInputImage::IndexType       IndexType;
-  typedef typename TInputImage::OffsetType      OffsetType;
-  typedef TOutputImage                          OutputImageType;
-  typedef typename TOutputImage::PixelType      OutputPixelType;
-  typedef typename TInputImage::PixelType       InputPixelType;
+  // type alias
+  using InputImageType = TInputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
   // use the face generator for speed
-  typedef typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator< InputImageType > FaceCalculatorType;
-  typedef typename FaceCalculatorType::FaceListType                                      FaceListType;
-  typedef typename FaceCalculatorType::FaceListType::iterator                            FaceListTypeIt;
+  using FaceCalculatorType = typename NeighborhoodAlgorithm::ImageBoundaryFacesCalculator<InputImageType>;
+  using FaceListType = typename FaceCalculatorType::FaceListType;
+  using FaceListTypeIt = typename FaceCalculatorType::FaceListType::iterator;
   FaceCalculatorType faceCalculator;
 
-  FaceListType                                    faceList;
-  FaceListTypeIt                                  fit;
-  ZeroFluxNeumannBoundaryCondition< TInputImage > nbc;
+  FaceListType                                  faceList;
+  FaceListTypeIt                                fit;
+  ZeroFluxNeumannBoundaryCondition<TInputImage> nbc;
 
   // this process is actually slightly asymmetric because we need to
   // subtract rectangles that are next to our kernel, not overlapping it
@@ -413,97 +432,99 @@ BoxSigmaCalculatorFunction(const TInputImage *accImage,
   SizeType  internalRadius;
   SizeType  regionLimit;
   IndexType regionStart = inputRegion.GetIndex();
-  for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-    {
+  for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+  {
     kernelSize[i] = radius[i] * 2 + 1;
     internalRadius[i] = radius[i] + 1;
     regionLimit[i] = inputRegion.GetSize()[i] + regionStart[i] - 1;
-    }
+  }
 
-  typedef typename NumericTraits< OutputPixelType >::RealType AccPixType;
+  using AccPixType = typename NumericTraits<OutputPixelType>::RealType;
   // get a set of offsets to corners for a unit hypercube in this image
-  std::vector< OffsetType > unitCorners = CornerOffsets< TInputImage >(accImage);
-  std::vector< OffsetType > realCorners;
-  std::vector< AccPixType > weights;
+  std::vector<OffsetType> unitCorners = CornerOffsets<TInputImage>(accImage);
+  std::vector<OffsetType> realCorners;
+  std::vector<AccPixType> weights;
   // now compute the weights
-  for ( unsigned int k = 0; k < unitCorners.size(); k++ )
-    {
+  for (unsigned int k = 0; k < unitCorners.size(); k++)
+  {
     int        prod = 1;
     OffsetType thisCorner;
-    for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-      {
+    for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+    {
       prod *= unitCorners[k][i];
-      if ( unitCorners[k][i] > 0 )
-        {
+      if (unitCorners[k][i] > 0)
+      {
         thisCorner[i] = radius[i];
-        }
-      else
-        {
-        thisCorner[i] = -( static_cast<OffsetValueType>( radius[i] ) + 1 );
-        }
       }
-    weights.push_back( (AccPixType)prod );
-    realCorners.push_back(thisCorner);
+      else
+      {
+        thisCorner[i] = -(static_cast<OffsetValueType>(radius[i]) + 1);
+      }
     }
+    weights.push_back((AccPixType)prod);
+    realCorners.push_back(thisCorner);
+  }
 
   faceList = faceCalculator(accImage, outputRegion, internalRadius);
   // start with the body region
-  for ( fit = faceList.begin(); fit != faceList.end(); ++fit )
+  for (fit = faceList.begin(); fit != faceList.end(); ++fit)
+  {
+    if (fit == faceList.begin())
     {
-    if ( fit == faceList.begin() )
-      {
       // this is the body region. This is meant to be an optimized
       // version that doesn't use neighborhood regions
       // compute the various offsets
       AccPixType pixelscount = 1;
-      for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-        {
-        pixelscount *= (AccPixType)( 2 * radius[i] + 1 );
-        }
+      for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+      {
+        pixelscount *= (AccPixType)(2 * radius[i] + 1);
+      }
 
-      typedef ImageRegionIterator< OutputImageType >     OutputIteratorType;
-      typedef ImageRegionConstIterator< InputImageType > InputIteratorType;
+      using OutputIteratorType = ImageRegionIterator<OutputImageType>;
+      using InputIteratorType = ImageRegionConstIterator<InputImageType>;
 
-      typedef std::vector< InputIteratorType > CornerItVecType;
+      using CornerItVecType = std::vector<InputIteratorType>;
       CornerItVecType cornerItVec;
       // set up the iterators for each corner
-      for ( unsigned int k = 0; k < realCorners.size(); k++ )
-        {
-        typename InputImageType::RegionType tReg = ( *fit );
+      for (unsigned int k = 0; k < realCorners.size(); k++)
+      {
+        typename InputImageType::RegionType tReg = (*fit);
         tReg.SetIndex(tReg.GetIndex() + realCorners[k]);
         InputIteratorType tempIt(accImage, tReg);
         tempIt.GoToBegin();
         cornerItVec.push_back(tempIt);
-        }
+      }
       // set up the output iterator
       OutputIteratorType oIt(outputImage, *fit);
       // now do the work
-      for ( oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt )
-        {
+      for (oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt)
+      {
         AccPixType sum = 0;
         AccPixType squareSum = 0;
         // check each corner
-        for ( unsigned int k = 0; k < cornerItVec.size(); k++ )
-          {
+        for (unsigned int k = 0; k < cornerItVec.size(); k++)
+        {
           const InputPixelType & i = cornerItVec[k].Get();
           sum += weights[k] * i[0];
           squareSum += weights[k] * i[1];
           // increment each corner iterator
-          ++( cornerItVec[k] );
-          }
-
-        oIt.Set( static_cast< OutputPixelType >( std::sqrt( ( squareSum - sum * sum / pixelscount ) / ( pixelscount - 1 ) ) ) );
-        progress.CompletedPixel();
+          ++(cornerItVec[k]);
         }
+
+        oIt.Set(static_cast<OutputPixelType>(std::sqrt((squareSum - sum * sum / pixelscount) / (pixelscount - 1))));
+#if defined(ITKV4_COMPATIBILITY)
+        progress.CompletedPixel();
+#endif
       }
+    }
     else
-      {
+    {
       // now we need to deal with the border regions
-      typedef ImageRegionIteratorWithIndex< OutputImageType > OutputIteratorType;
+      using OutputIteratorType = ImageRegionIteratorWithIndex<OutputImageType>;
       OutputIteratorType oIt(outputImage, *fit);
       // now do the work
-      for ( oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt )
-        {
+      for (oIt.GoToBegin(); !oIt.IsAtEnd(); ++oIt)
+      {
         // figure out the number of pixels in the box by creating an
         // equivalent region and cropping - this could probably be
         // included in the loop below.
@@ -512,15 +533,15 @@ BoxSigmaCalculatorFunction(const TInputImage *accImage,
         // compute the region's index
         IndexType kernelRegionIdx = oIt.GetIndex();
         IndexType centIndex = kernelRegionIdx;
-        for ( unsigned int i = 0; i < TInputImage::ImageDimension; i++ )
-          {
+        for (unsigned int i = 0; i < TInputImage::ImageDimension; i++)
+        {
           kernelRegionIdx[i] -= radius[i];
-          }
+        }
         currentKernelRegion.SetIndex(kernelRegionIdx);
         currentKernelRegion.Crop(inputRegion);
         SizeValueType edgepixelscount = currentKernelRegion.GetNumberOfPixels();
-        AccPixType sum = 0;
-        AccPixType squareSum = 0;
+        AccPixType    sum = 0;
+        AccPixType    squareSum = 0;
         // rules are : for each corner,
         //               for each dimension
         //                  if dimension offset is positive -> this is
@@ -529,75 +550,82 @@ BoxSigmaCalculatorFunction(const TInputImage *accImage,
         //                  if dimension offset is negative -> this is
         //                  a trailing edge. Ignore if it is outside
         //                  image region
-        for ( unsigned int k = 0; k < realCorners.size(); k++ )
-          {
+        for (unsigned int k = 0; k < realCorners.size(); k++)
+        {
           IndexType thisCorner = centIndex + realCorners[k];
           bool      includeCorner = true;
-          for ( unsigned int j = 0; j < TInputImage::ImageDimension; j++ )
+          for (unsigned int j = 0; j < TInputImage::ImageDimension; j++)
+          {
+            if (unitCorners[k][j] > 0)
             {
-            if ( unitCorners[k][j] > 0 )
-              {
               // leading edge - crop it
-              if ( thisCorner[j] > static_cast< OffsetValueType >( regionLimit[j] ) )
-                {
-                thisCorner[j] = static_cast< OffsetValueType >( regionLimit[j] );
-                }
-              }
-            else
+              if (thisCorner[j] > static_cast<OffsetValueType>(regionLimit[j]))
               {
-              // trailing edge - check bounds
-              if ( thisCorner[j] < regionStart[j] )
-                {
-                includeCorner = false;
-                break;
-                }
+                thisCorner[j] = static_cast<OffsetValueType>(regionLimit[j]);
               }
             }
-          if ( includeCorner )
+            else
             {
+              // trailing edge - check bounds
+              if (thisCorner[j] < regionStart[j])
+              {
+                includeCorner = false;
+                break;
+              }
+            }
+          }
+          if (includeCorner)
+          {
             const InputPixelType & i = accImage->GetPixel(thisCorner);
             sum += weights[k] * i[0];
             squareSum += weights[k] * i[1];
-            }
           }
-
-        oIt.Set( static_cast< OutputPixelType >( std::sqrt( ( squareSum - sum * sum
-                                                             / edgepixelscount ) / ( edgepixelscount - 1 ) ) ) );
-        progress.CompletedPixel();
         }
+
+        oIt.Set(
+          static_cast<OutputPixelType>(std::sqrt((squareSum - sum * sum / edgepixelscount) / (edgepixelscount - 1))));
+#if defined(ITKV4_COMPATIBILITY)
+        progress.CompletedPixel();
+#endif
       }
     }
+  }
 }
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-BoxSquareAccumulateFunction(const TInputImage *inputImage,
-                            TOutputImage *outputImage,
-                            typename TInputImage::RegionType inputRegion,
-                            typename TOutputImage::RegionType outputRegion,
+BoxSquareAccumulateFunction(const TInputImage *               inputImage,
+                            TOutputImage *                    outputImage,
+                            typename TInputImage::RegionType  inputRegion,
+                            typename TOutputImage::RegionType outputRegion
+#if defined(ITKV4_COMPATIBILITY)
+                            ,
                             ProgressReporter & progress)
+#else
+)
+#endif
 {
-  // typedefs
-  typedef TInputImage                         InputImageType;
-  typedef typename TInputImage::OffsetType    OffsetType;
-  typedef TOutputImage                        OutputImageType;
-  typedef typename TOutputImage::PixelType    OutputPixelType;
-  typedef typename OutputPixelType::ValueType ValueType;
-  typedef typename TInputImage::PixelType     InputPixelType;
+  // type alias
+  using InputImageType = TInputImage;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using ValueType = typename OutputPixelType::ValueType;
+  using InputPixelType = typename TInputImage::PixelType;
 
-  typedef ImageRegionConstIterator< TInputImage > InputIterator;
+  using InputIterator = ImageRegionConstIterator<TInputImage>;
 
-  typedef ShapedNeighborhoodIterator< TOutputImage > NOutputIterator;
-  InputIterator inIt(inputImage, inputRegion);
+  using NOutputIterator = ShapedNeighborhoodIterator<TOutputImage>;
+  InputIterator                  inIt(inputImage, inputRegion);
   typename TInputImage::SizeType kernelRadius;
   kernelRadius.Fill(1);
 
   NOutputIterator noutIt(kernelRadius, outputImage, outputRegion);
   // this iterator is fully connected
-  setConnectivityEarlyBox(&noutIt, true);
+  itk_impl_details::setConnectivityEarlyBox(&noutIt, true);
 
-  ConstantBoundaryCondition< OutputImageType > oBC;
-  oBC.SetConstant(NumericTraits< OutputPixelType >::ZeroValue() );
+  ConstantBoundaryCondition<OutputImageType> oBC;
+  oBC.SetConstant(NumericTraits<OutputPixelType>::ZeroValue());
   noutIt.OverrideBoundaryCondition(&oBC);
   // This uses several iterators. An alternative and probably better
   // approach would be to copy the input to the output and convolve
@@ -608,43 +636,43 @@ BoxSquareAccumulateFunction(const TInputImage *inputImage,
   // image being convolved so that the accumulation propagates
   // This should be implementable with neighborhood operators.
 
-  std::vector< int > weights;
+  std::vector<int>                        weights;
   typename NOutputIterator::ConstIterator sIt;
-  for ( typename NOutputIterator::IndexListType::const_iterator idxIt = noutIt.GetActiveIndexList().begin();
-        idxIt != noutIt.GetActiveIndexList().end();
-        idxIt++ )
-    {
+  for (auto idxIt = noutIt.GetActiveIndexList().begin(); idxIt != noutIt.GetActiveIndexList().end(); idxIt++)
+  {
     OffsetType offset = noutIt.GetOffset(*idxIt);
     int        w = -1;
-    for ( unsigned int k = 0; k < InputImageType::ImageDimension; k++ )
-      {
-      if ( offset[k] != 0 )
-        {
-        w *= offset[k];
-        }
-      }
-    weights.push_back(w);
-    }
-
-  for ( inIt.GoToBegin(), noutIt.GoToBegin(); !noutIt.IsAtEnd(); ++inIt, ++noutIt )
+    for (unsigned int k = 0; k < InputImageType::ImageDimension; k++)
     {
+      if (offset[k] != 0)
+      {
+        w *= offset[k];
+      }
+    }
+    weights.push_back(w);
+  }
+
+  for (inIt.GoToBegin(), noutIt.GoToBegin(); !noutIt.IsAtEnd(); ++inIt, ++noutIt)
+  {
     ValueType sum = 0;
     ValueType squareSum = 0;
     int       k;
-    for ( k = 0, sIt = noutIt.Begin(); !sIt.IsAtEnd(); ++sIt, ++k )
-      {
+    for (k = 0, sIt = noutIt.Begin(); !sIt.IsAtEnd(); ++sIt, ++k)
+    {
       const OutputPixelType & v = sIt.Get();
       sum += v[0] * weights[k];
       squareSum += v[1] * weights[k];
-      }
+    }
     OutputPixelType        o;
     const InputPixelType & i = inIt.Get();
     o[0] = sum + i;
     o[1] = squareSum + i * i;
     noutIt.SetCenterPixel(o);
+#if defined(ITKV4_COMPATIBILITY)
     progress.CompletedPixel();
-    }
+#endif
+  }
 }
-} //namespace itk
+} // namespace itk
 
 #endif

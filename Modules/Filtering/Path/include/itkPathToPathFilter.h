@@ -33,15 +33,17 @@ namespace itk
  * \ingroup ITKPath
  */
 
-template< typename TInputPath, typename TOutputPath >
-class ITK_TEMPLATE_EXPORT PathToPathFilter:public PathSource< TOutputPath >
+template <typename TInputPath, typename TOutputPath>
+class ITK_TEMPLATE_EXPORT PathToPathFilter : public PathSource<TOutputPath>
 {
 public:
-  /** Standard class typedefs. */
-  typedef PathToPathFilter           Self;
-  typedef PathSource< TOutputPath >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PathToPathFilter);
+
+  /** Standard class type aliases. */
+  using Self = PathToPathFilter;
+  using Superclass = PathSource<TOutputPath>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -49,26 +51,31 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(PathToPathFilter, PathSource);
 
-  /** Some convenient typedefs. */
-  typedef TInputPath                           InputPathType;
-  typedef typename InputPathType::Pointer      InputPathPointer;
-  typedef typename InputPathType::ConstPointer InputPathConstPointer;
+  /** Some convenient type alias. */
+  using InputPathType = TInputPath;
+  using InputPathPointer = typename InputPathType::Pointer;
+  using InputPathConstPointer = typename InputPathType::ConstPointer;
 
   /** Set/Get the path input of this process object.  */
   using Superclass::SetInput;
-  virtual void SetInput(const InputPathType *path);
+  virtual void
+  SetInput(const InputPathType * path);
 
-  virtual void SetInput(unsigned int, const TInputPath *path);
+  virtual void
+  SetInput(unsigned int, const TInputPath * path);
 
-  const InputPathType * GetInput();
+  const InputPathType *
+  GetInput();
 
-  const InputPathType * GetInput(unsigned int idx);
+  const InputPathType *
+  GetInput(unsigned int idx);
 
 protected:
   PathToPathFilter();
-  ~PathToPathFilter() ITK_OVERRIDE {}
+  ~PathToPathFilter() override = default;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** What is the input requested region that is required to produce the output
    * requested region?  Up till and including now, the base assumption is that
@@ -77,15 +84,13 @@ protected:
    * its first step.
    *
    * \sa ProcessObject::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PathToPathFilter);
+  void
+  GenerateInputRequestedRegion() override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPathToPathFilter.hxx"
+#  include "itkPathToPathFilter.hxx"
 #endif
 
 #endif

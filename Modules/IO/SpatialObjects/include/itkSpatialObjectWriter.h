@@ -29,38 +29,40 @@ namespace itk
  * \brief TODO
  * \ingroup ITKIOSpatialObjects
  */
-template< unsigned int NDimensions = 3,
+template <unsigned int NDimensions = 3,
           typename PixelType = unsigned char,
-          typename TMeshTraits = DefaultStaticMeshTraits< PixelType,
-                                                          NDimensions,
-                                                          NDimensions >
-          >
-class ITK_TEMPLATE_EXPORT SpatialObjectWriter:public Object
+          typename TMeshTraits = DefaultStaticMeshTraits<PixelType, NDimensions, NDimensions>>
+class ITK_TEMPLATE_EXPORT SpatialObjectWriter : public Object
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectWriter);
 
-  /** SmartPointer typedef support */
-  typedef SpatialObjectWriter  Self;
-  typedef SmartPointer< Self > Pointer;
+  /** SmartPointer type alias support */
+  using Self = SpatialObjectWriter;
+  using Pointer = SmartPointer<Self>;
 
-  typedef SpatialObject< NDimensions >        SpatialObjectType;
-  typedef typename SpatialObjectType::Pointer SpatialObjectPointer;
-  typedef SceneSpatialObject< NDimensions >   SceneType;
+  /** Run-time type information (and related methods). */
+  using Superclass = Object;
+
+  using SpatialObjectType = SpatialObject<NDimensions>;
+  using SpatialObjectPointer = typename SpatialObjectType::Pointer;
+  using SceneType = GroupSpatialObject<NDimensions>;
 
   /** base type for MetaConverters -- bidirections conversion btw
    *  SpatialObject & MetaObject
    */
-  typedef MetaConverterBase< NDimensions >  MetaConverterBaseType;
+  using MetaConverterBaseType = MetaConverterBase<NDimensions>;
+
+  using MetaSceneConverterType = MetaSceneConverter<NDimensions, PixelType, TMeshTraits>;
 
   /** Method for creation through the object factory */
   itkNewMacro(Self);
 
-  /** Run-time type information (and related methods). */
-  typedef Object Superclass;
   itkTypeMacro(SpatialObjectWriter, Object);
 
   /** Load a tube file. */
-  void Update();
+  void
+  Update();
 
   /** Set the filename  */
   itkSetStringMacro(FileName);
@@ -69,48 +71,55 @@ public:
   itkGetStringMacro(FileName);
 
   /** Set the Input  */
-  void SetInput(SpatialObjectType *input){ m_SpatialObject = input; }
+  void
+  SetInput(SpatialObjectType * input)
+  {
+    m_SpatialObject = input;
+  }
 
-  void SetInput(SceneType *input){ m_Scene = input; }
+  void
+  SetInput(SceneType * input)
+  {
+    m_Scene = input;
+  }
 
   itkSetMacro(BinaryPoints, bool);
   itkGetConstMacro(BinaryPoints, bool);
 
-  void SetTransformPrecision(unsigned int precision);
+  void
+  SetTransformPrecision(unsigned int precision);
 
-  unsigned int GetTransformPrecision();
+  unsigned int
+  GetTransformPrecision();
 
   /** Set/Get if the images should be written in a different file */
   itkSetMacro(WriteImagesInSeparateFile, bool);
   itkGetConstMacro(WriteImagesInSeparateFile, bool);
 
   /** Add a converter for a new MetaObject/SpatialObject type */
-  void RegisterMetaConverter(const char *metaTypeName,
-                             const char *spatialObjectTypeName,
-                             MetaConverterBaseType *converter);
+  void
+  RegisterMetaConverter(const char *            metaTypeName,
+                        const char *            spatialObjectTypeName,
+                        MetaConverterBaseType * converter);
 
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectWriter);
-
   std::string m_FileName;
   bool        m_BinaryPoints;
   bool        m_WriteImagesInSeparateFile;
 
   SpatialObjectWriter();
-  virtual ~SpatialObjectWriter() ITK_OVERRIDE;
+  ~SpatialObjectWriter() override = default;
 
 private:
-
   SpatialObjectPointer m_SpatialObject;
   SceneType *          m_Scene;
 
-  MetaSceneConverter< NDimensions, PixelType, TMeshTraits >
-  m_MetaToSpatialConverter;
+  typename MetaSceneConverterType::Pointer m_MetaToSpatialConverter;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSpatialObjectWriter.hxx"
+#  include "itkSpatialObjectWriter.hxx"
 #endif
 
 #endif // itkSpatialObjectWriter_h

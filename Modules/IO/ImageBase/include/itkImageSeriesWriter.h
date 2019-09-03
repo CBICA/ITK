@@ -30,27 +30,25 @@ namespace itk
  *  \brief Base exception class for IO problems during writing.
  * \ingroup ITKIOImageBase
  */
-class ITKIOImageBase_EXPORT ImageSeriesWriterException:public ExceptionObject
+class ITKIOImageBase_EXPORT ImageSeriesWriterException : public ExceptionObject
 {
 public:
   /** Has to have empty throw(). */
-  virtual ~ImageSeriesWriterException() ITK_NOEXCEPT ITK_OVERRIDE;
+  ~ImageSeriesWriterException() noexcept override;
 
   /** Run-time information. */
   itkTypeMacro(ImageSeriesWriterException, ExceptionObject);
 
   /** Constructor. */
-  ImageSeriesWriterException(char *file, unsigned int line,
-                             const char *message = "Error in IO"):
-    ExceptionObject(file, line)
+  ImageSeriesWriterException(char * file, unsigned int line, const char * message = "Error in IO")
+    : ExceptionObject(file, line)
   {
     SetDescription(message);
   }
 
   /** Constructor. */
-  ImageSeriesWriterException(const std::string & file, unsigned int line,
-                             const char *message = "Error in IO"):
-    ExceptionObject(file, line)
+  ImageSeriesWriterException(const std::string & file, unsigned int line, const char * message = "Error in IO")
+    : ExceptionObject(file, line)
   {
     SetDescription(message);
   }
@@ -77,16 +75,22 @@ public:
  *
  * \ingroup IOFilters
  * \ingroup ITKIOImageBase
+ *
+ * \sphinx
+ * \sphinxexample{IO/ImageBase/Creade3DFromSeriesOf2D,Creade 3D Volume From Series Of 2D Images}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITKIOImageBase_HIDDEN ImageSeriesWriter:public ProcessObject
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ImageSeriesWriter : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageSeriesWriter          Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageSeriesWriter);
+
+  /** Standard class type aliases. */
+  using Self = ImageSeriesWriter;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -94,27 +98,30 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageSeriesWriter, ProcessObject);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                          InputImageType;
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef ImageFileWriter< TOutputImage >      WriterType;
-  typedef std::vector< std::string >           FileNamesContainer;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using OutputImageType = TOutputImage;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using WriterType = ImageFileWriter<TOutputImage>;
+  using FileNamesContainer = std::vector<std::string>;
 
   /** The pixel type of the output image. */
-  typedef MetaDataDictionary                  DictionaryType;
-  typedef MetaDataDictionary *                DictionaryRawPointer;
-  typedef std::vector< DictionaryRawPointer > DictionaryArrayType;
-  typedef const DictionaryArrayType *         DictionaryArrayRawPointer;
+  using DictionaryType = MetaDataDictionary;
+  using DictionaryRawPointer = MetaDataDictionary *;
+  using DictionaryArrayType = std::vector<DictionaryRawPointer>;
+  using DictionaryArrayRawPointer = const DictionaryArrayType *;
 
   /** Set/Get the image input of this writer.  */
   using Superclass::SetInput;
-  void SetInput(const InputImageType *input);
+  void
+  SetInput(const InputImageType * input);
 
-  const InputImageType * GetInput();
+  const InputImageType *
+  GetInput();
 
-  const InputImageType * GetInput(unsigned int idx);
+  const InputImageType *
+  GetInput(unsigned int idx);
 
   /** Set/Get the ImageIO helper class. Usually this is created via
    * the object factory mechanism that determines whether a particular
@@ -129,11 +136,13 @@ public:
    * invokes start and end events and handles releasing data. It
    * eventually calls GenerateData() which does the actual writing.
    * The whole image is written. */
-  virtual void Write();
+  virtual void
+  Write();
 
   /** Aliased to the Write() method to be consistent with the rest of the
    * pipeline. */
-  virtual void Update() ITK_OVERRIDE
+  void
+  Update() override
   {
     this->Write();
   }
@@ -157,23 +166,26 @@ public:
 
   /** Set/Get the vector of strings that contains the file names. Files
    *  are processed in sequential order. */
-  void SetFileNames(const FileNamesContainer & name)
+  void
+  SetFileNames(const FileNamesContainer & name)
   {
-    if ( m_FileNames != name )
-      {
+    if (m_FileNames != name)
+    {
       m_FileNames = name;
       this->Modified();
-      }
+    }
   }
 
-  const FileNamesContainer & GetFileNames() const
+  const FileNamesContainer &
+  GetFileNames() const
   {
     return m_FileNames;
   }
 
   /** Set the first file name to be processed. This deletes previous
    * filenames. */
-  void SetFileName(std::string const & name)
+  void
+  SetFileName(std::string const & name)
   {
     m_FileNames.clear();
     m_FileNames.push_back(name);
@@ -182,7 +194,8 @@ public:
 
   /** Add a single filename to the list of files. To add a vector of
    * filenames, use the AddFileNames method. */
-  void AddFileName(std::string const & name)
+  void
+  AddFileName(std::string const & name)
   {
     m_FileNames.push_back(name);
     this->Modified();
@@ -199,24 +212,25 @@ public:
 
 protected:
   ImageSeriesWriter();
-  ~ImageSeriesWriter() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageSeriesWriter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Does the real work. */
-  virtual void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Transition method used for DEPRECATING old functionality.
    *  This method should be removed after release ITK 1.8 */
-  void GenerateNumericFileNamesAndWrite();
+  void
+  GenerateNumericFileNamesAndWrite();
 
   ImageIOBase::Pointer m_ImageIO;
 
-  //track whether the ImageIO is user specified
-  bool m_UserSpecifiedImageIO;
+  // track whether the ImageIO is user specified
+  bool m_UserSpecifiedImageIO{ false };
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageSeriesWriter);
-
   /** A list of filenames to be processed. */
   FileNamesContainer m_FileNames;
 
@@ -226,25 +240,27 @@ private:
    * to use additional SeriesFileNames such as the DICOM filenames generators.
    * */
   std::string   m_SeriesFormat;
-  SizeValueType m_StartIndex;
-  SizeValueType m_IncrementIndex;
+  SizeValueType m_StartIndex{ 1 };
+  SizeValueType m_IncrementIndex{ 1 };
 
   bool m_UseCompression;
 
   /** Array of MetaDataDictionary used for passing information to each slice */
-  DictionaryArrayRawPointer m_MetaDataDictionaryArray;
+  DictionaryArrayRawPointer m_MetaDataDictionaryArray{ nullptr };
 
   // These two methods provide now a common implementation for the
   // GenerateNumericFileNamesAndWrite() and avoid the duplication of code that
   // was leaving one of the code branches out of date.
-  void GenerateNumericFileNames();
+  void
+  GenerateNumericFileNames();
 
-  void WriteFiles();
+  void
+  WriteFiles();
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageSeriesWriter.hxx"
+#  include "itkImageSeriesWriter.hxx"
 #endif
 
 #endif // itkImageSeriesWriter_h

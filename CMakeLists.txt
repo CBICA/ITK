@@ -1,29 +1,63 @@
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
-
-foreach(p
-    CMP0025 # CMake 3.0
-    CMP0028
-    CMP0042 # CMake 3.0
-    CMP0048
-    CMP0054 # CMake 3.1
-    CMP0056 # CMake 3.2
-    CMP0058 # CMake 3.3
-    CMP0063 # CMake 3.3.2
-    CMP0083 # CMake 3.14.0
-    )
-  if(POLICY ${p})
-    cmake_policy(SET ${p} NEW)
+# ==== Define cmake build policies that affect compilation and linkage default behaviors
+#
+# Set the ITK_NEWEST_VALIDATED_POLICIES_VERSION string to the newest cmake version
+# policies that provide successful builds. By setting ITK_NEWEST_VALIDATED_POLICIES_VERSION
+# to a value greater than the oldest policies, all policies between
+# ITK_OLDEST_VALIDATED_POLICIES_VERSION and CMAKE_VERSION (used for this build)
+# are set to their NEW behaivor, thereby suppressing policy warnings related to policies
+# between the ITK_OLDEST_VALIDATED_POLICIES_VERSION and CMAKE_VERSION.
+#
+# CMake versions greater than the ITK_NEWEST_VALIDATED_POLICIES_VERSION policies will
+# continue to generate policy warnings "CMake Warning (dev)...Policy CMP0XXX is not set:"
+#
+set(ITK_OLDEST_VALIDATED_POLICIES_VERSION "3.10.2")
+set(ITK_NEWEST_VALIDATED_POLICIES_VERSION "3.14.0")
+cmake_minimum_required(VERSION ${ITK_OLDEST_VALIDATED_POLICIES_VERSION} FATAL_ERROR)
+if("${CMAKE_VERSION}" VERSION_LESS_EQUAL "${ITK_NEWEST_VALIDATED_POLICIES_VERSION}")
+  #Set and use the newest available cmake policies that are validated to work
+  set(ITK_CMAKE_POLICY_VERSION "${CMAKE_VERSION}")
+else()
+  set(ITK_CMAKE_POLICY_VERSION "${ITK_NEWEST_VALIDATED_POLICIES_VERSION}")
+endif()
+cmake_policy(VERSION ${ITK_CMAKE_POLICY_VERSION})
+#
+# Now enumerate specific policies newer than ITK_NEWEST_VALIDATED_POLICIES_VERSION
+# that may need to be individually set to NEW/OLD
+#
+foreach(pnew "") # Currently Empty
+  if(POLICY ${pnew})
+    cmake_policy(SET ${pnew} NEW)
+  endif()
+endforeach()
+foreach(pold "") # Currently Empty
+  if(POLICY ${pold})
+    cmake_policy(SET ${pold} OLD)
   endif()
 endforeach()
 
+# ==== Define language standard configurations requiring at least c++11 standard
+if(CMAKE_CXX_STANDARD EQUAL "98" )
+   message(FATAL_ERROR "CMAKE_CXX_STANDARD:STRING=98 is not supported in ITK version 5 and greater.")
+endif()
+
+#####
+##  Set the default target properties for ITK
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 11) # Supported values are ``11``, ``14``, and ``17``.
+endif()
+if(NOT CMAKE_CXX_STANDARD_REQUIRED)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+if(NOT CMAKE_CXX_EXTENSIONS)
+  set(CMAKE_CXX_EXTENSIONS OFF)
+endif()
+
+# ====
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/ITKInitializeBuildType.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
 
-# ITK version number components.
-set(ITK_VERSION_MAJOR "4")
-set(ITK_VERSION_MINOR "13")
-set(ITK_VERSION_PATCH "2")
+include(itkVersion)
 set(ITK_VERSION
     "${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR}.${ITK_VERSION_PATCH}")
 project(ITK
@@ -31,6 +65,13 @@ project(ITK
   LANGUAGES CXX C)
 
 set(ITK_CMAKE_DIR "${ITK_SOURCE_DIR}/CMake")
+
+if (APPLE)
+  include(itkApple)
+endif ()
+
+include(itkCompilerChecks)
+include(itkSupportMacros)
 
 # Configure CMake variables that will be used in the module macros
 # ITK_USE_FILE is used when a remote module includes an example directory
@@ -42,14 +83,24 @@ set(ITK_USE_FILE "${ITK_CONFIG_CMAKE_DIR}/UseITK.cmake")
 # outside of their original project and used without any modification.
 configure_file(CMake/ITKInternalConfig.cmake ${ITK_BINARY_DIR}/CMakeTmp/ITKConfig.cmake COPYONLY)
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/CMake/ITKInitializeBuildType.cmake)
-enable_language(C)
-enable_language(CXX)
 
 include(CMakeDependentOption)
 #
 # use ExternalProject
 include(ExternalProject)
+
+if( CMAKE_HOST_WIN32 )
+  if(NOT DEFINED ITK_SKIP_PATH_LENGTH_CHECKS)
+    if(${CMAKE_SYSTEM_VERSION} VERSION_GREATER "10.0.14392") # Win10 version 1607
+      set(_LongPathKey LongPathsEnabled)
+      execute_process(COMMAND reg query HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem /v ${_LongPathKey} OUTPUT_VARIABLE _output)
+      string(REGEX MATCH "${_LongPathKey}.*REG_DWORD.*[0-9]x([0-9])" _regex ${_output})
+      if (${CMAKE_MATCH_1})
+        set(ITK_SKIP_PATH_LENGTH_CHECKS 0 CACHE BOOL "Skips max path length checks. These checks can be disabled for Windows version 10.0.14393 and later if registry key HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem\\LongPathsEnabled is set to 1 and all tools support long paths. As of January 2018, MSBuild and Visual Studio do not support it yet.")
+      endif()
+    endif()
+  endif()
+endif()
 
 if( CMAKE_HOST_WIN32 AND NOT ITK_SKIP_PATH_LENGTH_CHECKS )
 
@@ -85,8 +136,6 @@ endif()
 include(CTest)
 mark_as_advanced(CLEAR BUILD_TESTING)
 
-set(ITK_CMAKE_DIR ${ITK_SOURCE_DIR}/CMake)
-set(CMAKE_MODULE_PATH ${ITK_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 include(ITKDownloadSetup)
 include(PreventInSourceBuilds)
 include(PreventInBuildInstalls)
@@ -155,12 +204,11 @@ endif()
 # in ITK's configuration. If it is set, it most likely means that
 # a developer is configuring ITK to be built with a launcher such as ccache
 # or distcc. This should be done with the CMake variable
-# CMAKE_C_COMPILER_LAUNCHER_FLAG available in CMake > 3.4.0 .
+# CMAKE_C_COMPILER_LAUNCHER_FLAG.
 if(CMAKE_C_COMPILER_ARG1)
   message(WARNING "The CMake variable CMAKE_C_COMPILER_ARG1 is set. This most\
   likely mean that the developer is trying to use ccache or distcc. The CMake\
-  variable CMAKE_C_COMPILER_LAUNCHER_FLAG should be used instead\
-  (CMake>=3.4 required)")
+  variable CMAKE_C_COMPILER_LAUNCHER_FLAG should be used instead.")
 endif()
 
 #-----------------------------------------------------------------------------
@@ -173,34 +221,11 @@ mark_as_advanced(ITK_DYNAMIC_LOADING)
 
 #-----------------------------------------------------------------------------
 # Wrapping options
-option(ITK_WRAP_PYTHON "Build Python support" OFF)
-option(ITK_WRAP_JAVA "Build Java support (Currently not supported)" OFF)
-option(ITK_WRAP_RUBY "Build Ruby support (Currently not supported)" OFF)
-option(ITK_WRAP_PERL "Build Perl support (Currently not supported)" OFF)
-option(ITK_WRAP_TCL "Build Tcl support (Currently not supported)" OFF)
-mark_as_advanced(ITK_WRAP_JAVA)
-mark_as_advanced(ITK_WRAP_RUBY)
-mark_as_advanced(ITK_WRAP_PERL)
-mark_as_advanced(ITK_WRAP_TCL)
-
-if(ITK_WRAP_PYTHON OR ITK_WRAP_JAVA OR ITK_WRAP_RUBY OR ITK_WRAP_PERL OR ITK_WRAP_TCL)
-  if(NOT ITK_DYNAMIC_LOADING)
-    message(FATAL_ERROR "Wrapping requires ITK_DYNAMIC_LOADING to be ON")
-  endif()
-  # ITK_WRAPPING is an internal variable
-  set(ITK_WRAPPING ON CACHE INTERNAL "Build external languages support" FORCE)
-else()
-  set(ITK_WRAPPING OFF CACHE INTERNAL "Build external languages support" FORCE)
-endif()
-# Enable BridgeNumPy by default when Python wrapping is enabled
-if(ITK_WRAP_PYTHON AND NOT DEFINED Module_BridgeNumPy)
-  set(Module_BridgeNumPy ON CACHE BOOL "Enable the BridgeNumPy module.")
-endif()
-
+include(Wrapping/CMakeUtilityFunctions.cmake)
+include(Wrapping/WrappingOptions.cmake)
 include(ITKSetStandardCompilerFlags)
 #---------------------------------------------------------------
-# run try compiles and tests for ITK
-include(itkTestFriendTemplatedFunction)
+
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ITK_REQUIRED_C_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ITK_REQUIRED_CXX_FLAGS}")
@@ -231,7 +256,7 @@ set(ITK_MODULES_DIR "${ITK_BINARY_DIR}/${ITK_INSTALL_PACKAGE_DIR}/Modules")
 
 #-----------------------------------------------------------------------------
 # Provide compatibility options.
-option(ITKV3_COMPATIBILITY "Enable compatibility with ITK3.x when possible." OFF)
+option(ITKV4_COMPATIBILITY "Enable compatibility with ITK4.x when possible." OFF)
 # During major release updates deprecated interface may be needed for backwards compatibility
 option(ITK_LEGACY_REMOVE "Remove current legacy code completely." OFF)
 # During minor releases bugs may be identified that identify broken interface, or
@@ -244,18 +269,16 @@ if(ITK_WRAPPING)
 else()
   option(ITK_LEGACY_SILENT "Silence all legacy code messages." OFF)
 endif()
-mark_as_advanced(ITK_LEGACY_SILENT ITK_LEGACY_REMOVE ITK_FUTURE_LEGACY_REMOVE ITK_V3_COMPATIBILITY)
+mark_as_advanced(ITK_LEGACY_SILENT ITK_LEGACY_REMOVE ITK_FUTURE_LEGACY_REMOVE ITKV4_COMPATIBILITY)
 
-
-if (NOT ITK_LEGACY_SILENT AND ITKV3_COMPATIBILITY)
-  message(WARNING "ITKV3_COMPATIBILITY will be removed starting in ITK version 5.0.")
-endif()
-
-# The disabling of legacy code, and the ITKv3 compatibility option can not both be
-# requested. If removal of legacy code is requested, then ITKV3_COMPATIBILITY must
+# The disabling of legacy code, and the ITKv4 compatibility option can not both be
+# requested. If removal of legacy code is requested, then ITKV4_COMPATIBILITY must
 # be off.
-if(ITKV3_COMPATIBILITY AND ITK_LEGACY_REMOVE)
-  message(FATAL_ERROR "Invlaid configuration: ITKV3_COMPATIBILITY AND ITK_LEGACY_REMOVE can not both be ON")
+if(ITKV4_COMPATIBILITY AND ITK_LEGACY_REMOVE)
+  message(FATAL_ERROR "Invalid configuration: ITKV4_COMPATIBILITY AND ITK_LEGACY_REMOVE can not both be ON")
+endif()
+if (ITKV3_COMPATIBILITY)
+  message(FATAL_ERROR "ITKV3_COMPATIBILITY is removed starting in ITK version 5.0, this option is no longer valid.")
 endif()
 
 #-----------------------------------------------------------------------------
@@ -263,7 +286,7 @@ endif()
 # ITK_USE_REVIEW is deprecated, only kept for backward compatibility
 if (ITK_USE_REVIEW AND NOT Module_ITKReview)
   message(WARNING "ITK_USE_REVIEW is deprecated, please use Module_ITKReview to turn Review module ON/OFF")
-  set(Module_ITKReview ON CACHE BOOL "Module containing code from the Review directory of ITKv3." FORCE)
+  set(Module_ITKReview ON CACHE BOOL "Module containing code from the Review directory of ITKv4." FORCE)
 endif()
 
 #-----------------------------------------------------------------------------
@@ -286,6 +309,36 @@ endif()
 #-----------------------------------------------------------------------------
 # Manage FFT v3 Options
 #
+option(ITK_USE_MKL "Use system Intel Math Kernel Library (MKL) for FFT computation." OFF)
+mark_as_advanced(ITK_USE_MKL)
+if(ITK_USE_MKL)
+  # The following lines are only useful if one sets `ITK_USE_MKL` to ON in
+  # the command line. Otherwise, the first CMake run will always initialize
+  # these variables to false. The error message will help the user to set
+  # the appropriate values.
+  set(ITK_USE_FFTWD ON CACHE BOOL "Use double precision fftw if found")
+  set(ITK_USE_FFTWF ON CACHE BOOL "Use single precision fftw if found")
+  set(ITK_USE_SYSTEM_FFTW ON CACHE BOOL "Use an installed version of fftw")
+  if(NOT ITK_USE_FFTWD OR NOT ITK_USE_FFTWF OR NOT ITK_USE_SYSTEM_FFTW)
+    message(FATAL_ERROR "ITK_USE_MKL is set to ON. ITK_USE_FFTWD, ITK_USE_FFTWF\
+ and ITK_USE_SYSTEM_FFTW must be set to ON, too.")
+  endif()
+endif()
+option(ITK_USE_CUFFTW "Use NVidia CUDA cuFFT with its FFTW interface for FFT computation." OFF)
+mark_as_advanced(ITK_USE_CUFFTW)
+if(ITK_USE_CUFFTW)
+  # The following lines are only useful if one sets `ITK_USE_CUFFTW` to ON in
+  # the command line. Otherwise, the first CMake run will always initialize
+  # these variables to false. The error message will help the user to set
+  # the appropriate values.
+  set(ITK_USE_FFTWD ON CACHE BOOL "Use double precision fftw if found")
+  set(ITK_USE_FFTWF ON CACHE BOOL "Use single precision fftw if found")
+  set(ITK_USE_SYSTEM_FFTW ON CACHE BOOL "Use an installed version of fftw")
+  if(NOT ITK_USE_FFTWD OR NOT ITK_USE_FFTWF OR NOT ITK_USE_SYSTEM_FFTW)
+    message(FATAL_ERROR "ITK_USE_CUFFTW is set to ON. ITK_USE_FFTWD, ITK_USE_FFTWF\
+ and ITK_USE_SYSTEM_FFTW must be set to ON, too.")
+  endif()
+endif()
 # ITK_USE_FFTWD -- use double precision fftw
 if(DEFINED USE_FFTWD)
   set(ITK_USE_FFTWD_DEFAULT ${USE_FFTWD})
@@ -318,21 +371,20 @@ if( ITK_USE_FFTWD OR ITK_USE_FFTWF )
   include(itkExternal_FFTW)
 endif()
 
-if(NOT ITKV3_COMPATIBILITY)
-  set(ITK_USE_64BITS_IDS_DEFAULT "OFF")
-  # Note WIN32 is true when targeting any windows system
-  if(CMAKE_SIZEOF_VOID_P EQUAL "8" AND WIN32)
-    set(ITK_USE_64BITS_IDS_DEFAULT "ON")
-  endif()
-  option(ITK_USE_64BITS_IDS "When ON, ITK will use 64-bit integer types instead of long types for sizes and indexes. This is needed for managing images larger than 4Gb in some platforms." "${ITK_USE_64BITS_IDS_DEFAULT}")
-  mark_as_advanced(ITK_USE_64BITS_IDS)
+set(ITK_USE_64BITS_IDS_DEFAULT "OFF")
+# Note WIN32 is true when targeting any windows system
+if(CMAKE_SIZEOF_VOID_P EQUAL "8" AND WIN32)
+  set(ITK_USE_64BITS_IDS_DEFAULT "ON")
 endif()
+option(ITK_USE_64BITS_IDS "When ON, ITK will use 64-bit integer types instead of long types for sizes and indexes. This is needed for managing images larger than 4Gb in some platforms." "${ITK_USE_64BITS_IDS_DEFAULT}")
+mark_as_advanced(ITK_USE_64BITS_IDS)
 
 # ITK turn on concept checking
 option(ITK_USE_CONCEPT_CHECKING "Turn on concept checking to give helpful errors at compile time if a type cannot be used as a template parameter." ON)
 mark_as_advanced(ITK_USE_CONCEPT_CHECKING)
-option(ITK_USE_STRICT_CONCEPT_CHECKING "Turn on Strict concept checking to give more stringent errors at compile time if a type cannot be used as a template parameter." OFF)
-mark_as_advanced(ITK_USE_STRICT_CONCEPT_CHECKING)
+if(ITK_USE_STRICT_CONCEPT_CHECKING)
+  message(WARNING "Compilers requiring ITK_USE_STRICT_CONCEPT_CHECKING are no longer suppported.  This variable is no longer used.")
+endif()
 
 #-----------------------------------------------------------------------------
 # Mandatory wrapping options.
@@ -357,13 +409,20 @@ set(ITK_EXAMPLE_DATA_ROOT "${ITK_SOURCE_DIR}/Examples/Data")
 
 #This flag is used in particular, to enable some tests that require large memory to run.
 # This probably can be discovered at configuration time by CMake. (Check with CMake developers).
-set(ITK_COMPUTER_MEMORY_SIZE 1 CACHE STRING "Provide here the size of your RAM Memory in GigaBytes")
+set(ITK_COMPUTER_MEMORY_SIZE 1 CACHE STRING "Provide here the size of your RAM in gibibytes")
 mark_as_advanced(ITK_COMPUTER_MEMORY_SIZE)
 
 #This flag sets the floating point type used in itk::ImageBase for
 # spacing/direction/origin to single precision
 option(ITK_USE_FLOAT_SPACE_PRECISION "Use single precision for origin/spacing/directions in itk::Image" OFF)
 mark_as_advanced(ITK_USE_FLOAT_SPACE_PRECISION)
+
+# This flag allows to not build itkTestDrivers while still configuring all the tests and disable all
+# tests that are implemented in the `test` folder in each ITK module. It does not disable tests
+# that are implemented in the wrapping folder.
+# This is used by dashboards to speed up compilation and testing on certain platforms.
+option(DISABLE_MODULE_TESTS "Disable all ITK module tests in `test` folder" OFF)
+mark_as_advanced(DISABLE_MODULE_TESTS)
 
 #----------------------------------------------------------------------
 # Make sure remote modules are downloaded before sorting out the module
@@ -372,6 +431,9 @@ add_subdirectory(Modules/Remote)
 
 # Enable modules according to user inputs and the module dependency DAG.
 include(ITKModuleEnablement)
+
+# Setup clang-format for code style enforcement
+include(ITKClangFormatSetup)
 
 #----------------------------------------------------------------------
 # Generate ITKConfig.cmake for the build tree.
@@ -408,11 +470,6 @@ if(NOT ITK_USE_SYSTEM_FFTW)
 endif()
 configure_file(CMake/ITKConfig.cmake.in CMakeFiles/ITKConfig.cmake @ONLY)
 
-#----------------------------------------------------------------------------
-# Configure maintenance scripts
-configure_file(Utilities/Maintenance/doSingleKWStyleUncrustifyFix.sh.in
-  Utilities/Maintenance/doSingleKWStyleUncrustifyFix.sh @ONLY)
-
 #-----------------------------------------------------------------------------
 install(FILES ${ITK_BINARY_DIR}/CMakeFiles/ITKConfig.cmake
               ${ITK_BINARY_DIR}/ITKConfigVersion.cmake
@@ -420,6 +477,7 @@ install(FILES ${ITK_BINARY_DIR}/CMakeFiles/ITKConfig.cmake
               CMake/UseITK.cmake
               CMake/itkImageIOFactoryRegisterManager.h.in
               CMake/itkTransformIOFactoryRegisterManager.h.in
+              CMake/itkMeshIOFactoryRegisterManager.h.in
   DESTINATION ${ITK_INSTALL_PACKAGE_DIR}
   COMPONENT Development)
 get_property(ITKTargets_MODULES GLOBAL PROPERTY ITKTargets_MODULES)
@@ -461,5 +519,5 @@ add_subdirectory(Utilities/Doxygen)
 
 # Create target to download data from the ITKData group. This must come after
 # all tests have been added that reference the group, so we put it last.
-include(${ITK_CMAKE_DIR}/ExternalData.cmake)
+include(ExternalData)
 ExternalData_Add_Target(ITKData)

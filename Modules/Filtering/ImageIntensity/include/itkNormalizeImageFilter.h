@@ -33,28 +33,33 @@ namespace itk
  * StatisticsImageFilter to compute the mean and variance of the input
  * and then applies ShiftScaleImageFilter to shift and scale the pixels.
  *
- * NB: since this filter normalizes the data to lie within -1 to 1,
- * integral types will produce an image that DOES NOT HAVE a unit variance.
+ * NB: since this filter normalizes the data such that the mean is at 0, and
+ * \f$-\sigma\f$ to \f$+\sigma\f$ is mapped to -1.0 to 1.0,
+ * output image integral types will produce an image that DOES NOT HAVE
+ * a unit variance due to 68% of the intensity values being mapped to the
+ * real number range of -1.0 to 1.0 and then cast to the output
+ * integral value.
  *
  * \sa NormalizeToConstantImageFilter
  *
  * \ingroup MathematicalImageFilters
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/NormalizeImageFilter,Normalize an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/NormalizeImage,Normalize Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT NormalizeImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT NormalizeImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard Self typedef */
-  typedef NormalizeImageFilter                            Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NormalizeImageFilter);
+
+  /** Standard Self type alias */
+  using Self = NormalizeImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,33 +67,34 @@ public:
   /** Runtime information support. */
   itkTypeMacro(NormalizeImageFilter, ImageToImageFilter);
 
-  /** Image related typedefs. */
-  typedef typename TInputImage::Pointer  InputImagePointer;
-  typedef typename TOutputImage::Pointer OutputImagePointer;
+  /** Image related type alias. */
+  using InputImagePointer = typename TInputImage::Pointer;
+  using OutputImagePointer = typename TOutputImage::Pointer;
 
   /** NormalizeImageFilter must call modified on its internal filters */
-  virtual void Modified() const ITK_OVERRIDE;
+  void
+  Modified() const override;
 
 protected:
   NormalizeImageFilter();
 
   /** GenerateData. */
-  void  GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NormalizeImageFilter);
+  typename StatisticsImageFilter<TInputImage>::Pointer m_StatisticsFilter;
 
-  typename StatisticsImageFilter< TInputImage >::Pointer m_StatisticsFilter;
-
-  typename ShiftScaleImageFilter< TInputImage, TOutputImage >::Pointer m_ShiftScaleFilter;
+  typename ShiftScaleImageFilter<TInputImage, TOutputImage>::Pointer m_ShiftScaleFilter;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkNormalizeImageFilter.hxx"
+#  include "itkNormalizeImageFilter.hxx"
 #endif
 
 #endif

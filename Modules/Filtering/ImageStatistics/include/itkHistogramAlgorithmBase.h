@@ -33,43 +33,48 @@ namespace itk
  * \ingroup ITKImageStatistics
  */
 
-template< typename TInputHistogram >
-class ITK_TEMPLATE_EXPORT HistogramAlgorithmBase:public Object
+template <typename TInputHistogram>
+class ITK_TEMPLATE_EXPORT HistogramAlgorithmBase : public Object
 {
 public:
-  /**Standard class typedefs. */
-  typedef HistogramAlgorithmBase     Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /**Standard class type aliases. */
+  using Self = HistogramAlgorithmBase;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**Standard Macros */
   itkTypeMacro(HistogramAlgorithmBase, Object);
 
-  /** Histogram typedefs alias */
-  typedef TInputHistogram InputHistogramType;
+  /** Histogram type alias alias */
+  using InputHistogramType = TInputHistogram;
 
   /** Stores the histogram pointer */
-  void SetInputHistogram(const TInputHistogram *histogram)
+  void
+  SetInputHistogram(const TInputHistogram * histogram)
   {
-    if ( m_InputHistogram != histogram )
-      {
+    if (m_InputHistogram != histogram)
+    {
       m_InputHistogram = histogram;
       this->Modified();
-      }
+    }
   }
 
   /** Returns the histogram const pointer */
-  const TInputHistogram * GetInputHistogram() const
-  { return m_InputHistogram.GetPointer(); }
+  const TInputHistogram *
+  GetInputHistogram() const
+  {
+    return m_InputHistogram.GetPointer();
+  }
 
   /** \deprecated
    * Update() is deprecated because classes that do not
    * derive from ProcessObject are not part of the pipeline and
    * should therefore not have an Update() method.
    * It is included for backwards compatibility. */
-#if ! defined ( ITK_FUTURE_LEGACY_REMOVE )
-  void Update()
+#if !defined(ITK_LEGACY_REMOVE)
+  void
+  Update()
   {
     this->Compute();
   }
@@ -77,10 +82,12 @@ public:
 
 protected:
   HistogramAlgorithmBase();
-  virtual ~HistogramAlgorithmBase() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~HistogramAlgorithmBase() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void Compute() = 0;
+  virtual void
+  Compute() = 0;
 
 private:
   /** Target histogram data pointer */
@@ -89,7 +96,7 @@ private:
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHistogramAlgorithmBase.hxx"
+#  include "itkHistogramAlgorithmBase.hxx"
 #endif
 
 #endif

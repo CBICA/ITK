@@ -21,33 +21,35 @@
 
 /* This test exercises the itkSparseImage class. */
 
-namespace itk {
+namespace itk
+{
 
 template <typename TImageType>
 class NodeClass
 {
 public:
-  typedef TImageType                    ImageType;
-  typedef typename ImageType::IndexType IndexType;
-  int        m_Value;
-  IndexType  m_Index;
-  NodeClass *Next;
-  NodeClass *Previous;
+  using ImageType = TImageType;
+  using IndexType = typename ImageType::IndexType;
+  int         m_Value;
+  IndexType   m_Index;
+  NodeClass * Next;
+  NodeClass * Previous;
 };
 
-}
+} // namespace itk
 
-int itkSparseImageTest(int, char* [] )
+int
+itkSparseImageTest(int, char *[])
 {
-  typedef itk::Image<int, 2>             DummyImageType;
-  typedef itk::NodeClass<DummyImageType> NodeType;
-  typedef itk::SparseImage<NodeType, 2>  SparseImageType;
-  typedef SparseImageType::Superclass    ImageType;
+  using DummyImageType = itk::Image<int, 2>;
+  using NodeType = itk::NodeClass<DummyImageType>;
+  using SparseImageType = itk::SparseImage<NodeType, 2>;
+  using ImageType = SparseImageType::Superclass;
 
   SparseImageType::Pointer im = SparseImageType::New();
-  ImageType::RegionType r;
-  ImageType::SizeType   sz = {{24, 24}};
-  ImageType::IndexType  idx = {{0,0}};
+  ImageType::RegionType    r;
+  ImageType::SizeType      sz = { { 24, 24 } };
+  ImageType::IndexType     idx = { { 0, 0 } };
   r.SetSize(sz);
   r.SetIndex(idx);
 
@@ -57,21 +59,20 @@ int itkSparseImageTest(int, char* [] )
   im->Allocate();
 
   ImageType::IndexType index;
-  NodeType *node;
-  int cnt = 0;
+  NodeType *           node;
+  int                  cnt = 0;
 
-  for ( index[0]=0; index[0] < 24; index[0]++ )
-    for ( index[1]=0; index[1] < 24; index[1]++ )
+  for (index[0] = 0; index[0] < 24; index[0]++)
+    for (index[1] = 0; index[1] < 24; index[1]++)
+    {
+      if ((index[0] >= 6) && (index[0] <= 12) && (index[1] >= 6) && (index[1] <= 12))
       {
-      if ( (index[0]>=6) && (index[0]<=12) &&
-           (index[1]>=6) && (index[1]<=12) )
-        {
-        node = im->AddNode (index);
+        node = im->AddNode(index);
         node->m_Value = cnt++;
-        }
       }
+    }
 
-  typedef SparseImageType::NodeListType NodeListType;
+  using NodeListType = SparseImageType::NodeListType;
   NodeListType::Pointer nodelist = im->GetNodeList();
   nodelist->Print(std::cout);
   im->Print(std::cout);

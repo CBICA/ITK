@@ -31,53 +31,53 @@ namespace itk
  *
  * \ingroup ITKGPUAnisotropicSmoothing
  */
-template< typename TInputImage, typename TOutputImage, typename TParentImageFilter =
-            AnisotropicDiffusionImageFilter< TInputImage, TOutputImage > >
-class ITK_TEMPLATE_EXPORT GPUAnisotropicDiffusionImageFilter :
-  public GPUDenseFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
+template <typename TInputImage,
+          typename TOutputImage,
+          typename TParentImageFilter = AnisotropicDiffusionImageFilter<TInputImage, TOutputImage>>
+class ITK_TEMPLATE_EXPORT GPUAnisotropicDiffusionImageFilter
+  : public GPUDenseFiniteDifferenceImageFilter<TInputImage, TOutputImage, TParentImageFilter>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUAnisotropicDiffusionImageFilter                                                   Self;
-  typedef GPUDenseFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter > GPUSuperclass;
-  typedef AnisotropicDiffusionImageFilter< TInputImage, TOutputImage >                         CPUSuperclass;
-  typedef SmartPointer< Self >                                                                 Pointer;
-  typedef SmartPointer< const Self >                                                           ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUAnisotropicDiffusionImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GPUAnisotropicDiffusionImageFilter;
+  using GPUSuperclass = GPUDenseFiniteDifferenceImageFilter<TInputImage, TOutputImage, TParentImageFilter>;
+  using CPUSuperclass = AnisotropicDiffusionImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information. */
-  itkTypeMacro(GPUAnisotropicDiffusionImageFilter,
-               GPUDenseFiniteDifferenceImageFilter);
+  itkTypeMacro(GPUAnisotropicDiffusionImageFilter, GPUDenseFiniteDifferenceImageFilter);
 
   /** Capture information from the superclass. */
-  typedef typename GPUSuperclass::InputImageType   InputImageType;
-  typedef typename GPUSuperclass::OutputImageType  OutputImageType;
-  typedef typename GPUSuperclass::UpdateBufferType UpdateBufferType;
+  using InputImageType = typename GPUSuperclass::InputImageType;
+  using OutputImageType = typename GPUSuperclass::OutputImageType;
+  using UpdateBufferType = typename GPUSuperclass::UpdateBufferType;
 
   /** Dimensionality of input and output data is assumed to be the same.
    * It is inherited from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int, GPUSuperclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = GPUSuperclass::ImageDimension;
 
   /** The pixel type of the output image will be used in computations.
    * Inherited from the superclass. */
-  typedef typename GPUSuperclass::PixelType    PixelType;
-  typedef typename GPUSuperclass::TimeStepType TimeStepType;
+  using PixelType = typename GPUSuperclass::PixelType;
+  using TimeStepType = typename GPUSuperclass::TimeStepType;
 
 protected:
   GPUAnisotropicDiffusionImageFilter() {}
-  ~GPUAnisotropicDiffusionImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GPUAnisotropicDiffusionImageFilter() override {}
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Prepare for the iteration process. */
-  virtual void InitializeIteration() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUAnisotropicDiffusionImageFilter);
-
+  void
+  InitializeIteration() override;
 };
-} // end namspace itk
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUAnisotropicDiffusionImageFilter.hxx"
+#  include "itkGPUAnisotropicDiffusionImageFilter.hxx"
 #endif
 
 #endif

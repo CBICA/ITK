@@ -68,13 +68,15 @@ namespace itk
  *
  * \ingroup ITKIOImageBase
  */
-class ITKIOImageBase_EXPORT RegularExpressionSeriesFileNames:public Object
+class ITKIOImageBase_EXPORT RegularExpressionSeriesFileNames : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef RegularExpressionSeriesFileNames Self;
-  typedef Object                           Superclass;
-  typedef SmartPointer< Self >             Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RegularExpressionSeriesFileNames);
+
+  /** Standard class type aliases. */
+  using Self = RegularExpressionSeriesFileNames;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -104,29 +106,27 @@ public:
   itkBooleanMacro(NumericSort);
 
   /** Returns a vector containing the series' file names. The file
-    * names are sorted by the sub expression selected by the SubMatch id. */
-  const std::vector< std::string > & GetFileNames();
+   * names are sorted by the sub expression selected by the SubMatch id. */
+  const std::vector<std::string> &
+  GetFileNames();
 
 protected:
-  RegularExpressionSeriesFileNames():
-    m_Directory("."),
-    m_SubMatch(1),
-    m_NumericSort(false),
-    m_RegularExpression(".*\\.([0-9]+)")
+  RegularExpressionSeriesFileNames()
+    : m_Directory(".")
+    , m_RegularExpression(".*\\.([0-9]+)")
   {}
-  ~RegularExpressionSeriesFileNames() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~RegularExpressionSeriesFileNames() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RegularExpressionSeriesFileNames);
-
   std::string  m_Directory;
-  unsigned int m_SubMatch;
-  bool         m_NumericSort;
+  unsigned int m_SubMatch{ 1 };
+  bool         m_NumericSort{ false };
   std::string  m_RegularExpression;
 
-  std::vector< std::string > m_FileNames;
+  std::vector<std::string> m_FileNames;
 };
-} //namespace ITK
+} // namespace itk
 
 #endif // itkRegularExpressionSeriesFileNames_h

@@ -22,83 +22,82 @@
 #include "itkImageFileReader.h"
 
 #include <iostream>
+#include "itkTestingMacros.h"
 
-int itkMatchCardinalityImageToImageMetricTest(int argc, char* argv[] )
+int
+itkMatchCardinalityImageToImageMetricTest(int argc, char * argv[])
 {
 
   if (argc < 2)
-    {
-    std::cout << "Usage: " << argv[0] << " InputFile" << std::endl;
-    exit (1);
-    }
+  {
+    std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " InputFile" << std::endl;
+    exit(1);
+  }
 
-  typedef itk::Image<unsigned char,2>          ImageType;
-  typedef itk::TranslationTransform<double, 2> TransformType;
-  typedef itk::MatchCardinalityImageToImageMetric<ImageType,ImageType>
-                                               MetricType;
-  typedef itk::ImageFileReader<ImageType>      ReaderType;
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType,double>
-                                               InterpolatorType;
+  using ImageType = itk::Image<unsigned char, 2>;
+  using TransformType = itk::TranslationTransform<double, 2>;
+  using MetricType = itk::MatchCardinalityImageToImageMetric<ImageType, ImageType>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using InterpolatorType = itk::NearestNeighborInterpolateImageFunction<ImageType, double>;
 
-  ReaderType::Pointer reader = ReaderType::New();
-  MetricType::Pointer metric = MetricType::New();
-  TransformType::Pointer transform = TransformType::New();
+  ReaderType::Pointer       reader = ReaderType::New();
+  MetricType::Pointer       metric = MetricType::New();
+  TransformType::Pointer    transform = TransformType::New();
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
 
   MetricType::ParametersType offset(2);
 
-  reader->SetFileName (argv[1]);
+  reader->SetFileName(argv[1]);
   reader->Update();
 
-  metric->SetMovingImage (reader->GetOutput());
-  metric->SetFixedImage (reader->GetOutput());
-  metric->SetInterpolator (interpolator);
-  metric->SetTransform (transform);
-  metric->SetFixedImageRegion (reader->GetOutput()->GetLargestPossibleRegion());
+  metric->SetMovingImage(reader->GetOutput());
+  metric->SetFixedImage(reader->GetOutput());
+  metric->SetInterpolator(interpolator);
+  metric->SetTransform(transform);
+  metric->SetFixedImageRegion(reader->GetOutput()->GetLargestPossibleRegion());
   metric->Initialize();
 
   std::cout << "First measure matches..." << std::endl;
-  for (float x = -200.0; x <= 200.0; x+= 50.0)
-    {
+  for (float x = -200.0; x <= 200.0; x += 50.0)
+  {
     offset[0] = x;
-    for (float y = 0.0; y <= 0.0; y+= 10.0)
-      {
+    for (float y = 0.0; y <= 0.0; y += 10.0)
+    {
       offset[1] = y;
       try
-        {
+      {
         std::cout << "Offset: " << offset << " = " << metric->GetValue(offset) << std::endl;
-        }
-      catch( itk::ExceptionObject & excp )
-        {
+      }
+      catch (itk::ExceptionObject & excp)
+      {
         std::cerr << "Exception thrown while computing metric " << std::endl;
         std::cerr << excp << std::endl;
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   std::cout << "Now measure mismatches..." << std::endl;
   metric->MeasureMatchesOff();
 
-  for (float x = -200.0; x <= 200.0; x+= 50.0)
-    {
+  for (float x = -200.0; x <= 200.0; x += 50.0)
+  {
     offset[0] = x;
-    for (float y = 0.0; y <= 0.0; y+= 10.0)
-      {
+    for (float y = 0.0; y <= 0.0; y += 10.0)
+    {
       offset[1] = y;
       try
-        {
+      {
         std::cout << "Offset: " << offset << " = " << metric->GetValue(offset) << std::endl;
-        }
-      catch( itk::ExceptionObject & excp )
-        {
+      }
+      catch (itk::ExceptionObject & excp)
+      {
         std::cerr << "Exception thrown while computing metric " << std::endl;
         std::cerr << excp << std::endl;
         return EXIT_FAILURE;
-        }
       }
     }
+  }
 
   return EXIT_SUCCESS;
-
 }

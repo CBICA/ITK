@@ -18,26 +18,27 @@
 #include "itkHessianRecursiveGaussianImageFilter.h"
 #include "itkSimpleFilterWatcher.h"
 
-int itkHessianRecursiveGaussianFilterTest(int, char* [] )
+int
+itkHessianRecursiveGaussianFilterTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int myDimension = 3;
+  constexpr unsigned int myDimension = 3;
 
   // Declare the types of the images
-  typedef itk::Image<float, myDimension>           myImageType;
+  using myImageType = itk::Image<float, myDimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<myDimension>             myIndexType;
+  using myIndexType = itk::Index<myDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<myDimension>              mySizeType;
+  using mySizeType = itk::Size<myDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<myDimension>        myRegionType;
+  using myRegionType = itk::ImageRegion<myDimension>;
 
   // Create the image
-  myImageType::Pointer inputImage  = myImageType::New();
+  myImageType::Pointer inputImage = myImageType::New();
 
 
   // Define their size, and start index
@@ -50,27 +51,27 @@ int itkHessianRecursiveGaussianFilterTest(int, char* [] )
   start.Fill(0);
 
   myRegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImage->SetLargestPossibleRegion( region );
-  inputImage->SetBufferedRegion( region );
-  inputImage->SetRequestedRegion( region );
+  inputImage->SetLargestPossibleRegion(region);
+  inputImage->SetBufferedRegion(region);
+  inputImage->SetRequestedRegion(region);
   inputImage->Allocate();
 
   // Declare Iterator type for the input image
-  typedef itk::ImageRegionIteratorWithIndex<myImageType>  myIteratorType;
+  using myIteratorType = itk::ImageRegionIteratorWithIndex<myImageType>;
 
   // Create one iterator for the Input Image A (this is a light object)
-  myIteratorType it( inputImage, inputImage->GetRequestedRegion() );
+  myIteratorType it(inputImage, inputImage->GetRequestedRegion());
 
   // Initialize the content of Image A
-  while( !it.IsAtEnd() )
-    {
-    it.Set( 0.0 );
+  while (!it.IsAtEnd())
+  {
+    it.Set(0.0);
     ++it;
-    }
+  }
 
   size[0] = 4;
   size[1] = 4;
@@ -81,34 +82,33 @@ int itkHessianRecursiveGaussianFilterTest(int, char* [] )
   start[2] = 2;
 
   // Create one iterator for an internal region
-  region.SetSize( size );
-  region.SetIndex( start );
-  myIteratorType itb( inputImage, region );
+  region.SetSize(size);
+  region.SetIndex(start);
+  myIteratorType itb(inputImage, region);
 
   // Initialize the content the internal region
-  while( !itb.IsAtEnd() )
-    {
-    itb.Set( 100.0 );
+  while (!itb.IsAtEnd())
+  {
+    itb.Set(100.0);
     ++itb;
-    }
+  }
 
   // Declare the type for the
-  typedef itk::HessianRecursiveGaussianImageFilter<
-                                            myImageType >  myFilterType;
+  using myFilterType = itk::HessianRecursiveGaussianImageFilter<myImageType>;
 
-  typedef myFilterType::OutputImageType myHessianImageType;
+  using myHessianImageType = myFilterType::OutputImageType;
 
 
   // Create a  Filter
-  myFilterType::Pointer filter = myFilterType::New();
+  myFilterType::Pointer    filter = myFilterType::New();
   itk::SimpleFilterWatcher watcher(filter);
 
 
   // Connect the input images
-  filter->SetInput( inputImage );
+  filter->SetInput(inputImage);
 
   // Select the value of Sigma
-  filter->SetSigma( 2.5 );
+  filter->SetSigma(2.5);
 
 
   // Execute the filter
@@ -121,32 +121,29 @@ int itkHessianRecursiveGaussianFilterTest(int, char* [] )
   myHessianImageType::Pointer outputImage = filter->GetOutput();
 
   // Declare Iterator type for the output image
-  typedef itk::ImageRegionIteratorWithIndex<
-                                 myHessianImageType>  myOutputIteratorType;
+  using myOutputIteratorType = itk::ImageRegionIteratorWithIndex<myHessianImageType>;
 
   // Create an iterator for going through the output image
-  myOutputIteratorType itg( outputImage,
-                            outputImage->GetRequestedRegion() );
+  myOutputIteratorType itg(outputImage, outputImage->GetRequestedRegion());
 
   //  Print the content of the result image
   std::cout << " Result " << std::endl;
   itg.GoToBegin();
-  while( !itg.IsAtEnd() )
-    {
+  while (!itg.IsAtEnd())
+  {
     std::cout << itg.Get();
     ++itg;
-    }
+  }
 
   // the following just tests for warnings in 2D
-  typedef itk::Image<float,2>                                       my2DImageType;
-  typedef itk::HessianRecursiveGaussianImageFilter<my2DImageType >  my2DFilterType;
+  using my2DImageType = itk::Image<float, 2>;
+  using my2DFilterType = itk::HessianRecursiveGaussianImageFilter<my2DImageType>;
   my2DFilterType::Pointer test = my2DFilterType::New();
-  if(test.IsNull())
-    {
+  if (test.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   // All objects should be automatically destroyed at this point
   return EXIT_SUCCESS;
-
 }

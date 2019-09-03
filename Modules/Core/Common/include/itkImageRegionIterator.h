@@ -70,36 +70,36 @@ namespace itk
  * \sa ImageConstIteratorWithIndex
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Iterators/ImageRegionIterator,Iterate over a region of an image (with write access)}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/IterateRegionWithWriteAccess,Iterate Region In Image With Write Access}
+ * \endsphinx
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageRegionIterator:public ImageRegionConstIterator< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageRegionIterator : public ImageRegionConstIterator<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRegionIterator                Self;
-  typedef ImageRegionConstIterator< TImage > Superclass;
+  /** Standard class type aliases. */
+  using Self = ImageRegionIterator;
+  using Superclass = ImageRegionConstIterator<TImage>;
 
   /** Types inherited from the Superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
 
   /** Default constructor. Needed since we provide a cast constructor. */
-  ImageRegionIterator();
+  ImageRegionIterator() = default;
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageRegionIterator(ImageType *ptr, const RegionType & region);
+  ImageRegionIterator(ImageType * ptr, const RegionType & region);
 
   /** Constructor that can be used to cast from an ImageIterator to an
    * ImageRegionIterator. Many routines return an ImageIterator but for a
@@ -107,41 +107,35 @@ public:
    * provide overloaded APIs that return different types of Iterators, itk
    * returns ImageIterators and uses constructors to cast from an
    * ImageIterator to a ImageRegionIterator. */
-  ImageRegionIterator(const ImageIterator< TImage > & it);
+  ImageRegionIterator(const ImageIterator<TImage> & it);
 
   /** Set the pixel value */
-  void Set(const PixelType & value) const
+  void
+  Set(const PixelType & value) const
   {
-    this->m_PixelAccessorFunctor.Set(*( const_cast< InternalPixelType * >(
-                                          this->m_Buffer + this->m_Offset ) ), value);
+    this->m_PixelAccessorFunctor.Set(*(const_cast<InternalPixelType *>(this->m_Buffer + this->m_Offset)), value);
   }
 
   /** Return a reference to the pixel
    * This method will provide the fastest access to pixel
    * data, but it will NOT support ImageAdaptors. */
-  PixelType & Value(void)
-  { return *( const_cast< InternalPixelType * >( this->m_Buffer + this->m_Offset ) ); }
-
-  /** Return an iterator for the beginning of the region. "Begin"
-   * is defined as the first pixel in the region.
-   * \deprecated Use GoToBegin() instead */
-  itkLegacyMacro(Self Begin(void) const);
-
-  /** Return an iterator for the end of the region. "End" is defined
-   * as one pixel past the last pixel of the region.
-   * \deprecated Use GoToEnd() instead */
-  itkLegacyMacro(Self End(void) const);
+  PixelType &
+  Value()
+  {
+    return *(const_cast<InternalPixelType *>(this->m_Buffer + this->m_Offset));
+  }
 
 protected:
   /** the construction from a const iterator is declared protected
       in order to enforce const correctness. */
-  ImageRegionIterator(const ImageRegionConstIterator< TImage > & it);
-  Self & operator=(const ImageRegionConstIterator< TImage > & it);
+  ImageRegionIterator(const ImageRegionConstIterator<TImage> & it);
+  Self &
+  operator=(const ImageRegionConstIterator<TImage> & it);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRegionIterator.hxx"
+#  include "itkImageRegionIterator.hxx"
 #endif
 
 #endif

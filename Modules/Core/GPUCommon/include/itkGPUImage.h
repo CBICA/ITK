@@ -1,20 +1,20 @@
 /*=========================================================================
-*
-*  Copyright Insight Software Consortium
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*         http://www.apache.org/licenses/LICENSE-2.0.txt
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*
-*=========================================================================*/
+ *
+ *  Copyright Insight Software Consortium
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *=========================================================================*/
 
 #ifndef itkGPUImage_h
 #define itkGPUImage_h
@@ -37,126 +37,148 @@ namespace itk
  * \ingroup ITKGPUCommon
  */
 template <typename TPixel, unsigned int VImageDimension = 2>
-class ITK_TEMPLATE_EXPORT GPUImage : public Image<TPixel,VImageDimension>
+class ITK_TEMPLATE_EXPORT GPUImage : public Image<TPixel, VImageDimension>
 {
 public:
-  typedef GPUImage                      Self;
-  typedef Image<TPixel,VImageDimension> Superclass;
-  typedef SmartPointer<Self>            Pointer;
-  typedef SmartPointer<const Self>      ConstPointer;
-  typedef WeakPointer<const Self>       ConstWeakPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUImage);
+
+  using Self = GPUImage;
+  using Superclass = Image<TPixel, VImageDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ConstWeakPointer = WeakPointer<const Self>;
 
   itkNewMacro(Self);
 
   itkTypeMacro(GPUImage, Image);
 
-  itkStaticConstMacro(ImageDimension, unsigned int, VImageDimension);
+  static constexpr unsigned int ImageDimension = VImageDimension;
 
-  typedef typename Superclass::PixelType         PixelType;
-  typedef typename Superclass::ValueType         ValueType;
-  typedef typename Superclass::InternalPixelType InternalPixelType;
-  typedef typename Superclass::IOPixelType       IOPixelType;
-  typedef typename Superclass::DirectionType     DirectionType;
-  typedef typename Superclass::SpacingType       SpacingType;
-  typedef typename Superclass::PixelContainer    PixelContainer;
-  typedef typename Superclass::SizeType          SizeType;
-  typedef typename Superclass::IndexType         IndexType;
-  typedef typename Superclass::OffsetType        OffsetType;
-  typedef typename Superclass::RegionType        RegionType;
-  typedef typename PixelContainer::Pointer       PixelContainerPointer;
-  typedef typename PixelContainer::ConstPointer  PixelContainerConstPointer;
-  typedef typename Superclass::AccessorType      AccessorType;
+  using PixelType = typename Superclass::PixelType;
+  using ValueType = typename Superclass::ValueType;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using IOPixelType = typename Superclass::IOPixelType;
+  using DirectionType = typename Superclass::DirectionType;
+  using SpacingType = typename Superclass::SpacingType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using SizeType = typename Superclass::SizeType;
+  using IndexType = typename Superclass::IndexType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using PixelContainerPointer = typename PixelContainer::Pointer;
+  using PixelContainerConstPointer = typename PixelContainer::ConstPointer;
+  using AccessorType = typename Superclass::AccessorType;
 
-  typedef DefaultPixelAccessorFunctor< Self > AccessorFunctorType;
+  using AccessorFunctorType = DefaultPixelAccessorFunctor<Self>;
 
-  typedef NeighborhoodAccessorFunctor< Self > NeighborhoodAccessorFunctorType;
-  //typedef typename Superclass::NeighborhoodAccessorFunctorType
+  using NeighborhoodAccessorFunctorType = NeighborhoodAccessorFunctor<Self>;
   // NeighborhoodAccessorFunctorType;
 
   //
   // Allocate CPU and GPU memory space
   //
-  virtual void Allocate(bool initialize=false) ITK_OVERRIDE;
+  void
+  Allocate(bool initialize = false) override;
 
-  virtual void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
-  void FillBuffer(const TPixel & value);
+  void
+  FillBuffer(const TPixel & value);
 
-  void SetPixel(const IndexType & index, const TPixel & value);
+  void
+  SetPixel(const IndexType & index, const TPixel & value);
 
-  const TPixel & GetPixel(const IndexType & index) const;
+  const TPixel &
+  GetPixel(const IndexType & index) const;
 
-  TPixel & GetPixel(const IndexType & index);
+  TPixel &
+  GetPixel(const IndexType & index);
 
   const TPixel & operator[](const IndexType & index) const;
 
   TPixel & operator[](const IndexType & index);
 
   /** Explicit synchronize CPU/GPU buffers */
-  void UpdateBuffers();
+  void
+  UpdateBuffers();
 
   //
   // Get CPU buffer pointer
   //
-  TPixel* GetBufferPointer() ITK_OVERRIDE;
+  TPixel *
+  GetBufferPointer() override;
 
-  const TPixel * GetBufferPointer() const ITK_OVERRIDE;
+  const TPixel *
+  GetBufferPointer() const override;
 
   /** Return the Pixel Accessor object */
-  AccessorType GetPixelAccessor(void)
+  AccessorType
+  GetPixelAccessor()
   {
     m_DataManager->SetGPUBufferDirty();
     return Superclass::GetPixelAccessor();
   }
 
   /** Return the Pixel Accesor object */
-  const AccessorType GetPixelAccessor(void) const
+  const AccessorType
+  GetPixelAccessor() const
   {
     m_DataManager->UpdateCPUBuffer();
     return Superclass::GetPixelAccessor();
   }
 
   /** Return the NeighborhoodAccessor functor */
-  NeighborhoodAccessorFunctorType GetNeighborhoodAccessor()
+  NeighborhoodAccessorFunctorType
+  GetNeighborhoodAccessor()
   {
     m_DataManager->SetGPUBufferDirty();
-    //return Superclass::GetNeighborhoodAccessor();
+    // return Superclass::GetNeighborhoodAccessor();
     return NeighborhoodAccessorFunctorType();
   }
 
   /** Return the NeighborhoodAccessor functor */
-  const NeighborhoodAccessorFunctorType GetNeighborhoodAccessor() const
+  const NeighborhoodAccessorFunctorType
+  GetNeighborhoodAccessor() const
   {
     m_DataManager->UpdateCPUBuffer();
-    //return Superclass::GetNeighborhoodAccessor();
+    // return Superclass::GetNeighborhoodAccessor();
     return NeighborhoodAccessorFunctorType();
   }
 
-  void SetPixelContainer(PixelContainer *container);
+  void
+  SetPixelContainer(PixelContainer * container);
 
   /** Return a pointer to the container. */
-  PixelContainer * GetPixelContainer()
+  PixelContainer *
+  GetPixelContainer()
   {
-    m_DataManager->SetGPUBufferDirty(); return Superclass::GetPixelContainer();
+    m_DataManager->SetGPUBufferDirty();
+    return Superclass::GetPixelContainer();
   }
 
-  const PixelContainer * GetPixelContainer() const
+  const PixelContainer *
+  GetPixelContainer() const
   {
     m_DataManager->UpdateCPUBuffer();
     return Superclass::GetPixelContainer();
   }
 
-  void SetCurrentCommandQueue( int queueid )
+  void
+  SetCurrentCommandQueue(int queueid)
   {
-    m_DataManager->SetCurrentCommandQueue( queueid );
+    m_DataManager->SetCurrentCommandQueue(queueid);
   }
 
-  int  GetCurrentCommandQueueID() {
+  int
+  GetCurrentCommandQueueID()
+  {
     return m_DataManager->GetCurrentCommandQueueID();
   }
 
-  itkGetModifiableObjectMacro(DataManager, GPUImageDataManager< GPUImage >);
-  GPUDataManager * GetGPUDataManager();
+  itkGetModifiableObjectMacro(DataManager, GPUImageDataManager<GPUImage>);
+  GPUDataManager *
+  GetGPUDataManager();
 
   /* Override DataHasBeenGenerated() in DataObject class.
    * We need this because CPU time stamp is always bigger
@@ -165,42 +187,50 @@ public:
    * increment GPU's time stamp in GPUGenerateData() the
    * CPU's time stamp will be increased after that.
    */
-  void DataHasBeenGenerated() ITK_OVERRIDE
+  void
+  DataHasBeenGenerated() override
   {
     Superclass::DataHasBeenGenerated();
-    if( m_DataManager->IsCPUBufferDirty() )
-      {
+    if (m_DataManager->IsCPUBufferDirty())
+    {
       m_DataManager->Modified();
-      }
+    }
   }
 
   /** Graft the data and information from one GPUImage to another. */
-  virtual void Graft(const Self *data);
+  virtual void
+  Graft(const Self * data);
 
 protected:
-  virtual void Graft(const DataObject *data) ITK_OVERRIDE;
+  void
+  Graft(const DataObject * data) override;
   GPUImage();
-  virtual ~GPUImage() ITK_OVERRIDE;
+  ~GPUImage() override;
   using Superclass::Graft;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUImage);
-  typename GPUImageDataManager< GPUImage >::Pointer m_DataManager;
+  typename GPUImageDataManager<GPUImage>::Pointer m_DataManager;
 };
 
 class ITK_TEMPLATE_EXPORT GPUImageFactory : public itk::ObjectFactoryBase
 {
 public:
-  typedef GPUImageFactory               Self;
-  typedef itk::ObjectFactoryBase        Superclass;
-  typedef itk::SmartPointer<Self>       Pointer;
-  typedef itk::SmartPointer<const Self> ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUImageFactory);
+
+  using Self = GPUImageFactory;
+  using Superclass = itk::ObjectFactoryBase;
+  using Pointer = itk::SmartPointer<Self>;
+  using ConstPointer = itk::SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char* GetITKSourceVersion() const ITK_OVERRIDE {
+  const char *
+  GetITKSourceVersion() const override
+  {
     return ITK_SOURCE_VERSION;
   }
-  const char* GetDescription() const ITK_OVERRIDE {
+  const char *
+  GetDescription() const override
+  {
     return "A Factory for GPUImage";
   }
 
@@ -211,7 +241,8 @@ public:
   itkTypeMacro(GPUImageFactory, itk::ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     GPUImageFactory::Pointer factory = GPUImageFactory::New();
 
@@ -219,22 +250,20 @@ public:
   }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUImageFactory);
-
-#define OverrideImageTypeMacro(pt,dm)    this->RegisterOverride( \
-    typeid(itk::Image<pt,dm>).name(), \
-    typeid(itk::GPUImage<pt,dm>).name(), \
-    "GPU Image Override", \
-    true, \
-    itk::CreateObjectFunction<GPUImage<pt,dm> >::New() )
+#define OverrideImageTypeMacro(pt, dm)                                                                                 \
+  this->RegisterOverride(typeid(itk::Image<pt, dm>).name(),                                                            \
+                         typeid(itk::GPUImage<pt, dm>).name(),                                                         \
+                         "GPU Image Override",                                                                         \
+                         true,                                                                                         \
+                         itk::CreateObjectFunction<GPUImage<pt, dm>>::New())
 
   GPUImageFactory()
   {
-    if( IsGPUAvailable() )
-      {
+    if (IsGPUAvailable())
+    {
       // 1/2/3D
       OverrideImageTypeMacro(unsigned char, 1);
-      OverrideImageTypeMacro(signed char,  1);
+      OverrideImageTypeMacro(signed char, 1);
       OverrideImageTypeMacro(int, 1);
       OverrideImageTypeMacro(unsigned int, 1);
       OverrideImageTypeMacro(float, 1);
@@ -253,29 +282,28 @@ private:
       OverrideImageTypeMacro(unsigned int, 3);
       OverrideImageTypeMacro(float, 3);
       OverrideImageTypeMacro(double, 3);
-      }
+    }
   }
-
 };
 
 template <typename T>
 class ITK_TEMPLATE_EXPORT GPUTraits
 {
 public:
-  typedef T Type;
+  using Type = T;
 };
 
 template <typename TPixelType, unsigned int NDimension>
-class ITK_TEMPLATE_EXPORT GPUTraits< Image< TPixelType, NDimension > >
+class ITK_TEMPLATE_EXPORT GPUTraits<Image<TPixelType, NDimension>>
 {
 public:
-  typedef GPUImage<TPixelType,NDimension> Type;
+  using Type = GPUImage<TPixelType, NDimension>;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUImage.hxx"
+#  include "itkGPUImage.hxx"
 #endif
 
 #endif

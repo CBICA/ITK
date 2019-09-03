@@ -39,47 +39,46 @@ namespace itk
  * We implement this strategy in the function GenerateData().
  *
  * There are two options in the program.
- * 1. Take an nD binary image as input, and produce an nD gray image, where intensity indicates label assigned to a connected component.
- * 2. Take an nD binary image and a set of seed points as input, and output an nD binary image containing the cells connected to the seeds.
- *    For option 2, users need to assign the member variable std::list<IndexType> m_Seeds before calling function GenerateData().
- * \sa ImageToImageFilter
- * \ingroup ITKConnectedComponents
+ * 1. Take an nD binary image as input, and produce an nD gray image, where intensity indicates label assigned to a
+ * connected component.
+ * 2. Take an nD binary image and a set of seed points as input, and output an nD binary image containing the cells
+ * connected to the seeds. For option 2, users need to assign the member variable std::list<IndexType> m_Seeds before
+ * calling function GenerateData(). \sa ImageToImageFilter \ingroup ITKConnectedComponents
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT HardConnectedComponentImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT HardConnectedComponentImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(HardConnectedComponentImageFilter);
+
   /**
    * Standard class typedef's
    */
-  typedef HardConnectedComponentImageFilter               Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  using Self = HardConnectedComponentImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**
    * Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same.
    */
-  typedef typename TOutputImage::PixelType         OutputPixelType;
-  typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
-  typedef typename TInputImage::PixelType          InputPixelType;
-  typedef typename TInputImage::InternalPixelType  InputInternalPixelType;
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using OutputInternalPixelType = typename TOutputImage::InternalPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputInternalPixelType = typename TInputImage::InternalPixelType;
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /**
-   * Image typedef support
+   * Image type alias support
    */
-  typedef TInputImage                       InputImageType;
-  typedef TOutputImage                      OutputImageType;
-  typedef typename TInputImage::IndexType   IndexType;
-  typedef typename TInputImage::SizeType    SizeType;
-  typedef typename TOutputImage::RegionType RegionType;
-  typedef std::list< IndexType >            ListType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using IndexType = typename TInputImage::IndexType;
+  using SizeType = typename TInputImage::SizeType;
+  using RegionType = typename TOutputImage::RegionType;
+  using ListType = std::list<IndexType>;
 
   /**
    * Run-time type information (and related methods)
@@ -92,47 +91,46 @@ public:
   itkNewMacro(Self);
 
   /** Setting the seed points for specified object. */
-  void SetObjectSeed(const IndexType & seed)
-  { m_Seeds.push_front(seed); }
+  void
+  SetObjectSeed(const IndexType & seed)
+  {
+    m_Seeds.push_front(seed);
+  }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, ImageDimension > ) );
-  itkConceptMacro( IntConvertibleToOutputCheck,
-                   ( Concept::Convertible< int, OutputPixelType > ) );
-  itkConceptMacro( UnsignedShortConvertibleToOutputCheck,
-                   ( Concept::Convertible< unsigned short, OutputPixelType > ) );
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputPixelType > ) );
-  itkConceptMacro( UnsignedCharConvertibleToOutputCheck,
-                   ( Concept::Convertible< unsigned char, OutputPixelType > ) );
-  itkConceptMacro( OutputIncrementDecrementOperatorsCheck,
-                   ( Concept::IncrementDecrementOperators< OutputPixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, ImageDimension>));
+  itkConceptMacro(IntConvertibleToOutputCheck, (Concept::Convertible<int, OutputPixelType>));
+  itkConceptMacro(UnsignedShortConvertibleToOutputCheck, (Concept::Convertible<unsigned short, OutputPixelType>));
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputPixelType>));
+  itkConceptMacro(UnsignedCharConvertibleToOutputCheck, (Concept::Convertible<unsigned char, OutputPixelType>));
+  itkConceptMacro(OutputIncrementDecrementOperatorsCheck, (Concept::IncrementDecrementOperators<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  HardConnectedComponentImageFilter() {}
-  virtual ~HardConnectedComponentImageFilter() ITK_OVERRIDE {}
+  HardConnectedComponentImageFilter() = default;
+  ~HardConnectedComponentImageFilter() override = default;
 
   /**
    * Standard pipeline method.
    */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-  { Superclass::PrintSelf(os, indent); }
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HardConnectedComponentImageFilter);
-
   ListType m_Seeds;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHardConnectedComponentImageFilter.hxx"
+#  include "itkHardConnectedComponentImageFilter.hxx"
 #endif
 
 #endif

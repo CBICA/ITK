@@ -38,21 +38,19 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TFunction >
-class ITK_TEMPLATE_EXPORT BinaryThresholdSpatialFunction:
-  public SpatialFunction< bool,
-                          TFunction::ImageDimension,
-                          typename TFunction::InputType >
+template <typename TFunction>
+class ITK_TEMPLATE_EXPORT BinaryThresholdSpatialFunction
+  : public SpatialFunction<bool, TFunction::ImageDimension, typename TFunction::InputType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryThresholdSpatialFunction Self;
-  typedef SpatialFunction< bool,
-                           TFunction::ImageDimension,
-                           typename TFunction::InputType > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryThresholdSpatialFunction);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = BinaryThresholdSpatialFunction;
+  using Superclass = SpatialFunction<bool, TFunction::ImageDimension, typename TFunction::InputType>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(BinaryThresholdSpatialFunction, SpatialFunction);
@@ -60,17 +58,17 @@ public:
   /** New macro for creation of through the object factory. */
   itkNewMacro(Self);
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
+  /** OutputType type alias support. */
+  using OutputType = typename Superclass::OutputType;
 
-  /** InputType typedef support. */
-  typedef typename TFunction::InputType InputType;
+  /** InputType type alias support. */
+  using InputType = typename TFunction::InputType;
 
   /** Underlying function type. */
-  typedef TFunction FunctionType;
+  using FunctionType = TFunction;
 
   /** Underlying function output type. */
-  typedef typename TFunction::OutputType FunctionOutputType;
+  using FunctionOutputType = typename TFunction::OutputType;
 
   /** Set/Get the lower threshold. */
   itkSetMacro(LowerThreshold, FunctionOutputType);
@@ -85,26 +83,24 @@ public:
   itkGetModifiableObjectMacro(Function, FunctionType);
 
   /** Evaluate the function at a given position. */
-  virtual OutputType Evaluate(const InputType & point) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & point) const override;
 
 protected:
-
   BinaryThresholdSpatialFunction();
-  ~BinaryThresholdSpatialFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryThresholdSpatialFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   FunctionOutputType m_LowerThreshold;
   FunctionOutputType m_UpperThreshold;
 
   typename FunctionType::Pointer m_Function;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryThresholdSpatialFunction);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryThresholdSpatialFunction.hxx"
+#  include "itkBinaryThresholdSpatialFunction.hxx"
 #endif
 
 #endif

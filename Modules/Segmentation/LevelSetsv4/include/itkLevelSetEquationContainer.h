@@ -54,66 +54,74 @@ namespace itk
  *
  *  \ingroup ITKLevelSetsv4
  */
-template< typename TTermContainer >
+template <typename TTermContainer>
 class ITK_TEMPLATE_EXPORT LevelSetEquationContainer : public Object
 {
 public:
-  typedef LevelSetEquationContainer     Self;
-  typedef SmartPointer< Self >          Pointer;
-  typedef SmartPointer< const Self >    ConstPointer;
-  typedef Object                        Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationContainer);
+
+  using Self = LevelSetEquationContainer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = Object;
 
   /** Method for creation through object factory */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationContainer, Object );
+  itkTypeMacro(LevelSetEquationContainer, Object);
 
-  typedef TTermContainer                            TermContainerType;
-  typedef typename TermContainerType::Pointer       TermContainerPointer;
+  using TermContainerType = TTermContainer;
+  using TermContainerPointer = typename TermContainerType::Pointer;
 
-  typedef typename TermContainerType::InputImageType    InputImageType;
-  typedef typename TermContainerType::InputImagePointer InputImagePointer;
+  using InputImageType = typename TermContainerType::InputImageType;
+  using InputImagePointer = typename TermContainerType::InputImagePointer;
 
-  typedef typename TermContainerType::LevelSetOutputRealType  LevelSetOutputRealType;
-  typedef typename TermContainerType::LevelSetInputIndexType  LevelSetInputIndexType;
+  using LevelSetOutputRealType = typename TermContainerType::LevelSetOutputRealType;
+  using LevelSetInputIndexType = typename TermContainerType::LevelSetInputIndexType;
 
-  typedef typename TermContainerType::LevelSetIdentifierType    LevelSetIdentifierType;
-  typedef typename TermContainerType::LevelSetContainerType     LevelSetContainerType;
-  typedef typename TermContainerType::LevelSetContainerPointer  LevelSetContainerPointer;
+  using LevelSetIdentifierType = typename TermContainerType::LevelSetIdentifierType;
+  using LevelSetContainerType = typename TermContainerType::LevelSetContainerType;
+  using LevelSetContainerPointer = typename TermContainerType::LevelSetContainerPointer;
 
   /** Add a equation to the system of equations in the EquationContainer map */
-  void AddEquation( const LevelSetIdentifierType& iId, TermContainerType * iEquation );
+  void
+  AddEquation(const LevelSetIdentifierType & iId, TermContainerType * iEquation);
 
   /** Return a pointer to the equation of given id */
-  TermContainerType * GetEquation( const LevelSetIdentifierType& iId ) const;
+  TermContainerType *
+  GetEquation(const LevelSetIdentifierType & iId) const;
 
   /** Update the equation container recursively by calling update on individual equations */
-  void UpdateInternalEquationTerms();
+  void
+  UpdateInternalEquationTerms();
 
   /** Supply the update at a given pixel index to update the terms */
-  void UpdatePixel( const LevelSetInputIndexType & iP,
-                    const LevelSetOutputRealType & oldValue,
-                    const LevelSetOutputRealType & newValue );
+  void
+  UpdatePixel(const LevelSetInputIndexType & iP,
+              const LevelSetOutputRealType & oldValue,
+              const LevelSetOutputRealType & newValue);
 
   /** Initialize parameters in the terms of all the equations */
-  void InitializeParameters();
+  void
+  InitializeParameters();
 
   /** Returns the Courant-Friedrichs-Lewy (CFL) contribution
    * for all the equations */
-  LevelSetOutputRealType ComputeCFLContribution() const;
+  LevelSetOutputRealType
+  ComputeCFLContribution() const;
 
   /** Set/Get the input speed or feature image */
-  itkSetObjectMacro( Input, InputImageType );
-  itkGetModifiableObjectMacro(Input, InputImageType );
+  itkSetObjectMacro(Input, InputImageType);
+  itkGetModifiableObjectMacro(Input, InputImageType);
 
-  itkSetObjectMacro( LevelSetContainer, LevelSetContainerType );
-  itkGetModifiableObjectMacro(LevelSetContainer, LevelSetContainerType );
+  itkSetObjectMacro(LevelSetContainer, LevelSetContainerType);
+  itkGetModifiableObjectMacro(LevelSetContainer, LevelSetContainerType);
 
 protected:
-  typedef std::map< LevelSetIdentifierType, TermContainerPointer >  MapContainerType;
-  typedef typename MapContainerType::iterator                       MapContainerIterator;
-  typedef typename MapContainerType::const_iterator                 MapContainerConstIterator;
+  using MapContainerType = std::map<LevelSetIdentifierType, TermContainerPointer>;
+  using MapContainerIterator = typename MapContainerType::iterator;
+  using MapContainerConstIterator = typename MapContainerType::const_iterator;
 
 public:
   class Iterator;
@@ -122,59 +130,74 @@ public:
   class ConstIterator
   {
   public:
-    ConstIterator() {}
-    ConstIterator( const MapContainerConstIterator& it ) : m_Iterator( it ) {}
-    ~ConstIterator() {}
-    ConstIterator( const Iterator& it ) : m_Iterator( it.m_Iterator ) {}
-    ConstIterator & operator * () { return *this; }
+    ConstIterator() = default;
+    ConstIterator(const MapContainerConstIterator & it)
+      : m_Iterator(it)
+    {}
+    ~ConstIterator() = default;
+    ConstIterator(const Iterator & it)
+      : m_Iterator(it.m_Iterator)
+    {}
+    ConstIterator & operator*() { return *this; }
     ConstIterator * operator->() { return this; }
-    ConstIterator & operator++()
-      {
+    ConstIterator &
+    operator++()
+    {
       ++m_Iterator;
       return *this;
-      }
-    ConstIterator operator++(int)
-      {
-      ConstIterator tmp( *this );
+    }
+    ConstIterator
+    operator++(int)
+    {
+      ConstIterator tmp(*this);
       ++(*this);
       return tmp;
-      }
-    ConstIterator & operator--()
-      {
+    }
+    ConstIterator &
+    operator--()
+    {
       --m_Iterator;
       return *this;
-      }
-    ConstIterator operator--(int)
-      {
-      ConstIterator tmp( *this );
+    }
+    ConstIterator
+    operator--(int)
+    {
+      ConstIterator tmp(*this);
       --(*this);
       return tmp;
-      }
-    bool operator == (const Iterator& it) const
-      {
+    }
+    bool
+    operator==(const Iterator & it) const
+    {
       return (m_Iterator == it.m_Iterator);
-      }
-    bool operator != (const Iterator& it) const
-      {
+    }
+    bool
+    operator!=(const Iterator & it) const
+    {
       return (m_Iterator != it.m_Iterator);
-      }
-    bool operator == (const ConstIterator& it) const
-      {
+    }
+    bool
+    operator==(const ConstIterator & it) const
+    {
       return (m_Iterator == it.m_Iterator);
-      }
-    bool operator != (const ConstIterator& it) const
-      {
+    }
+    bool
+    operator!=(const ConstIterator & it) const
+    {
       return (m_Iterator != it.m_Iterator);
-      }
-    LevelSetIdentifierType GetIdentifier() const
-      {
+    }
+    LevelSetIdentifierType
+    GetIdentifier() const
+    {
       return m_Iterator->first;
-      }
+    }
 
-    TermContainerType * GetEquation() const
-      {
+    TermContainerType *
+    GetEquation() const
+    {
       return m_Iterator->second;
-      }
+    }
+
   private:
     MapContainerConstIterator m_Iterator;
     friend class Iterator;
@@ -183,90 +206,104 @@ public:
   class Iterator
   {
   public:
-    Iterator() {}
-    Iterator( const MapContainerIterator& it ) : m_Iterator( it ) {}
-    Iterator( const ConstIterator& it ) : m_Iterator( it.m_Iterator ) {}
-    ~Iterator() {}
+    Iterator() = default;
+    Iterator(const MapContainerIterator & it)
+      : m_Iterator(it)
+    {}
+    Iterator(const ConstIterator & it)
+      : m_Iterator(it.m_Iterator)
+    {}
+    ~Iterator() = default;
 
-    Iterator & operator * () { return *this; }
-    Iterator * operator ->() { return this; }
+    Iterator & operator*() { return *this; }
+    Iterator * operator->() { return this; }
 
-    Iterator & operator++()
-      {
+    Iterator &
+    operator++()
+    {
       ++m_Iterator;
       return *this;
-      }
-    Iterator operator++(int)
-      {
-      Iterator tmp( *this );
+    }
+    Iterator
+    operator++(int)
+    {
+      Iterator tmp(*this);
       ++(*this);
       return tmp;
-      }
-    Iterator & operator--()
-      {
+    }
+    Iterator &
+    operator--()
+    {
       --m_Iterator;
       return *this;
-      }
-    Iterator operator--(int)
-      {
-      Iterator tmp( *this );
+    }
+    Iterator
+    operator--(int)
+    {
+      Iterator tmp(*this);
       --(*this);
       return tmp;
-      }
+    }
 
-    bool operator==(const Iterator& it) const
-      {
-      return (m_Iterator==it.m_Iterator);
-      }
-    bool operator!=(const Iterator& it) const
-      {
-      return (m_Iterator!=it.m_Iterator);
-      }
-    bool operator==(const ConstIterator& it)const
-      {
+    bool
+    operator==(const Iterator & it) const
+    {
       return (m_Iterator == it.m_Iterator);
-      }
-    bool operator!=(const ConstIterator& it)const
-      {
+    }
+    bool
+    operator!=(const Iterator & it) const
+    {
       return (m_Iterator != it.m_Iterator);
-      }
-    LevelSetIdentifierType GetIdentifier() const
-      {
+    }
+    bool
+    operator==(const ConstIterator & it) const
+    {
+      return (m_Iterator == it.m_Iterator);
+    }
+    bool
+    operator!=(const ConstIterator & it) const
+    {
+      return (m_Iterator != it.m_Iterator);
+    }
+    LevelSetIdentifierType
+    GetIdentifier() const
+    {
       return m_Iterator->first;
-      }
+    }
 
-    TermContainerType * GetEquation() const
-      {
+    TermContainerType *
+    GetEquation() const
+    {
       return m_Iterator->second;
-      }
+    }
+
   private:
     MapContainerIterator m_Iterator;
     friend class ConstIterator;
   };
 
-  Iterator Begin();
-  Iterator End();
+  Iterator
+  Begin();
+  Iterator
+  End();
 
-  ConstIterator Begin() const;
-  ConstIterator End() const;
+  ConstIterator
+  Begin() const;
+  ConstIterator
+  End() const;
 
 protected:
+  LevelSetEquationContainer() = default;
+  ~LevelSetEquationContainer() override = default;
 
-  LevelSetEquationContainer();
-  virtual ~LevelSetEquationContainer() ITK_OVERRIDE;
-
-  LevelSetContainerPointer  m_LevelSetContainer;
-  MapContainerType          m_Container;
-  InputImagePointer         m_Input;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationContainer);
-
+  LevelSetContainerPointer m_LevelSetContainer;
+  MapContainerType         m_Container;
+  InputImagePointer        m_Input;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetEquationContainer.hxx"
+#  include "itkLevelSetEquationContainer.hxx"
 #endif
 
 #endif // itkLevelSetEquationContainer_h

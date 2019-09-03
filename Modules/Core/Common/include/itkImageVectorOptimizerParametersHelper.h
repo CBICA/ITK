@@ -33,27 +33,21 @@ namespace itk
 
 /* Can we template of Image type instead, but require that Image be of type
  * Image< Vector< TValue, NVectorDimension >, VImageDimension > ? */
-template< typename TValue,
-          unsigned int NVectorDimension,
-          unsigned int VImageDimension >
-class ITK_TEMPLATE_EXPORT ImageVectorOptimizerParametersHelper
-  : public OptimizerParametersHelper< TValue >
+template <typename TValue, unsigned int NVectorDimension, unsigned int VImageDimension>
+class ITK_TEMPLATE_EXPORT ImageVectorOptimizerParametersHelper : public OptimizerParametersHelper<TValue>
 {
 public:
-
   /** The element type stored at each location in the Array. */
-  typedef TValue                                ValueType;
-  typedef ImageVectorOptimizerParametersHelper  Self;
-  typedef OptimizerParametersHelper< TValue >   Superclass;
+  using ValueType = TValue;
+  using Self = ImageVectorOptimizerParametersHelper;
+  using Superclass = OptimizerParametersHelper<TValue>;
 
   /** Image type that this class expects. */
-  typedef Image< Vector<TValue, NVectorDimension>,
-                 VImageDimension >
-                                                ParameterImageType;
-  typedef typename ParameterImageType::Pointer  ParameterImagePointer;
+  using ParameterImageType = Image<Vector<TValue, NVectorDimension>, VImageDimension>;
+  using ParameterImagePointer = typename ParameterImageType::Pointer;
 
   /** Type of the common data object used in OptimizerParameters */
-  typedef typename Superclass::CommonContainerType CommonContainerType;
+  using CommonContainerType = typename Superclass::CommonContainerType;
 
   /** Default constructor. */
   ImageVectorOptimizerParametersHelper();
@@ -63,8 +57,8 @@ public:
    * The size of the new memroy block must be the same as current size of
    * Array and the parameter image's buffer, in elements of TValue.
    * Memory must be managed by caller afterwards. */
-  virtual void MoveDataPointer(CommonContainerType* container,
-                               TValue * pointer );
+  void
+  MoveDataPointer(CommonContainerType * container, TValue * pointer) override;
 
   /** Set an image that holds the parameter data. \c container is a pointer
    * of type itkArray to the object to which this helper is assigned.
@@ -73,21 +67,20 @@ public:
    * A dynamic cast is performed on \c object to make sure its of proper type.
    * Generally this will be called from
    * OptimizerParameters::SetParameterObject. */
-  virtual void SetParametersObject(CommonContainerType * container,
-                                   LightObject * );
+  void
+  SetParametersObject(CommonContainerType * container, LightObject *) override;
 
-  virtual ~ImageVectorOptimizerParametersHelper(){}
+  ~ImageVectorOptimizerParametersHelper() override = default;
 
 private:
   /** The parameter image used by the class */
-  ParameterImagePointer           m_ParameterImage;
-
+  ParameterImagePointer m_ParameterImage;
 };
 
-}//namespace itk
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageVectorOptimizerParametersHelper.hxx"
+#  include "itkImageVectorOptimizerParametersHelper.hxx"
 #endif
 
 #endif

@@ -47,19 +47,19 @@ template <typename TBaseClass = Element>
 class ITK_TEMPLATE_EXPORT Element3DStrain : public TBaseClass
 {
 public:
-  /** Standard class typedefs. */
-  typedef Element3DStrain          Self;
-  typedef TBaseClass               Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Element3DStrain;
+  using Superclass = TBaseClass;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Element3DStrain, TBaseClass);
 
-  // Repeat the required typedefs and enums from parent class
-  typedef typename Superclass::Float      Float;
-  typedef typename Superclass::MatrixType MatrixType;
-  typedef typename Superclass::VectorType VectorType;
+  // Repeat the required type alias and enums from parent class
+  using Float = typename Superclass::Float;
+  using MatrixType = typename Superclass::MatrixType;
+  using VectorType = typename Superclass::VectorType;
 
   /**
    * Default constructor only clears the internal storage
@@ -74,17 +74,20 @@ public:
   /**
    * Compute the B matrix.
    */
-  virtual void GetStrainDisplacementMatrix(MatrixType & B, const MatrixType & shapeDgl) const ITK_OVERRIDE;
+  void
+  GetStrainDisplacementMatrix(MatrixType & B, const MatrixType & shapeDgl) const override;
 
   /**
    * Compute the D matrix.
    */
-  virtual void GetMaterialMatrix(MatrixType & D) const ITK_OVERRIDE;
+  void
+  GetMaterialMatrix(MatrixType & D) const override;
 
   /**
    * 3D strain elements have 3 DOFs per node.
    */
-  virtual unsigned int GetNumberOfDegreesOfFreedomPerNode(void) const ITK_OVERRIDE
+  unsigned int
+  GetNumberOfDegreesOfFreedomPerNode() const override
   {
     return 3;
   }
@@ -92,33 +95,33 @@ public:
   /**
    * Get/Set the material properties for the element
    */
-  virtual Material::ConstPointer GetMaterial(void) const ITK_OVERRIDE
+  Material::ConstPointer
+  GetMaterial() const override
   {
     return m_mat;
   }
 
-  virtual void SetMaterial(Material::ConstPointer mat_) ITK_OVERRIDE
+  void
+  SetMaterial(Material::ConstPointer mat_) override
   {
-    m_mat =
-      dynamic_cast<const MaterialLinearElasticity *>( mat_.GetPointer() );
+    m_mat = dynamic_cast<const MaterialLinearElasticity *>(mat_.GetPointer());
   }
 
 protected:
-
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Pointer to material properties of the element
    */
-  const MaterialLinearElasticity *m_mat;
+  const MaterialLinearElasticity * m_mat;
 
-};  // class Element3DStrain
-
-}
-}  // end namespace itk::fem
+}; // class Element3DStrain
+} // end namespace fem
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFEMElement3DStrain.hxx"
+#  include "itkFEMElement3DStrain.hxx"
 #endif
 
-#endif  // #ifndef itkFEMElement3DStrain_h
+#endif // itkFEMElement3DStrain_h

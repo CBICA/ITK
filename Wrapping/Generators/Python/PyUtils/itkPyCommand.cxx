@@ -18,91 +18,118 @@
 
 #include "itkPyCommand.h"
 
+namespace
+{
+// Wrapper to automatics obtain and release GIL
+// RAII idiom
+class PyGILStateEnsure
+{
+public:
+  PyGILStateEnsure() { m_GIL = PyGILState_Ensure(); }
+  ~PyGILStateEnsure() { PyGILState_Release(m_GIL); }
+
+private:
+  PyGILState_STATE m_GIL;
+};
+} // end anonymous namespace
+
 namespace itk
 {
 
 PyCommand::PyCommand()
 {
-    this->m_Object = ITK_NULLPTR;
+  this->m_Object = nullptr;
 }
+
 
 PyCommand::~PyCommand()
 {
+  if (this->m_Object)
+  {
+    PyGILStateEnsure gil;
+    Py_DECREF(this->m_Object);
+  }
+  this->m_Object = nullptr;
+}
+
+
+void
+PyCommand::SetCommandCallable(PyObject * o)
+{
+  if (o != this->m_Object)
+  {
+    PyGILStateEnsure gil;
     if (this->m_Object)
     {
-        Py_DECREF(this->m_Object);
+      // get rid of our reference
+      Py_DECREF(this->m_Object);
     }
-    this->m_Object = ITK_NULLPTR;
-}
 
-void PyCommand::SetCommandCallable(PyObject *o)
-{
-    if (o != this->m_Object)
+    // store the new object
+    this->m_Object = o;
+
+    if (this->m_Object)
     {
-        if (this->m_Object)
-        {
-            // get rid of our reference
-            Py_DECREF(this->m_Object);
-        }
-
-        // store the new object
-        this->m_Object = o;
-
-        if (this->m_Object)
-        {
-            // take out reference (so that the calling code doesn't
-            // have to keep a binding to the callable around)
-            Py_INCREF(this->m_Object);
-        }
+      // take out reference (so that the calling code doesn't
+      // have to keep a binding to the callable around)
+      Py_INCREF(this->m_Object);
     }
-}
-
-PyObject * PyCommand::GetCommandCallable()
-{
-    return this->m_Object;
-}
-
-void PyCommand::Execute(Object *, const EventObject&)
-{
-    this->PyExecute();
+  }
 }
 
 
-void PyCommand::Execute(const Object*, const EventObject&)
+PyObject *
+PyCommand::GetCommandCallable()
 {
-    this->PyExecute();
-
+  return this->m_Object;
 }
 
-void PyCommand::PyExecute()
+
+void
+PyCommand::Execute(Object *, const EventObject &)
 {
-    // make sure that the CommandCallable is in fact callable
-    if (!PyCallable_Check(this->m_Object))
+  this->PyExecute();
+}
+
+
+void
+PyCommand::Execute(const Object *, const EventObject &)
+{
+  this->PyExecute();
+}
+
+
+void
+PyCommand::PyExecute()
+{
+  // make sure that the CommandCallable is in fact callable
+  if (!PyCallable_Check(this->m_Object))
+  {
+    // we throw a standard ITK exception: this makes it possible for
+    // our standard Swig exception handling logic to take this
+    // through to the invoking Python process
+    itkExceptionMacro(<< "CommandCallable is not a callable Python object, "
+                      << "or it has not been set.");
+  }
+  else
+  {
+    PyGILStateEnsure gil;
+    PyObject *       result = PyEval_CallObject(this->m_Object, (PyObject *)nullptr);
+
+    if (result)
     {
-        // we throw a standard ITK exception: this makes it possible for
-        // our standard Swig exception handling logic to take this
-        // through to the invoking Python process
-        itkExceptionMacro(<<"CommandCallable is not a callable Python object, "
-                          <<"or it has not been set.");
+      Py_DECREF(result);
     }
     else
     {
-        PyObject *result = PyEval_CallObject(this->m_Object, (PyObject *)ITK_NULLPTR);
-
-        if (result)
-        {
-            Py_DECREF(result);
-        }
-        else
-        {
-            // there was a Python error.  Clear the error by printing to stdout
-            PyErr_Print();
-            // make sure the invoking Python code knows there was a problem
-            // by raising an exception
-            itkExceptionMacro(<<"There was an error executing the "
-                              <<"CommandCallable.");
-        }
+      // there was a Python error.  Clear the error by printing to stdout
+      PyErr_Print();
+      // make sure the invoking Python code knows there was a problem
+      // by raising an exception
+      itkExceptionMacro(<< "There was an error executing the "
+                        << "CommandCallable.");
     }
+  }
 }
 
-} // namespace itk
+} // end namespace itk

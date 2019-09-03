@@ -18,7 +18,7 @@
 #ifndef itkMultiplyImageFilter_h
 #define itkMultiplyImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkArithmeticOpsFunctors.h"
 
 namespace itk
@@ -34,54 +34,50 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/MultiplyImageFilter,Multiply two images together}
- * \wikiexample{ImageProcessing/MultiplyByConstantImageFilter,Multiply every pixel in an image by a constant}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/MultiplyTwoImages,Multiply Two Images}
+ * \sphinxexample{Filtering/ImageIntensity/MultiplyImageByScalar,Multiply Image By Scalar}
+ * \endsphinx
  */
-template< typename TInputImage1, typename TInputImage2 = TInputImage1, typename TOutputImage = TInputImage1 >
-class ITK_TEMPLATE_EXPORT MultiplyImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::Mult<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage1, typename TInputImage2 = TInputImage1, typename TOutputImage = TInputImage1>
+class ITK_TEMPLATE_EXPORT MultiplyImageFilter
+  : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MultiplyImageFilter Self;
-  typedef BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                                    Functor::Mult<
-                                      typename TInputImage1::PixelType,
-                                      typename TInputImage2::PixelType,
-                                      typename TOutputImage::PixelType >
-                                    >                                 Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MultiplyImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = MultiplyImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
+
+  using FunctorType =
+    Functor::Mult<typename TInputImage1::PixelType, typename TInputImage2::PixelType, typename TOutputImage::PixelType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(MultiplyImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(MultiplyImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1Input2OutputMultiplyOperatorCheck,
-                   ( Concept::MultiplyOperator< typename TInputImage1::PixelType,
-                                                typename TInputImage2::PixelType,
-                                                typename TOutputImage::PixelType > ) );
+  itkConceptMacro(Input1Input2OutputMultiplyOperatorCheck,
+                  (Concept::MultiplyOperator<typename TInputImage1::PixelType,
+                                             typename TInputImage2::PixelType,
+                                             typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  MultiplyImageFilter() {}
-  virtual ~MultiplyImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MultiplyImageFilter);
+  MultiplyImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
+  ~MultiplyImageFilter() override = default;
 };
 } // end namespace itk
 

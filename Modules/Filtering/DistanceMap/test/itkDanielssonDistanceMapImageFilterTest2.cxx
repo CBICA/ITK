@@ -22,49 +22,50 @@
 
 #include "itkDanielssonDistanceMapImageFilter.h"
 
-int itkDanielssonDistanceMapImageFilterTest2( int argc, char * argv[] )
+int
+itkDanielssonDistanceMapImageFilterTest2(int argc, char * argv[])
 {
-  if(argc < 3)
-    {
+  if (argc < 3)
+  {
     std::cerr << "Usage: " << argv[0] << " InputImage OutputImage\n";
     return -1;
-    }
+  }
 
-  const   unsigned int    ImageDimension = 2;
-  typedef unsigned char   InputPixelType;
-  typedef unsigned char   OutputPixelType;
+  constexpr unsigned int ImageDimension = 2;
+  using InputPixelType = unsigned char;
+  using OutputPixelType = unsigned char;
 
-  typedef itk::Image<InputPixelType,  ImageDimension>  InputImageType;
-  typedef itk::Image<OutputPixelType, ImageDimension>  OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, ImageDimension>;
+  using OutputImageType = itk::Image<OutputPixelType, ImageDimension>;
 
-  typedef itk::ImageFileReader<InputImageType>    ReaderType;
-  typedef itk::ImageFileWriter<OutputImageType>   WriterType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(argv[1]);
   reader->Update();
 
-  typedef itk::ConnectedComponentImageFilter<InputImageType,InputImageType> ConnectedType;
+  using ConnectedType = itk::ConnectedComponentImageFilter<InputImageType, InputImageType>;
   ConnectedType::Pointer connectedComponents = ConnectedType::New();
-  connectedComponents->SetInput( reader->GetOutput() );
+  connectedComponents->SetInput(reader->GetOutput());
 
-  typedef itk::DanielssonDistanceMapImageFilter <InputImageType, OutputImageType>  FilterType;
+  using FilterType = itk::DanielssonDistanceMapImageFilter<InputImageType, OutputImageType>;
   FilterType::Pointer filter = FilterType::New();
-  filter->SetInput( connectedComponents->GetOutput() );
+  filter->SetInput(connectedComponents->GetOutput());
   filter->Update();
   filter->Print(std::cout);
 
   // Extract the Voronoi map from the distance map filter, rescale it,
   // and write it out.
-  typedef itk::RescaleIntensityImageFilter<InputImageType,OutputImageType> RescaleType;
+  using RescaleType = itk::RescaleIntensityImageFilter<InputImageType, OutputImageType>;
   RescaleType::Pointer rescaler = RescaleType::New();
-  rescaler->SetInput( filter->GetVoronoiMap() );
-  rescaler->SetOutputMinimum( 0 );
-  rescaler->SetOutputMaximum( 255 );
+  rescaler->SetInput(filter->GetVoronoiMap());
+  rescaler->SetOutputMinimum(0);
+  rescaler->SetOutputMaximum(255);
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( rescaler->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(rescaler->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
   writer->Update();
 

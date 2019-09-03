@@ -18,7 +18,7 @@
 #ifndef itkWeightedAddImageFilter_h
 #define itkWeightedAddImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkNumericTraits.h"
 #include "itkMath.h"
 
@@ -31,52 +31,61 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput1, typename TInput2, typename TOutput >
+template <typename TInput1, typename TInput2, typename TOutput>
 class WeightedAdd2
 {
 public:
-  typedef typename NumericTraits< TInput1 >::AccumulateType AccumulatorType;
-  typedef typename NumericTraits< TInput1 >::RealType       RealType;
-  WeightedAdd2() : m_Alpha(0.0), m_Beta(0.0) {}
-  ~WeightedAdd2() {}
-  bool operator!=(const WeightedAdd2 & other) const
+  using AccumulatorType = typename NumericTraits<TInput1>::AccumulateType;
+  using RealType = typename NumericTraits<TInput1>::RealType;
+  WeightedAdd2()
+    : m_Alpha(0.0)
+    , m_Beta(0.0)
+  {}
+  ~WeightedAdd2() = default;
+  bool
+  operator!=(const WeightedAdd2 & other) const
   {
-    if ( Math::NotExactlyEquals(m_Alpha, other.m_Alpha) )
-      {
+    if (Math::NotExactlyEquals(m_Alpha, other.m_Alpha))
+    {
       return true;
-      }
+    }
     return false;
   }
 
-  bool operator==(const WeightedAdd2 & other) const
+  bool
+  operator==(const WeightedAdd2 & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput1 & A, const TInput2 & B) const
+  inline TOutput
+  operator()(const TInput1 & A, const TInput2 & B) const
   {
     const RealType sum1 = A * m_Alpha;
     const RealType sum2 = B * m_Beta;
 
-    return static_cast< TOutput >( sum1 + sum2 );
+    return static_cast<TOutput>(sum1 + sum2);
   }
 
-  void SetAlpha(RealType alpha)
+  void
+  SetAlpha(RealType alpha)
   {
     m_Alpha = alpha;
-    m_Beta  = NumericTraits< RealType >::OneValue() - m_Alpha;
+    m_Beta = NumericTraits<RealType>::OneValue() - m_Alpha;
   }
 
-  RealType GetAlpha() const
+  RealType
+  GetAlpha() const
   {
     return m_Alpha;
   }
 
 private:
   RealType m_Alpha;
-  RealType m_Beta;     // auxiliary var to avoid a subtraction at every pixel
+  RealType m_Beta; // auxiliary var to avoid a subtraction at every pixel
 };
-}
+} // namespace Functor
+
 /** \class WeightedAddImageFilter
  * \brief Computes a weighted sum of two images pixel-wise.
  *
@@ -88,19 +97,19 @@ private:
  * the operator+ with a pixel type of the image 2. This condition is
  * required because internally this filter will perform the operation
  *
- * \code
- *        pixel_from_image_1 * alpha +  pixel_from_image_2 * (1.0 - alpha)
- * \endcode
+   \code
+          pixel_from_image_1 * alpha +  pixel_from_image_2 * (1.0 - alpha)
+   \endcode
  *
  * Additionally the type resulting from the sum will be cast to
  * the pixel type of the output image.
  *
  * The total operation over one pixel will be
  *
- * \code
- *  output_pixel = static_cast<OutputPixelType>(
- *      input1_pixel * alpha + input2_pixel * (1-alpha) )
- * \endcode
+   \code
+    output_pixel = static_cast<OutputPixelType>(
+        input1_pixel * alpha + input2_pixel * (1-alpha) )
+   \endcode
  *
  * The alpha parameter is set using SetAlpha.
  *
@@ -110,71 +119,76 @@ private:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  */
-template< typename TInputImage1, typename TInputImage2, typename TOutputImage >
-class WeightedAddImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::WeightedAdd2<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage1, typename TInputImage2, typename TOutputImage>
+class WeightedAddImageFilter : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 
 {
 public:
-  /** Standard class typedefs. */
-  typedef WeightedAddImageFilter Self;
-  typedef BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                                    Functor::WeightedAdd2<
-                                      typename TInputImage1::PixelType,
-                                      typename TInputImage2::PixelType,
-                                      typename TOutputImage::PixelType >
-                                    >                                 Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(WeightedAddImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = WeightedAddImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
 
-  typedef typename Superclass::FunctorType FunctorType;
-  typedef typename FunctorType::RealType   RealType;
+
+  using FunctorType = Functor::
+    WeightedAdd2<typename TInputImage1::PixelType, typename TInputImage2::PixelType, typename TOutputImage::PixelType>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using RealType = typename FunctorType::RealType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(WeightedAddImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(WeightedAddImageFilter, BinaryGeneratorImageFilter);
 
   /** Set the weight for the first operand of the weighted addition */
-  void SetAlpha(RealType alpha)
+  void
+  SetAlpha(RealType alpha)
   {
     this->GetFunctor().SetAlpha(alpha);
     this->Modified();
   }
 
   /** Returns the current alpha value setting */
-  RealType GetAlpha() const
+  RealType
+  GetAlpha() const
   {
     return this->GetFunctor().GetAlpha();
   }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1HasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename TInputImage1::PixelType > ) );
-  itkConceptMacro( Input1RealTypeMultiplyCheck,
-                   ( Concept::MultiplyOperator< typename TInputImage1::PixelType,
-                                                RealType, RealType > ) );
-  itkConceptMacro( Input2RealTypeMultiplyCheck,
-                   ( Concept::MultiplyOperator< typename TInputImage2::PixelType,
-                                                RealType, RealType > ) );
+  itkConceptMacro(Input1HasNumericTraitsCheck, (Concept::HasNumericTraits<typename TInputImage1::PixelType>));
+  itkConceptMacro(Input1RealTypeMultiplyCheck,
+                  (Concept::MultiplyOperator<typename TInputImage1::PixelType, RealType, RealType>));
+  itkConceptMacro(Input2RealTypeMultiplyCheck,
+                  (Concept::MultiplyOperator<typename TInputImage2::PixelType, RealType, RealType>));
   // End concept checking
 #endif
 
 protected:
-  WeightedAddImageFilter() {}
-  virtual ~WeightedAddImageFilter() ITK_OVERRIDE {}
+  WeightedAddImageFilter() = default;
+  ~WeightedAddImageFilter() override = default;
+
+  void
+  BeforeThreadedGenerateData() override
+  {
+    this->SetFunctor(this->GetFunctor());
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(WeightedAddImageFilter);
+  itkGetConstReferenceMacro(Functor, FunctorType);
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
+
+  FunctorType m_Functor;
 };
 } // end namespace itk
 

@@ -35,26 +35,30 @@ namespace itk
  * \ingroup ITKSpatialObjects
  */
 
-template< unsigned int TDimension = 3 >
-class ITK_TEMPLATE_EXPORT SurfaceSpatialObject:
-  public PointBasedSpatialObject<  TDimension >
+template <unsigned int TDimension = 3>
+class ITK_TEMPLATE_EXPORT SurfaceSpatialObject
+  : public PointBasedSpatialObject<TDimension, SurfaceSpatialObjectPoint<TDimension>>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(SurfaceSpatialObject);
 
-  typedef SurfaceSpatialObject                         Self;
-  typedef PointBasedSpatialObject< TDimension >        Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
-  typedef double                                       ScalarType;
-  typedef SurfaceSpatialObjectPoint< TDimension >      SurfacePointType;
-  typedef std::vector< SurfacePointType >              PointListType;
-  typedef typename Superclass::SpatialObjectPointType  SpatialObjectPointType;
-  typedef typename Superclass::PointType               PointType;
-  typedef typename Superclass::TransformType           TransformType;
-  typedef VectorContainer< IdentifierType, PointType > PointContainerType;
-  typedef SmartPointer< PointContainerType >           PointContainerPointer;
-  typedef typename Superclass::BoundingBoxType         BoundingBoxType;
-  typedef typename Superclass::CovariantVectorType     CovariantVectorType;
+  using Self = SurfaceSpatialObject;
+  using Superclass = PointBasedSpatialObject<TDimension, SurfaceSpatialObjectPoint<TDimension>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using ScalarType = double;
+
+  using SurfacePointType = SurfaceSpatialObjectPoint<TDimension>;
+  using SurfacePointListType = std::vector<SurfacePointType>;
+
+  using SpatialObjectPointType = typename Superclass::SpatialObjectPointType;
+  using PointType = typename Superclass::PointType;
+  using TransformType = typename Superclass::TransformType;
+  using PointContainerType = VectorContainer<IdentifierType, PointType>;
+  using PointContainerPointer = SmartPointer<PointContainerType>;
+  using BoundingBoxType = typename Superclass::BoundingBoxType;
+  using CovariantVectorType = typename Superclass::CovariantVectorType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,70 +66,31 @@ public:
   /** Method for creation through the object factory. */
   itkTypeMacro(SurfaceSpatialObject, PointBasedSpatialObject);
 
-  /** Returns a reference to the list of the Surface points. */
-  PointListType & GetPoints();
-  const PointListType & GetPoints() const;
-
-  /** Return a point in the list given the index */
-  const SpatialObjectPointType * GetPoint(IdentifierType id) const ITK_OVERRIDE
-  {
-    return &( m_Points[id] );
-  }
-
-  /** Return a point in the list given the index */
-  SpatialObjectPointType * GetPoint(IdentifierType id) ITK_OVERRIDE { return &( m_Points[id] ); }
-
-  /** Return the number of points in the list */
-  SizeValueType GetNumberOfPoints(void) const ITK_OVERRIDE
-  {
-    return static_cast<SizeValueType>( m_Points.size() );
-  }
-
-  /** Set the list of Surface points. */
-  void SetPoints(PointListType & newPoints);
-
-  /** Returns true if the Surface is evaluable at the requested point,
-   * false otherwise. */
-  bool IsEvaluableAt(const PointType & point,
-                     unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-
-  /** Returns the value of the Surface at that point.
-   *  Currently this function returns a binary value,
-   *  but it might want to return a degree of membership
-   *  in case of fuzzy Surfaces. */
-  bool ValueAt(const PointType & point, double & value,
-               unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-
-  /** Returns true if the point is inside the Surface, false otherwise. */
-  bool IsInside(const PointType & point,
-                unsigned int depth, char *name) const ITK_OVERRIDE;
-
-  /** Test whether a point is inside or outside the object
-   *  For computational speed purposes, it is faster if the method does not
-   *  check the name of the class and the current depth */
-  virtual bool IsInside(const PointType & point) const;
-
-  /** Compute the boundaries of the Surface. */
-  bool ComputeLocalBoundingBox() const ITK_OVERRIDE;
+  /** Restore a spatial object to its initial state, yet preserves Id as well as
+   *   parent and children relationships */
+  virtual void
+  Clear(void) override;
 
   /** Compute the normals to the surface from neighboring points */
-  bool Approximate3DNormals();
+  bool
+  Approximate3DNormals();
 
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SurfaceSpatialObject);
-
-  PointListType m_Points;
-
   SurfaceSpatialObject();
-  virtual ~SurfaceSpatialObject() ITK_OVERRIDE;
+  ~SurfaceSpatialObject() override = default;
 
   /** Method to print the object.*/
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  typename LightObject::Pointer
+  InternalClone() const override;
 };
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSurfaceSpatialObject.hxx"
+#  include "itkSurfaceSpatialObject.hxx"
 #endif
 
 #endif // itkSurfaceSpatialObject_h

@@ -35,66 +35,63 @@
 
 #include "itkTestingMacros.h"
 
-int itkAutoCropLabelMapFilterTest1( int argc, char * argv [] )
+int
+itkAutoCropLabelMapFilterTest1(int argc, char * argv[])
 {
 
-  if( argc != 6 )
-    {
+  if (argc != 6)
+  {
     std::cerr << "usage: " << argv[0];
     std::cerr << " inputLabelImage outputLabelImage inputBackgroundValue sizeX sizeY" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int Dimension = 2;
-  typedef unsigned char   PixelType;
+  constexpr unsigned int Dimension = 2;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, Dimension > ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::LabelObject< PixelType, Dimension > LabelObjectType;
-  typedef itk::LabelMap< LabelObjectType >         LabelMapType;
+  using LabelObjectType = itk::LabelObject<PixelType, Dimension>;
+  using LabelMapType = itk::LabelMap<LabelObjectType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::LabelImageToLabelMapFilter< ImageType, LabelMapType > ImageToLabelMapFilterType;
-  ImageToLabelMapFilterType::Pointer imageToLabelMapFilter =
-    ImageToLabelMapFilterType::New();
-  imageToLabelMapFilter->SetInput( reader->GetOutput() );
+  using ImageToLabelMapFilterType = itk::LabelImageToLabelMapFilter<ImageType, LabelMapType>;
+  ImageToLabelMapFilterType::Pointer imageToLabelMapFilter = ImageToLabelMapFilterType::New();
+  imageToLabelMapFilter->SetInput(reader->GetOutput());
 
-  PixelType backgroundValue = atoi( argv[3] );
+  PixelType backgroundValue = std::stoi(argv[3]);
 
-  imageToLabelMapFilter->SetBackgroundValue( backgroundValue );
+  imageToLabelMapFilter->SetBackgroundValue(backgroundValue);
 
-  typedef itk::AutoCropLabelMapFilter< LabelMapType > AutoCropLabelMapFilterType;
+  using AutoCropLabelMapFilterType = itk::AutoCropLabelMapFilter<LabelMapType>;
   AutoCropLabelMapFilterType::Pointer autoCropFilter = AutoCropLabelMapFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( autoCropFilter, AutoCropLabelMapFilter,
-    ChangeRegionLabelMapFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(autoCropFilter, AutoCropLabelMapFilter, ChangeRegionLabelMapFilter);
 
-  autoCropFilter->SetInput( imageToLabelMapFilter->GetOutput() );
+  autoCropFilter->SetInput(imageToLabelMapFilter->GetOutput());
 
   AutoCropLabelMapFilterType::SizeType size;
-  size[0] = atoi( argv[4] );
-  size[1] = atoi( argv[5] );
-  autoCropFilter->SetCropBorder( size );
-  TEST_SET_GET_VALUE( size, autoCropFilter->GetCropBorder() );
+  size[0] = std::stoi(argv[4]);
+  size[1] = std::stoi(argv[5]);
+  autoCropFilter->SetCropBorder(size);
+  ITK_TEST_SET_GET_VALUE(size, autoCropFilter->GetCropBorder());
 
   itk::SimpleFilterWatcher watcher(autoCropFilter, "AutoCropLabelMapFilter");
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType>
-    LabelMapToLabelImageFilterType;
-  LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter =
-    LabelMapToLabelImageFilterType::New();
-  labelMapToLabelImageFilter->SetInput( autoCropFilter->GetOutput() );
+  using LabelMapToLabelImageFilterType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
+  LabelMapToLabelImageFilterType::Pointer labelMapToLabelImageFilter = LabelMapToLabelImageFilterType::New();
+  labelMapToLabelImageFilter->SetInput(autoCropFilter->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( labelMapToLabelImageFilter->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(labelMapToLabelImageFilter->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

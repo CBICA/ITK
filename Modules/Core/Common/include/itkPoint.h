@@ -43,58 +43,83 @@ namespace itk
  * \sa Image \sa Mesh \sa Vector \sa CovariantVector \sa Matrix
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{SimpleOperations/DistanceBetweenPoints,Distance between two points}
- * \wikiexample{SimpleOperations/DistanceBetweenIndices,Distance between two indices}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/DistanceBetweenPoints,Distance between two points}
+ * \sphinxexample{Core/Common/DistanceBetweenIndices,Distance between two indices}
+ * \endsphinx
  */
-template< typename TCoordRep, unsigned int NPointDimension = 3 >
-class ITK_TEMPLATE_EXPORT Point:public FixedArray< TCoordRep, NPointDimension >
+template <typename TCoordRep, unsigned int NPointDimension = 3>
+class ITK_TEMPLATE_EXPORT Point : public FixedArray<TCoordRep, NPointDimension>
 {
 public:
-  /** Standard class typedefs. */
-  typedef Point                                    Self;
-  typedef FixedArray< TCoordRep, NPointDimension > Superclass;
+  /** Standard class type aliases. */
+  using Self = Point;
+  using Superclass = FixedArray<TCoordRep, NPointDimension>;
 
   /** ValueType can be used to declare a variable that is the same type
    * as a data element held in an Point.   */
-  typedef TCoordRep ValueType;
-  typedef TCoordRep CoordRepType;
+  using ValueType = TCoordRep;
+  using CoordRepType = TCoordRep;
 
-  typedef typename NumericTraits< ValueType >::RealType RealType;
+  using RealType = typename NumericTraits<ValueType>::RealType;
 
   /** Dimension of the Space */
-  itkStaticConstMacro(PointDimension, unsigned int, NPointDimension);
+  static constexpr unsigned int PointDimension = NPointDimension;
 
   /** The Array type from which this Vector is derived. */
-  typedef FixedArray< TCoordRep, NPointDimension > BaseArray;
-  typedef typename BaseArray::Iterator             Iterator;
-  typedef typename BaseArray::ConstIterator        ConstIterator;
+  using BaseArray = FixedArray<TCoordRep, NPointDimension>;
+  using Iterator = typename BaseArray::Iterator;
+  using ConstIterator = typename BaseArray::ConstIterator;
 
   /** Get the dimension (size) of the point. */
-  static unsigned int GetPointDimension()
-  { return NPointDimension; }
+  static unsigned int
+  GetPointDimension()
+  {
+    return NPointDimension;
+  }
 
   /** VectorType define the difference between two Points */
-  typedef Vector< ValueType, NPointDimension > VectorType;
+  using VectorType = Vector<ValueType, NPointDimension>;
 
-  /** Default constructor has nothing to do. */
-  Point() {}
+  /** Default constructor, assignments */
+  Point() = default;
+  Point(const Point &) = default;
+  Point(Point &&) = default;
+  Point &
+  operator=(const Point &) = default;
+  Point &
+  operator=(Point &&) = default;
+  ~Point() = default;
+  /** Pass-through constructors for different type points. */
+  template <typename TPointValueType>
+  Point(const Point<TPointValueType, NPointDimension> & r)
+    : BaseArray(r)
+  {}
+  /** Pass-through constructors for plain arrays. */
+  template <typename TPointValueType>
+  Point(const TPointValueType r[NPointDimension])
+    : BaseArray(r)
+  {}
+  Point(const ValueType r[NPointDimension])
+    : BaseArray(r)
+  {}
+  /** Pass-through constructors for single values */
+  template <typename TPointValueType>
+  Point(const TPointValueType & v)
+    : BaseArray(v)
+  {}
+  Point(const ValueType & v)
+    : BaseArray(v)
+  {}
 
-  /** Pass-through constructors for the Array base class. */
-  template< typename TPointValueType >
-  Point(const Point< TPointValueType, NPointDimension > & r):BaseArray(r) {}
-  template< typename TPointValueType >
-  Point(const TPointValueType r[NPointDimension]):BaseArray(r) {}
-  Point(const ValueType r[NPointDimension]):BaseArray(r) {}
-  template< typename TPointValueType >
-  Point(const TPointValueType & v):BaseArray(v) {}
-  Point(const ValueType & v):BaseArray(v) {}
+  /** Explicit constructor for std::array. */
+  explicit Point(const std::array<ValueType, NPointDimension> & stdArray)
+    : BaseArray(stdArray)
+  {}
 
-  /** Pass-through assignment operator for the Array base class. */
-  Point & operator=(const Self & r);
-
-  Point & operator=(const ValueType r[NPointDimension]);
+  /** Pass-through assignment operator for a plain array. */
+  Point &
+  operator=(const ValueType r[NPointDimension]);
 
   /** Compare two points for equality. */
   bool
@@ -102,8 +127,10 @@ public:
   {
     bool same = true;
 
-    for ( unsigned int i = 0; i < NPointDimension && same; ++i )
-          { same = ( Math::ExactlyEquals(( *this )[i], pt[i]) ); }
+    for (unsigned int i = 0; i < NPointDimension && same; ++i)
+    {
+      same = (Math::ExactlyEquals((*this)[i], pt[i]));
+    }
     return same;
   }
 
@@ -113,42 +140,44 @@ public:
   {
     bool same = true;
 
-    for ( unsigned int i = 0; i < NPointDimension && same; ++i )
-          { same = ( Math::ExactlyEquals(( *this )[i], pt[i]) ); }
+    for (unsigned int i = 0; i < NPointDimension && same; ++i)
+    {
+      same = (Math::ExactlyEquals((*this)[i], pt[i]));
+    }
     return !same;
   }
 
   /** Point operator+=.  Adds a vector to the current point. */
-  const Self & operator+=(const VectorType & vec);
+  const Self &
+  operator+=(const VectorType & vec);
 
   /** Point operator-=.  Subtracts a vector from a current point. */
-  const Self & operator-=(const VectorType & vec);
+  const Self &
+  operator-=(const VectorType & vec);
 
   /** Computes the Vector difference between two points */
-  VectorType operator-(const Self & pnt) const;
+  VectorType
+  operator-(const Self & pnt) const;
 
   /** Add a vector to a point. Return a new point. */
-  Self operator+(const VectorType & vec) const;
+  Self
+  operator+(const VectorType & vec) const;
 
   /** Subtract a vector from a point. Return a new point. */
-  Self operator-(const VectorType & vec) const;
+  Self
+  operator-(const VectorType & vec) const;
 
   /** Access an element of a point. */
-  VectorType GetVectorFromOrigin() const;
+  VectorType
+  GetVectorFromOrigin() const;
 
   /** Get a vnl_vector_ref referencing the same memory block */
-  vnl_vector_ref< TCoordRep > GetVnlVector();
+  vnl_vector_ref<TCoordRep>
+  GetVnlVector();
 
   /** Get a vnl_vector with a copy of the internal memory block. */
-  vnl_vector< TCoordRep > GetVnlVector() const;
-
-  /** Get a vnl_vector_ref referencing the same memory block
-   * \deprecated Use GetVnlVector() instead. */
-  itkLegacyMacro(vnl_vector_ref< TCoordRep > Get_vnl_vector(void));
-
-  /** Get a vnl_vector with a copy of the internal memory block.
-   * \deprecated Use GetVnlVector() instead. */
-  itkLegacyMacro(vnl_vector< TCoordRep > Get_vnl_vector(void) const);
+  vnl_vector<TCoordRep>
+  GetVnlVector() const;
 
   /** Set to median point between the two points
    * given as arguments
@@ -161,7 +190,8 @@ public:
    *
    * using the two Points given as arguments, and store the result in
    * the Point on which the method is invoked. */
-  void SetToMidPoint(const Self &, const Self &);
+  void
+  SetToMidPoint(const Self &, const Self &);
 
   /** Set the current point to a barycentric combination of the two points
    * given as arguments.
@@ -189,7 +219,8 @@ public:
    * the line segment   \f$ \overline{AB} \f$ on the side of \f$ \overrightarrow{B} \f$.
    *
    * \sa SetToMedian */
-  void SetToBarycentricCombination(const Self & A, const Self & B, double alpha);
+  void
+  SetToBarycentricCombination(const Self & A, const Self & B, double alpha);
 
   /** Set the current point to a barycentric combination of three points
    * Two values are expected to weight the contribution of the first two points,
@@ -206,8 +237,8 @@ public:
    *
    * If the two weight are \f$ \in [0,1] \f$ , The resulting point will alway be placed
    * inside the triangle formed by the three points given as arguments. */
-  void SetToBarycentricCombination(const Self & A, const Self & B, const Self & C,
-                                   double weightA,  double weightB);
+  void
+  SetToBarycentricCombination(const Self & A, const Self & B, const Self & C, double weightA, double weightB);
 
   /** Set the current point to a barycentric combination of an array of N points
    * An array of (N-1) values is expected to weight the contribution of the
@@ -221,57 +252,60 @@ public:
           +   \left(1- \sum_{i=1}^{N-1} w_i\right) * \overrightarrow{P}_N
    * \f]
    */
-  void SetToBarycentricCombination(const Self *P, const double *weights, unsigned int N);
+  void
+  SetToBarycentricCombination(const Self * P, const double * weights, unsigned int N);
 
   /** Copy from another Point with a different representation type.
    *  Casting is done with C-Like rules  */
-  template< typename TCoordRepB >
-  void CastFrom(const Point< TCoordRepB, NPointDimension > & pa)
+  template <typename TCoordRepB>
+  void
+  CastFrom(const Point<TCoordRepB, NPointDimension> & pa)
   {
-    for ( unsigned int i = 0; i < NPointDimension; i++ )
-      {
-      ( *this )[i] = static_cast< TCoordRep >( pa[i] );
-      }
+    for (unsigned int i = 0; i < NPointDimension; i++)
+    {
+      (*this)[i] = static_cast<TCoordRep>(pa[i]);
+    }
   }
 
   /** Compute the Squared Euclidean Distance from this point to another point
-    * with a different representation type.  Casting is done with
-    * C-Like rules */
+   * with a different representation type.  Casting is done with
+   * C-Like rules */
 
-  template< typename TCoordRepB >
-  RealType SquaredEuclideanDistanceTo(const Point< TCoordRepB, NPointDimension > & pa) const
+  template <typename TCoordRepB>
+  RealType
+  SquaredEuclideanDistanceTo(const Point<TCoordRepB, NPointDimension> & pa) const
   {
-    RealType sum = NumericTraits< RealType >::ZeroValue();
+    RealType sum = NumericTraits<RealType>::ZeroValue();
 
-    for ( unsigned int i = 0; i < NPointDimension; i++ )
-      {
-      const RealType component =  static_cast< RealType >( pa[i] );
-      const RealType difference = static_cast< RealType >( ( *this )[i] ) - component;
+    for (unsigned int i = 0; i < NPointDimension; i++)
+    {
+      const auto     component = static_cast<RealType>(pa[i]);
+      const RealType difference = static_cast<RealType>((*this)[i]) - component;
       sum += difference * difference;
-      }
+    }
     return sum;
   }
 
   /** Compute the Euclidean Distance from this point to another point
-    * with a different representation type.  Casting is done with
-    * C-Like rules */
-  template< typename TCoordRepB >
-  RealType EuclideanDistanceTo(const Point< TCoordRepB, NPointDimension > & pa) const
+   * with a different representation type.  Casting is done with
+   * C-Like rules */
+  template <typename TCoordRepB>
+  RealType
+  EuclideanDistanceTo(const Point<TCoordRepB, NPointDimension> & pa) const
   {
-    const double distance = std::sqrt(
-      static_cast< double >( this->SquaredEuclideanDistanceTo(pa) ) );
+    const double distance = std::sqrt(static_cast<double>(this->SquaredEuclideanDistanceTo(pa)));
 
-    return static_cast< RealType >( distance );
+    return static_cast<RealType>(distance);
   }
 };
 
-template< typename T, unsigned int NPointDimension >
-std::ostream & operator<<(std::ostream & os,
-                                     const Point< T, NPointDimension > & v);
+template <typename T, unsigned int NPointDimension>
+std::ostream &
+operator<<(std::ostream & os, const Point<T, NPointDimension> & v);
 
-template< typename T, unsigned int NPointDimension >
-std::istream & operator>>(std::istream & is,
-                                     Point< T, NPointDimension > & v);
+template <typename T, unsigned int NPointDimension>
+std::istream &
+operator>>(std::istream & is, Point<T, NPointDimension> & v);
 
 /** \class BarycentricCombination
  *  \brief Computes the barycentric combination of an array of N points.
@@ -298,27 +332,35 @@ std::istream & operator>>(std::istream & is,
  * \ingroup Geometry
  * \ingroup ITKCommon
  */
-template< typename TPointContainer, typename TWeightContainer >
+template <typename TPointContainer, typename TWeightContainer>
 class ITK_TEMPLATE_EXPORT BarycentricCombination
 {
 public:
-  /** Convenient typedefs. */
-  typedef TPointContainer                      PointContainerType;
-  typedef typename PointContainerType::Pointer PointContainerPointer;
-  typedef typename PointContainerType::Element PointType;
-  typedef TWeightContainer                     WeightContainerType;
+  /** Convenient type alias. */
+  using PointContainerType = TPointContainer;
+  using PointContainerPointer = typename PointContainerType::Pointer;
+  using PointType = typename PointContainerType::Element;
+  using WeightContainerType = TWeightContainer;
 
-  BarycentricCombination() {}
-  ~BarycentricCombination() {}
+  BarycentricCombination() = default;
+  ~BarycentricCombination() = default;
 
-  static PointType Evaluate(
-    const PointContainerPointer & points,
-    const WeightContainerType & weights);
+  static PointType
+  Evaluate(const PointContainerPointer & points, const WeightContainerType & weights);
 };
-}  // end namespace itk
+
+
+template <typename TCoordRep, unsigned int NPointDimension>
+inline void
+swap(Point<TCoordRep, NPointDimension> & a, Point<TCoordRep, NPointDimension> & b)
+{
+  a.swap(b);
+}
+
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPoint.hxx"
+#  include "itkPoint.hxx"
 #endif
 
 #endif

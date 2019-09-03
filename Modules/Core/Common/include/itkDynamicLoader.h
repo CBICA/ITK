@@ -34,20 +34,22 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-//BTX
-typedef itksys::DynamicLoader::LibraryHandle LibHandle;
+// BTX
+using LibHandle = itksys::DynamicLoader::LibraryHandle;
 // Cannot use this as this is a void (*)() but ITK old API used to be void*
-typedef itksys::DynamicLoader::SymbolPointer SymbolPointer;
-//ETX
+using SymbolPointer = itksys::DynamicLoader::SymbolPointer;
+// ETX
 
-class ITKCommon_EXPORT DynamicLoader:public Object
+class ITKCommon_EXPORT DynamicLoader : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef DynamicLoader              Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DynamicLoader);
+
+  /** Standard class type aliases. */
+  using Self = DynamicLoader;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -58,30 +60,32 @@ public:
   /** Load a dynamic library into the current process.
    * The returned LibHandle can be used to access the symbols in the
    * library. */
-  static LibHandle OpenLibrary(const char *);
+  static LibHandle
+  OpenLibrary(const char *);
 
   /** Attempt to detach a dynamic library from the
    * process.  A value of true is returned if it is successful. */
   static int CloseLibrary(LibHandle);
 
   /** Find the address of the symbol in the given library. */
-  static void *GetSymbolAddress(LibHandle, const char *);
+  static void *
+  GetSymbolAddress(LibHandle, const char *);
 
   /** Return the library prefix for the given architecture */
-  static const char * LibPrefix();
+  static const char *
+  LibPrefix();
 
   /** Return the library extension for the given architecture. */
-  static const char * LibExtension();
+  static const char *
+  LibExtension();
 
   /** Return the last error produced from a calls made on this class. */
-  static const char * LastError();
+  static const char *
+  LastError();
 
 protected:
   DynamicLoader();
-  ~DynamicLoader() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DynamicLoader);
+  ~DynamicLoader() override;
 };
 } // end namespace itk
 

@@ -47,33 +47,31 @@ namespace itk
  *
  * \sa FFTShiftImageFilter
  */
-template<typename TInputImage, typename TOutputImage=TInputImage>
-class ITK_TEMPLATE_EXPORT FFTPadImageFilter :
-    public PadImageFilterBase<TInputImage, TOutputImage>
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT FFTPadImageFilter : public PadImageFilterBase<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef FFTPadImageFilter                             Self;
-  typedef PadImageFilterBase<TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FFTPadImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef TOutputImage                             OutputImageType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename InputImageType::RegionType      RegionType;
-  typedef typename InputImageType::IndexType       IndexType;
-  typedef typename InputImageType::SizeType        SizeType;
+  /** Standard class type aliases. */
+  using Self = FFTPadImageFilter;
+  using Superclass = PadImageFilterBase<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using RegionType = typename InputImageType::RegionType;
+  using IndexType = typename InputImageType::IndexType;
+  using SizeType = typename InputImageType::SizeType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -95,21 +93,21 @@ public:
   itkSetMacro(SizeGreatestPrimeFactor, SizeValueType);
 
   /** Typedef to describe the boundary condition. */
-  typedef ImageBoundaryCondition< TInputImage >           BoundaryConditionType;
-  typedef BoundaryConditionType *                         BoundaryConditionPointerType;
-  typedef ZeroFluxNeumannBoundaryCondition< TInputImage > DefaultBoundaryConditionType;
+  using BoundaryConditionType = ImageBoundaryCondition<TInputImage, TOutputImage>;
+  using BoundaryConditionPointerType = BoundaryConditionType *;
+  using DefaultBoundaryConditionType = ZeroFluxNeumannBoundaryCondition<TInputImage, TOutputImage>;
 
 protected:
   FFTPadImageFilter();
-  ~FFTPadImageFilter() ITK_OVERRIDE {};
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  ~FFTPadImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FFTPadImageFilter);
-
   SizeValueType m_SizeGreatestPrimeFactor;
 
   DefaultBoundaryConditionType m_DefaultBoundaryCondition;
@@ -119,7 +117,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFFTPadImageFilter.hxx"
+#  include "itkFFTPadImageFilter.hxx"
 #endif
 
 #endif

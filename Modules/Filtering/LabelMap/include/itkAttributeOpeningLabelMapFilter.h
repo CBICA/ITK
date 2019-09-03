@@ -21,7 +21,8 @@
 #include "itkInPlaceLabelMapFilter.h"
 #include "itkAttributeLabelObject.h"
 
-namespace itk {
+namespace itk
+{
 /** \class AttributeOpeningLabelMapFilter
  * \brief remove the objects according to the value of their attribute
  *
@@ -39,49 +40,49 @@ namespace itk {
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template<typename TImage, typename TAttributeAccessor=
-    typename Functor::AttributeLabelObjectAccessor< typename TImage::LabelObjectType > >
-class ITK_TEMPLATE_EXPORT AttributeOpeningLabelMapFilter :
-    public InPlaceLabelMapFilter<TImage>
+template <typename TImage,
+          typename TAttributeAccessor =
+            typename Functor::AttributeLabelObjectAccessor<typename TImage::LabelObjectType>>
+class ITK_TEMPLATE_EXPORT AttributeOpeningLabelMapFilter : public InPlaceLabelMapFilter<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef AttributeOpeningLabelMapFilter Self;
-  typedef InPlaceLabelMapFilter<TImage>  Superclass;
-  typedef SmartPointer<Self>             Pointer;
-  typedef SmartPointer<const Self>       ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AttributeOpeningLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                              ImageType;
-  typedef typename ImageType::Pointer         ImagePointer;
-  typedef typename ImageType::ConstPointer    ImageConstPointer;
-  typedef typename ImageType::PixelType       PixelType;
-  typedef typename ImageType::IndexType       IndexType;
+  /** Standard class type aliases. */
+  using Self = AttributeOpeningLabelMapFilter;
+  using Superclass = InPlaceLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename Superclass::LabelObjectType LabelObjectType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
 
-  typedef TAttributeAccessor                                 AttributeAccessorType;
-  typedef typename AttributeAccessorType::AttributeValueType AttributeValueType;
+  using LabelObjectType = typename Superclass::LabelObjectType;
+
+  using AttributeAccessorType = TAttributeAccessor;
+  using AttributeValueType = typename AttributeAccessorType::AttributeValueType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(AttributeOpeningLabelMapFilter,
-               InPlaceLabelMapFilter);
+  itkTypeMacro(AttributeOpeningLabelMapFilter, InPlaceLabelMapFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-/*  itkConceptMacro(InputEqualityComparableCheck,
-    (Concept::EqualityComparable<InputImagePixelType>));
-  itkConceptMacro(IntConvertibleToInputCheck,
-    (Concept::Convertible<int, InputImagePixelType>));
-  itkConceptMacro(InputOStreamWritableCheck,
-    (Concept::OStreamWritable<InputImagePixelType>));*/
+  /*  itkConceptMacro(InputEqualityComparableCheck,
+      (Concept::EqualityComparable<InputImagePixelType>));
+    itkConceptMacro(IntConvertibleToInputCheck,
+      (Concept::Convertible<int, InputImagePixelType>));
+    itkConceptMacro(InputOStreamWritableCheck,
+      (Concept::OStreamWritable<InputImagePixelType>));*/
   // End concept checking
 #endif
 
@@ -97,21 +98,21 @@ public:
    * to true make this filter remove the object with an attribute value greater
    * than Lambda instead.
    */
-  itkGetConstMacro( ReverseOrdering, bool );
-  itkSetMacro( ReverseOrdering, bool );
-  itkBooleanMacro( ReverseOrdering );
+  itkGetConstMacro(ReverseOrdering, bool);
+  itkSetMacro(ReverseOrdering, bool);
+  itkBooleanMacro(ReverseOrdering);
 
 protected:
   AttributeOpeningLabelMapFilter();
-  ~AttributeOpeningLabelMapFilter() ITK_OVERRIDE {};
+  ~AttributeOpeningLabelMapFilter() override = default;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AttributeOpeningLabelMapFilter);
-
   AttributeValueType m_Lambda;
   bool               m_ReverseOrdering;
 
@@ -120,7 +121,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAttributeOpeningLabelMapFilter.hxx"
+#  include "itkAttributeOpeningLabelMapFilter.hxx"
 #endif
 
 #endif

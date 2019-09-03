@@ -21,49 +21,48 @@
 #include "itkLevelSetEvolutionNumberOfIterationsStoppingCriterion.h"
 #include "itkMath.h"
 
-int itkLevelSetEvolutionNumberOfIterationsStoppingCriterionTest( int , char* [] )
+int
+itkLevelSetEvolutionNumberOfIterationsStoppingCriterionTest(int, char *[])
 {
-  const unsigned int Dimension = 2;
-  typedef float ValueType;
+  constexpr unsigned int Dimension = 2;
+  using ValueType = float;
 
-  typedef itk::WhitakerSparseLevelSetImage< ValueType, Dimension > LevelSetType;
+  using LevelSetType = itk::WhitakerSparseLevelSetImage<ValueType, Dimension>;
 
-  typedef itk::LevelSetContainerBase< itk::IdentifierType, LevelSetType >
-                                                            LevelSetContainerType;
+  using LevelSetContainerType = itk::LevelSetContainerBase<itk::IdentifierType, LevelSetType>;
 
-  typedef itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion< LevelSetContainerType >
-      StoppingCriterionType;
+  using StoppingCriterionType = itk::LevelSetEvolutionNumberOfIterationsStoppingCriterion<LevelSetContainerType>;
   StoppingCriterionType::Pointer criterion = StoppingCriterionType::New();
-  criterion->SetNumberOfIterations( 5 );
+  criterion->SetNumberOfIterations(5);
 
-  if( criterion->GetNumberOfIterations() != 5 )
-    {
+  if (criterion->GetNumberOfIterations() != 5)
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  criterion->SetRMSChangeAccumulator( 0.1 );
+  criterion->SetRMSChangeAccumulator(0.1);
 
-  if( itk::Math::NotExactlyEquals(criterion->GetRMSChangeAccumulator(), 0.1) )
-    {
+  if (itk::Math::NotExactlyEquals(criterion->GetRMSChangeAccumulator(), 0.1))
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  for( StoppingCriterionType::IterationIdType iter = 0; iter < 10; iter++ )
+  for (StoppingCriterionType::IterationIdType iter = 0; iter < 10; iter++)
+  {
+    criterion->SetCurrentIteration(iter);
+
+    if (criterion->GetCurrentIteration() != iter)
     {
-    criterion->SetCurrentIteration( iter );
-
-    if( criterion->GetCurrentIteration() != iter )
-      {
       return EXIT_FAILURE;
-      }
-
-    if( criterion->IsSatisfied() != ( iter >= 5 ) )
-      {
-      return EXIT_FAILURE;
-      }
     }
 
-  std::cout << "Description :" << criterion->GetDescription() <<std::endl;
+    if (criterion->IsSatisfied() != (iter >= 5))
+    {
+      return EXIT_FAILURE;
+    }
+  }
+
+  std::cout << "Description :" << criterion->GetDescription() << std::endl;
 
   return EXIT_SUCCESS;
 }

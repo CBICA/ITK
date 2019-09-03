@@ -35,20 +35,20 @@ namespace itk
  *
  * An example operator to compute X derivatives of a 2D image can be
  * created with:
- * \code
- *       typedef itk::DerivativeOperator<float, 2> DerivativeOperatorType;
- *       DerivativeOperatorType derivativeOperator;
- *       derivativeOperator.SetDirection(0); // X dimension
- *       itk::Size<2> radius;
- *       radius.Fill(1); // A radius of 1 in both dimensions is a 3x3 operator
- *       derivativeOperator.CreateToRadius(radius);
- * \endcode
+   \code
+         using DerivativeOperatorType = itk::DerivativeOperator<float, 2>;
+         DerivativeOperatorType derivativeOperator;
+         derivativeOperator.SetDirection(0); // X dimension
+         itk::Size<2> radius;
+         radius.Fill(1); // A radius of 1 in both dimensions is a 3x3 operator
+         derivativeOperator.CreateToRadius(radius);
+   \endcode
  * and creates a kernel that looks like:
- * \code
- *       0        0 0
- *       0.5  0   -0.5
- *       0    0   0
- * \endcode
+   \code
+         0        0 0
+         0.5  0   -0.5
+         0    0   0
+   \endcode
  *
  * \sa NeighborhoodOperator
  * \sa Neighborhood
@@ -58,80 +58,89 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Operators/DerivativeOperator,Create a derivative kernel}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateDerivativeKernel,Create Derivative Kernel}
+ * \endsphinx
  */
-template< typename TPixel, unsigned int VDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT DerivativeOperator:
-  public NeighborhoodOperator< TPixel, VDimension, TAllocator >
+template <typename TPixel, unsigned int VDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT DerivativeOperator : public NeighborhoodOperator<TPixel, VDimension, TAllocator>
 {
 public:
-  /** Standard class typedefs. */
-  typedef DerivativeOperator Self;
-  typedef NeighborhoodOperator<
-    TPixel, VDimension, TAllocator >           Superclass;
+  /** Standard class type aliases. */
+  using Self = DerivativeOperator;
+  using Superclass = NeighborhoodOperator<TPixel, VDimension, TAllocator>;
 
-  typedef typename Superclass::PixelType     PixelType;
-  typedef typename Superclass::PixelRealType PixelRealType;
+  using PixelType = typename Superclass::PixelType;
+  using PixelRealType = typename Superclass::PixelRealType;
 
   /** Constructor. */
-  DerivativeOperator():m_Order(1) {}
+  DerivativeOperator() {}
 
   /** Copy constructor. */
-  DerivativeOperator(const Self & other):
-    NeighborhoodOperator< TPixel, VDimension, TAllocator >(other)
-  { m_Order = other.m_Order;  }
+  DerivativeOperator(const Self & other)
+    : NeighborhoodOperator<TPixel, VDimension, TAllocator>(other)
+  {
+    m_Order = other.m_Order;
+  }
 
   /** Assignment operator */
-  Self & operator=(const Self & other)
+  Self &
+  operator=(const Self & other)
   {
-    if(this != &other)
-      {
+    if (this != &other)
+    {
       Superclass::operator=(other);
       m_Order = other.m_Order;
-      }
+    }
     return *this;
   }
 
   /** Sets the order of the derivative. */
-  void SetOrder(const unsigned int & order)
+  void
+  SetOrder(const unsigned int & order)
   {
     this->m_Order = order;
   }
 
   /** Returns the order of the derivative. */
-  unsigned int GetOrder() const { return m_Order; }
+  unsigned int
+  GetOrder() const
+  {
+    return m_Order;
+  }
 
   /** Prints some debugging information */
-  virtual void PrintSelf(std::ostream & os, Indent i) const
+  void
+  PrintSelf(std::ostream & os, Indent i) const override
   {
-    os << i << "DerivativeOperator { this=" << this
-       << ", m_Order = " << m_Order << "}" << std::endl;
-    Superclass::PrintSelf( os, i.GetNextIndent() );
+    os << i << "DerivativeOperator { this=" << this << ", m_Order = " << m_Order << "}" << std::endl;
+    Superclass::PrintSelf(os, i.GetNextIndent());
   }
 
 protected:
   /** Typedef support for coefficient vector type.  Necessary to
    * work around compiler bug on VC++. */
-  typedef typename Superclass::CoefficientVector CoefficientVector;
+  using CoefficientVector = typename Superclass::CoefficientVector;
 
   /** Calculates operator coefficients. */
-  CoefficientVector GenerateCoefficients();
+  CoefficientVector
+  GenerateCoefficients() override;
 
   /** Arranges coefficients spatially in the memory buffer. */
-  void Fill(const CoefficientVector & coeff)
-  {   Superclass::FillCenteredDirectional(coeff);  }
+  void
+  Fill(const CoefficientVector & coeff) override
+  {
+    Superclass::FillCenteredDirectional(coeff);
+  }
 
 private:
   /** Order of the derivative. */
-  unsigned int m_Order;
+  unsigned int m_Order{ 1 };
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDerivativeOperator.hxx"
+#  include "itkDerivativeOperator.hxx"
 #endif
 
 #endif

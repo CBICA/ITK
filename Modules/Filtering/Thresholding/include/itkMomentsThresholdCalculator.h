@@ -44,15 +44,17 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKThresholding
  */
-template <typename THistogram, typename TOutput=double>
+template <typename THistogram, typename TOutput = double>
 class ITK_TEMPLATE_EXPORT MomentsThresholdCalculator : public HistogramThresholdCalculator<THistogram, TOutput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MomentsThresholdCalculator                        Self;
-  typedef HistogramThresholdCalculator<THistogram, TOutput> Superclass;
-  typedef SmartPointer<Self>                                Pointer;
-  typedef SmartPointer<const Self>                          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MomentsThresholdCalculator);
+
+  /** Standard class type aliases. */
+  using Self = MomentsThresholdCalculator;
+  using Superclass = HistogramThresholdCalculator<THistogram, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,24 +63,21 @@ public:
   itkTypeMacro(MomentsThresholdCalculator, HistogramThresholdCalculator);
 
   /** Type definition for the input image. */
-  typedef THistogram  HistogramType;
-  typedef TOutput     OutputType;
+  using HistogramType = THistogram;
+  using OutputType = TOutput;
 
 protected:
-  MomentsThresholdCalculator() {};
-  virtual ~MomentsThresholdCalculator() ITK_OVERRIDE {};
-  void GenerateData(void) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MomentsThresholdCalculator);
-
+  MomentsThresholdCalculator() = default;
+  ~MomentsThresholdCalculator() override = default;
+  void
+  GenerateData() override;
 };
 
 } // end namespace itk
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMomentsThresholdCalculator.hxx"
+#  include "itkMomentsThresholdCalculator.hxx"
 #endif
 
 #endif

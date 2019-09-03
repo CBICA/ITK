@@ -43,18 +43,18 @@ class TubeGraphPnt
 public:
 
   TubeGraphPnt(int dim)
-  {
+{
     m_Dim = dim;
     m_GraphNode = -1;
     m_R = 0;
     m_P = 0;
     m_T = new float[m_Dim*m_Dim];
-  }
+}
 
   ~TubeGraphPnt()
-  {
+{
     delete [] m_T;
-  }
+}
 
   unsigned int m_Dim;
   int    m_GraphNode;
@@ -67,7 +67,7 @@ public:
 
 
 class METAIO_EXPORT MetaTubeGraph : public MetaObject
-  {
+{
 
   /////
   //
@@ -76,7 +76,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::vector<TubeGraphPnt*> PointListType;
+   typedef std::vector<TubeGraphPnt*> PointListType;
     ////
     //
     // Constructors & Destructor
@@ -90,15 +90,15 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
 
     MetaTubeGraph(unsigned int dim);
 
-    ~MetaTubeGraph(void) MET_OVERRIDE;
+    ~MetaTubeGraph(void) override;
 
-    void PrintInfo(void) const MET_OVERRIDE;
+    void PrintInfo(void) const override;
 
-    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+    void CopyInfo(const MetaObject * _object) override;
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the tube
+    //       Number of points which compose the tube
     void  NPoints(int npnt);
     int   NPoints(void) const;
 
@@ -115,7 +115,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
     int   Root(void) const;
 
 
-    void  Clear(void) MET_OVERRIDE;
+    void  Clear(void) override;
 
     PointListType &  GetPoints(void) {return m_PointList;}
     const PointListType &  GetPoints(void) const {return m_PointList;}
@@ -130,15 +130,15 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
   ////
   protected:
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
-    bool  M_Write(void) MET_OVERRIDE;
+    bool  M_Write(void) override;
 
     int m_Root;         // "Root = "            0
 
@@ -149,7 +149,7 @@ class METAIO_EXPORT MetaTubeGraph : public MetaObject
     PointListType m_PointList;
 
     MET_ValueEnumType m_ElementType;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

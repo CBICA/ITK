@@ -46,72 +46,63 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKMathematicalMorphology
  */
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT GrayscaleFunctionDilateImageFilter:
-  public MorphologyImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT GrayscaleFunctionDilateImageFilter
+  : public MorphologyImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GrayscaleFunctionDilateImageFilter                          Self;
-  typedef MorphologyImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GrayscaleFunctionDilateImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GrayscaleFunctionDilateImageFilter;
+  using Superclass = MorphologyImageFilter<TInputImage, TOutputImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(GrayscaleFunctionDilateImageFilter,
-               MorphologyImageFilter);
+  itkTypeMacro(GrayscaleFunctionDilateImageFilter, MorphologyImageFilter);
 
   /** Declaration of pixel type. */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** Kernel (structuring element) iterator. */
-  typedef typename Superclass::KernelIteratorType KernelIteratorType;
+  using KernelIteratorType = typename Superclass::KernelIteratorType;
 
   /** Neighborhood iterator type. */
-  typedef typename Superclass::NeighborhoodIteratorType NeighborhoodIteratorType;
+  using NeighborhoodIteratorType = typename Superclass::NeighborhoodIteratorType;
 
-  /** Kernel typedef. */
-  typedef typename Superclass::KernelType KernelType;
+  /** Kernel type alias. */
+  using KernelType = typename Superclass::KernelType;
 
   /** Default boundary condition type */
-  typedef typename Superclass::DefaultBoundaryConditionType DefaultBoundaryConditionType;
+  using DefaultBoundaryConditionType = typename Superclass::DefaultBoundaryConditionType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(KernelDimension, unsigned int,
-                      TKernel::NeighborhoodDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int KernelDimension = TKernel::NeighborhoodDimension;
 
   /** Type of the pixels in the Kernel. */
-  typedef typename TKernel::PixelType KernelPixelType;
+  using KernelPixelType = typename TKernel::PixelType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck1,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( SameDimensionCheck2,
-                   ( Concept::SameDimension< InputImageDimension, KernelDimension > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< PixelType, typename TOutputImage::PixelType > ) );
-  itkConceptMacro( KernelConvertibleToInputCheck,
-                   ( Concept::Convertible< KernelPixelType, PixelType > ) );
-  itkConceptMacro( InputAdditiveOperatorsCheck,
-                   ( Concept::AdditiveOperators< PixelType > ) );
-  itkConceptMacro( InputGreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< PixelType > ) );
-  itkConceptMacro( KernelGreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< KernelPixelType > ) );
+  itkConceptMacro(SameDimensionCheck1, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
+  itkConceptMacro(SameDimensionCheck2, (Concept::SameDimension<InputImageDimension, KernelDimension>));
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<PixelType, typename TOutputImage::PixelType>));
+  itkConceptMacro(KernelConvertibleToInputCheck, (Concept::Convertible<KernelPixelType, PixelType>));
+  itkConceptMacro(InputAdditiveOperatorsCheck, (Concept::AdditiveOperators<PixelType>));
+  itkConceptMacro(InputGreaterThanComparableCheck, (Concept::GreaterThanComparable<PixelType>));
+  itkConceptMacro(KernelGreaterThanComparableCheck, (Concept::GreaterThanComparable<KernelPixelType>));
   // End concept checking
 #endif
 
 protected:
   GrayscaleFunctionDilateImageFilter();
-  ~GrayscaleFunctionDilateImageFilter() ITK_OVERRIDE {}
+  ~GrayscaleFunctionDilateImageFilter() override = default;
 
   /** Evaluate image neighborhood with kernel to find the new value
    * for the center pixel value
@@ -120,13 +111,12 @@ protected:
    * structuring element values whose corresponding element in the
    * structuring element is positive. This version of Evaluate is used
    * for non-boundary pixels. */
-  PixelType Evaluate(const NeighborhoodIteratorType & nit,
-                     const KernelIteratorType kernelBegin,
-                     const KernelIteratorType kernelEnd) ITK_OVERRIDE;
+  PixelType
+  Evaluate(const NeighborhoodIteratorType & nit,
+           const KernelIteratorType         kernelBegin,
+           const KernelIteratorType         kernelEnd) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GrayscaleFunctionDilateImageFilter);
-
   // Default boundary condition for dilation filter, defaults to
   // NumericTraits<PixelType>::NonpositiveMin()
   DefaultBoundaryConditionType m_DilateBoundaryCondition;
@@ -134,7 +124,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGrayscaleFunctionDilateImageFilter.hxx"
+#  include "itkGrayscaleFunctionDilateImageFilter.hxx"
 #endif
 
 #endif

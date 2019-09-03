@@ -41,15 +41,17 @@ namespace itk
  *
  * \sa MeshFileReader
  */
-template< typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT VTKPolyDataReader:public MeshSource< TOutputMesh >
+template <typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT VTKPolyDataReader : public MeshSource<TOutputMesh>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef VTKPolyDataReader          Self;
-  typedef MeshSource< TOutputMesh >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VTKPolyDataReader);
+
+  /** Standard "Self" type alias. */
+  using Self = VTKPolyDataReader;
+  using Superclass = MeshSource<TOutputMesh>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -58,31 +60,31 @@ public:
   itkTypeMacro(VTKPolyDataReader, MeshSource);
 
   /** Hold on to the type information specified by the template parameters. */
-  typedef TOutputMesh                         OutputMeshType;
-  typedef typename OutputMeshType::MeshTraits MeshTraits;
-  typedef typename OutputMeshType::PointType  PointType;
-  typedef typename MeshTraits::PixelType      PixelType;
+  using OutputMeshType = TOutputMesh;
+  using MeshTraits = typename OutputMeshType::MeshTraits;
+  using PointType = typename OutputMeshType::PointType;
+  using PixelType = typename MeshTraits::PixelType;
 
-  /** Some convenient typedefs. */
-  typedef typename OutputMeshType::Pointer         OutputMeshPointer;
-  typedef typename OutputMeshType::CellTraits      CellTraits;
-  typedef typename OutputMeshType::CellIdentifier  CellIdentifier;
-  typedef typename OutputMeshType::CellType        CellType;
-  typedef typename OutputMeshType::CellAutoPointer CellAutoPointer;
-  typedef typename OutputMeshType::PointIdentifier PointIdentifier;
-  typedef typename CellTraits::PointIdIterator     PointIdIterator;
+  /** Some convenient type alias. */
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
+  using CellTraits = typename OutputMeshType::CellTraits;
+  using CellIdentifier = typename OutputMeshType::CellIdentifier;
+  using CellType = typename OutputMeshType::CellType;
+  using CellAutoPointer = typename OutputMeshType::CellAutoPointer;
+  using PointIdentifier = typename OutputMeshType::PointIdentifier;
+  using PointIdIterator = typename CellTraits::PointIdIterator;
 
-  typedef typename OutputMeshType::PointsContainerPointer PointsContainerPointer;
-  typedef typename OutputMeshType::PointsContainer        PointsContainer;
+  using PointsContainerPointer = typename OutputMeshType::PointsContainerPointer;
+  using PointsContainer = typename OutputMeshType::PointsContainer;
 
   /** Define the triangular cell types which form the surface  */
-  typedef TriangleCell< CellType > TriangleCellType;
+  using TriangleCellType = TriangleCell<CellType>;
 
-  typedef typename TriangleCellType::SelfAutoPointer TriangleCellAutoPointer;
+  using TriangleCellAutoPointer = typename TriangleCellType::SelfAutoPointer;
 
-  typedef std::pair< IdentifierType, IdentifierType >    IndexPairType;
-  typedef MapContainer< IndexPairType, IdentifierType >  PointMapType;
-  typedef typename PointType::VectorType                 VectorType;
+  using IndexPairType = std::pair<IdentifierType, IdentifierType>;
+  using PointMapType = MapContainer<IndexPairType, IdentifierType>;
+  using VectorType = typename PointType::VectorType;
 
   /** Set the resolution level to be used for generating cells in the
    * Sphere. High values of this parameter will produce sphere with more
@@ -99,17 +101,17 @@ public:
 
 protected:
   VTKPolyDataReader();
-  ~VTKPolyDataReader() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~VTKPolyDataReader() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Reads the file */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Filename to read */
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VTKPolyDataReader);
-
   std::string m_FileName;
   std::string m_Header;
   std::string m_Version;
@@ -117,7 +119,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVTKPolyDataReader.hxx"
+#  include "itkVTKPolyDataReader.hxx"
 #endif
 
 #endif //_itkVTKPolyDataReader_h

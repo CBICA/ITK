@@ -22,85 +22,83 @@
 #include "itkFastMarchingThresholdStoppingCriterion.h"
 #include "itkMeshFileWriter.h"
 
-int itkFastMarchingQuadEdgeMeshFilterBaseTest( int , char * [] )
+int
+itkFastMarchingQuadEdgeMeshFilterBaseTest(int, char *[])
 {
-  typedef float   PixelType;
-  typedef double  CoordType;
+  using PixelType = float;
+  using CoordType = double;
 
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
-  typedef itk::QuadEdgeMeshExtendedTraits <
-    PixelType,  // type of data for vertices
-    Dimension,  // geometrical dimension of space
-    2,          // Mac topological dimension of a cell
-    CoordType,  // type for point coordinate
-    CoordType,  // type for interpolation weight
-    PixelType,  // type of data for cell
-    bool,       // type of data for primal edges
-    bool        // type of data for dual edges
-  > Traits;
+  using Traits = itk::QuadEdgeMeshExtendedTraits<PixelType, // type of data for vertices
+                                                 Dimension, // geometrical dimension of space
+                                                 2,         // Mac topological dimension of a cell
+                                                 CoordType, // type for point coordinate
+                                                 CoordType, // type for interpolation weight
+                                                 PixelType, // type of data for cell
+                                                 bool,      // type of data for primal edges
+                                                 bool       // type of data for dual edges
+                                                 >;
 
-  typedef itk::QuadEdgeMesh< PixelType, Dimension, Traits > MeshType;
+  using MeshType = itk::QuadEdgeMesh<PixelType, Dimension, Traits>;
 
-  typedef itk::FastMarchingQuadEdgeMeshFilterBase< MeshType, MeshType > FastMarchingType;
+  using FastMarchingType = itk::FastMarchingQuadEdgeMeshFilterBase<MeshType, MeshType>;
 
   MeshType::PointType center;
-  center.Fill( 0. );
+  center.Fill(0.);
 
-  typedef itk::RegularSphereMeshSource< MeshType > SphereSourceType;
+  using SphereSourceType = itk::RegularSphereMeshSource<MeshType>;
   SphereSourceType::Pointer sphere_filter = SphereSourceType::New();
-  sphere_filter->SetCenter( center );
-  sphere_filter->SetResolution( 5 );
+  sphere_filter->SetCenter(center);
+  sphere_filter->SetResolution(5);
   sphere_filter->Update();
 
   MeshType::Pointer sphere_output = sphere_filter->GetOutput();
 
-  MeshType::PointsContainerConstPointer points =
-      sphere_output->GetPoints();
+  MeshType::PointsContainerConstPointer points = sphere_output->GetPoints();
 
   MeshType::PointsContainerConstIterator p_it = points->Begin();
   MeshType::PointsContainerConstIterator p_end = points->End();
 
-  while( p_it != p_end )
-    {
-    sphere_output->SetPointData( p_it->Index(), 1. );
+  while (p_it != p_end)
+  {
+    sphere_output->SetPointData(p_it->Index(), 1.);
     ++p_it;
-    }
+  }
 
-  typedef FastMarchingType::NodePairType  NodePairType;
-//  typedef FastMarchingType::NodeContainerType NodeContainerType;
-  typedef FastMarchingType::NodePairContainerType NodePairContainerType;
+  using NodePairType = FastMarchingType::NodePairType;
+  //  using NodeContainerType = FastMarchingType::NodeContainerType;
+  using NodePairContainerType = FastMarchingType::NodePairContainerType;
 
   NodePairContainerType::Pointer trial = NodePairContainerType::New();
 
-  NodePairType node_pair( 0, 0. );
-  trial->push_back( node_pair );
+  NodePairType node_pair(0, 0.);
+  trial->push_back(node_pair);
 
-  typedef itk::FastMarchingThresholdStoppingCriterion< MeshType, MeshType >
-      CriterionType;
+  using CriterionType = itk::FastMarchingThresholdStoppingCriterion<MeshType, MeshType>;
   CriterionType::Pointer criterion = CriterionType::New();
-  criterion->SetThreshold( 100. );
+  criterion->SetThreshold(100.);
 
   FastMarchingType::Pointer fmm_filter = FastMarchingType::New();
-  fmm_filter->SetInput( sphere_output );
-  fmm_filter->SetTrialPoints( trial );
-  fmm_filter->SetStoppingCriterion( criterion );
+  fmm_filter->SetInput(sphere_output);
+  fmm_filter->SetTrialPoints(trial);
+  fmm_filter->SetStoppingCriterion(criterion);
 
   try
-    {
+  {
     fmm_filter->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
+  }
+  catch (itk::ExceptionObject & excep)
+  {
     std::cerr << "Exception caught !" << std::endl;
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::MeshFileWriter< MeshType > WriterType;
+  using WriterType = itk::MeshFileWriter<MeshType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( fmm_filter->GetOutput() );
-  writer->SetFileName( "itkFastMarchingQuadEdgeMeshFilterBase.vtk" );
+  writer->SetInput(fmm_filter->GetOutput());
+  writer->SetFileName("itkFastMarchingQuadEdgeMeshFilterBase.vtk");
   writer->Update();
 
 

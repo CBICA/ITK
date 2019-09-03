@@ -18,6 +18,7 @@ itkIteratorTests.cxx
 itkImageReverseIteratorTest.cxx
 itkImageComputeOffsetAndIndexTest.cxx
 itkImageDuplicatorTest.cxx
+itkImageDuplicatorTest2.cxx
 itkImageIteratorsForwardBackwardTest.cxx
 itkImageLinearIteratorTest.cxx
 itkImageAdaptorPipeLineTest.cxx
@@ -47,7 +48,6 @@ itkPhasedArray3DSpecialCoordinatesImageTest.cxx
 itkPriorityQueueTest.cxx
 itkFileOutputWindowTest.cxx
 itkSymmetricEigenAnalysisTest.cxx
-itkSTLThreadTest.cxx
 itkStreamingImageFilterTest.cxx
 itkStreamingImageFilterTest2.cxx
 itkStreamingImageFilterTest3.cxx
@@ -65,6 +65,7 @@ itkGaussianSpatialFunctionTest.cxx
 itkRealTimeClockTest.cxx
 itkRealTimeIntervalTest
 itkRealTimeStampTest
+itkTimeStampTest.cxx
 itkIntTypesTest.cxx
 itkBSplineKernelFunctionTest.cxx
 itkArrayTest.cxx
@@ -85,7 +86,6 @@ itkModifiedTimeTest.cxx
 itkMultipleLogOutputTest.cxx
 itkVectorTest.cxx
 itkImageTest.cxx
-itkConditionVariableTest.cxx
 itkPointSetTest.cxx
 itkBresenhamLineTest.cxx
 itkSparseFieldLayerTest.cxx
@@ -104,39 +104,42 @@ itkStdStreamStateSaveTest.cxx
 itkVersionTest.cxx
 VNLSparseLUSolverTraitsTest.cxx
 )
-
 set(ITKCommon2Tests
-itkMetaProgrammingLibraryTest.cxx
-itkIsConvertible.cxx
-itkIsBaseOf.cxx
-itkPromoteType.cxx
+itkSTLThreadTest.cxx
 itkThreadedIndexedContainerPartitionerTest.cxx
 itkThreadedIteratorRangePartitionerTest.cxx
 itkThreadedIteratorRangePartitionerTest2.cxx
 itkThreadedIteratorRangePartitionerTest3.cxx
 itkThreadedImageRegionPartitionerTest.cxx
+itkThreadLoggerTest.cxx
+itkLoggerThreadWrapperTest.cxx
+itkThreadDefsTest.cxx
+itkMultiThreaderBaseTest.cxx
+itkMultiThreaderTypeFromEnvironmentTest
+itkMultiThreadingEnvironmentTest.cxx
+itkMultiThreaderParallelizeArrayTest.cxx
+itkMultithreadingTest.cxx
+
+itkMetaProgrammingLibraryTest.cxx
+itkIsConvertible.cxx
+itkIsBaseOf.cxx
+itkPromoteType.cxx
 itkMetaDataDictionaryTest.cxx
 itkStdStreamLogOutputTest.cxx
 itkOctreeTest.cxx
-itkLoggerThreadWrapperTest.cxx
-itkThreadLoggerTest.cxx
-itkThreadDefsTest.cxx
 itkTimeProbesTest.cxx
 itkTreeContainerTest.cxx
 itkVariableLengthVectorTest.cxx
 itkSpatialFunctionTest.cxx
 itkPeriodicBoundaryConditionTest.cxx
 itkSmartPointerTest.cxx
-itkBarrierTest.cxx
 itkVariableSizeMatrixTest.cxx
 itkConicShellInteriorExteriorSpatialFunctionTest.cxx
 itkEllipsoidInteriorExteriorSpatialFunctionTest.cxx
 itkFrustumSpatialFunctionTest.cxx
 itkTorusInteriorExteriorSpatialFunctionTest.cxx
-itkTimeStampTest.cxx
 itkConstNeighborhoodIteratorTest.cxx
 itkShapedNeighborhoodIteratorTest.cxx
-itkSizeTest.cxx
 itkMatrixTest.cxx
 itkAutoPointerTest.cxx
 itkNeighborhoodIteratorTest.cxx
@@ -154,8 +157,6 @@ itkObjectFactoryTest2.cxx
 itkObjectFactoryTest3.cxx
 itkMinimumMaximumImageCalculatorTest.cxx
 itkSliceIteratorTest.cxx
-itkMultiThreaderTest.cxx
-itkMultiThreaderEnvTest.cxx
 itkImageRegionExclusionIteratorWithIndexTest.cxx
 itkFixedArrayTest.cxx
 itkImageTransformTest.cxx
@@ -181,19 +182,16 @@ itkImageToImageToleranceTest.cxx
 itkImageRegionSplitterSlowDimensionTest.cxx
 itkImageRegionSplitterDirectionTest.cxx
 itkImageRegionSplitterMultidimensionalTest.cxx
-itkSimpleFastMutexLockTest.cxx
 itkMetaDataObjectTest.cxx
 # itkVectorMultiplyTest.cxx
-itkThreadPoolTest.cxx
-itkSpawnThreadTest.cxx
-itkAtomicIntTest.cxx
 )
 if(ITK_BUILD_SHARED_LIBS AND ITK_DYNAMIC_LOADING)
   list(APPEND ITKCommon2Tests itkDownCastTest.cxx)
 endif()
 
+# Note: Tests are arbitrarly split into two drivers to avoid memory issues.
 CreateTestDriver(ITKCommon1 "${ITKCommon-Test_LIBRARIES}" "${ITKCommon1Tests}" itkFloatingPointExceptionsExtern.cxx)
-CreateTestDriver(ITKCommon2 "${ITKCommon-Test_LIBRARIES}" "${ITKCommon2Tests}")
+CreateTestDriver(ITKCommon2 "${ITKCommon-Test_LIBRARIES}" "${ITKCommon2Tests}" itkFloatingPointExceptionsExtern.cxx)
 
 set(BASELINE "${ITK_DATA_ROOT}/Baseline/Common")
 set(TEMP ${ITK_TEST_OUTPUT_DIR})
@@ -263,12 +261,7 @@ itk_add_test(NAME itkArrayTest COMMAND ITKCommon1TestDriver itkArrayTest)
 itk_add_test(NAME itkMersenneTwisterRandomVariateGeneratorTest COMMAND ITKCommon1TestDriver itkMersenneTwisterRandomVariateGeneratorTest)
 itk_add_test(NAME itkArray2DTest COMMAND ITKCommon1TestDriver itkArray2DTest)
 itk_add_test(NAME itkAutoPointerTest COMMAND ITKCommon2TestDriver itkAutoPointerTest)
-if(NOT MINGW)
-itk_add_test(NAME itkBarrierTest COMMAND ITKCommon2TestDriver itkBarrierTest)
-itk_add_test(NAME itkBarrierTest107 COMMAND ITKCommon2TestDriver itkBarrierTest 107)
-itk_add_test(NAME itkConditionVariableTest COMMAND ITKCommon1TestDriver itkConditionVariableTest)
-endif()
-itk_add_test(NAME itkTimeStampTest COMMAND ITKCommon2TestDriver itkTimeStampTest)
+itk_add_test(NAME itkTimeStampTest COMMAND ITKCommon1TestDriver itkTimeStampTest)
 itk_add_test(NAME itkBoundingBoxTest COMMAND ITKCommon1TestDriver itkBoundingBoxTest)
 itk_add_test(NAME itkBoundaryConditionTest COMMAND ITKCommon1TestDriver itkBoundaryConditionTest)
 itk_add_test(NAME itkByteSwapTest COMMAND ITKCommon1TestDriver itkByteSwapTest)
@@ -320,6 +313,9 @@ itk_add_test(NAME itkImageRegionExclusionIteratorWithIndexTest COMMAND ITKCommon
 itk_add_test(NAME itkImageReverseIteratorTest COMMAND ITKCommon1TestDriver itkImageReverseIteratorTest)
 itk_add_test(NAME itkImageDuplicatorTest
       COMMAND ITKCommon1TestDriver itkImageDuplicatorTest)
+itk_add_test(NAME itkImageDuplicatorTest2
+      COMMAND ITKCommon1TestDriver --compare DATA{Baseline/vol-raw-big-dup2.nrrd} ${ITK_TEST_OUTPUT_DIR}/vol-raw-big-dup2.nrrd
+      itkImageDuplicatorTest2 DATA{${ITK_DATA_ROOT}/Input/vol-raw-big.nrrd} ${ITK_TEST_OUTPUT_DIR}/vol-raw-big-dup2.nrrd)
 itk_add_test(NAME itkImageIteratorsForwardBackwardTest
       COMMAND ITKCommon1TestDriver itkImageIteratorsForwardBackwardTest)
 itk_add_test(NAME itkImageLinearIteratorTest
@@ -370,22 +366,86 @@ if(0)
 endif()
 
 itk_add_test(NAME itkMetaDataDictionaryTest COMMAND ITKCommon2TestDriver itkMetaDataDictionaryTest)
-itk_add_test(NAME itkMultiThreaderTest COMMAND ITKCommon2TestDriver itkMultiThreaderTest)
 
-itk_add_test(NAME itkMultiThreaderEnvTest88 COMMAND
+itk_add_test(NAME itkMultiThreaderBaseTestPlatform
+  COMMAND ITKCommon2TestDriver itkMultiThreaderBaseTest)
+set_tests_properties(itkMultiThreaderBaseTestPlatform
+  PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=Platform")
+itk_add_test(NAME itkMultiThreaderBaseTestPool
+  COMMAND ITKCommon2TestDriver itkMultiThreaderBaseTest)
+set_tests_properties(itkMultiThreaderBaseTestPool
+  PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=Pool")
+itk_add_test(NAME itkMultiThreaderBaseTest3
+  COMMAND ITKCommon2TestDriver itkMultiThreaderBaseTest 3) # test with 3 threads
+
+itk_add_test(NAME itkMultiThreaderTypeFromEnvironmentTestPlatform
+  COMMAND ITKCommon2TestDriver itkMultiThreaderTypeFromEnvironmentTest PlatFORM)
+set_tests_properties(itkMultiThreaderTypeFromEnvironmentTestPlatform
+  PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=plaTform")
+
+itk_add_test(NAME itkMultiThreaderTypeFromEnvironmentTestPool
+  COMMAND ITKCommon2TestDriver itkMultiThreaderTypeFromEnvironmentTest PooL)
+set_tests_properties(itkMultiThreaderTypeFromEnvironmentTestPool
+  PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=pOoL") # tests letter case too
+
+if(Module_ITKTBB) # ITK_USE_TBB is not yet defined here
+  itk_add_test(NAME itkMultiThreaderBaseTestTBB
+    COMMAND ITKCommon2TestDriver itkMultiThreaderBaseTest)
+  set_tests_properties(itkMultiThreaderBaseTestTBB
+    PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=TBB")
+
+  itk_add_test(NAME itkMultiThreaderTypeFromEnvironmentTestTBB
+    COMMAND ITKCommon2TestDriver itkMultiThreaderTypeFromEnvironmentTest TBB)
+  set_tests_properties(itkMultiThreaderTypeFromEnvironmentTestTBB
+    PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=tbb") # tests letter case too
+
+  itk_add_test(NAME itkMultiThreaderParallelizeArrayTestTBB
+    COMMAND ITKCommon2TestDriver itkMultiThreaderParallelizeArrayTest)
+  set_tests_properties(itkMultiThreaderParallelizeArrayTestTBB
+    PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=TBB")
+endif()
+
+itk_add_test(NAME itkMultiThreaderParallelizeArrayTestPlatform
+  COMMAND ITKCommon2TestDriver itkMultiThreaderParallelizeArrayTest)
+set_tests_properties(itkMultiThreaderParallelizeArrayTestPlatform
+  PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=Platform")
+itk_add_test(NAME itkMultiThreaderParallelizeArrayTestPool
+  COMMAND ITKCommon2TestDriver itkMultiThreaderParallelizeArrayTest)
+set_tests_properties(itkMultiThreaderParallelizeArrayTestPool
+  PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_THREADER=Pool")
+itk_add_test(NAME itkMultiThreaderParallelizeArrayTest3
+  COMMAND ITKCommon2TestDriver itkMultiThreaderParallelizeArrayTest 3) # test with 3 threads
+
+#test deprecated ITK_USE_THREADPOOL environment variable
+itk_add_test(NAME itkMultiThreaderTypeFromEnvironmentTestOldPool
+  COMMAND ITKCommon2TestDriver itkMultiThreaderTypeFromEnvironmentTest Pool)
+set_tests_properties(itkMultiThreaderTypeFromEnvironmentTestOldPool
+  PROPERTIES ENVIRONMENT "ITK_USE_THREADPOOL=pOoL")
+
+itk_add_test(NAME itkMultiThreaderTypeFromEnvironmentTestOldPool2
+  COMMAND ITKCommon2TestDriver itkMultiThreaderTypeFromEnvironmentTest Pool)
+set_tests_properties(itkMultiThreaderTypeFromEnvironmentTestOldPool2
+  PROPERTIES ENVIRONMENT "ITK_USE_THREADPOOL=ON")
+
+itk_add_test(NAME itkMultiThreaderTypeFromEnvironmentTestOldPlatform
+  COMMAND ITKCommon2TestDriver itkMultiThreaderTypeFromEnvironmentTest Platform)
+set_tests_properties(itkMultiThreaderTypeFromEnvironmentTestOldPlatform
+  PROPERTIES ENVIRONMENT "ITK_USE_THREADPOOL=OFF")
+
+itk_add_test(NAME itkMultiThreadingEnvTest88 COMMAND
   ITKCommon2TestDriver
     --remove-env "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"
-    itkMultiThreaderEnvTest 88)
-set_tests_properties(itkMultiThreaderEnvTest88 PROPERTIES ENVIRONMENT "NSLOTS=88")
+    itkMultiThreadingEnvironmentTest 88)
+set_tests_properties(itkMultiThreadingEnvTest88 PROPERTIES ENVIRONMENT "NSLOTS=88")
 
-itk_add_test(NAME itkMultiThreaderEnvTest43 COMMAND ITKCommon2TestDriver itkMultiThreaderEnvTest 43)
-set_tests_properties(itkMultiThreaderEnvTest43 PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=43")
+itk_add_test(NAME itkMultiThreadingEnvTest43 COMMAND ITKCommon2TestDriver itkMultiThreadingEnvironmentTest 43)
+set_tests_properties(itkMultiThreadingEnvTest43 PROPERTIES ENVIRONMENT "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS=43")
 
-itk_add_test(NAME itkMultiThreaderEnvTest123 COMMAND
+itk_add_test(NAME itkMultiThreadingEnvTest123 COMMAND
   ITKCommon2TestDriver
     --remove-env "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS"
-    itkMultiThreaderEnvTest 123)
-set_tests_properties(itkMultiThreaderEnvTest123 PROPERTIES ENVIRONMENT "NSLOTS=9;FIRST_IGNORED=13;LAST_RESPECTED=123;ITK_NUMBER_OF_THREADS_ENV_LIST=FIRST_IGNORED:LAST_RESPECTED")
+    itkMultiThreadingEnvironmentTest 123)
+set_tests_properties(itkMultiThreadingEnvTest123 PROPERTIES ENVIRONMENT "NSLOTS=9;FIRST_IGNORED=13;LAST_RESPECTED=123;ITK_NUMBER_OF_THREADS_ENV_LIST=FIRST_IGNORED:LAST_RESPECTED")
 
 itk_add_test(NAME itkNeighborhoodAlgorithmTest COMMAND ITKCommon1TestDriver itkNeighborhoodAlgorithmTest)
 itk_add_test(NAME itkNeighborhoodTest COMMAND ITKCommon2TestDriver itkNeighborhoodTest)
@@ -415,7 +475,6 @@ itk_add_test(NAME itkTimeProbeTest2 COMMAND ITKCommon1TestDriver itkTimeProbeTes
 itk_add_test(NAME itkRGBPixelTest COMMAND ITKCommon1TestDriver itkRGBPixelTest)
 itk_add_test(NAME itkSparseImageTest COMMAND ITKCommon1TestDriver itkSparseImageTest)
 itk_add_test(NAME itkSimpleFilterWatcherTest COMMAND ITKCommon1TestDriver itkSimpleFilterWatcherTest)
-itk_add_test(NAME itkSizeTest COMMAND ITKCommon2TestDriver itkSizeTest)
 itk_add_test(NAME itkSliceIteratorTest COMMAND ITKCommon2TestDriver --redirectOutput ${TEMP}/itkSliceIteratorTest.txt itkSliceIteratorTest)
 set_tests_properties(itkSliceIteratorTest PROPERTIES ATTACHED_FILES_ON_FAIL ${TEMP}/itkSliceIteratorTest.txt)
 itk_add_test(NAME itkSmartPointerTest COMMAND ITKCommon2TestDriver itkSmartPointerTest)
@@ -439,7 +498,7 @@ itk_add_test(NAME itkSymmetricSecondRankTensorImageWriteReadTest COMMAND ITKComm
               ${ITK_TEST_OUTPUT_DIR}/testSymmetricTensorWriteRead.mha)
 itk_add_test(NAME itkSymmetricSecondRankTensorTest COMMAND ITKCommon2TestDriver itkSymmetricSecondRankTensorTest)
 itk_add_test(NAME itkSymmetricEigenAnalysisTest COMMAND ITKCommon1TestDriver itkSymmetricEigenAnalysisTest)
-itk_add_test(NAME itkSTLThreadTest COMMAND ITKCommon1TestDriver itkSTLThreadTest)
+itk_add_test(NAME itkSTLThreadTest COMMAND ITKCommon2TestDriver itkSTLThreadTest)
 itk_add_test(NAME itkStreamingImageFilterTest COMMAND ITKCommon1TestDriver itkStreamingImageFilterTest)
 itk_add_test(NAME itkStreamingImageFilterTest2 COMMAND ITKCommon1TestDriver itkStreamingImageFilterTest2)
 itk_add_test(NAME itkStreamingImageFilterTest3_1 COMMAND ITKCommon1TestDriver
@@ -479,7 +538,7 @@ itk_add_test(NAME itkCompensatedSummationTest2 COMMAND ITKCommon2TestDriver itkC
 # this test depends on being able to raise C++ exceptions from
 # the signal handler. This is apparently not something that
 # works properly
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux" AND ITK_HAS_FEENABLEEXCEPT)
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin|Linux")
   itk_add_test(NAME itkFloatingPointExceptionsTest1 COMMAND ITKCommon1TestDriver
     itkFloatingPointExceptionsTest DivByZero)
   itk_add_test(NAME itkFloatingPointExceptionsTest2 COMMAND ITKCommon1TestDriver
@@ -521,17 +580,9 @@ itk_add_test(NAME itkRegionSplitterSlowDimensionTest COMMAND ITKCommon2TestDrive
 itk_add_test(NAME itkRegionSplitterDirectionTest COMMAND ITKCommon2TestDriver itkImageRegionSplitterDirectionTest)
 itk_add_test(NAME itkRegionSplitterMultidimensionalTest COMMAND ITKCommon2TestDriver itkImageRegionSplitterMultidimensionalTest)
 
-itk_add_test(NAME itkSimpleFastMutexLockTest COMMAND ITKCommon2TestDriver itkSimpleFastMutexLockTest)
-# short timeout because failing test will hang and test is quite small
-set_tests_properties(itkSimpleFastMutexLockTest PROPERTIES TIMEOUT 60)
-
 itk_add_test(NAME itkMetaDataObjectTest COMMAND ITKCommon2TestDriver itkMetaDataObjectTest)
 
-itk_add_test(NAME itkThreadPoolTest COMMAND ITKCommon2TestDriver itkThreadPoolTest 100)
-
-itk_add_test(NAME itkSpawnThreadTest COMMAND ITKCommon2TestDriver itkSpawnThreadTest 100)
-
-itk_add_test(NAME itkAtomicIntTest COMMAND ITKCommon2TestDriver itkAtomicIntTest)
+itk_add_test(NAME itkMultithreadingTest COMMAND ITKCommon2TestDriver itkMultithreadingTest 100)
 
 if(ITK_BUILD_SHARED_LIBS AND ITK_DYNAMIC_LOADING)
   macro(BuildClientTestLibrary _name _type)
@@ -557,11 +608,50 @@ if(ITK_BUILD_SHARED_LIBS AND ITK_DYNAMIC_LOADING)
     $<TARGET_FILE:ClientTestLibraryB>)
 endif()
 
-# This test doesn't compile.  It exercises the bug I ran into if you multiply 2 vector images; if you
-# try to compile it the compile fails.
-# itk_add_test(NAME itkVectorMultiplyTest COMMAND ITKCommon2TestDriver itkVectorMultiplyTest)
+set(ITKCommonGTests
+      itkAggregateTypesGTest.cxx
+      itkBuildInformationGTest.cxx
+      itkConnectedImageNeighborhoodShapeGTest.cxx
+      itkConstantBoundaryImageNeighborhoodPixelAccessPolicyGTest.cxx
+      itkFixedArrayGTest.cxx
+      itkImageNeighborhoodOffsetsGTest.cxx
+      itkImageBaseGTest.cxx
+      itkImageBufferRangeGTest.cxx
+      itkImageRegionRangeGTest.cxx
+      itkIndexRangeGTest.cxx
+      itkMersenneTwisterRandomVariateGeneratorGTest.cxx
+      itkPointGTest.cxx
+      itkShapedImageNeighborhoodRangeGTest.cxx
+      itkSizeGTest.cxx
+      itkSmartPointerGTest.cxx
+      itkVectorContainerGTest.cxx
+      itkCommonTypeTraitsGTest.cxx
+      itkMetaDataDictionaryGTest.cxx
+)
+CreateGoogleTestDriver(ITKCommon "${ITKCommon-Test_LIBRARIES}" "${ITKCommonGTests}")
+# If `-static` was passed to CMAKE_EXE_LINKER_FLAGS, compilation fails. No need to
+# test this case.
+if(NOT ITK_BUILD_SHARED_LIBS AND NOT CMAKE_EXE_LINKER_FLAGS MATCHES ".*-static.*")
+  macro(BuildSharedTestLibrary _name _type)
+    add_library(SharedTestLibrary${_name} ${_type} SharedTestLibrary${_name}.cxx)
+    itk_module_target_label(SharedTestLibrary${_name})
+    target_link_libraries(SharedTestLibrary${_name} LINK_PUBLIC ${ITKCommon_LIBRARIES})
+    set_property(TARGET SharedTestLibrary${_name} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${ITK_TEST_OUTPUT_DIR})
+      generate_export_header(SharedTestLibrary${_name}
+      EXPORT_FILE_NAME ${ITKCommon_BINARY_DIR}/SharedTestLibrary${_name}Export.h
+      EXPORT_MACRO_NAME SharedTestLibrary${_name}_EXPORT
+      NO_EXPORT_MACRO_NAME SharedTestLibrary${_name}_HIDDEN
+      )
+  endmacro()
 
-itk_python_add_test(NAME itkMetaDataDictionaryPythonTest COMMAND itkMetaDataDictionaryTest.py)
-itk_python_add_test(NAME itkDirectoryPythonTest COMMAND itkDirectoryTest.py)
-itk_python_expression_add_test(NAME itkObjectPythonTest EXPRESSION "itkObject = itk.Object.New()")
-itk_python_add_test(NAME itkIndexOffsetPythonTest COMMAND itkIndexOffsetTest.py)
+  # Linking static ITK libraries twice, into two different binaries for the same process, is not recommended or supported.
+  BuildSharedTestLibrary(A SHARED)
+  BuildSharedTestLibrary(B SHARED)
+  add_executable(itkObjectFactoryBasePrivateDestructor itkObjectFactoryBasePrivateDestructor.cxx )
+  itk_module_target_label(itkObjectFactoryBasePrivateDestructor)
+  target_link_libraries(itkObjectFactoryBasePrivateDestructor
+      LINK_PUBLIC
+      SharedTestLibraryA
+      SharedTestLibraryB)
+  itk_add_test(NAME itkObjectFactoryBasePrivateDestructor COMMAND itkObjectFactoryBasePrivateDestructor)
+endif()

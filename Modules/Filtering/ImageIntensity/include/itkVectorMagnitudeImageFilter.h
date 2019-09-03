@@ -18,7 +18,7 @@
 #ifndef itkVectorMagnitudeImageFilter_h
 #define itkVectorMagnitudeImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 
 namespace itk
 {
@@ -36,75 +36,75 @@ namespace itk
  * \ingroup IntensityImageFilters  MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{VectorImages/VectorMagnitudeImageFilter,Compute the magnitude of each pixel in a vector image to produce a magnitude image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/ComputerMagInVectorImageToMakeMagImage,Computer Magnitude In Vector Image To
+ * Make Magnitude Image} \endsphinx
  */
 
 namespace Functor
 {
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class VectorMagnitude
 {
 public:
-  VectorMagnitude() {}
-  ~VectorMagnitude() {}
+  VectorMagnitude() = default;
+  ~VectorMagnitude() = default;
 
-  bool operator!=(const VectorMagnitude &) const
+  bool
+  operator!=(const VectorMagnitude &) const
   {
     return false;
   }
 
-  bool operator==(const VectorMagnitude & other) const
+  bool
+  operator==(const VectorMagnitude & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    return static_cast< TOutput >( A.GetNorm() );
+    return static_cast<TOutput>(A.GetNorm());
   }
 };
-}
+} // namespace Functor
 
-template< typename TInputImage, typename TOutputImage >
-class VectorMagnitudeImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::VectorMagnitude< typename TInputImage::PixelType,
-                                                     typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TOutputImage>
+class VectorMagnitudeImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorMagnitudeImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::VectorMagnitude< typename TInputImage::PixelType,
-                              typename TOutputImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorMagnitudeImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = VectorMagnitudeImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::VectorMagnitude<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(VectorMagnitudeImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(VectorMagnitudeImageFilter, UnaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename TInputImage::PixelType::ValueType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<typename TInputImage::PixelType::ValueType>));
   // End concept checking
 #endif
 
 protected:
-  VectorMagnitudeImageFilter() {}
-  virtual ~VectorMagnitudeImageFilter() ITK_OVERRIDE {}
+  VectorMagnitudeImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorMagnitudeImageFilter);
+
+  ~VectorMagnitudeImageFilter() override = default;
 };
 } // end namespace itk
 

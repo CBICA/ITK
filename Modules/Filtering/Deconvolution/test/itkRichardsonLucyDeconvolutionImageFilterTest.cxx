@@ -22,119 +22,114 @@
 #include "itkRichardsonLucyDeconvolutionImageFilter.h"
 #include "itkDeconvolutionIterationCommand.h"
 #include "itkSimpleFilterWatcher.h"
+#include "itkTestingMacros.h"
 
-int itkRichardsonLucyDeconvolutionImageFilterTest(int argc, char* argv[])
+int
+itkRichardsonLucyDeconvolutionImageFilterTest(int argc, char * argv[])
 {
-  if ( argc < 5 )
-    {
-    std::cerr << "Usage: " << argv[0]
-              << " <input image> <kernel image> <output image> <iterations> [convolution image]"
-              << std::endl;
+  if (argc < 5)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv)
+              << " <input image> <kernel image> <output image> <iterations> [convolution image]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef float                              PixelType;
-  const unsigned int                         Dimension = 2;
-  typedef itk::Image< PixelType, Dimension > ImageType;
-  typedef itk::ImageFileReader< ImageType >  ReaderType;
-  typedef itk::ImageFileWriter< ImageType >  WriterType;
+  using PixelType = float;
+  constexpr unsigned int Dimension = 2;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   ReaderType::Pointer inputReader = ReaderType::New();
-  inputReader->SetFileName( argv[1] );
+  inputReader->SetFileName(argv[1]);
   inputReader->Update();
 
   ReaderType::Pointer kernelReader = ReaderType::New();
-  kernelReader->SetFileName( argv[2] );
+  kernelReader->SetFileName(argv[2]);
   kernelReader->Update();
 
   // Generate a convolution of the input image with the kernel image
-  typedef itk::FFTConvolutionImageFilter< ImageType > ConvolutionFilterType;
+  using ConvolutionFilterType = itk::FFTConvolutionImageFilter<ImageType>;
   ConvolutionFilterType::Pointer convolutionFilter = ConvolutionFilterType::New();
-  convolutionFilter->SetInput( inputReader->GetOutput() );
+  convolutionFilter->SetInput(inputReader->GetOutput());
   convolutionFilter->NormalizeOn();
-  convolutionFilter->SetKernelImage( kernelReader->GetOutput() );
+  convolutionFilter->SetKernelImage(kernelReader->GetOutput());
 
   // Test the deconvolution algorithm
-  typedef itk::RichardsonLucyDeconvolutionImageFilter< ImageType > DeconvolutionFilterType;
+  using DeconvolutionFilterType = itk::RichardsonLucyDeconvolutionImageFilter<ImageType>;
   DeconvolutionFilterType::Pointer deconvolutionFilter = DeconvolutionFilterType::New();
-  deconvolutionFilter->SetInput( convolutionFilter->GetOutput() );
-  deconvolutionFilter->SetKernelImage( kernelReader->GetOutput() );
+  deconvolutionFilter->SetInput(convolutionFilter->GetOutput());
+  deconvolutionFilter->SetKernelImage(kernelReader->GetOutput());
   deconvolutionFilter->NormalizeOn();
-  unsigned int iterations = static_cast< unsigned int >( atoi( argv[4] ) );
-  deconvolutionFilter->SetNumberOfIterations( iterations );
+  auto iterations = static_cast<unsigned int>(std::stoi(argv[4]));
+  deconvolutionFilter->SetNumberOfIterations(iterations);
 
   // Add an observer to report on filter iteration progress
-  typedef itk::DeconvolutionIterationCommand< DeconvolutionFilterType > IterationCommandType;
+  using IterationCommandType = itk::DeconvolutionIterationCommand<DeconvolutionFilterType>;
   IterationCommandType::Pointer observer = IterationCommandType::New();
-  deconvolutionFilter->AddObserver( itk::IterationEvent(), observer );
+  deconvolutionFilter->AddObserver(itk::IterationEvent(), observer);
 
   itk::SimpleFilterWatcher watcher(deconvolutionFilter);
 
   // Write the deconvolution result
   try
-    {
+  {
     WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( argv[3] );
-    writer->SetInput( deconvolutionFilter->GetOutput() );
+    writer->SetFileName(argv[3]);
+    writer->SetInput(deconvolutionFilter->GetOutput());
     writer->Update();
-    }
-  catch ( itk::ExceptionObject & e )
-    {
-    std::cerr << "Unexpected exception caught when writing deconvolution image: "
-              << e << std::endl;
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    std::cerr << "Unexpected exception caught when writing deconvolution image: " << e << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  if ( !observer->GetInvoked() )
-    {
+  if (!observer->GetInvoked())
+  {
     std::cerr << "Iteration command observer was never invoked, but should have been." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Tests to increase coverage
-  deconvolutionFilter->Print( std::cout );
+  deconvolutionFilter->Print(std::cout);
 
-  const DeconvolutionFilterType::InternalImageType * estimate =
-    deconvolutionFilter->GetCurrentEstimate();
-  if ( estimate != ITK_NULLPTR )
-    {
-    std::cerr << "Estimate should be ITK_NULLPTR after the last iteration." << std::endl;
+  const DeconvolutionFilterType::InternalImageType * estimate = deconvolutionFilter->GetCurrentEstimate();
+  if (estimate != nullptr)
+  {
+    std::cerr << "Estimate should be nullptr after the last iteration." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   unsigned int numIterations = 5;
-  deconvolutionFilter->SetNumberOfIterations( numIterations );
-  if ( deconvolutionFilter->GetNumberOfIterations() != numIterations )
-    {
+  deconvolutionFilter->SetNumberOfIterations(numIterations);
+  if (deconvolutionFilter->GetNumberOfIterations() != numIterations)
+  {
     std::cerr << "Set/GetNumberOfIterations() test failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  deconvolutionFilter->SetStopIteration( false );
-  deconvolutionFilter->SetStopIteration( true );
-  if ( deconvolutionFilter->GetStopIteration() != true )
-    {
+  deconvolutionFilter->SetStopIteration(false);
+  deconvolutionFilter->SetStopIteration(true);
+  if (deconvolutionFilter->GetStopIteration() != true)
+  {
     std::cerr << "Set/GetStopIteration() test failed." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   unsigned int iteration = deconvolutionFilter->GetIteration();
   std::cout << "Iteration: " << iteration << std::endl;
 
-  std::cout << deconvolutionFilter->
-    DeconvolutionFilterType::Superclass::GetNameOfClass() << std::endl;
+  std::cout << deconvolutionFilter->DeconvolutionFilterType::Superclass::GetNameOfClass() << std::endl;
 
   // Instantiate types with non-default template parameters
-  typedef itk::Image< float, Dimension >  FloatImageType;
-  typedef itk::Image< double, Dimension > DoubleImageType;
-  typedef itk::Image< int, Dimension >    IntImageType;
+  using FloatImageType = itk::Image<float, Dimension>;
+  using DoubleImageType = itk::Image<double, Dimension>;
+  using IntImageType = itk::Image<int, Dimension>;
 
-  typedef itk::RichardsonLucyDeconvolutionImageFilter< FloatImageType,
-                                                       DoubleImageType,
-                                                       IntImageType,
-                                                       float > FilterType;
+  using FilterType = itk::RichardsonLucyDeconvolutionImageFilter<FloatImageType, DoubleImageType, IntImageType, float>;
   FilterType::Pointer filter = FilterType::New();
-  filter->Print( std::cout );
+  filter->Print(std::cout);
 
   return EXIT_SUCCESS;
 }

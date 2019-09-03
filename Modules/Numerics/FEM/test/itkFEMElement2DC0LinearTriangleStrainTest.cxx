@@ -21,70 +21,71 @@
 #include "itkFEMSpatialObjectReader.h"
 #include "itkFEMSpatialObjectWriter.h"
 
-int itkFEMElement2DC0LinearTriangleStrainTest(int argc, char *argv[])
+int
+itkFEMElement2DC0LinearTriangleStrainTest(int argc, char * argv[])
 {
-  if(argc < 1)
-    {
+  if (argc < 1)
+  {
     std::cerr << "Missing Spatial Object Filename" << std::endl;
     return EXIT_FAILURE;
-    }
-  //Need to register default FEM object types,
-  //and setup SpatialReader to recognize FEM types
-  //which is all currently done as a HACK in
-  //the initializaiton of the itk::FEMFactoryBase::GetFactory()
+  }
+  // Need to register default FEM object types,
+  // and setup SpatialReader to recognize FEM types
+  // which is all currently done as a HACK in
+  // the initializaiton of the itk::FEMFactoryBase::GetFactory()
   itk::FEMFactoryBase::GetFactory()->RegisterDefaultTypes();
 
-  typedef itk::fem::Solver<2> Solver2DType;
+  using Solver2DType = itk::fem::Solver<2>;
   Solver2DType::Pointer solver = Solver2DType::New();
 
-  typedef itk::FEMSpatialObjectReader<2>      FEMSpatialObjectReaderType;
-  typedef FEMSpatialObjectReaderType::Pointer FEMSpatialObjectReaderPointer;
+  using FEMSpatialObjectReaderType = itk::FEMSpatialObjectReader<2>;
+  using FEMSpatialObjectReaderPointer = FEMSpatialObjectReaderType::Pointer;
   FEMSpatialObjectReaderPointer SpatialReader = FEMSpatialObjectReaderType::New();
-  SpatialReader->SetFileName( argv[1] );
+  SpatialReader->SetFileName(argv[1]);
   SpatialReader->Update();
 
-  FEMSpatialObjectReaderType::ScenePointer myScene = SpatialReader->GetScene();
-  if( !myScene )
-    {
-    std::cout << "No Scene : [FAILED]" << std::endl;
+  FEMSpatialObjectReaderType::GroupPointer myGroup = SpatialReader->GetGroup();
+  if (!myGroup)
+  {
+    std::cout << "No Group : [FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   std::cout << " [PASSED]" << std::endl;
 
   // Testing the fe mesh validity
-  typedef itk::FEMObjectSpatialObject<2>      FEMObjectSpatialObjectType;
+  using FEMObjectSpatialObjectType = itk::FEMObjectSpatialObject<2>;
 
-  FEMObjectSpatialObjectType::ChildrenListType* children = SpatialReader->GetGroup()->GetChildren();
+  FEMObjectSpatialObjectType::ChildrenListType * children = SpatialReader->GetGroup()->GetChildren();
 
-  if( strcmp( (*(children->begin() ) )->GetTypeName(), "FEMObjectSpatialObject") )
-    {
+  if (children->front()->GetTypeName() != "FEMObjectSpatialObject")
+  {
     std::cout << " [FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   FEMObjectSpatialObjectType::Pointer femSO =
-    dynamic_cast<FEMObjectSpatialObjectType *>( (*(children->begin() ) ).GetPointer() );
+    dynamic_cast<FEMObjectSpatialObjectType *>((*(children->begin())).GetPointer());
   if (!femSO)
-    {
+  {
     std::cout << " dynamic_cast [FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   delete children;
 
   femSO->GetFEMObject()->FinalizeMesh();
 
-  solver->SetInput( femSO->GetFEMObject() );
+  solver->SetInput(femSO->GetFEMObject());
   solver->Update();
 
   // to write the deformed mesh
   FEMObjectSpatialObjectType::Pointer femSODef = FEMObjectSpatialObjectType::New();
-  femSODef->SetFEMObject(solver->GetOutput() );
-  typedef itk::FEMSpatialObjectWriter<2>      FEMSpatialObjectWriterType;
-  typedef FEMSpatialObjectWriterType::Pointer FEMSpatialObjectWriterPointer;
+  femSODef->SetFEMObject(solver->GetOutput());
+  using FEMSpatialObjectWriterType = itk::FEMSpatialObjectWriter<2>;
+  using FEMSpatialObjectWriterPointer = FEMSpatialObjectWriterType::Pointer;
   FEMSpatialObjectWriterPointer SpatialWriter = FEMSpatialObjectWriterType::New();
   SpatialWriter->SetInput(femSODef);
-  SpatialWriter->SetFileName( argv[2] );
+  SpatialWriter->SetFileName(argv[2]);
   SpatialWriter->Update();
 
   std::cout << "Test PASSED!" << std::endl;

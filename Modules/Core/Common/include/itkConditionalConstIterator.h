@@ -34,43 +34,45 @@ namespace itk
  * \ingroup ImageIterators
  * \ingroup ITKCommon
  */
-template< typename TImage >
+template <typename TImage>
 class ITK_TEMPLATE_EXPORT ConditionalConstIterator
 {
 public:
-  /** Standard class typedefs. */
-  typedef ConditionalConstIterator Self;
+  /** Standard class type aliases. */
+  using Self = ConditionalConstIterator;
 
   /** Dimension of the image the iterator walks.  This constant is needed so
    * that functions that are templated over image iterator type (as opposed to
    * being templated over pixel type and dimension) can have compile time
    * access to the dimension of the image that the iterator walks. */
-  itkStaticConstMacro(NDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int NDimension = TImage::ImageDimension;
 
-  /** Index typedef support. */
-  typedef typename TImage::IndexType IndexType;
+  /** Index type alias support. */
+  using IndexType = typename TImage::IndexType;
 
-  /** Size typedef support. */
-  typedef typename TImage::SizeType SizeType;
+  /** Size type alias support. */
+  using SizeType = typename TImage::SizeType;
 
-  /** Region typedef support. */
-  typedef typename TImage::RegionType RegionType;
+  /** Region type alias support. */
+  using RegionType = typename TImage::RegionType;
 
-  /** Image typedef support. */
-  typedef TImage ImageType;
+  /** Image type alias support. */
+  using ImageType = TImage;
 
   /** Internal Pixel Type */
-  typedef typename TImage::InternalPixelType InternalPixelType;
+  using InternalPixelType = typename TImage::InternalPixelType;
 
   /** External Pixel Type */
-  typedef typename TImage::PixelType PixelType;
+  using PixelType = typename TImage::PixelType;
 
   /** Compute whether the index of interest should be included in the flood */
-  virtual bool IsPixelIncluded(const IndexType & index) const = 0;
+  virtual bool
+  IsPixelIncluded(const IndexType & index) const = 0;
 
   /** operator= is provided to make sure the handle to the image is properly
    * reference counted. */
-  Self & operator=(const Self & it)
+  Self &
+  operator=(const Self & it)
   {
     m_IsAtEnd = it.m_IsAtEnd; // copy the end flag
     m_Image = it.m_Image;     // copy the smart pointer
@@ -79,44 +81,45 @@ public:
   }
 
   /** Get the dimension (size) of the index. */
-  static unsigned int GetIteratorDimension(void)
+  static unsigned int
+  GetIteratorDimension()
   {
     return Self::NDimension;
   }
 
   /** Get the index at the current iterator location. */
-  virtual const IndexType GetIndex() = 0;
+  virtual const IndexType
+  GetIndex() = 0;
 
   /** Get the pixel value at the current iterator location. */
-  virtual const PixelType Get(void) const = 0;
+  virtual const PixelType
+  Get() const = 0;
 
   /** Is the iterator at the end of the region? */
-  virtual bool IsAtEnd() = 0;
+  virtual bool
+  IsAtEnd() const = 0;
 
   /** Walk forward one index. */
-  virtual void operator++() = 0;
+  virtual void
+  operator++() = 0;
 
   /** Constructor */
-  ConditionalConstIterator();
+  ConditionalConstIterator() = default;
 
   /** Destructor */
-  virtual ~ConditionalConstIterator();
+  virtual ~ConditionalConstIterator() = default;
 
-protected: //made protected so other iterators can access
+protected: // made protected so other iterators can access
   /** Smart pointer to the source image. */
-  //SmartPointer<const ImageType> m_Image;
+  // SmartPointer<const ImageType> m_Image;
   typename ImageType::ConstWeakPointer m_Image;
 
   /** Region type to iterate over. */
   RegionType m_Region;
 
   /** Is the iterator at the end of its walk? */
-  bool m_IsAtEnd;
+  bool m_IsAtEnd{ false };
 };
 } // end namespace itk
-
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConditionalConstIterator.hxx"
-#endif
 
 #endif

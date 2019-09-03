@@ -21,11 +21,12 @@
 #include <iostream>
 
 //
-int itkFEMElement2DQuadraticTriangularTest(int , char *[])
+int
+itkFEMElement2DQuadraticTriangularTest(int, char *[])
 {
 
-  typedef itk::fem::Element ElementType;
-  typedef ElementType::Node NodeType;
+  using ElementType = itk::fem::Element;
+  using NodeType = ElementType::Node;
 
   NodeType::Pointer       n0, n1, n2;
   ElementType::VectorType pt(2);
@@ -45,7 +46,7 @@ int itkFEMElement2DQuadraticTriangularTest(int , char *[])
   pt[1] = 2.;
   n2->SetCoordinates(pt);
 
-  typedef itk::fem::MaterialLinearElasticity ElasticityType;
+  using ElasticityType = itk::fem::MaterialLinearElasticity;
 
   ElasticityType::Pointer m = ElasticityType::New();
 
@@ -54,14 +55,14 @@ int itkFEMElement2DQuadraticTriangularTest(int , char *[])
   m->SetCrossSectionalArea(0.02);
   m->SetMomentOfInertia(0.004);
 
-  typedef itk::fem::Element2DC0QuadraticTriangularStrain StrainType;
+  using StrainType = itk::fem::Element2DC0QuadraticTriangularStrain;
   StrainType::Pointer e0 = StrainType::New();
 
   e0->SetGlobalNumber(0);
   e0->SetNode(0, n0);
   e0->SetNode(1, n1);
   e0->SetNode(2, n2);
-  e0->SetMaterial(m.GetPointer());
+  e0->SetMaterial(m);
 
   pt[0] = 0.5;
   pt[1] = 0.5;

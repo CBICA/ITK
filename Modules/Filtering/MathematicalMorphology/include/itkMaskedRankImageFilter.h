@@ -61,80 +61,88 @@ namespace itk
  * \ingroup ITKMathematicalMorphology
  */
 
-template< typename TInputImage, typename TMaskImage, typename TOutputImage, typename TKernel =
-            FlatStructuringElement< TInputImage::ImageDimension > >
-class ITK_TEMPLATE_EXPORT MaskedRankImageFilter:
-  public MaskedMovingHistogramImageFilter< TInputImage, TMaskImage, TOutputImage, TKernel,
-                                           Function::RankHistogram< typename TInputImage::PixelType > >
+template <typename TInputImage,
+          typename TMaskImage,
+          typename TOutputImage,
+          typename TKernel = FlatStructuringElement<TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT MaskedRankImageFilter
+  : public MaskedMovingHistogramImageFilter<TInputImage,
+                                            TMaskImage,
+                                            TOutputImage,
+                                            TKernel,
+                                            Function::RankHistogram<typename TInputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MaskedRankImageFilter Self;
-  typedef MaskedMovingHistogramImageFilter< TInputImage, TMaskImage, TOutputImage, TKernel,
-                                            Function::RankHistogram< typename TInputImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MaskedRankImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MaskedRankImageFilter;
+  using Superclass = MaskedMovingHistogramImageFilter<TInputImage,
+                                                      TMaskImage,
+                                                      TOutputImage,
+                                                      TKernel,
+                                                      Function::RankHistogram<typename TInputImage::PixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(MaskedRankImageFilter,
-               MovingHistogramImageFilter);
+  itkTypeMacro(MaskedRankImageFilter, MovingHistogramImageFilter);
 
-  /** Image related typedefs. */
-  typedef TInputImage                                InputImageType;
-  typedef TOutputImage                               OutputImageType;
-  typedef typename TInputImage::RegionType           RegionType;
-  typedef typename TInputImage::SizeType             SizeType;
-  typedef typename TInputImage::IndexType            IndexType;
-  typedef typename TInputImage::PixelType            PixelType;
-  typedef typename TInputImage::OffsetType           OffsetType;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename TOutputImage::PixelType           OutputPixelType;
-  typedef typename TInputImage::PixelType            InputPixelType;
+  /** Image related type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
 
-  typedef typename Superclass::HistogramType         HistogramType;
+  using HistogramType = typename Superclass::HistogramType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  /** Kernel typedef. */
-  typedef TKernel KernelType;
+  /** Kernel type alias. */
+  using KernelType = TKernel;
 
   /** Kernel (structuring element) iterator. */
-  typedef typename KernelType::ConstIterator KernelIteratorType;
+  using KernelIteratorType = typename KernelType::ConstIterator;
 
   /** n-dimensional Kernel radius. */
-  typedef typename KernelType::SizeType RadiusType;
+  using RadiusType = typename KernelType::SizeType;
 
   itkSetClampMacro(Rank, float, 0.0, 1.0);
   itkGetConstMacro(Rank, float)
 
-  bool GetUseVectorBasedAlgorithm() const
+    bool GetUseVectorBasedAlgorithm() const
   {
     return HistogramType::UseVectorBasedAlgorithm();
   }
 
 protected:
   MaskedRankImageFilter();
-  ~MaskedRankImageFilter() ITK_OVERRIDE {}
+  ~MaskedRankImageFilter() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void ConfigureHistogram( HistogramType & histogram ) ITK_OVERRIDE;
+  void
+  ConfigureHistogram(HistogramType & histogram) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MaskedRankImageFilter);
-
   float m_Rank;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMaskedRankImageFilter.hxx"
+#  include "itkMaskedRankImageFilter.hxx"
 #endif
 
 #endif

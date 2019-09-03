@@ -16,14 +16,11 @@
 #
 #==========================================================================*/
 
-from __future__ import print_function
-
 import itk
 import sys
 
 from itk import ITKCommon
 from itk import ITKBinaryMathematicalMorphology
-from itk import ITKImageStatistics
 from itk import ITKSmoothing
 from itk import ITKDistanceMap
 from itk import ITKImageIntensity
@@ -75,9 +72,6 @@ binaryDilateFilter.SetKernel(structuringElement)
 output = binaryDilateFilter.GetOutput()
 sources.append(("ITKBinaryMathematicalMorphology", output))
 
-minmax = ITKImageStatistics.MinimumMaximumImageFilter[ImageType].New(reader)
-sources.append(("ITKImageStatistics", minmax.GetOutput()))
-
 median = ITKSmoothing.MedianImageFilter[ImageType, ImageType].New(reader)
 sources.append(("ITKSmoothing", median.GetOutput()))
 
@@ -100,9 +94,6 @@ dests.append(("ITKImageIntensity", dabs))
 dbinaryDilateFilter = BinaryDilateType.New()
 dbinaryDilateFilter.SetKernel(structuringElement)
 dests.append(("ITKBinaryMathematicalMorphology", dbinaryDilateFilter))
-
-dminmax = ITKImageStatistics.MinimumMaximumImageFilter[ImageType].New()
-dests.append(("ITKImageStatistics", dminmax))
 
 dmedian = ITKSmoothing.MedianImageFilter[ImageType, ImageType].New()
 dests.append(("ITKSmoothing", dmedian))

@@ -53,57 +53,58 @@ namespace itk
  *
  * \ingroup ITKTransform
  */
-template<typename TParametersValueType=double>
-class ITK_TEMPLATE_EXPORT Rigid3DTransform:
-  public MatrixOffsetTransformBase<TParametersValueType, 3, 3>
+template <typename TParametersValueType = double>
+class ITK_TEMPLATE_EXPORT Rigid3DTransform : public MatrixOffsetTransformBase<TParametersValueType, 3, 3>
 {
 public:
-  /** Standard class typedefs. */
-  typedef Rigid3DTransform                                      Self;
-  typedef MatrixOffsetTransformBase<TParametersValueType, 3, 3> Superclass;
-  typedef SmartPointer<Self>                                    Pointer;
-  typedef SmartPointer<const Self>                              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(Rigid3DTransform);
 
-#ifdef ITKV3_COMPATIBILITY
+  /** Standard class type aliases. */
+  using Self = Rigid3DTransform;
+  using Superclass = MatrixOffsetTransformBase<TParametersValueType, 3, 3>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
   /** Run-time type information (and related methods).   */
   itkNewMacro(Self);
-#endif
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Rigid3DTransform, MatrixOffsetTransformBase);
 
   /** Dimension of the space. */
-  itkStaticConstMacro(SpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(InputSpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(OutputSpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(ParametersDimension, unsigned int, 12);
+  static constexpr unsigned int SpaceDimension = 3;
+  static constexpr unsigned int InputSpaceDimension = 3;
+  static constexpr unsigned int OutputSpaceDimension = 3;
+  static constexpr unsigned int ParametersDimension = 12;
 
-  typedef typename Superclass::ParametersType            ParametersType;
-  typedef typename Superclass::ParametersValueType       ParametersValueType;
-  typedef typename Superclass::FixedParametersType       FixedParametersType;
-  typedef typename Superclass::FixedParametersValueType  FixedParametersValueType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::ScalarType                ScalarType;
-  typedef typename Superclass::InputVectorType           InputVectorType;
-  typedef typename Superclass::OutputVectorType          OutputVectorType;
-  typedef typename Superclass::OutputVectorValueType     OutputVectorValueType;
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
-  typedef typename Superclass::InputVnlVectorType        InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType       OutputVnlVectorType;
-  typedef typename Superclass::InputPointType            InputPointType;
-  typedef typename Superclass::OutputPointType           OutputPointType;
-  typedef typename Superclass::MatrixType                MatrixType;
-  typedef typename Superclass::InverseMatrixType         InverseMatrixType;
-  typedef typename Superclass::MatrixValueType           MatrixValueType;
-  typedef typename Superclass::CenterType                CenterType;
-  typedef typename Superclass::TranslationType           TranslationType;
-  typedef typename Superclass::OffsetType                OffsetType;
+  using ParametersType = typename Superclass::ParametersType;
+  using ParametersValueType = typename Superclass::ParametersValueType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using FixedParametersValueType = typename Superclass::FixedParametersValueType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
+  using ScalarType = typename Superclass::ScalarType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
+  using OutputVectorValueType = typename Superclass::OutputVectorValueType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using MatrixType = typename Superclass::MatrixType;
+  using InverseMatrixType = typename Superclass::InverseMatrixType;
+  using MatrixValueType = typename Superclass::MatrixValueType;
+  using CenterType = typename Superclass::CenterType;
+  using TranslationType = typename Superclass::TranslationType;
+  using OffsetType = typename Superclass::OffsetType;
 
   /** Base inverse transform type. This type should not be changed to the
    * concrete inverse transform type or inheritance would be lost. */
-  typedef typename Superclass::InverseTransformBaseType InverseTransformBaseType;
-  typedef typename InverseTransformBaseType::Pointer    InverseTransformBasePointer;
+  using InverseTransformBaseType = typename Superclass::InverseTransformBaseType;
+  using InverseTransformBasePointer = typename InverseTransformBaseType::Pointer;
 
   /** Set the transformation from a container of parameters
    * This is typically used by optimizers.
@@ -115,21 +116,24 @@ public:
    *
    * \sa Transform::SetParameters()
    * \sa Transform::SetFixedParameters() */
-  virtual void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType & parameters) override;
 
   /** Directly set the rotation matrix of the transform.
    * \warning The input matrix must be orthogonal to within a specified tolerance,
    * else an exception is thrown.
    *
    * \sa MatrixOffsetTransformBase::SetMatrix() */
-  virtual void SetMatrix(const MatrixType & matrix) ITK_OVERRIDE;
+  void
+  SetMatrix(const MatrixType & matrix) override;
 
   /** Directly set the rotation matrix of the transform.
    * \warning The input matrix must be orthogonal to within the specified tolerance,
    * else an exception is thrown.
    *
    * \sa MatrixOffsetTransformBase::SetMatrix() */
-  virtual void SetMatrix(const MatrixType & matrix, const TParametersValueType tolerance );
+  virtual void
+  SetMatrix(const MatrixType & matrix, const TParametersValueType tolerance);
 
   /**
    * Compose the transformation with a translation
@@ -138,91 +142,35 @@ public:
    * origin.  The translation is precomposed with self if pre is
    * true, and postcomposed otherwise.
    */
-  void Translate(const OffsetType & offset, bool pre = false);
+  void
+  Translate(const OffsetType & offset, bool pre = false);
 
   /**
    * Utility function to test if a matrix is orthogonal within a specified
    * tolerance
    */
-  bool MatrixIsOrthogonal(const MatrixType & matrix,
-              const TParametersValueType tolerance =
-                  MatrixOrthogonalityTolerance<TParametersValueType>::GetTolerance());
+  bool
+  MatrixIsOrthogonal(
+    const MatrixType &         matrix,
+    const TParametersValueType tolerance = MatrixOrthogonalityTolerance<TParametersValueType>::GetTolerance());
 
-#ifdef ITKV3_COMPATIBILITY
-  /** Get an inverse of this transform. */
-  //NOTE: itkLegacyRemove can not be used for GetInverse
-  //      because in itkV3 mode these functions
-  //      must be traversed when calling the child classes
-  //      member functions
-  //      (with no real effect) for backwards compatibility.
-  //      In ITKv4 mode only the super class is needed
-  bool GetInverse(Self *inverse) const;
-
-  /** Return an inverse of this transform. */
-  //NOTE: itkLegacyRemove can not be used for GetInverseTransform
-  //      because in itkV3 mode these functions
-  //      must be traversed when calling the child classes
-  //      member functions
-  //      (with no real effect) for backwards compatibility.
-  //      In ITKv4 mode only the super class is needed
-  virtual InverseTransformBasePointer GetInverseTransform() const ITK_OVERRIDE;
-  /**
-   * Get rotation Matrix from an Rigid3DTransform
-   *
-   * This method returns the value of the rotation of the
-   * Rigid3DTransform.
-   *
-   * \deprecated Use GetMatrix instead
-   */
-  itkLegacyMacro(const MatrixType & GetRotationMatrix() const);
-  /**
-   * Set the rotation Matrix of a Rigid3D Transform
-   *
-   * This method sets the 3x3 matrix representing a rotation
-   * in the transform.  The Matrix is expected to be orthogonal
-   * with a certain tolerance.
-   *
-   * \deprecated Use SetMatrix instead
-   *
-   */
-  itkLegacyMacro(virtual void SetRotationMatrix(const MatrixType & matrix) );
-#endif
-
-  /**
-   * Back transform by an affine transformation
-   *
-   * This method finds the point or vector that maps to a given
-   * point or vector under the affine transformation defined by
-   * self.  If no such point exists, an exception is thrown.
-   *
-   * \deprecated Please use GetInverseTransform and then call the forward
-   *   transform using the result.
-   *
-   */
-  itkLegacyMacro(InputPointType      BackTransform(const OutputPointType & point) const);
-  itkLegacyMacro(InputVectorType     BackTransform(const OutputVectorType & vector) const);
-  itkLegacyMacro(InputVnlVectorType  BackTransform(const OutputVnlVectorType & vector) const);
-  itkLegacyMacro(InputCovariantVectorType BackTransform(const OutputCovariantVectorType & vector) const);
 
 protected:
-  Rigid3DTransform(const MatrixType & matrix,
-                   const OutputVectorType & offset);
+  Rigid3DTransform(const MatrixType & matrix, const OutputVectorType & offset);
   Rigid3DTransform(unsigned int paramDim);
   Rigid3DTransform();
-  ~Rigid3DTransform() ITK_OVERRIDE;
+  ~Rigid3DTransform() override = default;
 
   /**
    * Print contents of an Rigid3DTransform
    */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(Rigid3DTransform);
-};                                //class Rigid3DTransform
-}  // namespace itk
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+}; // class Rigid3DTransform
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRigid3DTransform.hxx"
+#  include "itkRigid3DTransform.hxx"
 #endif
 
 #endif /* itkRigid3DTransform_h */

@@ -55,57 +55,59 @@ namespace itk
  * \ingroup RegionGrowingSegmentation
  * \ingroup ITKRegionGrowing
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT VectorConfidenceConnectedImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT VectorConfidenceConnectedImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorConfidenceConnectedImageFilter            Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorConfidenceConnectedImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = VectorConfidenceConnectedImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods).  */
-  itkTypeMacro(VectorConfidenceConnectedImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(VectorConfidenceConnectedImageFilter, ImageToImageFilter);
 
-  typedef TInputImage                         InputImageType;
-  typedef typename InputImageType::Pointer    InputImagePointer;
-  typedef typename InputImageType::RegionType InputImageRegionType;
-  typedef typename InputImageType::PixelType  InputImagePixelType;
-  typedef typename InputImageType::IndexType  IndexType;
-  typedef typename InputImageType::SizeType   SizeType;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using IndexType = typename InputImageType::IndexType;
+  using SizeType = typename InputImageType::SizeType;
 
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::Pointer    OutputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename OutputImageType::PixelType  OutputImagePixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
-  typedef std::vector< IndexType > SeedsContainerType;
+  using SeedsContainerType = std::vector<IndexType>;
 
-  typedef MahalanobisDistanceThresholdImageFunction<
-    InputImageType >
-  DistanceThresholdFunctionType;
+  using DistanceThresholdFunctionType = MahalanobisDistanceThresholdImageFunction<InputImageType>;
 
-  typedef typename DistanceThresholdFunctionType::CovarianceMatrixType CovarianceMatrixType;
-  typedef typename DistanceThresholdFunctionType::MeanVectorType       MeanVectorType;
+  using CovarianceMatrixType = typename DistanceThresholdFunctionType::CovarianceMatrixType;
+  using MeanVectorType = typename DistanceThresholdFunctionType::MeanVectorType;
 
-  typedef  typename DistanceThresholdFunctionType::Pointer DistanceThresholdFunctionPointer;
+  using DistanceThresholdFunctionPointer = typename DistanceThresholdFunctionType::Pointer;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Set seed point. This method is deprecated, please use AddSeed() */
-  void SetSeed(const IndexType & seed);
+  void
+  SetSeed(const IndexType & seed);
 
   /** Add seed point. */
-  void AddSeed(const IndexType & seed);
+  void
+  AddSeed(const IndexType & seed);
 
   /** Remove all seeds */
-  void ClearSeeds();
+  void
+  ClearSeeds();
 
   /** Set/Get the multiplier to define the confidence interval.  Multiplier
    * can be anything greater than zero. A typical value is 2.5 */
@@ -126,23 +128,23 @@ public:
   itkGetConstReferenceMacro(InitialNeighborhoodRadius, unsigned int);
 
   /** Get the Mean Vector computed during the segmentation */
-  const MeanVectorType & GetMean() const;
+  const MeanVectorType &
+  GetMean() const;
 
   /** Get the Covariance matrix computed during the segmentation */
-  const CovarianceMatrixType & GetCovariance() const;
+  const CovarianceMatrixType &
+  GetCovariance() const;
 
   /** Method to access seed container */
-  virtual const SeedsContainerType &GetSeeds() const;
+  virtual const SeedsContainerType &
+  GetSeeds() const;
 
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputImagePixelType > ) );
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename InputImagePixelType::ValueType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< OutputImagePixelType > ) );
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputImagePixelType>));
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<typename InputImagePixelType::ValueType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputImagePixelType>));
   // End concept checking
 #endif
 
@@ -150,16 +152,17 @@ protected:
   VectorConfidenceConnectedImageFilter();
 
   // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   // Override since the filter produces the entire dataset
-  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorConfidenceConnectedImageFilter);
-
   SeedsContainerType   m_Seeds;
   double               m_Multiplier;
   unsigned int         m_NumberOfIterations;
@@ -171,7 +174,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorConfidenceConnectedImageFilter.hxx"
+#  include "itkVectorConfidenceConnectedImageFilter.hxx"
 #endif
 
 #endif

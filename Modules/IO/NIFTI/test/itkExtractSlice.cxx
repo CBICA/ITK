@@ -21,23 +21,24 @@
 #include "itkImageFileWriter.h"
 #include "itkExtractImageFilter.h"
 
-typedef float                                         PixelType;
-typedef itk::Image<PixelType, 3>                      ImageType;
-typedef itk::Image<PixelType, 2>                      SliceType;
-typedef itk::ImageFileReader<ImageType>               ReaderType;
-typedef itk::ExtractImageFilter<ImageType, SliceType> ExtractType;
-typedef itk::ImageFileWriter<SliceType>               WriterType;
+using PixelType = float;
+using ImageType = itk::Image<PixelType, 3>;
+using SliceType = itk::Image<PixelType, 2>;
+using ReaderType = itk::ImageFileReader<ImageType>;
+using ExtractType = itk::ExtractImageFilter<ImageType, SliceType>;
+using WriterType = itk::ImageFileWriter<SliceType>;
 
-int itkExtractSlice(int argc, char *argv[])
+int
+itkExtractSlice(int argc, char * argv[])
 {
-  if (argc<3)
-    {
+  if (argc < 3)
+  {
     std::cout << "Usage:\n" << argv[0] << " in.nii out.nrrd";
     return EXIT_FAILURE;
-    }
+  }
 
   try
-    {
+  {
     ReaderType::Pointer reader = ReaderType::New();
     reader->SetFileName(argv[1]);
     reader->UpdateOutputInformation();
@@ -62,11 +63,11 @@ int itkExtractSlice(int argc, char *argv[])
     writer->SetInput(extractFilter->GetOutput());
     writer->SetFileName(argv[2]);
     writer->Update();
-    }
-  catch (itk::ExceptionObject& exc)
-    {
+  }
+  catch (itk::ExceptionObject & exc)
+  {
     std::cerr << exc;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

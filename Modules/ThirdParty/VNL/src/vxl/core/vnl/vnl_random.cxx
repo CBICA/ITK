@@ -1,15 +1,11 @@
 // This is core/vnl/vnl_random.cxx
-#ifdef VCL_NEEDS_PRAGMA_INTERFACE
-#pragma implementation
-#endif
 //:
 //  \file
 
 #include <ctime>
 #include <cmath>
 #include "vnl_random.h"
-#include <vcl_compiler.h>
-#include <vcl_cassert.h>
+#include <cassert>
 
 unsigned long vnl_random::linear_congruential_lrand32()
 {
@@ -69,7 +65,7 @@ vnl_random::~vnl_random()
 
 void vnl_random::reseed()
 {
-  reseed((unsigned long)std::time(VXL_NULLPTR));
+  reseed((unsigned long)std::time(nullptr));
 }
 
 void vnl_random::reseed(unsigned long seed)
@@ -89,7 +85,7 @@ void vnl_random::reseed(unsigned long seed)
   for (int j=0;j<1000;j++) lrand32();
 }
 
-void vnl_random::reseed(unsigned long seed[vnl_random_array_size])
+void vnl_random::reseed(const unsigned long seed[vnl_random_array_size])
 {
   mz_array_position = 0UL;
   mz_borrow = 0L;

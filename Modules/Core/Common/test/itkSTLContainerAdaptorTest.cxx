@@ -23,11 +23,12 @@
 #include "itkSTLConstContainerAdaptor.h"
 
 
-int itkSTLContainerAdaptorTest(int, char* [] )
+int
+itkSTLContainerAdaptorTest(int, char *[])
 {
 
-  typedef unsigned long   IndexType;
-  typedef int             ElementType;
+  using IndexType = unsigned long;
+  using ElementType = int;
 
   unsigned int containerSize = 100;
 
@@ -36,130 +37,126 @@ int itkSTLContainerAdaptorTest(int, char* [] )
 
     std::cout << "Testing the VectorContainer " << std::endl;
 
-    typedef itk::VectorContainer<IndexType, ElementType>  VectorContainerType;
+    using VectorContainerType = itk::VectorContainer<IndexType, ElementType>;
 
     VectorContainerType::Pointer vectorContainer = VectorContainerType::New();
 
-    typedef std::vector<ElementType> STLVectorType;
+    using STLVectorType = std::vector<ElementType>;
 
-    STLVectorType  vectorSource;
+    STLVectorType vectorSource;
 
     for (unsigned int i = 0; i < containerSize; i++)
-      {
+    {
       vectorSource.push_back(containerSize - i);
-      }
+    }
 
-    containerSize = static_cast<unsigned int>( vectorSource.size() );
+    containerSize = static_cast<unsigned int>(vectorSource.size());
 
-    typedef itk::STLContainerAdaptor<VectorContainerType> AdaptorType;
-    typedef AdaptorType::TargetType                       TargetType;
+    using AdaptorType = itk::STLContainerAdaptor<VectorContainerType>;
+    using TargetType = AdaptorType::TargetType;
 
     std::cout << "----- Testing non-const Adaptor " << std::endl;
 
     vectorContainer->Print(std::cout);
 
     { // define a local scope
-      AdaptorType adaptor( vectorContainer );
+      AdaptorType  adaptor(vectorContainer);
       TargetType & targetRef = adaptor.GetSTLContainerRef();
 
       std::cout << "Testing assignment... ";
 
-      targetRef.reserve( vectorSource.size() );
-      targetRef.assign( vectorSource.begin(), vectorSource.end() );
+      targetRef.reserve(vectorSource.size());
+      targetRef.assign(vectorSource.begin(), vectorSource.end());
 
-      STLVectorType::const_iterator it    = vectorSource.begin();
-      VectorContainerType::ConstIterator  cIter = vectorContainer->Begin();
-      while( it != vectorSource.end() && cIter != vectorContainer->End() )
+      STLVectorType::const_iterator      it = vectorSource.begin();
+      VectorContainerType::ConstIterator cIter = vectorContainer->Begin();
+      while (it != vectorSource.end() && cIter != vectorContainer->End())
+      {
+        if (*it != cIter.Value())
         {
-        if( *it != cIter.Value() )
-          {
           std::cerr << "Error in comparison !" << std::endl;
           return EXIT_FAILURE;
-          }
+        }
         ++cIter;
         ++it;
-        }
+      }
       // here, check for premature ending of the while loop
-      if( it != vectorSource.end() || cIter != vectorContainer->End() )
-        {
+      if (it != vectorSource.end() || cIter != vectorContainer->End())
+      {
         std::cerr << "Error, iteration on containers didn't finished simultaneously" << std::endl;
-        }
+      }
       std::cout << "Passed !" << std::endl;
 
 
       // Test of index access
       std::cout << "Testing index access... ";
       for (unsigned int i = 0; i < containerSize; i++)
+      {
+        if (vectorSource[i] != vectorContainer->GetElement(i))
         {
-        if( vectorSource[i] != vectorContainer->GetElement(i) )
-          {
           std::cerr << "Error, comparing element # " << i << std::endl;
           return EXIT_FAILURE;
-          }
         }
+      }
       std::cout << "Passed !" << std::endl;
-
-
     }
 
-    typedef itk::STLConstContainerAdaptor<VectorContainerType> ConstAdaptorType;
-    typedef ConstAdaptorType::TargetType                       ConstTargetType;
+    using ConstAdaptorType = itk::STLConstContainerAdaptor<VectorContainerType>;
+    using ConstTargetType = ConstAdaptorType::TargetType;
 
     std::cout << "----- Testing const Adaptor " << std::endl;
 
 
     { // define a local scope
-      ConstAdaptorType constAdaptor(vectorContainer);
+      ConstAdaptorType  constAdaptor(vectorContainer);
       ConstTargetType & constTargetRef = constAdaptor.GetSTLConstContainerRef();
 
       STLVectorType destination;
 
       std::cout << "Testing reading assignment... ";
-      destination.assign( constTargetRef.begin(), constTargetRef.end() );
+      destination.assign(constTargetRef.begin(), constTargetRef.end());
 
-      STLVectorType::const_iterator it    = destination.begin();
-      VectorContainerType::ConstIterator  cIter = vectorContainer->Begin();
-      while( it != destination.end() && cIter != vectorContainer->End() )
+      STLVectorType::const_iterator      it = destination.begin();
+      VectorContainerType::ConstIterator cIter = vectorContainer->Begin();
+      while (it != destination.end() && cIter != vectorContainer->End())
+      {
+        if (*it != cIter.Value())
         {
-        if( *it != cIter.Value() )
-          {
           std::cerr << "Error in comparison !" << std::endl;
           return EXIT_FAILURE;
-          }
+        }
         ++it;
         ++cIter;
-        }
+      }
       // here, check for premature ending of the while loop
-      if( it != destination.end() || cIter != vectorContainer->End() )
-        {
+      if (it != destination.end() || cIter != vectorContainer->End())
+      {
         std::cerr << "Error, iteration on containers didn't finished simultaneously" << std::endl;
-        }
+      }
       std::cout << "Passed !" << std::endl;
 
 
       // Test of index access
       std::cout << "Testing index access... ";
       for (unsigned int i = 0; i < containerSize; i++)
+      {
+        if (destination[i] != vectorContainer->GetElement(i))
         {
-        if( destination[i] != vectorContainer->GetElement(i) )
-          {
           std::cerr << "Error, comparing element # " << i << std::endl;
           return EXIT_FAILURE;
-          }
         }
+      }
       std::cout << "Passed !" << std::endl;
-
     }
 
 
-  std::cout << std::endl;
-  std::cout << "VectorContainer test passed ! " << std::endl;
-
+    std::cout << std::endl;
+    std::cout << "VectorContainer test passed ! " << std::endl;
   }
 
   // Test with the MapContainer
 
-  typedef itk::MapContainer<IndexType, ElementType>  MapContainerType;
+  using MapContainerType = itk::MapContainer<IndexType, ElementType>;
 
   { // create a local scope
 
@@ -167,126 +164,122 @@ int itkSTLContainerAdaptorTest(int, char* [] )
 
     MapContainerType::Pointer mapContainer = MapContainerType::New();
 
-    typedef std::map<int,ElementType>  STLMapType;
+    using STLMapType = std::map<int, ElementType>;
     STLMapType mapSource;
 
     for (unsigned int i = 0; i < containerSize; i++)
-      {
+    {
       mapSource[i] = containerSize - i;
     }
 
 
-    containerSize = static_cast<unsigned int>( mapSource.size() );
+    containerSize = static_cast<unsigned int>(mapSource.size());
 
-    typedef itk::STLContainerAdaptor<MapContainerType> AdaptorType;
-    typedef AdaptorType::TargetType                    TargetType;
+    using AdaptorType = itk::STLContainerAdaptor<MapContainerType>;
+    using TargetType = AdaptorType::TargetType;
 
     std::cout << "----- Testing non-const Adaptor " << std::endl;
 
     mapContainer->Print(std::cout);
 
     { // define a local scope
-      AdaptorType adaptor( mapContainer );
+      AdaptorType  adaptor(mapContainer);
       TargetType & targetRef = adaptor.GetSTLContainerRef();
 
       std::cout << "Testing assignment... ";
 
-      for(unsigned int i=0; i < containerSize; i++)
-        {
+      for (unsigned int i = 0; i < containerSize; i++)
+      {
         targetRef[i] = mapSource[i];
-        }
+      }
 
-      STLMapType::const_iterator it    = mapSource.begin();
-      MapContainerType::ConstIterator  cIter = mapContainer->Begin();
-      while( it != mapSource.end() && cIter != mapContainer->End() )
+      STLMapType::const_iterator      it = mapSource.begin();
+      MapContainerType::ConstIterator cIter = mapContainer->Begin();
+      while (it != mapSource.end() && cIter != mapContainer->End())
+      {
+        if (it->second != cIter.Value())
         {
-        if( it->second != cIter.Value() )
-          {
           std::cerr << "Error in comparison !" << std::endl;
           return EXIT_FAILURE;
-          }
+        }
         ++cIter;
         ++it;
-        }
+      }
       // here, check for premature ending of the while loop
-      if( it != mapSource.end() || cIter != mapContainer->End() )
-        {
+      if (it != mapSource.end() || cIter != mapContainer->End())
+      {
         std::cerr << "Error, iteration on containers didn't finished simultaneously" << std::endl;
-        }
+      }
       std::cout << "Passed !" << std::endl;
 
 
       // Test of index access
       std::cout << "Testing index access... ";
       for (unsigned int j = 0; j < containerSize; j++)
+      {
+        if (mapSource[j] != mapContainer->GetElement(j))
         {
-        if( mapSource[j] != mapContainer->GetElement(j) )
-          {
           std::cerr << "Error, comparing element # " << j << std::endl;
           return EXIT_FAILURE;
-          }
         }
+      }
       std::cout << "Passed !" << std::endl;
-
-
     }
 
-    typedef itk::STLConstContainerAdaptor<MapContainerType> ConstAdaptorType;
-    typedef ConstAdaptorType::TargetType                    ConstTargetType;
+    using ConstAdaptorType = itk::STLConstContainerAdaptor<MapContainerType>;
+    using ConstTargetType = ConstAdaptorType::TargetType;
 
     std::cout << "----- Testing const Adaptor " << std::endl;
 
 
     { // define a local scope
-      ConstAdaptorType constAdaptor(mapContainer);
+      ConstAdaptorType  constAdaptor(mapContainer);
       ConstTargetType & constTargetRef = constAdaptor.GetSTLConstContainerRef();
 
       STLMapType destination;
 
       std::cout << "Testing reading assignment... ";
-      for( unsigned int i=0; i < containerSize; i++)
-        {
+      for (unsigned int i = 0; i < containerSize; i++)
+      {
         destination[i] = constTargetRef.find(i)->second;
-        }
+      }
 
-      STLMapType::const_iterator it    = destination.begin();
-      MapContainerType::ConstIterator  cIter = mapContainer->Begin();
-      while( it != destination.end() && cIter != mapContainer->End() )
+      STLMapType::const_iterator      it = destination.begin();
+      MapContainerType::ConstIterator cIter = mapContainer->Begin();
+      while (it != destination.end() && cIter != mapContainer->End())
+      {
+        if (it->second != cIter.Value())
         {
-        if( it->second != cIter.Value() )
-          {
           std::cerr << "Error in comparison !" << std::endl;
           return EXIT_FAILURE;
-          }
+        }
         ++it;
         ++cIter;
-        }
+      }
       // here, check for premature ending of the while loop
-      if( it != destination.end() || cIter != mapContainer->End() )
-        {
+      if (it != destination.end() || cIter != mapContainer->End())
+      {
         std::cerr << "Error, iteration on containers didn't finished simultaneously" << std::endl;
-        }
+      }
       std::cout << "Passed !" << std::endl;
 
 
       // Test of index access
       std::cout << "Testing index access... ";
       for (unsigned int j = 0; j < containerSize; j++)
+      {
+        if (destination[j] != mapContainer->GetElement(j))
         {
-        if( destination[j] != mapContainer->GetElement(j) )
-          {
           std::cerr << "Error, comparing element # " << j << std::endl;
           return EXIT_FAILURE;
-          }
         }
+      }
       std::cout << "Passed !" << std::endl;
-
     }
 
 
-  std::cout << std::endl;
-  std::cout << "MapContainer test passed ! " << std::endl;
-
+    std::cout << std::endl;
+    std::cout << "MapContainer test passed ! " << std::endl;
   }
 
   return EXIT_SUCCESS;

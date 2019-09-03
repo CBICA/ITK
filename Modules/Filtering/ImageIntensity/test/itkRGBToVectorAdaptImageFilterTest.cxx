@@ -41,24 +41,26 @@
 //   Main code
 //
 //-------------------------
-int itkRGBToVectorAdaptImageFilterTest(int, char* [] ) {
+int
+itkRGBToVectorAdaptImageFilterTest(int, char *[])
+{
 
 
   //-------------------------------------
   //     Typedefs for convenience
   //-------------------------------------
-  typedef itk::RGBPixel< float >                  RGBPixelType;
-  typedef itk::Image< RGBPixelType,   2 >         RGBImageType;
+  using RGBPixelType = itk::RGBPixel<float>;
+  using RGBImageType = itk::Image<RGBPixelType, 2>;
 
-  typedef itk::ImageRegionIteratorWithIndex< RGBImageType >  myRGBIteratorType;
+  using myRGBIteratorType = itk::ImageRegionIteratorWithIndex<RGBImageType>;
 
-  typedef itk::Accessor::RGBToVectorPixelAccessor<float>    AccessorType;
+  using AccessorType = itk::Accessor::RGBToVectorPixelAccessor<float>;
 
-  typedef AccessorType::ExternalType              VectorPixelType;
+  using VectorPixelType = AccessorType::ExternalType;
 
-  typedef itk::Image< VectorPixelType,   2 >      myImageType;
+  using myImageType = itk::Image<VectorPixelType, 2>;
 
-  typedef itk::ImageRegionIteratorWithIndex< myImageType >  myVectorIteratorType;
+  using myVectorIteratorType = itk::ImageRegionIteratorWithIndex<myImageType>;
 
   RGBImageType::SizeType size;
   size[0] = 100;
@@ -69,82 +71,77 @@ int itkRGBToVectorAdaptImageFilterTest(int, char* [] ) {
   index[1] = 0;
 
   RGBImageType::RegionType region;
-  region.SetIndex( index );
-  region.SetSize(  size  );
+  region.SetIndex(index);
+  region.SetSize(size);
 
   RGBImageType::Pointer myImage = RGBImageType::New();
 
 
-  myImage->SetRegions( region );
+  myImage->SetRegions(region);
   myImage->Allocate();
 
-  myRGBIteratorType  it1( myImage, myImage->GetRequestedRegion() );
+  myRGBIteratorType it1(myImage, myImage->GetRequestedRegion());
 
   // Value to initialize the pixels
   RGBImageType::PixelType color;
 
   // Initializing all the pixel in the image
   it1.GoToBegin();
-  while( !it1.IsAtEnd() )
-    {
-    color.Set( (float) vnl_sample_uniform(0.0, 1.0),
-               (float) vnl_sample_uniform(0.0, 1.0),
-               (float) vnl_sample_uniform(0.0, 1.0) );
+  while (!it1.IsAtEnd())
+  {
+    color.Set(
+      (float)vnl_sample_uniform(0.0, 1.0), (float)vnl_sample_uniform(0.0, 1.0), (float)vnl_sample_uniform(0.0, 1.0));
     it1.Set(color);
     ++it1;
-    }
+  }
 
   bool passed = true;
 
   // Convert to a Vector image
-  typedef itk::AdaptImageFilter< RGBImageType,
-                                 myImageType,
-                                 AccessorType   >  AdaptFilterType;
+  using AdaptFilterType = itk::AdaptImageFilter<RGBImageType, myImageType, AccessorType>;
 
-  AdaptFilterType::Pointer  adaptImageToVector = AdaptFilterType::New();
+  AdaptFilterType::Pointer adaptImageToVector = AdaptFilterType::New();
 
   adaptImageToVector->SetInput(myImage);
   adaptImageToVector->UpdateLargestPossibleRegion();
 
-  myVectorIteratorType  it(
-            adaptImageToVector->GetOutput(),
-            adaptImageToVector->GetOutput()->GetRequestedRegion() );
+  myVectorIteratorType it(adaptImageToVector->GetOutput(), adaptImageToVector->GetOutput()->GetRequestedRegion());
 
   std::cout << "--- Read Vector values --- " << std::endl;
 
   it.GoToBegin();
   it1.GoToBegin();
-  while( !it.IsAtEnd() )
+  while (!it.IsAtEnd())
   {
-  VectorPixelType v =   it.Get();
-  RGBPixelType    c =  it1.Get();
+    VectorPixelType v = it.Get();
+    RGBPixelType    c = it1.Get();
 
-  if ( itk::Math::NotExactlyEquals(v[0], c.GetRed())   ||
-       itk::Math::NotExactlyEquals(v[1], c.GetGreen()) ||
-       itk::Math::NotExactlyEquals(v[2], c.GetBlue())     )
+    if (itk::Math::NotExactlyEquals(v[0], c.GetRed()) || itk::Math::NotExactlyEquals(v[1], c.GetGreen()) ||
+        itk::Math::NotExactlyEquals(v[2], c.GetBlue()))
     {
-    std::cerr << "Vector pixel = " << v << std::endl;
-    std::cerr << "does not match " << std::endl;
-    std::cerr << "RGB    pixel = " << c << std::endl;
-    std::cerr << "myImage->GetRequestedRegion()" << myImage->GetRequestedRegion() << std::endl;
-    std::cerr << "adaptImageToVector->GetRequestedRegion()" << adaptImageToVector->GetOutput()->GetRequestedRegion() << std::endl;
-    passed = false;
-    break;
+      std::cerr << "Vector pixel = " << v << std::endl;
+      std::cerr << "does not match " << std::endl;
+      std::cerr << "RGB    pixel = " << c << std::endl;
+      std::cerr << "myImage->GetRequestedRegion()" << myImage->GetRequestedRegion() << std::endl;
+      std::cerr << "adaptImageToVector->GetRequestedRegion()" << adaptImageToVector->GetOutput()->GetRequestedRegion()
+                << std::endl;
+      passed = false;
+      break;
     }
 
-  ++it;
-  ++it1;
+    ++it;
+    ++it1;
   }
 
   std::cout << std::endl;
   if (passed)
-    {
+  {
     std::cout << "AdaptImageFilterTest passed" << std::endl;
     return EXIT_SUCCESS;
-    }
+  }
   else
-    {
+  {
     std::cout << "AdaptImageFilterTest passed" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 }

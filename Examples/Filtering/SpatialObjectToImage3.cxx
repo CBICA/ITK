@@ -44,13 +44,14 @@
 #include "itkImageFileWriter.h"
 
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc != 2 )
-    {
+  if (argc != 2)
+  {
     std::cerr << "Usage: " << argv[0] << " outputimagefile " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //  Software Guide : BeginLatex
@@ -61,10 +62,10 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef unsigned char PixelType;
-  const unsigned int    Dimension = 3;
+  using PixelType = unsigned char;
+  constexpr unsigned int Dimension = 3;
 
-  typedef itk::Image< PixelType, Dimension >       ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
 
@@ -76,7 +77,7 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::PolygonSpatialObject< Dimension >  PolygonType;
+  using PolygonType = itk::PolygonSpatialObject<Dimension>;
   // Software Guide : EndCodeSnippet
 
 
@@ -88,8 +89,8 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::SpatialObjectToImageFilter<
-    PolygonType, ImageType >   SpatialObjectToImageFilterType;
+  using SpatialObjectToImageFilterType =
+    itk::SpatialObjectToImageFilter<PolygonType, ImageType>;
 
   SpatialObjectToImageFilterType::Pointer imageFilter =
     SpatialObjectToImageFilterType::New();
@@ -106,20 +107,20 @@ int main( int argc, char *argv[] )
 
   // Software Guide : BeginCodeSnippet
   ImageType::SizeType size;
-  size[ 0 ] =  100;
-  size[ 1 ] =  100;
-  size[ 2 ] =    1;
+  size[0] = 100;
+  size[1] = 100;
+  size[2] = 1;
 
-  imageFilter->SetSize( size );
+  imageFilter->SetSize(size);
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginCodeSnippet
   ImageType::SpacingType spacing;
-  spacing[0] =  100.0 / size[0];
-  spacing[1] =  100.0 / size[1];
-  spacing[2] =    1.0;
+  spacing[0] = 100.0 / size[0];
+  spacing[1] = 100.0 / size[1];
+  spacing[2] = 1.0;
 
-  imageFilter->SetSpacing( spacing );
+  imageFilter->SetSpacing(spacing);
   // Software Guide : EndCodeSnippet
 
 
@@ -142,32 +143,39 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int numberOfPoints = 6;
-  PolygonType::PointType point;
-  PolygonType::PointType::VectorType radial;
+  constexpr unsigned int                      numberOfPoints = 6;
+  typename PolygonType::PointType             point;
+  typename PolygonType::PointType::VectorType radial;
   radial[0] = 0.0;
   radial[1] = 0.0;
   radial[2] = 0.0;
 
-  PolygonType::PointType center;
+  typename PolygonType::PointType center;
   center[0] = 50.0;
   center[1] = 50.0;
-  center[2] =  0.0;
+  center[2] = 0.0;
 
-  const double radius = 40.0;
+  constexpr double radius = 40.0;
 
-  for( unsigned int i=0; i < numberOfPoints; i++ )
-    {
+  typename PolygonType::PolygonPointType polygonPoint;
+
+  for (unsigned int i = 0; i < numberOfPoints; i++)
+  {
     const double angle = 2.0 * itk::Math::pi * i / numberOfPoints;
-    radial[0] = radius * std::cos( angle );
-    radial[1] = radius * std::sin( angle );
+    radial[0] = radius * std::cos(angle);
+    radial[1] = radius * std::sin(angle);
     point = center + radial;
-    polygon->AddPoint( point );
-    }
+    polygonPoint.SetPositionInObjectSpace(point);
+    polygon->GetPoints().push_back(polygonPoint);
+  }
+  polygon->SetIsClosed(true);
+  polygon->Update();
   // Software Guide : EndCodeSnippet
 
-  std::cout << "Polygon Perimeter = " << polygon->MeasurePerimeter() << std::endl;
-  std::cout << "Polygon Area      = " << polygon->MeasureArea() << std::endl;
+  std::cout << "Polygon Perimeter = " << polygon->MeasurePerimeterInObjectSpace()
+            << std::endl;
+  std::cout << "Polygon Area      = " << polygon->MeasureAreaInObjectSpace()
+            << std::endl;
 
   //  Software Guide : BeginLatex
   //
@@ -176,7 +184,7 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  imageFilter->SetInput(  polygon  );
+  imageFilter->SetInput(polygon);
   // Software Guide : EndCodeSnippet
 
 
@@ -189,22 +197,22 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::ImageFileWriter< ImageType >     WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetFileName( argv[1] );
-  writer->SetInput( imageFilter->GetOutput() );
+  writer->SetFileName(argv[1]);
+  writer->SetInput(imageFilter->GetOutput());
 
   try
-    {
+  {
     imageFilter->Update();
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 

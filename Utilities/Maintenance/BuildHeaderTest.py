@@ -44,6 +44,9 @@ BANNED_HEADERS = set(('itkDynamicLoader.h', # This cannot be included when ITK_D
     'itkVanHerkGilWermanErodeDilateImageFilter.h', # circular include's
     'itkBSplineDeformableTransform.h',   # deprecated
     'vtkCaptureScreen.h',  # these includes require VTK
+    'itkMultiThreader.h', # Compatibility file, it should not be used
+    'itkViewImage.h', # Depends on VTK_RENDERING_BACKEND
+    'QuickView.h', # Depends on VTK_RENDERING_BACKEND
     'itkBSplineDeformableTransformInitializer.h'))
 
 HEADER = """/*=========================================================================

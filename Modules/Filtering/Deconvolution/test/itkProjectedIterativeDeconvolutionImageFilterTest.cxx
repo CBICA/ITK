@@ -21,23 +21,21 @@
 #include "itkProjectedIterativeDeconvolutionImageFilter.h"
 #include "itkSimpleFilterWatcher.h"
 
-int itkProjectedIterativeDeconvolutionImageFilterTest(int, char* [])
+int
+itkProjectedIterativeDeconvolutionImageFilterTest(int, char *[])
 {
   // Declare the image type
-  typedef itk::Image<float, 2> ImageType;
+  using ImageType = itk::Image<float, 2>;
 
   // Declare the base deconvolution filter choice
-  typedef itk::LandweberDeconvolutionImageFilter< ImageType >
-    BaseDeconvolutionFilterType;
+  using BaseDeconvolutionFilterType = itk::LandweberDeconvolutionImageFilter<ImageType>;
 
   // Declare a projected version of the base deconvolution image filter
-  typedef itk::ProjectedIterativeDeconvolutionImageFilter< BaseDeconvolutionFilterType >
-    ProjectedDeconvolutionFilterType;
+  using ProjectedDeconvolutionFilterType = itk::ProjectedIterativeDeconvolutionImageFilter<BaseDeconvolutionFilterType>;
 
   // Just instantiate the filter and print it
-  ProjectedDeconvolutionFilterType::Pointer deconvolutionFilter =
-    ProjectedDeconvolutionFilterType::New();
-  deconvolutionFilter->Print( std::cout );
+  ProjectedDeconvolutionFilterType::Pointer deconvolutionFilter = ProjectedDeconvolutionFilterType::New();
+  deconvolutionFilter->Print(std::cout);
 
   itk::SimpleFilterWatcher watcher(deconvolutionFilter);
 

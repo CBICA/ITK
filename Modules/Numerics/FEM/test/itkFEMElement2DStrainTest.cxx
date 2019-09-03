@@ -21,11 +21,12 @@
 #include <iostream>
 
 //
-int itkFEMElement2DStrainTest(int, char *[])
+int
+itkFEMElement2DStrainTest(int, char *[])
 {
 
-  typedef itk::fem::Element ElementType;
-  typedef ElementType::Node NodeType;
+  using ElementType = itk::fem::Element;
+  using NodeType = ElementType::Node;
 
   NodeType::Pointer       n0, n1, n2, n3;
   ElementType::VectorType pt(2);
@@ -50,7 +51,7 @@ int itkFEMElement2DStrainTest(int, char *[])
   pt[1] = 3.;
   n3->SetCoordinates(pt);
 
-  typedef itk::fem::MaterialLinearElasticity ElasticityType;
+  using ElasticityType = itk::fem::MaterialLinearElasticity;
 
   ElasticityType::Pointer m = ElasticityType::New();
 
@@ -59,7 +60,7 @@ int itkFEMElement2DStrainTest(int, char *[])
   m->SetCrossSectionalArea(0.02);
   m->SetMomentOfInertia(0.004);
 
-  typedef itk::fem::Element2DC0LinearQuadrilateralStrain StrainType;
+  using StrainType = itk::fem::Element2DC0LinearQuadrilateralStrain;
 
   StrainType::Pointer e0 = StrainType::New();
 
@@ -68,10 +69,10 @@ int itkFEMElement2DStrainTest(int, char *[])
   e0->SetNode(1, n1);
   e0->SetNode(2, n2);
   e0->SetNode(3, n3);
-  if (dynamic_cast<ElasticityType *>( m.GetPointer() ))
-    {
-    e0->SetMaterial( dynamic_cast<ElasticityType *>( m.GetPointer() ) );
-    }
+  if (dynamic_cast<ElasticityType *>(m.GetPointer()))
+  {
+    e0->SetMaterial(dynamic_cast<ElasticityType *>(m.GetPointer()));
+  }
 
   ElementType::MatrixType D, Me;
 

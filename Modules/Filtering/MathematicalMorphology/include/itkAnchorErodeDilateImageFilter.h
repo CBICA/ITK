@@ -35,43 +35,39 @@ namespace itk
  * morphology classes in itk.
  * \ingroup ITKMathematicalMorphology
  */
-template< typename TImage, typename TKernel,
-          typename TFunction1 >
-class ITK_TEMPLATE_EXPORT AnchorErodeDilateImageFilter:
-  public KernelImageFilter< TImage, TImage, TKernel >
+template <typename TImage, typename TKernel, typename TFunction1>
+class ITK_TEMPLATE_EXPORT AnchorErodeDilateImageFilter : public KernelImageFilter<TImage, TImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef AnchorErodeDilateImageFilter         Self;
-  typedef KernelImageFilter< TImage, TImage, TKernel >
-                                               Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AnchorErodeDilateImageFilter);
 
-  /** Some convenient typedefs. */
-  /** Kernel typedef. */
-  typedef TKernel KernelType;
+  /** Standard class type aliases. */
+  using Self = AnchorErodeDilateImageFilter;
+  using Superclass = KernelImageFilter<TImage, TImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TImage                                InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
-  typedef typename TImage::IndexType            IndexType;
-  typedef typename TImage::SizeType             SizeType;
+  /** Some convenient type alias. */
+  /** Kernel type alias. */
+  using KernelType = TKernel;
+
+  using InputImageType = TImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using IndexType = typename TImage::IndexType;
+  using SizeType = typename TImage::SizeType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(AnchorErodeDilateImageFilter,
-               KernelImageFilter);
+  itkTypeMacro(AnchorErodeDilateImageFilter, KernelImageFilter);
 
   /** Set/Get the boundary value. */
   itkSetMacro(Boundary, InputImagePixelType);
@@ -79,28 +75,28 @@ public:
 
 protected:
   AnchorErodeDilateImageFilter();
-  ~AnchorErodeDilateImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~AnchorErodeDilateImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const InputImageRegionType & outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const InputImageRegionType & outputRegionForThread) override;
+
 
   // should be set by the meta filter
   InputImagePixelType m_Boundary;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AnchorErodeDilateImageFilter);
-
-  typedef BresenhamLine< itkGetStaticConstMacro(InputImageDimension) > BresType;
+  using BresType = BresenhamLine<Self::InputImageDimension>;
 
   // the class that operates on lines
-  typedef AnchorErodeDilateLine< InputImagePixelType, TFunction1 > AnchorLineType;
+  using AnchorLineType = AnchorErodeDilateLine<InputImagePixelType, TFunction1>;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAnchorErodeDilateImageFilter.hxx"
+#  include "itkAnchorErodeDilateImageFilter.hxx"
 #endif
 
 #endif

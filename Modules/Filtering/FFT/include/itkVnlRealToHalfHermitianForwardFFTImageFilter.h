@@ -15,12 +15,13 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkVnlRealToHalfHermitianForwardFFTImageFilter_h
-#define itkVnlRealToHalfHermitianForwardFFTImageFilter_h
-
 #include "itkRealToHalfHermitianForwardFFTImageFilter.h"
-#include "itkVnlFFTCommon.h"
-#include "vnl/algo/vnl_fft_base.h"
+
+#ifndef itkVnlRealToHalfHermitianForwardFFTImageFilter_h
+#  define itkVnlRealToHalfHermitianForwardFFTImageFilter_h
+
+#  include "itkVnlFFTCommon.h"
+#  include "vnl/algo/vnl_fft_base.h"
 
 namespace itk
 {
@@ -37,65 +38,63 @@ namespace itk
  * \ingroup ITKFFT
  *
  */
-template< typename TInputImage, typename TOutputImage=Image< std::complex<typename TInputImage::PixelType>, TInputImage::ImageDimension> >
-class ITK_TEMPLATE_EXPORT VnlRealToHalfHermitianForwardFFTImageFilter:
-  public RealToHalfHermitianForwardFFTImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage,
+          typename TOutputImage = Image<std::complex<typename TInputImage::PixelType>, TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT VnlRealToHalfHermitianForwardFFTImageFilter
+  : public RealToHalfHermitianForwardFFTImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TInputImage                            InputImageType;
-  typedef typename InputImageType::PixelType     InputPixelType;
-  typedef typename InputImageType::SizeType      InputSizeType;
-  typedef typename InputImageType::SizeValueType InputSizeValueType;
-  typedef TOutputImage                           OutputImageType;
-  typedef typename OutputImageType::PixelType    OutputPixelType;
-  typedef typename OutputImageType::SizeType     OutputSizeType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VnlRealToHalfHermitianForwardFFTImageFilter);
 
-  typedef VnlRealToHalfHermitianForwardFFTImageFilter                           Self;
-  typedef RealToHalfHermitianForwardFFTImageFilter<  TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer< Self >                                                Pointer;
-  typedef SmartPointer< const Self >                                          ConstPointer;
+  /** Standard class type aliases. */
+  using InputImageType = TInputImage;
+  using InputPixelType = typename InputImageType::PixelType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using InputSizeValueType = typename InputImageType::SizeValueType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+
+  using Self = VnlRealToHalfHermitianForwardFFTImageFilter;
+  using Superclass = RealToHalfHermitianForwardFFTImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(VnlRealToHalfHermitianForwardFFTImageFilter,
-               RealToHalfHermitianForwardFFTImageFilter);
+  itkTypeMacro(VnlRealToHalfHermitianForwardFFTImageFilter, RealToHalfHermitianForwardFFTImageFilter);
 
   /** Extract the dimensionality of the images. They are assumed to be
    * the same. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
-  SizeValueType GetSizeGreatestPrimeFactor() const ITK_OVERRIDE;
+  SizeValueType
+  GetSizeGreatestPrimeFactor() const override;
 
-#ifdef ITK_USE_CONCEPT_CHECKING
+#  ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( ImageDimensionsMatchCheck,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
+  itkConceptMacro(ImageDimensionsMatchCheck, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
   // End concept checking
-#endif
+#  endif
 
 protected:
-  VnlRealToHalfHermitianForwardFFTImageFilter() {}
-  ~VnlRealToHalfHermitianForwardFFTImageFilter() ITK_OVERRIDE {}
+  VnlRealToHalfHermitianForwardFFTImageFilter() = default;
+  ~VnlRealToHalfHermitianForwardFFTImageFilter() override = default;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VnlRealToHalfHermitianForwardFFTImageFilter);
-
-  typedef vnl_vector< std::complex< InputPixelType > > SignalVectorType;
+  using SignalVectorType = vnl_vector<std::complex<InputPixelType>>;
 };
-}
+} // namespace itk
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVnlRealToHalfHermitianForwardFFTImageFilter.hxx"
-#endif
+#  ifndef ITK_MANUAL_INSTANTIATION
+#    include "itkVnlRealToHalfHermitianForwardFFTImageFilter.hxx"
+#  endif
 
 #endif

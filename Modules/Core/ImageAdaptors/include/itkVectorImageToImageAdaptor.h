@@ -43,35 +43,35 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TType >
-class VectorImageToImagePixelAccessor
-  : private DefaultVectorPixelAccessor< TType >
+template <typename TType>
+class VectorImageToImagePixelAccessor : private DefaultVectorPixelAccessor<TType>
 {
 public:
+  using VectorLengthType = unsigned int;
 
-  typedef unsigned int VectorLengthType;
-
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef  TType ExternalType;
+  using ExternalType = TType;
 
-  /** Internal typedef used by the ImageAdaptor for the buffer pointer */
-  typedef TType InternalType;
+  /** Internal type alias used by the ImageAdaptor for the buffer pointer */
+  using InternalType = TType;
 
-  typedef VariableLengthVector< TType > ActualPixelType;
+  using ActualPixelType = VariableLengthVector<TType>;
 
-  inline void Set(ActualPixelType output, const ExternalType & input) const
+  inline void
+  Set(ActualPixelType output, const ExternalType & input) const
   {
     output[m_ComponentIdx] = input;
   }
 
-  inline void Set(InternalType &output, const ExternalType & input,
-                  const unsigned long offset) const
+  inline void
+  Set(InternalType & output, const ExternalType & input, const unsigned long offset) const
   {
-    return Set( Superclass::Get( output, offset ), input );
+    return Set(Superclass::Get(output, offset), input);
   }
 
-  inline ExternalType Get(const ActualPixelType & input) const
+  inline ExternalType
+  Get(const ActualPixelType & input) const
   {
     ExternalType output;
 
@@ -79,41 +79,45 @@ public:
     return output;
   }
 
-  inline ExternalType Get(const InternalType &input, const SizeValueType offset) const
+  inline ExternalType
+  Get(const InternalType & input, const SizeValueType offset) const
   {
-    return Get( Superclass::Get(input, offset) );
+    return Get(Superclass::Get(input, offset));
   }
 
-  void SetExtractComponentIdx(VectorLengthType idx)
+  void
+  SetExtractComponentIdx(VectorLengthType idx)
   {
     m_ComponentIdx = idx;
   }
 
-  VectorLengthType GetExtractComponentIdx() const
+  VectorLengthType
+  GetExtractComponentIdx() const
   {
     return m_ComponentIdx;
   }
 
   /** Set the length of each vector in the VectorImage */
-  void SetVectorLength(VectorLengthType l)
+  void
+  SetVectorLength(VectorLengthType l)
   {
-    Superclass::SetVectorLength( l );
+    Superclass::SetVectorLength(l);
   }
 
   /** Get Vector lengths */
-  VectorLengthType GetVectorLength() const { return Superclass::GetVectorLength(); }
+  VectorLengthType
+  GetVectorLength() const
+  {
+    return Superclass::GetVectorLength();
+  }
 
-  VectorImageToImagePixelAccessor( unsigned int length = 1)
-    :m_ComponentIdx(0)
-    {
-    Superclass::SetVectorLength( length );
-    }
+  VectorImageToImagePixelAccessor(unsigned int length = 1) { Superclass::SetVectorLength(length); }
 
 protected:
-  typedef DefaultVectorPixelAccessor< TType > Superclass;
+  using Superclass = DefaultVectorPixelAccessor<TType>;
 
 private:
-  VectorLengthType m_ComponentIdx;
+  VectorLengthType m_ComponentIdx{ 0 };
 };
 } // end namespace Accessor
 
@@ -134,24 +138,24 @@ private:
  *
  * \ingroup ITKImageAdaptors
  *
- * \wiki
- * \wikiexample{VectorImages/VectorImageToImageAdaptor,View a component of a vector image as if it were a scalar image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/ImageAdaptors/ViewComponentVectorImageAsScaleImage,View Component Vector Image As Scalar Image}
+ * \endsphinx
  */
-template< typename TPixelType, unsigned int Dimension >
-class VectorImageToImageAdaptor:public
-  ImageAdaptor< VectorImage< TPixelType, Dimension >,
-                Accessor::VectorImageToImagePixelAccessor< TPixelType > >
+template <typename TPixelType, unsigned int Dimension>
+class VectorImageToImageAdaptor
+  : public ImageAdaptor<VectorImage<TPixelType, Dimension>, Accessor::VectorImageToImagePixelAccessor<TPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorImageToImageAdaptor            Self;
-  typedef VectorImage< TPixelType, Dimension > VectorImageType;
-  typedef ImageAdaptor< VectorImageType,
-                        Accessor::VectorImageToImagePixelAccessor< TPixelType >  > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorImageToImageAdaptor);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = VectorImageToImageAdaptor;
+  using VectorImageType = VectorImage<TPixelType, Dimension>;
+  using Superclass = ImageAdaptor<VectorImageType, Accessor::VectorImageToImagePixelAccessor<TPixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -159,34 +163,33 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(VectorImageToImageAdaptor, ImageAdaptor);
 
-  /** PixelContainer typedef support. Used to construct a container for
+  /** PixelContainer type alias support Used to construct a container for
    * the pixel data. */
-  typedef typename Superclass::PixelContainer             PixelContainer;
-  typedef typename Superclass::PixelContainerPointer      PixelContainerPointer;
-  typedef typename Superclass::PixelContainerConstPointer PixelContainerConstPointer;
-  typedef typename Superclass::IOPixelType                IOPixelType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using PixelContainerConstPointer = typename Superclass::PixelContainerConstPointer;
+  using IOPixelType = typename Superclass::IOPixelType;
 
   /** Typedef for the length of vectors in the VectorImage. */
-  typedef typename VectorImageType::VectorLengthType VectorLengthType;
+  using VectorLengthType = typename VectorImageType::VectorLengthType;
 
   // Set/GetMethods to set the component to be extracted.
-  void SetExtractComponentIndex(VectorLengthType componentIdx)
+  void
+  SetExtractComponentIndex(VectorLengthType componentIdx)
   {
     this->GetPixelAccessor().SetExtractComponentIdx(componentIdx);
   }
 
   // Set/GetMethods to set the component to be extracted.
-  VectorLengthType GetExtractComponentIndex() const
+  VectorLengthType
+  GetExtractComponentIndex() const
   {
     return this->GetPixelAccessor().GetExtractComponentIdx();
   }
 
 protected:
-  VectorImageToImageAdaptor() {}
-  virtual ~VectorImageToImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorImageToImageAdaptor);
+  VectorImageToImageAdaptor() = default;
+  ~VectorImageToImageAdaptor() override = default;
 };
 } // end namespace itk
 

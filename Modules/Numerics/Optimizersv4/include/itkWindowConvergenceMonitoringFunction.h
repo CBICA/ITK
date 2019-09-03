@@ -35,65 +35,66 @@ namespace Function
  * \ingroup ITKOptimizersv4
  */
 
-template<typename TScalar = double>
-class ITK_TEMPLATE_EXPORT WindowConvergenceMonitoringFunction
-: public ConvergenceMonitoringFunction<TScalar, TScalar>
+template <typename TScalar = double>
+class ITK_TEMPLATE_EXPORT WindowConvergenceMonitoringFunction : public ConvergenceMonitoringFunction<TScalar, TScalar>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(WindowConvergenceMonitoringFunction);
 
-  typedef WindowConvergenceMonitoringFunction                     Self;
-  typedef ConvergenceMonitoringFunction<TScalar, TScalar>         Superclass;
-  typedef SmartPointer<Self>                                      Pointer;
-  typedef SmartPointer<const Self>                                ConstPointer;
+  using Self = WindowConvergenceMonitoringFunction;
+  using Superclass = ConvergenceMonitoringFunction<TScalar, TScalar>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( WindowConvergenceMonitoringFunction, ConvergenceMonitoringFunction );
+  itkTypeMacro(WindowConvergenceMonitoringFunction, ConvergenceMonitoringFunction);
 
-  typedef TScalar                                            ScalarType;
-  typedef typename NumericTraits<ScalarType>::RealType       RealType;
+  using ScalarType = TScalar;
+  using RealType = typename NumericTraits<ScalarType>::RealType;
 
-  typedef typename Superclass::EnergyValueType               EnergyValueType;
-  typedef typename Superclass::EnergyValueContainerType      EnergyValueContainerType;
-  typedef typename Superclass::EnergyValueContainerSizeType  EnergyValueContainerSizeType;
-  typedef typename EnergyValueContainerType::iterator        EnergyValueIterator;
-  typedef typename EnergyValueContainerType::const_iterator  EnergyValueConstIterator;
+  using EnergyValueType = typename Superclass::EnergyValueType;
+  using EnergyValueContainerType = typename Superclass::EnergyValueContainerType;
+  using EnergyValueContainerSizeType = typename Superclass::EnergyValueContainerSizeType;
+  using EnergyValueIterator = typename EnergyValueContainerType::iterator;
+  using EnergyValueConstIterator = typename EnergyValueContainerType::const_iterator;
 
   /** Add energy value */
-  virtual void AddEnergyValue( const EnergyValueType ) ITK_OVERRIDE;
+  void
+  AddEnergyValue(const EnergyValueType) override;
 
   /* Clear energy values and set total energy to 0 */
-  virtual void ClearEnergyValues() ITK_OVERRIDE;
+  void
+  ClearEnergyValues() override;
 
   /** Set/Get window size over which the convergence value is calculated */
-  itkSetMacro( WindowSize, EnergyValueContainerSizeType );
-  itkGetConstMacro( WindowSize, EnergyValueContainerSizeType );
+  itkSetMacro(WindowSize, EnergyValueContainerSizeType);
+  itkGetConstMacro(WindowSize, EnergyValueContainerSizeType);
 
   /** Calculate convergence value by fitting to a window of the enrgy profile */
-  virtual RealType GetConvergenceValue() const ITK_OVERRIDE;
+  RealType
+  GetConvergenceValue() const override;
 
 protected:
   WindowConvergenceMonitoringFunction();
 
-  ~WindowConvergenceMonitoringFunction() ITK_OVERRIDE;
+  ~WindowConvergenceMonitoringFunction() override = default;
 
-  void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(WindowConvergenceMonitoringFunction);
+  EnergyValueContainerSizeType m_WindowSize;
 
-  EnergyValueContainerSizeType                   m_WindowSize;
-
-  RealType                                       m_TotalEnergy;
-
+  RealType m_TotalEnergy;
 };
-} // end namespace function
+} // end namespace Function
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWindowConvergenceMonitoringFunction.hxx"
+#  include "itkWindowConvergenceMonitoringFunction.hxx"
 #endif
 
 #endif

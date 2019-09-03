@@ -18,19 +18,18 @@
 
 #include "itkLevelSetDomainMapImageFilter.h"
 
-int itkLevelSetDomainMapImageFilterTest( int, char* [] )
+int
+itkLevelSetDomainMapImageFilterTest(int, char *[])
 {
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef std::list<int>                 ListPixelType;
-  typedef std::list<int>::const_iterator ListIteratorType;
+  using ListPixelType = std::list<int>;
 
-  typedef itk::Image< ListPixelType, Dimension >   InputImageType;
-  typedef itk::Image< unsigned short, Dimension >  OutputImageType;
+  using InputImageType = itk::Image<ListPixelType, Dimension>;
+  using OutputImageType = itk::Image<unsigned short, Dimension>;
 
-  typedef itk::LevelSetDomainMapImageFilter< InputImageType, OutputImageType >
-                                                  DomainMapImageFilterType;
-  typedef DomainMapImageFilterType::DomainMapType DomainMapType;
+  using DomainMapImageFilterType = itk::LevelSetDomainMapImageFilter<InputImageType, OutputImageType>;
+  using DomainMapType = DomainMapImageFilterType::DomainMapType;
 
   InputImageType::IndexType index;
   index[0] = 0;
@@ -41,75 +40,75 @@ int itkLevelSetDomainMapImageFilterTest( int, char* [] )
   size[1] = 10;
 
   InputImageType::RegionType region;
-  region.SetIndex( index );
-  region.SetSize( size );
+  region.SetIndex(index);
+  region.SetSize(size);
 
   ListPixelType l;
 
   InputImageType::Pointer input = InputImageType::New();
-  input->SetRegions( region );
+  input->SetRegions(region);
   input->Allocate();
-  input->FillBuffer( l );
+  input->FillBuffer(l);
 
-  for( unsigned int i = 0; i < 10; i++ )
-    {
+  for (unsigned int i = 0; i < 10; i++)
+  {
     ListPixelType ll;
     ll.push_back(i);
-    ll.push_back(i+1);
+    ll.push_back(i + 1);
 
     index[0] = index[1] = i;
-    input->SetPixel( index, ll );
-    }
+    input->SetPixel(index, ll);
+  }
 
   DomainMapImageFilterType::Pointer filter = DomainMapImageFilterType::New();
-  filter->SetInput( input );
+  filter->SetInput(input);
   filter->Update();
 
   OutputImageType::Pointer output = filter->GetOutput();
 
-  typedef itk::ImageRegionConstIteratorWithIndex<OutputImageType > OutputImageIteratorType;
-  OutputImageIteratorType it( output, output->GetLargestPossibleRegion() );
+  using OutputImageIteratorType = itk::ImageRegionConstIteratorWithIndex<OutputImageType>;
+  OutputImageIteratorType it(output, output->GetLargestPossibleRegion());
 
   it.GoToBegin();
 
   OutputImageType::IndexType out_index;
   OutputImageType::PixelType out_id;
 
-  const DomainMapType domainMap  = filter->GetDomainMap();
-  DomainMapType::const_iterator mapIt;
+  const DomainMapType                 domainMap = filter->GetDomainMap();
+  DomainMapType::const_iterator       mapIt;
   const DomainMapType::const_iterator mapEnd = domainMap.end();
-  while( !it.IsAtEnd() )
-    {
+  while (!it.IsAtEnd())
+  {
     out_index = it.GetIndex();
     out_id = it.Get();
 
-    if( out_id > 0 )
+    if (out_id > 0)
+    {
+      std::cout << "*** " << std::endl;
+      std::cout << out_index << " # " << out_id << std::endl;
+      mapIt = domainMap.find(out_id);
+      if (mapIt != mapEnd)
       {
-      std::cout << "*** " <<std::endl;
-      std::cout << out_index << " # " << out_id <<std::endl;
-      mapIt = domainMap.find( out_id );
-      if( mapIt != mapEnd )
-        {
         const InputImageType::RegionType domainMapRegion = *(mapIt->second.GetRegion());
         std::cout << domainMapRegion;
 
         const ListPixelType * lout = mapIt->second.GetIdList();
-        if( lout->empty() )
-          {
+        if (lout->empty())
+        {
           return EXIT_FAILURE;
-          }
+        }
         else
+        {
+          for (const auto & lIt : *lout)
           {
-          for( ListIteratorType lIt = lout->begin(); lIt != lout->end(); ++lIt )
-            {
-            std::cout << *lIt << " ";
-            }
-          std::cout << std::endl;
+            std::cout << lIt << " ";
           }
+          std::cout << std::endl;
         }
-        }
-    ++it;
+      }
     }
+    ++it;
+  }
 
   return EXIT_SUCCESS;
 }

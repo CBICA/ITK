@@ -19,6 +19,7 @@
 #define itkFloatingPointExceptions_h
 
 #include "itkMacro.h" // for ITKCommon_EXPORT
+#include "itkSingletonMacro.h"
 
 namespace itk
 {
@@ -28,38 +29,69 @@ namespace itk
  * Allows floating point exceptions to be caught during program execution.
  * \ingroup ITKCommon
  */
+
+struct ExceptionGlobals;
+
 class ITKCommon_EXPORT FloatingPointExceptions
 {
 public:
   /** defines what should happen when exceptions occur */
-  typedef enum { ABORT, EXIT } ExceptionAction;
-  /** Enable floating point exceptions */
-  static void Enable();
+  using ExceptionAction = enum { ABORT, EXIT };
 
-  /** Disable floating point exceptions. */
-  static void Disable();
+  /** Enable floating point exceptions.
+   *
+   * If floating point exceptions are not supported on the platform, the program
+   * will either abort or exit displaying the error message `FloatingPointExceptions
+   * are not supported on this platform.`.
+   *
+   * Choice between Exit or Abort is based on the value returned by
+   * based GetExceptionAction().
+   *
+   * \sa Disable, SetEnabled, GetEnabled
+   */
+  static void
+  Enable();
+
+  /** Disable floating point exceptions.
+   *
+   * \sa Enable, SetEnabled, GetEnabled
+   */
+  static void
+  Disable();
 
   /** Return the current state of FP Exceptions */
-  static bool GetEnabled();
-  /** Set the state to specified value */
-  static void SetEnabled(bool val);
+  static bool
+  GetEnabled();
+
+  /** Set the state to specified value.
+   *
+   * \sa Enable, Disable, GetEnabled
+   */
+  static void
+  SetEnabled(bool val);
 
   /** Control whether exit(255) or abort() is called on an exception */
-  static void SetExceptionAction(ExceptionAction a);
+  static void
+  SetExceptionAction(ExceptionAction a);
 
   /** Access current ExceptionAction */
-  static ExceptionAction GetExceptionAction();
+  static ExceptionAction
+  GetExceptionAction();
+
+  /** Return if floating point exceptions are supported on this platform */
+  static bool
+  HasFloatingPointExceptionsSupport();
 
 private:
-  FloatingPointExceptions();                                // Not implemented.
-  FloatingPointExceptions(const FloatingPointExceptions &); // Not
-                                                            // implemented.
-  void operator=(const FloatingPointExceptions &);          // Not implemented.
+  FloatingPointExceptions() = default;
+  FloatingPointExceptions(const FloatingPointExceptions &) = delete;
+  void
+  operator=(const FloatingPointExceptions &) = delete;
 
+  itkGetGlobalDeclarationMacro(ExceptionGlobals, PimplGlobals);
   /** static member that controls what happens during an exception */
-  static ExceptionAction m_ExceptionAction;
-  static bool            m_Enabled;
+  static ExceptionGlobals * m_PimplGlobals;
 };
-}
+} // namespace itk
 
 #endif

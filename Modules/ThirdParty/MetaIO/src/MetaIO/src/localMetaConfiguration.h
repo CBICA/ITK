@@ -15,12 +15,6 @@
 #ifdef METAIO_NAMESPACE
   #undef METAIO_NAMESPACE
 #endif
-#ifdef METAIO_STL
-  #undef METAIO_STL
-#endif
-#ifdef METAIO_STREAM
-  #undef METAIO_STREAM
-#endif
 #ifdef METAIO_EXPORT
   #undef METAIO_EXPORT
 #endif
@@ -35,8 +29,6 @@
 
   #include "itk_zlib.h"
 
-  #define METAIO_STL    std
-  #define METAIO_STREAM std
   #include <iostream>
   #include <fstream>
 
@@ -50,13 +42,11 @@
 
   #include "vtk_zlib.h"
 
-  #define METAIO_STL    std
-  #define METAIO_STREAM std
   #include <iostream>
   #include <fstream>
 
   #if defined(_WIN32) && defined(vtkmetaio_BUILD_SHARED_LIBS)
-    #ifdef vtkmetaio_EXPORTS
+    #ifdef metaio_EXPORTS
       #define METAIO_EXPORT __declspec(dllexport)
       #define METAIO_EXTERN
     #else

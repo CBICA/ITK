@@ -23,31 +23,32 @@
 #include "itkImageRegionIteratorWithIndex.h"
 
 
-int itkBinaryMask3DQuadEdgeMeshSourceTest(int, char *[])
+int
+itkBinaryMask3DQuadEdgeMeshSourceTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
   // Declare the types of the output images
-  typedef itk::Image<unsigned short,   Dimension>   ImageType;
+  using ImageType = itk::Image<unsigned short, Dimension>;
 
   // Declare the type of the index,size and region to initialize images
-  typedef itk::Index<Dimension>                     IndexType;
-  typedef itk::Size<Dimension>                      SizeType;
-  typedef itk::ImageRegion<Dimension>               RegionType;
-  typedef ImageType::PixelType                      PixelType;
+  using IndexType = itk::Index<Dimension>;
+  using SizeType = itk::Size<Dimension>;
+  using RegionType = itk::ImageRegion<Dimension>;
+  using PixelType = ImageType::PixelType;
 
-  typedef itk::ImageRegionIteratorWithIndex<ImageType> IteratorType;
+  using IteratorType = itk::ImageRegionIteratorWithIndex<ImageType>;
 
   // Declare the type of the Mesh
-  typedef itk::QuadEdgeMesh<double, 3>              MeshType;
-  typedef MeshType::PointType                       PointType;
+  using MeshType = itk::QuadEdgeMesh<double, 3>;
+  using PointType = MeshType::PointType;
 
-  typedef itk::BinaryMask3DMeshSource< ImageType, MeshType >   MeshSourceType;
+  using MeshSourceType = itk::BinaryMask3DMeshSource<ImageType, MeshType>;
 
-  const PixelType backgroundValue = 0;
-  const PixelType internalValue   = 1;
+  constexpr PixelType backgroundValue = 0;
+  constexpr PixelType internalValue = 1;
 
   SizeType size;
   size[0] = 128;
@@ -58,17 +59,17 @@ int itkBinaryMask3DQuadEdgeMeshSourceTest(int, char *[])
   start.Fill(0);
 
   RegionType region;
-  region.SetSize( size );
-  region.SetIndex( start );
+  region.SetSize(size);
+  region.SetIndex(start);
 
   ImageType::Pointer image = ImageType::New();
 
-  image->SetRegions( region );
+  image->SetRegions(region);
   image->Allocate();
 
-  image->FillBuffer( backgroundValue );
+  image->FillBuffer(backgroundValue);
 
-  IteratorType it( image, region );
+  IteratorType it(image, region);
   it.GoToBegin();
 
   PointType             point;
@@ -80,41 +81,40 @@ int itkBinaryMask3DQuadEdgeMeshSourceTest(int, char *[])
   centralIndex[1] += size[1] / 2;
   centralIndex[2] += size[2] / 2;
 
-  image->TransformIndexToPhysicalPoint( centralIndex, center );
+  image->TransformIndexToPhysicalPoint(centralIndex, center);
 
   //
   //  Create a digitized sphere in the middle of the image.
   //
-  while( !it.IsAtEnd() )
-    {
-    image->TransformIndexToPhysicalPoint( it.GetIndex(), point );
+  while (!it.IsAtEnd())
+  {
+    image->TransformIndexToPhysicalPoint(it.GetIndex(), point);
     radial = point - center;
-    if ( radial.GetNorm() < 60.0)
-      {
-      it.Set( internalValue );
-      }
-    ++it;
+    if (radial.GetNorm() < 60.0)
+    {
+      it.Set(internalValue);
     }
+    ++it;
+  }
 
   MeshSourceType::Pointer meshSource = MeshSourceType::New();
 
-  meshSource->SetInput( image );
-  meshSource->SetObjectValue( internalValue );
+  meshSource->SetInput(image);
+  meshSource->SetObjectValue(internalValue);
 
   try
-    {
+  {
     meshSource->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Exception thrown during Update() " << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << meshSource->GetNumberOfNodes() << std::endl;
   std::cout << meshSource->GetNumberOfCells() << std::endl;
 
   return EXIT_SUCCESS;
-
 }

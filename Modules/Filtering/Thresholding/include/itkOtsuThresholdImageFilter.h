@@ -41,27 +41,27 @@ namespace itk
  * https://hdl.handle.net/10380/3279  or
  * http://www.insight-journal.org/browse/publication/811
  *
- * \wiki
- * \wikiexample{Segmentation/OtsuThresholdImageFilter,Separate foreground and background using Otsu's method}
- * \endwiki
- *
  * \sa HistogramThresholdImageFilter
  *
  * \ingroup Multithreaded
  * \ingroup ITKThresholding
+ *
+ * \sphinx
+ * \sphinxexample{Filtering/Thresholding/SeparateGroundUsingOtsu,Separate Foreround And Background Using Otsu Method}
+ * \endsphinx
  */
 
-template<typename TInputImage, typename TOutputImage, typename TMaskImage=TOutputImage>
-class OtsuThresholdImageFilter :
-    public HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>
+template <typename TInputImage, typename TOutputImage, typename TMaskImage = TOutputImage>
+class OtsuThresholdImageFilter : public HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>
 {
 public:
-  /** Standard Self typedef */
-  typedef OtsuThresholdImageFilter                                    Self;
-  typedef HistogramThresholdImageFilter<TInputImage,TOutputImage,
-                                        TMaskImage>                   Superclass;
-  typedef SmartPointer<Self>                                          Pointer;
-  typedef SmartPointer<const Self>                                    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OtsuThresholdImageFilter);
+
+  /** Standard Self type alias */
+  using Self = OtsuThresholdImageFilter;
+  using Superclass = HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -69,47 +69,60 @@ public:
   /** Runtime information support. */
   itkTypeMacro(OtsuThresholdImageFilter, HistogramThresholdImageFilter);
 
-  typedef TInputImage                       InputImageType;
-  typedef TOutputImage                      OutputImageType;
-  typedef TMaskImage                        MaskImageType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using MaskImageType = TMaskImage;
 
-  /** Image pixel value typedef. */
-  typedef typename InputImageType::PixelType   InputPixelType;
-  typedef typename OutputImageType::PixelType  OutputPixelType;
-  typedef typename MaskImageType::PixelType    MaskPixelType;
+  /** Image pixel value type alias. */
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using MaskPixelType = typename MaskImageType::PixelType;
 
-  /** Image related typedefs. */
-  typedef typename InputImageType::Pointer  InputImagePointer;
-  typedef typename OutputImageType::Pointer OutputImagePointer;
+  /** Image related type alias. */
+  using InputImagePointer = typename InputImageType::Pointer;
+  using OutputImagePointer = typename OutputImageType::Pointer;
 
-  typedef typename InputImageType::SizeType    InputSizeType;
-  typedef typename InputImageType::IndexType   InputIndexType;
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef typename OutputImageType::SizeType   OutputSizeType;
-  typedef typename OutputImageType::IndexType  OutputIndexType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename MaskImageType::SizeType     MaskSizeType;
-  typedef typename MaskImageType::IndexType    MaskIndexType;
-  typedef typename MaskImageType::RegionType   MaskImageRegionType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using InputIndexType = typename InputImageType::IndexType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+  using OutputIndexType = typename OutputImageType::IndexType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using MaskSizeType = typename MaskImageType::SizeType;
+  using MaskIndexType = typename MaskImageType::IndexType;
+  using MaskImageRegionType = typename MaskImageType::RegionType;
 
-  typedef typename Superclass::HistogramType                          HistogramType;
-  typedef OtsuThresholdCalculator< HistogramType, InputPixelType > CalculatorType;
+  using HistogramType = typename Superclass::HistogramType;
+  using CalculatorType = OtsuThresholdCalculator<HistogramType, InputPixelType>;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      InputImageType::ImageDimension );
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      OutputImageType::ImageDimension );
+  /** Image related type alias. */
+  static constexpr unsigned int InputImageDimension = InputImageType::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = OutputImageType::ImageDimension;
+
+  /** Should the threshold value be mid-point of the bin or the maximum?
+   * Default is to return bin maximum. */
+  itkSetMacro(ReturnBinMidpoint, bool);
+  itkGetConstReferenceMacro(ReturnBinMidpoint, bool);
+  itkBooleanMacro(ReturnBinMidpoint);
 
 protected:
-  OtsuThresholdImageFilter()
-    {
-    this->SetCalculator( CalculatorType::New() );
-    }
-  ~OtsuThresholdImageFilter() ITK_OVERRIDE {};
+  OtsuThresholdImageFilter() { this->SetCalculator(CalculatorType::New()); }
+  ~OtsuThresholdImageFilter() override = default;
+
+  void
+  GenerateData() override
+  {
+    auto calc = static_cast<CalculatorType *>(this->GetModifiableCalculator());
+    calc->SetReturnBinMidpoint(m_ReturnBinMidpoint);
+    this->Superclass::GenerateData();
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OtsuThresholdImageFilter);
+#if defined(ITKV4_COMPATIBILITY)
+  bool m_ReturnBinMidpoint{ true };
+#else
+  bool m_ReturnBinMidpoint{ false };
+#endif
 };
 
 } // end namespace itk

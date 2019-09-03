@@ -42,17 +42,18 @@ namespace itk
  * \ingroup RegistrationMetrics
  * \ingroup ITKRegistrationCommon
  */
-template< typename TFixedImage, typename TMovingImage >
-class ITK_TEMPLATE_EXPORT MeanReciprocalSquareDifferenceImageToImageMetric:
-  public ImageToImageMetric< TFixedImage, TMovingImage >
+template <typename TFixedImage, typename TMovingImage>
+class ITK_TEMPLATE_EXPORT MeanReciprocalSquareDifferenceImageToImageMetric
+  : public ImageToImageMetric<TFixedImage, TMovingImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(MeanReciprocalSquareDifferenceImageToImageMetric);
 
-  /** Standard class typedefs. */
-  typedef MeanReciprocalSquareDifferenceImageToImageMetric Self;
-  typedef ImageToImageMetric< TFixedImage, TMovingImage >  Superclass;
-  typedef SmartPointer< Self >                             Pointer;
-  typedef SmartPointer< const Self >                       ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MeanReciprocalSquareDifferenceImageToImageMetric;
+  using Superclass = ImageToImageMetric<TFixedImage, TMovingImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,30 +62,33 @@ public:
   itkTypeMacro(MeanReciprocalSquareDifferenceImageToImageMetric, ImageToImageMetric);
 
   /** Types transferred from the base class */
-  typedef typename Superclass::TransformType           TransformType;
-  typedef typename Superclass::TransformPointer        TransformPointer;
-  typedef typename Superclass::TransformParametersType TransformParametersType;
-  typedef typename Superclass::TransformJacobianType   TransformJacobianType;
-  typedef typename Superclass::InputPointType          InputPointType;
-  typedef typename Superclass::OutputPointType         OutputPointType;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformParametersType = typename Superclass::TransformParametersType;
+  using TransformJacobianType = typename Superclass::TransformJacobianType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
 
-  typedef typename Superclass::MeasureType             MeasureType;
-  typedef typename Superclass::DerivativeType          DerivativeType;
-  typedef typename Superclass::FixedImageType          FixedImageType;
-  typedef typename Superclass::MovingImageType         MovingImageType;
-  typedef typename Superclass::FixedImageConstPointer  FixedImageConstPointer;
-  typedef typename Superclass::MovingImageConstPointer MovingImageConstPointer;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using FixedImageConstPointer = typename Superclass::FixedImageConstPointer;
+  using MovingImageConstPointer = typename Superclass::MovingImageConstPointer;
 
   /** Get the derivatives of the match measure. */
-  void GetDerivative(const TransformParametersType & parameters,
-                     DerivativeType  & derivative) const ITK_OVERRIDE;
+  void
+  GetDerivative(const TransformParametersType & parameters, DerivativeType & derivative) const override;
 
   /**  Get the value for single valued optimizers. */
-  MeasureType GetValue(const TransformParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  GetValue(const TransformParametersType & parameters) const override;
 
   /**  Get value and derivatives for multiple valued optimizers. */
-  void GetValueAndDerivative(const TransformParametersType & parameters,
-                             MeasureType & Value, DerivativeType & derivative) const ITK_OVERRIDE;
+  void
+  GetValueAndDerivative(const TransformParametersType & parameters,
+                        MeasureType &                   Value,
+                        DerivativeType &                derivative) const override;
 
   /** Set/Get Lambda value. This factor regulates the capture radius of
       this metric */
@@ -98,24 +102,18 @@ public:
 
 protected:
   MeanReciprocalSquareDifferenceImageToImageMetric();
-  virtual ~MeanReciprocalSquareDifferenceImageToImageMetric() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MeanReciprocalSquareDifferenceImageToImageMetric() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  MeanReciprocalSquareDifferenceImageToImageMetric(const Self &); //purposely
-                                                                  // not
-                                                                  // implemented
-  void operator=(const Self &);                                   //purposely
-                                                                  // not
-                                                                  // implemented
-
   double m_Lambda;
   double m_Delta;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMeanReciprocalSquareDifferenceImageToImageMetric.hxx"
+#  include "itkMeanReciprocalSquareDifferenceImageToImageMetric.hxx"
 #endif
 
 #endif

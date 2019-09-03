@@ -39,16 +39,17 @@ namespace itk
  *
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = float >
-class ITK_TEMPLATE_EXPORT BinaryThresholdImageFunction:
-  public ImageFunction< TInputImage, bool, TCoordRep >
+template <typename TInputImage, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT BinaryThresholdImageFunction : public ImageFunction<TInputImage, bool, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryThresholdImageFunction                  Self;
-  typedef ImageFunction< TInputImage, bool, TCoordRep > Superclass;
-  typedef SmartPointer< Self >                          Pointer;
-  typedef SmartPointer< const Self >                    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryThresholdImageFunction);
+
+  /** Standard class type aliases. */
+  using Self = BinaryThresholdImageFunction;
+  using Superclass = ImageFunction<TInputImage, bool, TCoordRep>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(BinaryThresholdImageFunction, ImageFunction);
@@ -56,23 +57,23 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = typename Superclass::InputImageType;
 
   /** Typedef to describe the type of pixel. */
-  typedef typename TInputImage::PixelType PixelType;
+  using PixelType = typename TInputImage::PixelType;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
   /** BinaryThreshold the image at a point position
    *
@@ -83,12 +84,13 @@ public:
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
 
-  virtual bool Evaluate(const PointType & point) const ITK_OVERRIDE
+  bool
+  Evaluate(const PointType & point) const override
   {
     IndexType index;
 
     this->ConvertPointToNearestIndex(point, index);
-    return ( this->EvaluateAtIndex(index) );
+    return (this->EvaluateAtIndex(index));
   }
 
   /** BinaryThreshold the image at a continuous index position
@@ -99,12 +101,12 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual bool EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const ITK_OVERRIDE
+  bool
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const override
   {
     IndexType nindex;
 
-    this->ConvertContinuousIndexToNearestIndex (index, nindex);
+    this->ConvertContinuousIndexToNearestIndex(index, nindex);
     return this->EvaluateAtIndex(nindex);
   }
 
@@ -116,11 +118,12 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual bool EvaluateAtIndex(const IndexType & index) const ITK_OVERRIDE
+  bool
+  EvaluateAtIndex(const IndexType & index) const override
   {
     PixelType value = this->GetInputImage()->GetPixel(index);
 
-    return ( m_Lower <= value && value <= m_Upper );
+    return (m_Lower <= value && value <= m_Upper);
   }
 
   /** Get the lower threshold value. */
@@ -130,29 +133,31 @@ public:
   itkGetConstReferenceMacro(Upper, PixelType);
 
   /** Values greater than or equal to the value are inside. */
-  void ThresholdAbove(PixelType thresh);
+  void
+  ThresholdAbove(PixelType thresh);
 
   /** Values less than or equal to the value are inside. */
-  void ThresholdBelow(PixelType thresh);
+  void
+  ThresholdBelow(PixelType thresh);
 
   /** Values that lie between lower and upper inclusive are inside. */
-  void ThresholdBetween(PixelType lower, PixelType upper);
+  void
+  ThresholdBetween(PixelType lower, PixelType upper);
 
 protected:
   BinaryThresholdImageFunction();
-  ~BinaryThresholdImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryThresholdImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryThresholdImageFunction);
-
   PixelType m_Lower;
   PixelType m_Upper;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryThresholdImageFunction.hxx"
+#  include "itkBinaryThresholdImageFunction.hxx"
 #endif
 
 #endif

@@ -37,23 +37,29 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TInternalType, typename TExternalType >
+template <typename TInternalType, typename TExternalType>
 class RGBToLuminancePixelAccessor
 {
 public:
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef TExternalType ExternalType;
+  using ExternalType = TExternalType;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data. */
-  typedef TInternalType InternalType;
+  using InternalType = TInternalType;
 
-  static inline void Set(TInternalType & output, const TExternalType & input)
-  { output = static_cast< TInternalType >( input.GetLuminance() ); }
+  static inline void
+  Set(TInternalType & output, const TExternalType & input)
+  {
+    output = static_cast<TInternalType>(input.GetLuminance());
+  }
 
-  static inline TExternalType Get(const TInternalType & input)
-  { return static_cast< TExternalType >( input.GetLuminance() ); }
+  static inline TExternalType
+  Get(const TInternalType & input)
+  {
+    return static_cast<TExternalType>(input.GetLuminance());
+  }
 };
 } // end namespace Accessor
 
@@ -67,21 +73,19 @@ public:
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TImage, typename TOutputPixelType >
-class RGBToLuminanceImageAdaptor:public
-  ImageAdaptor< TImage,
-                Accessor::RGBToLuminancePixelAccessor<
-                  typename TImage::PixelType,
-                  TOutputPixelType >   >
+template <typename TImage, typename TOutputPixelType>
+class RGBToLuminanceImageAdaptor
+  : public ImageAdaptor<TImage, Accessor::RGBToLuminancePixelAccessor<typename TImage::PixelType, TOutputPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RGBToLuminanceImageAdaptor Self;
-  typedef ImageAdaptor< TImage, Accessor::RGBToLuminancePixelAccessor<
-                          typename TImage::PixelType,
-                          TOutputPixelType > >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RGBToLuminanceImageAdaptor);
+
+  /** Standard class type aliases. */
+  using Self = RGBToLuminanceImageAdaptor;
+  using Superclass =
+    ImageAdaptor<TImage, Accessor::RGBToLuminancePixelAccessor<typename TImage::PixelType, TOutputPixelType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -90,11 +94,8 @@ public:
   itkTypeMacro(RGBToLuminanceImageAdaptor, ImageAdaptor);
 
 protected:
-  RGBToLuminanceImageAdaptor() {}
-  virtual ~RGBToLuminanceImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RGBToLuminanceImageAdaptor);
+  RGBToLuminanceImageAdaptor() = default;
+  ~RGBToLuminanceImageAdaptor() override = default;
 };
 } // end namespace itk
 

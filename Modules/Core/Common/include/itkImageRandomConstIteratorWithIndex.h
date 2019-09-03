@@ -43,35 +43,35 @@ namespace itk
  *
  * This is the typical use of this iterator in a loop:
  *
- * \code
- *
- * ImageRandomConstIteratorWithIndex<ImageType> it( image, image->GetRequestedRegion() );
- *
- * it.SetNumberOfSamples(200);
- * it.GoToBegin();
- * while( !it.IsAtEnd() )
- * {
- *   it.Get();
- *   ++it;  // here it jumps to another random position inside the region
- *  }
- *
- *  \endcode
+   \code
+
+   ImageRandomConstIteratorWithIndex<ImageType> it( image, image->GetRequestedRegion() );
+
+   it.SetNumberOfSamples(200);
+   it.GoToBegin();
+   while( !it.IsAtEnd() )
+   {
+     it.Get();
+     ++it;  // here it jumps to another random position inside the region
+    }
+
+    \endcode
  *
  * or
  *
- * \code
- *
- * ImageRandomConstIteratorWithIndex<ImageType> it( image, image->GetRequestedRegion() );
- *
- * it.SetNumberOfSamples(200);
- * it.GoToEnd();
- * while( !it.IsAtBegin() )
- * {
- *   it.Get();
- *   --it;  // here it jumps to another random position inside the region
- *  }
- *
- *  \endcode
+   \code
+
+   ImageRandomConstIteratorWithIndex<ImageType> it( image, image->GetRequestedRegion() );
+
+   it.SetNumberOfSamples(200);
+   it.GoToEnd();
+   while( !it.IsAtBegin() )
+   {
+     it.Get();
+     --it;  // here it jumps to another random position inside the region
+    }
+
+    \endcode
  *
  * \warning Incrementing the iterator (++it) followed by a decrement (--it)
  * or vice versa does not in general return the iterator to the same position.
@@ -108,40 +108,40 @@ namespace itk
  *
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Iterators/ImageRandomConstIteratorWithIndex,Randomly select pixels from a region of an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/RandomSelectOfPixelsFromRegion,Random Selection Of Pixels From Region}
+ * \endsphinx
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageRandomConstIteratorWithIndex:public ImageConstIteratorWithIndex< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageRandomConstIteratorWithIndex : public ImageConstIteratorWithIndex<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRandomConstIteratorWithIndex     Self;
-  typedef ImageConstIteratorWithIndex< TImage > Superclass;
+  /** Standard class type aliases. */
+  using Self = ImageRandomConstIteratorWithIndex;
+  using Superclass = ImageConstIteratorWithIndex<TImage>;
 
   /** Inherit types from the superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
-  typedef typename Superclass::IndexValueType        IndexValueType;
-  typedef typename Superclass::OffsetValueType       OffsetValueType;
-  typedef typename Superclass::SizeValueType         SizeValueType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
+  using IndexValueType = typename Superclass::IndexValueType;
+  using OffsetValueType = typename Superclass::OffsetValueType;
+  using SizeValueType = typename Superclass::SizeValueType;
 
   /** Default constructor. Needed since we provide a cast constructor. */
   ImageRandomConstIteratorWithIndex();
-  ~ImageRandomConstIteratorWithIndex() {}
+  ~ImageRandomConstIteratorWithIndex() override = default;
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageRandomConstIteratorWithIndex(const ImageType *ptr, const RegionType & region);
+  ImageRandomConstIteratorWithIndex(const ImageType * ptr, const RegionType & region);
 
   /** Constructor that can be used to cast from an ImageIterator to an
    * ImageRandomConstIteratorWithIndex. Many routines return an ImageIterator, but for a
@@ -149,40 +149,45 @@ public:
    * provide overloaded APIs that return different types of Iterators, itk
    * returns ImageIterators and uses constructors to cast from an
    * ImageIterator to a ImageRandomConstIteratorWithIndex. */
-  ImageRandomConstIteratorWithIndex(const ImageConstIteratorWithIndex< TImage > & it)
+  ImageRandomConstIteratorWithIndex(const ImageConstIteratorWithIndex<TImage> & it)
   {
-    this->ImageConstIteratorWithIndex< TImage >::operator=(it);
+    this->ImageConstIteratorWithIndex<TImage>::operator=(it);
   }
 
   /** Move an iterator to the beginning of the region. */
-  void GoToBegin(void)
+  void
+  GoToBegin()
   {
     this->RandomJump();
     m_NumberOfSamplesDone = 0L;
   }
 
   /** Move an iterator to one position past the End of the region. */
-  void GoToEnd(void)
+  void
+  GoToEnd()
   {
     this->RandomJump();
     m_NumberOfSamplesDone = m_NumberOfSamplesRequested;
   }
 
   /** Is the iterator at the beginning of the region? */
-  bool IsAtBegin(void) const
+  bool
+  IsAtBegin() const
   {
-    return ( m_NumberOfSamplesDone == 0L );
+    return (m_NumberOfSamplesDone == 0L);
   }
 
   /** Is the iterator at the end of the region? */
-  bool IsAtEnd(void) const
+  bool
+  IsAtEnd() const
   {
-    return ( m_NumberOfSamplesDone >= m_NumberOfSamplesRequested );
+    return (m_NumberOfSamplesDone >= m_NumberOfSamplesRequested);
   }
 
   /** Increment (prefix) the selected dimension.
    * No bounds checking is performed. \sa GetIndex \sa operator-- */
-  Self & operator++()
+  Self &
+  operator++()
   {
     this->RandomJump();
     m_NumberOfSamplesDone++;
@@ -191,7 +196,8 @@ public:
 
   /** Decrement (prefix) the selected dimension.
    * No bounds checking is performed. \sa GetIndex \sa operator++ */
-  Self & operator--()
+  Self &
+  operator--()
   {
     this->RandomJump();
     m_NumberOfSamplesDone--;
@@ -199,19 +205,24 @@ public:
   }
 
   /** Set/Get number of random samples to get from the image region */
-  void SetNumberOfSamples(SizeValueType number);
+  void
+  SetNumberOfSamples(SizeValueType number);
 
-  SizeValueType GetNumberOfSamples() const;
+  SizeValueType
+  GetNumberOfSamples() const;
 
   /** Reinitialize the seed of the random number generator  */
-  void ReinitializeSeed();
+  void
+  ReinitializeSeed();
 
-  void ReinitializeSeed(int);
+  void
+  ReinitializeSeed(int);
 
 private:
-  void RandomJump();
+  void
+  RandomJump();
 
-  typedef Statistics::MersenneTwisterRandomVariateGenerator::Pointer GeneratorPointer;
+  using GeneratorPointer = typename Statistics::MersenneTwisterRandomVariateGenerator::Pointer;
   GeneratorPointer m_Generator;
   SizeValueType    m_NumberOfSamplesRequested;
   SizeValueType    m_NumberOfSamplesDone;
@@ -220,7 +231,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRandomConstIteratorWithIndex.hxx"
+#  include "itkImageRandomConstIteratorWithIndex.hxx"
 #endif
 
 #endif

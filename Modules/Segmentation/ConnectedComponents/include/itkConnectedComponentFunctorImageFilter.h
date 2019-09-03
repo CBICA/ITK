@@ -50,56 +50,54 @@ namespace itk
  * \ingroup ITKConnectedComponents
  */
 
-template< typename TInputImage, typename TOutputImage, typename TFunctor, typename TMaskImage = TInputImage >
-class ITK_TEMPLATE_EXPORT ConnectedComponentFunctorImageFilter:
-  public ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage >
+template <typename TInputImage, typename TOutputImage, typename TFunctor, typename TMaskImage = TInputImage>
+class ITK_TEMPLATE_EXPORT ConnectedComponentFunctorImageFilter
+  : public ConnectedComponentImageFilter<TInputImage, TOutputImage, TMaskImage>
 {
 public:
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef ConnectedComponentFunctorImageFilter                                   Self;
-  typedef ConnectedComponentImageFilter< TInputImage, TOutputImage, TMaskImage > Superclass;
+  using Self = ConnectedComponentFunctorImageFilter;
+  using Superclass = ConnectedComponentImageFilter<TInputImage, TOutputImage, TMaskImage>;
 
   /**
    * Types from the Superclass
    */
-  typedef typename Superclass::InputImagePointer InputImagePointer;
+  using InputImagePointer = typename Superclass::InputImagePointer;
 
   /**
    * Extract some information from the image types.  Dimensionality
    * of the two images is assumed to be the same.
    */
-  typedef typename TOutputImage::PixelType         OutputPixelType;
-  typedef typename TOutputImage::InternalPixelType OutputInternalPixelType;
-  typedef typename TInputImage::PixelType          InputPixelType;
-  typedef typename TInputImage::InternalPixelType  InputInternalPixelType;
-  typedef typename TMaskImage::PixelType           MaskPixelType;
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using OutputInternalPixelType = typename TOutputImage::InternalPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputInternalPixelType = typename TInputImage::InternalPixelType;
+  using MaskPixelType = typename TMaskImage::PixelType;
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
 
   /**
-   * Image typedef support
+   * Image type alias support
    */
-  typedef TFunctor     FunctorType;
-  typedef TInputImage  InputImageType;
-  typedef TMaskImage   MaskImageType;
-  typedef TOutputImage OutputImageType;
+  using FunctorType = TFunctor;
+  using InputImageType = TInputImage;
+  using MaskImageType = TMaskImage;
+  using OutputImageType = TOutputImage;
 
-  typedef   typename TInputImage::IndexType   IndexType;
-  typedef   typename TInputImage::SizeType    SizeType;
-  typedef   typename TOutputImage::RegionType RegionType;
-  typedef   std::list< IndexType >            ListType;
+  using IndexType = typename TInputImage::IndexType;
+  using SizeType = typename TInputImage::SizeType;
+  using RegionType = typename TOutputImage::RegionType;
+  using ListType = std::list<IndexType>;
 
-  typedef typename MaskImageType::Pointer MaskImagePointer;
+  using MaskImagePointer = typename MaskImageType::Pointer;
 
   /**
-   * Smart pointer typedef support
+   * Smart pointer type alias support
    */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**
    * Run-time type information (and related methods)
@@ -115,8 +113,16 @@ public:
    * (Functors do not have to derive from itk::LightObject, so they do
    * not necessarily have a reference count. So we cannot return a
    * SmartPointer.) */
-  FunctorType &       GetFunctor() { return m_Functor; }
-  const FunctorType & GetFunctor() const { return m_Functor; }
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
+  const FunctorType &
+  GetFunctor() const
+  {
+    return m_Functor;
+  }
 
   /** Set the functor object.  This replaces the current Functor with a
    * copy of the specified Functor. This allows the user to specify a
@@ -124,7 +130,8 @@ public:
    * This method requires an operator!=() be defined on the functor
    * (or the compiler's default implementation of operator!=() being
    * appropriate). */
-  void SetFunctor(const FunctorType & functor)
+  void
+  SetFunctor(const FunctorType & functor)
   {
     m_Functor = functor;
     this->Modified();
@@ -132,28 +139,20 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, ImageDimension > ) );
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputPixelType > ) );
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputPixelType > ) );
-  itkConceptMacro( OutputConvertibleToUnsignedIntCheck,
-                   ( Concept::Convertible< OutputPixelType, unsigned int > ) );
-  itkConceptMacro( OutputConvertibleToUnsignedLongCheck,
-                   ( Concept::Convertible< OutputPixelType, unsigned long > ) );
-  itkConceptMacro( OutputConvertibleToLongCheck,
-                   ( Concept::Convertible< OutputPixelType, long > ) );
-  itkConceptMacro( UnsignedLongConvertibleToOutputCheck,
-                   ( Concept::Convertible< unsigned long, OutputPixelType > ) );
-  itkConceptMacro( OutputIncrementDecrementOperatorsCheck,
-                   ( Concept::IncrementDecrementOperators< OutputPixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, ImageDimension>));
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputPixelType>));
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputPixelType>));
+  itkConceptMacro(OutputConvertibleToUnsignedIntCheck, (Concept::Convertible<OutputPixelType, unsigned int>));
+  itkConceptMacro(OutputConvertibleToUnsignedLongCheck, (Concept::Convertible<OutputPixelType, unsigned long>));
+  itkConceptMacro(OutputConvertibleToLongCheck, (Concept::Convertible<OutputPixelType, long>));
+  itkConceptMacro(UnsignedLongConvertibleToOutputCheck, (Concept::Convertible<unsigned long, OutputPixelType>));
+  itkConceptMacro(OutputIncrementDecrementOperatorsCheck, (Concept::IncrementDecrementOperators<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  ConnectedComponentFunctorImageFilter() {}
-  virtual ~ConnectedComponentFunctorImageFilter() ITK_OVERRIDE {}
+  ConnectedComponentFunctorImageFilter() = default;
+  ~ConnectedComponentFunctorImageFilter() override = default;
   ConnectedComponentFunctorImageFilter(const Self &) {}
 
   FunctorType m_Functor;
@@ -161,12 +160,13 @@ protected:
   /**
    * Standard pipeline method.
    */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConnectedComponentFunctorImageFilter.hxx"
+#  include "itkConnectedComponentFunctorImageFilter.hxx"
 #endif
 
 #endif

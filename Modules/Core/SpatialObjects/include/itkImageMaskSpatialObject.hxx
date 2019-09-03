@@ -20,307 +20,233 @@
 
 #include "itkMath.h"
 #include "itkImageMaskSpatialObject.h"
-#include "itkImageRegionConstIteratorWithIndex.h"
+#include "itkImageRegionRange.h"
+
+#include <cstdint> // For uintmax_t.
 
 namespace itk
 {
 /** Constructor */
-template< unsigned int TDimension >
-ImageMaskSpatialObject< TDimension >
-::ImageMaskSpatialObject()
+template <unsigned int TDimension, typename TPixel>
+ImageMaskSpatialObject<TDimension, TPixel>::ImageMaskSpatialObject()
 {
   this->SetTypeName("ImageMaskSpatialObject");
-  this->ComputeBoundingBox();
 }
-
-/** Destructor */
-template< unsigned int TDimension >
-ImageMaskSpatialObject< TDimension >
-::~ImageMaskSpatialObject()
-{}
 
 /** Test whether a point is inside or outside the object
  *  For computational speed purposes, it is faster if the method does not
  *  check the name of the class and the current depth */
-template< unsigned int TDimension >
+template <unsigned int TDimension, typename TPixel>
 bool
-ImageMaskSpatialObject< TDimension >
-::IsInside(const PointType & point) const
+ImageMaskSpatialObject<TDimension, TPixel>::IsInsideInObjectSpace(const PointType & point) const
 {
-  if ( !this->GetBounds()->IsInside(point) )
-    {
-    return false;
-    }
-
-  if ( !this->SetInternalInverseTransformToWorldToIndexTransform() )
-    {
-    return false;
-    }
-
-  PointType p = this->GetInternalInverseTransform()->TransformPoint(point);
-
   typename Superclass::InterpolatorType::ContinuousIndexType index;
-  for ( unsigned int i = 0; i < TDimension; i++ )
+  if (this->GetImage()->TransformPhysicalPointToContinuousIndex(point, index))
+  {
+    using InterpolatorOutputType = typename InterpolatorType::OutputType;
+    bool insideMask = (Math::NotExactlyEquals(DefaultConvertPixelTraits<InterpolatorOutputType>::GetScalarValue(
+                                                this->GetInterpolator()->EvaluateAtContinuousIndex(index)),
+                                              NumericTraits<PixelType>::ZeroValue()));
+    if (insideMask)
     {
-    index[i] = p[i];
+      return true;
     }
+  }
 
-  const bool insideBuffer =
-    this->GetImage()->GetBufferedRegion().IsInside(index);
-
-  if ( !insideBuffer )
-    {
-    return false;
-    }
-
-  typedef typename InterpolatorType::OutputType InterpolatorOutputType;
-  const bool insideMask = (
-    Math::NotExactlyEquals( DefaultConvertPixelTraits<InterpolatorOutputType>::GetScalarValue(this->m_Interpolator->EvaluateAtContinuousIndex(index)),
-    NumericTraits<PixelType>::ZeroValue() ) );
-  return insideMask;
+  return false;
 }
 
-/** Return true if the given point is inside the image */
-template< unsigned int TDimension >
-bool
-ImageMaskSpatialObject< TDimension >
-::IsInside(const PointType & point, unsigned int depth, char *name) const
+
+template <unsigned int TDimension, typename TPixel>
+void
+ImageMaskSpatialObject<TDimension, TPixel>::ComputeMyBoundingBox()
 {
-  if ( name == ITK_NULLPTR )
-    {
-    if ( IsInside(point) )
-      {
-      return true;
-      }
-    }
-  else if ( strstr(typeid( Self ).name(), name) )
-    {
-    if ( IsInside(point) )
-      {
-      return true;
-      }
-    }
-  return SpatialObject< TDimension >::IsInside(point, depth, name);
-}
+  const ImageType * const image = this->GetImage();
+  itkAssertOrThrowMacro(image != nullptr, "Ensure that SetImage has been called!");
 
-template< unsigned int TDimension >
-typename ImageMaskSpatialObject< TDimension >::RegionType
-ImageMaskSpatialObject< TDimension >
-::GetAxisAlignedBoundingBoxRegion() const
-{
-  // We will use a slice iterator to iterate through slices orthogonal
-  // to each of the axis of the image to find the bounding box. Each
-  // slice iterator iterates from the outermost slice towards the image
-  // center till it finds a mask pixel. For a 3D image, there will be six
-  // slice iterators, iterating from the periphery inwards till the bounds
-  // along each axes are found. The slice iterators save time and avoid
-  // having to walk the whole image. Since we are using slice iterators,
-  // we will implement this only for 3D images.
+  const RegionType boundingBoxInIndexSpace{ this->ComputeMyBoundingBoxInIndexSpace() };
 
-  PixelType  outsideValue = NumericTraits< PixelType >::ZeroValue();
-  RegionType region;
+  BoundingBoxType * const boundingBoxInObjectSpace = this->GetModifiableMyBoundingBoxInObjectSpace();
 
-  ImagePointer image = this->GetImage();
+  // Assert should never fail as SpatialObject takes care of creating the BoundingBox.
+  assert(boundingBoxInObjectSpace != nullptr);
 
-  IndexType index;
-  SizeType  size;
-
-  for(unsigned int i(0); i < ImageType::ImageDimension; i++)
-    {
-    index[i] = 0;
-    size[i] = 0;
-    }
-
-  if ( ImageType::ImageDimension == 3 )
-    {
-    for ( unsigned int axis = 0; axis < ImageType::ImageDimension; axis++ )
-      {
-      // Two slice iterators along each axis...
-      // Find the orthogonal planes for the slices
-      unsigned int i, j;
-      unsigned int direction[2];
-      for ( i = 0, j = 0; i < 3; ++i )
-        {
-        if ( i != axis )
-          {
-          direction[j] = i;
-          j++;
-          }
-        }
-
-      // Create the forward iterator to find lower bound
-      SliceIteratorType fit( image,  image->GetRequestedRegion() );
-      fit.SetFirstDirection(direction[1]);
-      fit.SetSecondDirection(direction[0]);
-
-      fit.GoToBegin();
-      while ( !fit.IsAtEnd() )
-        {
-        while ( !fit.IsAtEndOfSlice() )
-          {
-          while ( !fit.IsAtEndOfLine() )
-            {
-            if ( fit.Get() != outsideValue )
-              {
-              index[axis] = fit.GetIndex()[axis];
-              fit.GoToReverseBegin(); // skip to the end
-              break;
-              }
-            ++fit;
-            }
-          fit.NextLine();
-          }
-        fit.NextSlice();
-        }
-
-      // Create the reverse iterator to find upper bound
-      SliceIteratorType rit( image,  image->GetRequestedRegion() );
-      rit.SetFirstDirection(direction[1]);
-      rit.SetSecondDirection(direction[0]);
-
-      rit.GoToReverseBegin();
-      while ( !rit.IsAtReverseEnd() )
-        {
-        while ( !rit.IsAtReverseEndOfSlice() )
-          {
-          while ( !rit.IsAtReverseEndOfLine() )
-            {
-            if ( rit.Get() != outsideValue )
-              {
-              size[axis] = rit.GetIndex()[axis] - index[axis] + 1;
-              rit.GoToBegin(); //Skip to reverse end
-              break;
-              }
-            --rit;
-            }
-          rit.PreviousLine();
-          }
-        rit.PreviousSlice();
-        }
-      }
-
-    region.SetIndex(index);
-    region.SetSize(size);
-    }
+  if (boundingBoxInIndexSpace.GetNumberOfPixels() == 0)
+  {
+    boundingBoxInObjectSpace->SetMinimum(PointType());
+    boundingBoxInObjectSpace->SetMaximum(PointType());
+  }
   else
+  {
+    using ContinuousIndexType = typename Superclass::ContinuousIndexType;
+    using VectorType = typename SpatialObject<TDimension>::VectorType;
+
+    const IndexType minIndex = boundingBoxInIndexSpace.GetIndex();
+
+    ContinuousIndexType minContinuousIndex{ minIndex };
+    ContinuousIndexType maxContinuousIndex{ minIndex + boundingBoxInIndexSpace.GetSize() };
+
+    // Allow a margin of half a pixel in each direction.
+    minContinuousIndex -= VectorType{ 0.5 };
+    maxContinuousIndex -= VectorType{ 0.5 };
+
+    // Initially set the corner point corresponding to the minimum index as
+    // both the minimum and maximum of the bounding box (in object space).
+    // Afterwards, all other corners are considered.
+    PointType firstPoint;
+    image->TransformContinuousIndexToPhysicalPoint(minContinuousIndex, firstPoint);
+    boundingBoxInObjectSpace->SetMinimum(firstPoint);
+    boundingBoxInObjectSpace->SetMaximum(firstPoint);
+
+    // The total number of corner points of the bounding box.
+    constexpr auto numberOfCorners = std::uintmax_t{ 1 } << TDimension;
+
+    for (std::uintmax_t cornerNumber{ 1 }; cornerNumber < numberOfCorners; ++cornerNumber)
     {
-    //itkExceptionMacro( << "ImageDimension must be 3!" );
-    typedef ImageRegionConstIteratorWithIndex< ImageType > IteratorType;
-    IteratorType it( image, image->GetRequestedRegion() );
-    it.GoToBegin();
+      // For each corner, estimate the n-dimensional index.
 
-    for ( unsigned int i = 0; i < ImageType::ImageDimension; ++i )
-      {
-      index[i] = image->GetRequestedRegion().GetSize(i);
-      size[i]  = image->GetRequestedRegion().GetIndex(i);
-      }
+      auto continuousIndex = minContinuousIndex;
 
-    while ( !it.IsAtEnd() )
+      for (unsigned dim{}; dim < TDimension; ++dim)
       {
-      if ( it.Get() != outsideValue )
+        const std::uintmax_t bitMask{ std::uintmax_t{ 1 } << dim };
+
+        if ((cornerNumber & bitMask) != 0)
         {
-        IndexType tmpIndex = it.GetIndex();
-        for ( unsigned int i = 0; i < ImageType::ImageDimension; ++i )
-          {
-          if ( index[i] > tmpIndex[i] )
-            {
-            index[i] = tmpIndex[i];
-            }
-
-          const SizeValueType tmpSize = static_cast< SizeValueType >( tmpIndex[i] );
-
-          if ( size[i]  < tmpSize )
-            {
-            size[i]  = tmpSize;
-            }
-          }
-        }
-      ++it;
-      }
-
-    for ( unsigned int i = 0; i < ImageType::ImageDimension; ++i )
-      {
-      size[i] = size[i] - index[i] + 1;
-      }
-    region.SetIndex(index);
-    region.SetSize(size);
-    } // end else
-
-  return region;
-}
-
-template< unsigned int TDimension >
-bool
-ImageMaskSpatialObject< TDimension >
-::ComputeLocalBoundingBox() const
-{
-  itkDebugMacro("Computing ImageMaskSpatialObject bounding box");
-
-  if ( this->GetBoundingBoxChildrenName().empty()
-       || strstr( typeid( Self ).name(),
-                  this->GetBoundingBoxChildrenName().c_str() ) )
-    {
-
-    // First get the region bounding box...
-    RegionType boundingRegion = GetAxisAlignedBoundingBoxRegion();
-    const typename RegionType::IndexType index = boundingRegion.GetIndex();
-    const typename RegionType::SizeType  size = boundingRegion.GetSize();
-
-    //Now find the corners (by index)
-    typedef VectorContainer< unsigned int, typename RegionType::IndexType >
-                                                         IndexContainerType;
-
-    typename IndexContainerType::Pointer cornerInds = IndexContainerType::New();
-
-    unsigned int c = 0;
-    cornerInds->InsertElement(c++, index);
-    for ( unsigned int i = 0; i < ImageType::ImageDimension; ++i )
-      {
-      unsigned int curSize = cornerInds->Size();
-      for ( unsigned int ii = 0; ii < curSize; ++ii)
-        {
-        IndexType tmpIndex = cornerInds->ElementAt(ii);
-        tmpIndex[i] += size[i];
-        cornerInds->InsertElement(c++,tmpIndex);
+          continuousIndex[dim] = maxContinuousIndex[dim];
         }
       }
 
-    // Next Transform the corners of the bounding box
-    typedef typename BoundingBoxType::PointsContainer PointsContainer;
-    typename PointsContainer::Pointer transformedCorners = PointsContainer::New();
-    transformedCorners->Reserve(static_cast<typename PointsContainer::ElementIdentifier>( cornerInds->size() ) );
-
-    typename IndexContainerType::const_iterator it = cornerInds->begin();
-    typename PointsContainer::iterator itTrans = transformedCorners->begin();
-    while ( it != cornerInds->end() )
-      {
-      PointType origPnt;
-      for ( unsigned int i = 0; i < ImageType::ImageDimension; ++i )
-        {
-        origPnt[i] = static_cast< typename PointType::CoordRepType>( (*it)[i]);
-        }
-      PointType pnt = this->GetIndexToWorldTransform()->TransformPoint(origPnt);
-      *itTrans = pnt;
-      ++it;
-      ++itTrans;
-      }
-
-    // refresh the bounding box with the transformed corners
-    const_cast< BoundingBoxType * >( this->GetBounds() )->SetPoints(transformedCorners);
-    this->GetBounds()->ComputeBoundingBox();
+      // Consider the corner point that corresponds to this n-dimensional index.
+      PointType cornerPoint;
+      image->TransformContinuousIndexToPhysicalPoint(continuousIndex, cornerPoint);
+      boundingBoxInObjectSpace->ConsiderPoint(cornerPoint);
     }
-  return true;
+  }
 }
 
+
+/** InternalClone */
+template <unsigned int TDimension, typename TPixel>
+typename LightObject::Pointer
+ImageMaskSpatialObject<TDimension, TPixel>::InternalClone() const
+{
+  // Default implementation just copies the parameters from
+  // this to new transform.
+  typename LightObject::Pointer loPtr = Superclass::InternalClone();
+
+  typename Self::Pointer rval = dynamic_cast<Self *>(loPtr.GetPointer());
+  if (rval.IsNull())
+  {
+    itkExceptionMacro(<< "downcast to type " << this->GetNameOfClass() << " failed.");
+  }
+
+  return loPtr;
+}
 
 /** Print the object */
-template< unsigned int TDimension >
+template <unsigned int TDimension, typename TPixel>
 void
-ImageMaskSpatialObject< TDimension >
-::PrintSelf(std::ostream & os, Indent indent) const
+ImageMaskSpatialObject<TDimension, TPixel>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 }
+
+
+template <unsigned int TDimension, typename TPixel>
+typename ImageMaskSpatialObject<TDimension, TPixel>::RegionType
+ImageMaskSpatialObject<TDimension, TPixel>::ComputeMyBoundingBoxInIndexSpace() const
+{
+  const ImagePointer imagePointer = this->GetImage();
+
+  if (imagePointer == nullptr)
+  {
+    return {};
+  }
+
+  const ImageType & image = *imagePointer;
+
+  const auto HasForegroundPixels = [&image](const RegionType & region) {
+    for (const PixelType pixelValue : Experimental::ImageRegionRange<const ImageType>{ image, region })
+    {
+      constexpr auto zeroValue = NumericTraits<PixelType>::ZeroValue();
+
+      if (pixelValue != zeroValue)
+      {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const auto CreateRegion = [](const IndexType & minIndex, const IndexType & maxIndex) {
+    SizeType regionSize;
+
+    for (unsigned dim = 0; dim < SizeType::Dimension; ++dim)
+    {
+      regionSize[dim] = static_cast<SizeValueType>(maxIndex[dim] + 1 - minIndex[dim]);
+    }
+    return RegionType{ minIndex, regionSize };
+  };
+
+  const RegionType requestedRegion = image.GetRequestedRegion();
+
+  if (requestedRegion.GetNumberOfPixels() == 0)
+  {
+    return {};
+  }
+
+  const SizeType imageSize = requestedRegion.GetSize();
+
+  IndexType minIndex = requestedRegion.GetIndex();
+  IndexType maxIndex = minIndex + imageSize;
+
+  for (auto & maxIndexValue : maxIndex)
+  {
+    --maxIndexValue;
+  }
+
+  // Iterate from high to low (for significant performance reasons).
+  for (int dim = TDimension - 1; dim >= 0; --dim)
+  {
+    auto subregion = CreateRegion(minIndex, maxIndex);
+    subregion.SetSize(dim, 1);
+    const auto initialMaxIndexValue = maxIndex[dim];
+
+    // Estimate minIndex[dim]
+    while (!HasForegroundPixels(subregion))
+    {
+      const auto indexValue = subregion.GetIndex(dim) + 1;
+
+      if (indexValue > initialMaxIndexValue)
+      {
+        // The requested image region has only zero-valued pixels.
+        return {};
+      }
+      subregion.SetIndex(dim, indexValue);
+    }
+    minIndex[dim] = subregion.GetIndex(dim);
+
+    // Estimate maxIndex[dim]
+    subregion.SetIndex(dim, initialMaxIndexValue);
+    while (!HasForegroundPixels(subregion))
+    {
+      subregion.SetIndex(dim, subregion.GetIndex(dim) - 1);
+    }
+    maxIndex[dim] = subregion.GetIndex(dim);
+  }
+  return CreateRegion(minIndex, maxIndex);
+}
+
+
+#if !defined(ITK_LEGACY_REMOVE)
+template <unsigned int TDimension, typename TPixel>
+typename ImageMaskSpatialObject<TDimension, TPixel>::RegionType
+ImageMaskSpatialObject<TDimension, TPixel>::GetAxisAlignedBoundingBoxRegion() const
+{
+  return ComputeMyBoundingBoxInIndexSpace();
+}
+#endif // ITK_LEGACY_REMOVE
 } // end namespace itk
 
 #endif //__ImageMaskSpatialObject_hxx

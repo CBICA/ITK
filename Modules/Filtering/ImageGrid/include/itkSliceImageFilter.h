@@ -52,16 +52,17 @@ namespace itk
  *
  * \ingroup ITKImageGrid
  */
-template< class TInputImage, class TOutputImage >
-class ITK_TEMPLATE_EXPORT SliceImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <class TInputImage, class TOutputImage>
+class ITK_TEMPLATE_EXPORT SliceImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SliceImageFilter                                Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SliceImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = SliceImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -70,39 +71,39 @@ public:
   itkTypeMacro(SliceImageFilter, ImageToImageFilter);
 
   /** Typedef to images */
-  typedef TOutputImage                          OutputImageType;
-  typedef TInputImage                           InputImageType;
-  typedef typename OutputImageType::Pointer     OutputImagePointer;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
+  using OutputImageType = TOutputImage;
+  using InputImageType = TInputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
 
-  typedef typename TOutputImage::IndexType  OutputIndexType;
-  typedef typename TInputImage::IndexType   InputIndexType;
-  typedef typename TOutputImage::OffsetType OutputOffsetType;
+  using OutputIndexType = typename TOutputImage::IndexType;
+  using InputIndexType = typename TInputImage::IndexType;
+  using OutputOffsetType = typename TOutputImage::OffsetType;
 
   /** Typedef to describe the output image region type. */
-  typedef typename TOutputImage::RegionType OutputImageRegionType;
+  using OutputImageRegionType = typename TOutputImage::RegionType;
 
   /** ImageDimension enumeration. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
 
-  typedef typename InputImageType::IndexType      IndexType;
-  typedef typename InputIndexType::IndexValueType IndexValueType;
-  typedef FixedArray< int, ImageDimension >       ArrayType;
+  using IndexType = typename InputImageType::IndexType;
+  using IndexValueType = typename InputIndexType::IndexValueType;
+  using ArrayType = FixedArray<int, ImageDimension>;
 
   /** Set/Get the first index extracted from the input image */
   itkSetMacro(Start, IndexType);
   itkGetConstReferenceMacro(Start, IndexType);
-  void SetStart(IndexValueType start);
+  void
+  SetStart(IndexValueType start);
 
   /** Set/Get the excluded end of the range */
   itkSetMacro(Stop, IndexType);
   itkGetConstReferenceMacro(Stop, IndexType);
-  void SetStop(IndexValueType stop);
+  void
+  SetStop(IndexValueType stop);
 
   /** Set/Get the stride of indexes extracted
    *
@@ -110,49 +111,52 @@ public:
    */
   itkSetMacro(Step, ArrayType);
   itkGetConstReferenceMacro(Step, ArrayType);
-  void SetStep( int step);
+  void
+  SetStep(int step);
 
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   /** Begin concept checking */
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< typename TInputImage::PixelType, typename TOutputImage::PixelType > ) );
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< ImageDimension, OutputImageDimension > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck,
+                  (Concept::Convertible<typename TInputImage::PixelType, typename TOutputImage::PixelType>));
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<ImageDimension, OutputImageDimension>));
   /** End concept checking */
 #endif
 
 protected:
   SliceImageFilter();
-  ~SliceImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SliceImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
- /** SliceImageFilter produces an image which is a different
+  /** SliceImageFilter produces an image which is a different
    * resolution and with a different pixel spacing than its input
    * image.
    * \sa ProcessObject::GenerateOutputInformaton() */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** SliceImageFilter can be implemented as a multithreaded filter.
-   * Therefore, this implementation provides a ThreadedGenerateData() routine
+   * Therefore, this implementation provides a DynamicThreadedGenerateData() routine
    * which is called for each processing thread. The output image data is
    * allocated automatically by the superclass prior to calling
-   * ThreadedGenerateData().  ThreadedGenerateData can only write to the
+   * DynamicThreadedGenerateData().  DynamicThreadedGenerateData can only write to the
    * portion of the output image specified by the parameter
    * "outputRegionForThread"
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData() */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 
-  void VerifyInputInformation() ITK_OVERRIDE;
+
+  void
+  VerifyInputInformation() ITKv5_CONST override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SliceImageFilter);
-
   IndexType m_Start;
   IndexType m_Stop;
   ArrayType m_Step;
@@ -160,7 +164,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSliceImageFilter.hxx"
+#  include "itkSliceImageFilter.hxx"
 #endif
 
 #endif

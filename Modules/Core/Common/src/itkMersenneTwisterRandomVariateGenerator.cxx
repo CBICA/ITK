@@ -17,133 +17,138 @@
  *=========================================================================*/
 #include "itkMersenneTwisterRandomVariateGenerator.h"
 
+#include "itkSingleton.h"
+
+#include <atomic>
 
 namespace itk
 {
 namespace Statistics
 {
 
-// Static/Global variables
-MersenneTwisterRandomVariateGenerator::Pointer MersenneTwisterRandomVariateGenerator::m_StaticInstance = ITK_NULLPTR;
-SimpleFastMutexLock MersenneTwisterRandomVariateGenerator::m_StaticInstanceLock;
-MersenneTwisterRandomVariateGenerator::IntegerType MersenneTwisterRandomVariateGenerator::m_StaticDiffer = 0;
+/** Private nested class to easily synchronize global variables across static libraries.*/
+struct MersenneTwisterGlobals
+{
+  MersenneTwisterGlobals()
+    : m_StaticInstance(nullptr)
+    , m_StaticDiffer(0){};
+  MersenneTwisterRandomVariateGenerator::Pointer                  m_StaticInstance;
+  std::recursive_mutex                                            m_StaticInstanceLock;
+  std::atomic<MersenneTwisterRandomVariateGenerator::IntegerType> m_StaticDiffer;
+};
+
+itkGetGlobalSimpleMacro(MersenneTwisterRandomVariateGenerator, MersenneTwisterGlobals, PimplGlobals);
+
+MersenneTwisterGlobals * MersenneTwisterRandomVariateGenerator::m_PimplGlobals;
 
 MersenneTwisterRandomVariateGenerator::Pointer
-MersenneTwisterRandomVariateGenerator
-::CreateInstance()
+MersenneTwisterRandomVariateGenerator ::CreateInstance()
 {
   // Try the factory first
-  MersenneTwisterRandomVariateGenerator::Pointer obj =
-    ObjectFactory< Self >::Create();
+  MersenneTwisterRandomVariateGenerator::Pointer obj = ObjectFactory<Self>::Create();
   // If the factory did not provide one, then create it here
-  if ( !obj )
-    {
-      obj = new MersenneTwisterRandomVariateGenerator;
-      // Remove extra reference from construction.
-      obj->UnRegister();
-    }
+  if (!obj)
+  {
+    obj = new MersenneTwisterRandomVariateGenerator;
+    // Remove extra reference from construction.
+    obj->UnRegister();
+  }
   return obj;
 }
 
 
 MersenneTwisterRandomVariateGenerator::Pointer
-MersenneTwisterRandomVariateGenerator
-::New()
+MersenneTwisterRandomVariateGenerator ::New()
 {
-  MersenneTwisterRandomVariateGenerator::Pointer obj =
-    MersenneTwisterRandomVariateGenerator::CreateInstance();
+  MersenneTwisterRandomVariateGenerator::Pointer obj = MersenneTwisterRandomVariateGenerator::CreateInstance();
 
-  obj->SetSeed ( MersenneTwisterRandomVariateGenerator::GetNextSeed() );
+  obj->SetSeed(MersenneTwisterRandomVariateGenerator::GetNextSeed());
   return obj;
 }
 
 MersenneTwisterRandomVariateGenerator::Pointer
-MersenneTwisterRandomVariateGenerator
-::GetInstance()
+MersenneTwisterRandomVariateGenerator ::GetInstance()
 {
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_StaticInstanceLock);
+  itkInitGlobalsMacro(PimplGlobals);
+  std::lock_guard<std::recursive_mutex> mutexHolder(m_PimplGlobals->m_StaticInstanceLock);
 
-  if ( !m_StaticInstance )
-    {
-    m_StaticInstance  = MersenneTwisterRandomVariateGenerator::CreateInstance();
-    m_StaticInstance->SetSeed();
-    }
+  if (!m_PimplGlobals->m_StaticInstance)
+  {
+    m_PimplGlobals->m_StaticInstance = MersenneTwisterRandomVariateGenerator::CreateInstance();
+    m_PimplGlobals->m_StaticInstance->SetSeed();
+  }
 
-  return m_StaticInstance;
+  return m_PimplGlobals->m_StaticInstance;
 }
 
-MersenneTwisterRandomVariateGenerator
-::MersenneTwisterRandomVariateGenerator()
+MersenneTwisterRandomVariateGenerator ::MersenneTwisterRandomVariateGenerator()
 {
-  SetSeed (121212);
+  SetSeed(121212);
 }
 
-MersenneTwisterRandomVariateGenerator
-::~MersenneTwisterRandomVariateGenerator() {}
+MersenneTwisterRandomVariateGenerator ::~MersenneTwisterRandomVariateGenerator() = default;
 
 MersenneTwisterRandomVariateGenerator::IntegerType
-MersenneTwisterRandomVariateGenerator
-::hash(time_t t, clock_t c)
+MersenneTwisterRandomVariateGenerator ::hash(time_t t, clock_t c)
 {
+  itkInitGlobalsMacro(PimplGlobals);
   // Get an IntegerType from t and c
   // Better than IntegerType(x) in case x is floating point in [0,1]
   // Based on code by Lawrence Kirby: fred at genesis dot demon dot co dot uk
 
-  IntegerType    h1 = 0;
-  unsigned char *p = (unsigned char *)&t;
+  IntegerType h1 = 0;
+  auto *      p = (unsigned char *)&t;
 
-  const unsigned int sizeOfT = static_cast< unsigned int >( sizeof(t) );
-  for ( unsigned int i = 0; i < sizeOfT; ++i )
-    {
+  const auto sizeOfT = static_cast<unsigned int>(sizeof(t));
+  for (unsigned int i = 0; i < sizeOfT; ++i)
+  {
     h1 *= UCHAR_MAX + 2U;
     h1 += p[i];
-    }
+  }
   IntegerType h2 = 0;
   p = (unsigned char *)&c;
 
-  const unsigned int sizeOfC = static_cast< unsigned int >( sizeof(c) );
-  for ( unsigned int j = 0; j < sizeOfC; ++j )
-    {
+  const auto sizeOfC = static_cast<unsigned int>(sizeof(c));
+  for (unsigned int j = 0; j < sizeOfC; ++j)
+  {
     h2 *= UCHAR_MAX + 2U;
     h2 += p[j];
-    }
-  // lock for m_StaticDiffer
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_StaticInstanceLock);
-  return ( h1 + m_StaticDiffer++ ) ^ h2;
+  }
+  return (h1 + m_PimplGlobals->m_StaticDiffer++) ^ h2;
 }
 
 MersenneTwisterRandomVariateGenerator::IntegerType
-MersenneTwisterRandomVariateGenerator
-::GetNextSeed()
+MersenneTwisterRandomVariateGenerator ::GetNextSeed()
 {
+  itkInitGlobalsMacro(PimplGlobals);
   IntegerType newSeed = GetInstance()->GetSeed();
   {
-    MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_StaticInstanceLock);
-    newSeed += m_StaticDiffer++;
+    newSeed += m_PimplGlobals->m_StaticDiffer++;
   }
   return newSeed;
 }
 
 void
-MersenneTwisterRandomVariateGenerator
-::PrintSelf(std::ostream & os, Indent indent) const
+MersenneTwisterRandomVariateGenerator ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
   // Print state vector contents
   os << indent << "State vector: " << state << std::endl;
   os << indent;
-  const IntegerType *s = state;
-  int i = StateVectorLength;
-  for (; i--; os << *s++ << "\t" ) {}
+  const IntegerType * s = state;
+  int                 i = StateVectorLength;
+  for (; i--; os << *s++ << "\t")
+  {
+  }
   os << std::endl;
 
-  //Print next value to be gotten from state
+  // Print next value to be gotten from state
   os << indent << "Next value to be gotten from state: " << m_PNext << std::endl;
 
-  //Number of values left before reload
+  // Number of values left before reload
   os << indent << "Values left before next reload: " << m_Left << std::endl;
 }
 
-}  // end namespace Statistics
-}  // end namespace itk
+} // end namespace Statistics
+} // end namespace itk

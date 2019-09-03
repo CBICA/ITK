@@ -18,7 +18,7 @@
 #ifndef itkMinimumImageFilter_h
 #define itkMinimumImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 
 namespace itk
 {
@@ -29,26 +29,32 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput1, typename TInput2 = TInput1, typename TOutput = TInput1 >
+template <typename TInput1, typename TInput2 = TInput1, typename TOutput = TInput1>
 class Minimum
 {
 public:
-  Minimum() {}
-  ~Minimum() {}
-  bool operator!=(const Minimum &) const
+  Minimum() = default;
+  ~Minimum() = default;
+  bool
+  operator!=(const Minimum &) const
   {
     return false;
   }
 
-  bool operator==(const Minimum & other) const
+  bool
+  operator==(const Minimum & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput1 & A, const TInput2 & B) const
-  { return static_cast< TOutput >( ( A < B ) ? A : B ); }
+  inline TOutput
+  operator()(const TInput1 & A, const TInput2 & B) const
+  {
+    return static_cast<TOutput>((A < B) ? A : B);
+  }
 };
-}
+} // namespace Functor
+
 /** \class MinimumImageFilter
  * \brief Implements a pixel-wise operator Min(a,b) between two images.
  *
@@ -63,60 +69,51 @@ public:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/MinimumImageFilter,Pixel wise compare two input images and set the output pixel to their min}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/SetOutputPixelToMin,Compare Two Images And Set Output Pixel To Min}
+ * \endsphinx
  */
-template< typename TInputImage1, typename TInputImage2 = TInputImage1, typename TOutputImage = TInputImage1 >
-class MinimumImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::Minimum<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage1, typename TInputImage2 = TInputImage1, typename TOutputImage = TInputImage1>
+class MinimumImageFilter : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MinimumImageFilter Self;
-  typedef BinaryFunctorImageFilter<
-    TInputImage1, TInputImage2, TOutputImage,
-    Functor::Minimum<
-      typename TInputImage1::PixelType,
-      typename TInputImage2::PixelType,
-      typename TOutputImage::PixelType >
-    >                               Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MinimumImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MinimumImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::
+    Minimum<typename TInputImage1::PixelType, typename TInputImage2::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(MinimumImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(MinimumImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1ConvertibleToInput2Check,
-                   ( Concept::Convertible< typename TInputImage1::PixelType,
-                                           typename TInputImage2::PixelType > ) );
-  itkConceptMacro( Input2ConvertibleToOutputCheck,
-                   ( Concept::Convertible< typename TInputImage2::PixelType,
-                                           typename TOutputImage::PixelType > ) );
-  itkConceptMacro( Input1LessThanInput2Check,
-                   ( Concept::LessThanComparable< typename TInputImage1::PixelType,
-                                                  typename TInputImage2::PixelType > ) );
+  itkConceptMacro(Input1ConvertibleToInput2Check,
+                  (Concept::Convertible<typename TInputImage1::PixelType, typename TInputImage2::PixelType>));
+  itkConceptMacro(Input2ConvertibleToOutputCheck,
+                  (Concept::Convertible<typename TInputImage2::PixelType, typename TOutputImage::PixelType>));
+  itkConceptMacro(Input1LessThanInput2Check,
+                  (Concept::LessThanComparable<typename TInputImage1::PixelType, typename TInputImage2::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  MinimumImageFilter() {}
-  virtual ~MinimumImageFilter() ITK_OVERRIDE {}
+  MinimumImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MinimumImageFilter);
+  ~MinimumImageFilter() override = default;
 };
 } // end namespace itk
 

@@ -19,134 +19,134 @@
 #include "itkImageSeriesReader.h"
 
 
-int itkImageSeriesReaderDimensionsTest(int ac, char* av[])
+int
+itkImageSeriesReaderDimensionsTest(int ac, char * av[])
 {
 
-  if(ac < 3)
+  if (ac < 3)
   {
     std::cerr << "usage: itkIOTests itkImageSeriesReaderDimensionsTest inputFileName(s)" << std::endl;
     return EXIT_FAILURE;
   }
 
 
-  typedef itk::Image<short, 2> Image2DType;
-  typedef itk::Image<short, 3> Image3DType;
-  typedef itk::Image<short, 4> Image4DType;
-  typedef itk::Image<short, 5> Image5DType;
+  using Image2DType = itk::Image<short, 2>;
+  using Image3DType = itk::Image<short, 3>;
+  using Image4DType = itk::Image<short, 4>;
+  using Image5DType = itk::Image<short, 5>;
 
-  typedef itk::ImageSeriesReader<Image2DType> Reader2DType;
-  typedef itk::ImageSeriesReader<Image3DType> Reader3DType;
-  typedef itk::ImageSeriesReader<Image4DType> Reader4DType;
-  typedef itk::ImageSeriesReader<Image5DType> Reader5DType;
+  using Reader2DType = itk::ImageSeriesReader<Image2DType>;
+  using Reader3DType = itk::ImageSeriesReader<Image3DType>;
+  using Reader4DType = itk::ImageSeriesReader<Image4DType>;
+  using Reader5DType = itk::ImageSeriesReader<Image5DType>;
 
   Reader2DType::FileNamesContainer fname;
   fname.push_back(av[1]);
 
   Reader2DType::FileNamesContainer fnames;
   for (int i = 1; i < ac; ++i)
-      fnames.push_back(av[i]);
+    fnames.push_back(av[i]);
 
 
   std::cout << "testing reading a single 2D image to 2D" << std::endl;
-   try
-    {
+  try
+  {
     Reader2DType::Pointer reader = Reader2DType::New();
     reader->SetFileNames(fname);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "testing reading a single 2D image to 3D" << std::endl;
   try
-    {
+  {
     Reader3DType::Pointer reader = Reader3DType::New();
     reader->SetFileNames(fname);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "testing reading a single 2D image to 4D" << std::endl;
-   try
-    {
+  try
+  {
     Reader4DType::Pointer reader = Reader4DType::New();
     reader->SetFileNames(fname);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
     return EXIT_FAILURE;
-    }
+  }
 
-   //////////
+  //////////
 
-   std::cout << "testing reading a series of 2D images to 2D" << std::endl;
-   try
-    {
+  std::cout << "testing reading a series of 2D images to 2D" << std::endl;
+  try
+  {
     Reader2DType::Pointer reader = Reader2DType::New();
     reader->SetFileNames(fnames);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
-    //return EXIT_FAILURE;
-    }
+    // return EXIT_FAILURE;
+  }
 
   std::cout << "testing reading a series of 2D images to 3D" << std::endl;
   try
-    {
+  {
     Reader3DType::Pointer reader = Reader3DType::New();
     reader->SetFileNames(fnames);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "testing reading a series of 2D images to 4D" << std::endl;
-   try
-    {
+  try
+  {
     Reader4DType::Pointer reader = Reader4DType::New();
     reader->SetFileNames(fnames);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "testing reading a series of 2D images to 5D" << std::endl;
-   try
-    {
+  try
+  {
     Reader5DType::Pointer reader = Reader5DType::New();
     reader->SetFileNames(fnames);
     reader->Update();
     std::cout << "output image size:: " << reader->GetOutput()->GetLargestPossibleRegion().GetSize() << std::endl;
-    }
-  catch (itk::ExceptionObject &ex)
-    {
+  }
+  catch (itk::ExceptionObject & ex)
+  {
     std::cout << ex;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
-
 }

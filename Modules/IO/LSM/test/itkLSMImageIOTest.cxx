@@ -18,59 +18,61 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkLSMImageIO.h"
+#include "itkTestingMacros.h"
 
 
-#define SPECIFIC_IMAGEIO_MODULE_TEST
+// Specific ImageIO test
 
-int itkLSMImageIOTest(int argc, char* argv[])
+int
+itkLSMImageIOTest(int argc, char * argv[])
 {
-  if(argc < 3)
-    {
-    std::cerr << "Usage: " << argv[0] << " LSM.lsm OutputImage.lsm\n";
+  if (argc < 3)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv) << " LSM.lsm OutputImage.lsm\n";
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::RGBPixel< unsigned char >         InputPixelType;
-  typedef itk::Image< InputPixelType, 2 >        InputImageType;
-  typedef itk::ImageFileReader< InputImageType > ReaderType;
-  typedef itk::LSMImageIO                        ImageIOType;
+  using InputPixelType = itk::RGBPixel<unsigned char>;
+  using InputImageType = itk::Image<InputPixelType, 2>;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using ImageIOType = itk::LSMImageIO;
 
-  const char *filename = argv[1];
-  const char *outfilename = argv[2];
+  const char * filename = argv[1];
+  const char * outfilename = argv[2];
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( filename );
+  reader->SetFileName(filename);
 
   ImageIOType::Pointer lsmImageIO = ImageIOType::New();
-  reader->SetImageIO( lsmImageIO );
+  reader->SetImageIO(lsmImageIO);
 
   try
-    {
+  {
     reader->Update();
-    }
+  }
   catch (itk::ExceptionObject & e)
-    {
+  {
     std::cerr << "exception in file reader " << std::endl;
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //
-  typedef itk::ImageFileWriter< InputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<InputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( outfilename );
-  writer->SetInput( reader->GetOutput() );
+  writer->SetFileName(outfilename);
+  writer->SetInput(reader->GetOutput());
 
   try
-    {
+  {
     writer->Update();
-    }
+  }
   catch (itk::ExceptionObject & e)
-    {
+  {
     std::cerr << "exception in file writer " << std::endl;
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   lsmImageIO->Print(std::cout);
 

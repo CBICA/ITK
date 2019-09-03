@@ -40,20 +40,20 @@ namespace fem
 class ITKFEM_EXPORT LoadGrav : public LoadElement
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoadGrav                 Self;
-  typedef LoadElement              Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoadGrav;
+  using Superclass = LoadElement;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LoadGrav, LoadElement);
 
-  virtual vnl_vector<Float> GetGravitationalForceAtPoint(vnl_vector<Float> ) = 0;
+  virtual vnl_vector<Float> GetGravitationalForceAtPoint(vnl_vector<Float>) = 0;
 
 protected:
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
-
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 
 /**
@@ -67,11 +67,11 @@ protected:
 class ITKFEM_EXPORT LoadGravConst : public LoadGrav
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoadGravConst            Self;
-  typedef LoadGrav                 Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoadGravConst;
+  using Superclass = LoadGrav;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
@@ -81,31 +81,36 @@ public:
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
-  virtual vnl_vector<Float> GetGravitationalForceAtPoint(vnl_vector<Float> ) ITK_OVERRIDE;
+  vnl_vector<Float> GetGravitationalForceAtPoint(vnl_vector<Float>) override;
 
   /**
    * Set the gravity force that exists at every point
    */
-  void SetForce(const vnl_vector<itk::fem::Element::Float> force);
+  void
+  SetForce(const vnl_vector<itk::fem::Element::Float> force);
 
   /**
    * Get the gravity force that exists at every point
    */
-  vnl_vector<itk::fem::Element::Float> & GetForce();
-  const vnl_vector<itk::fem::Element::Float> & GetForce() const;
+  vnl_vector<itk::fem::Element::Float> &
+  GetForce();
+  const vnl_vector<itk::fem::Element::Float> &
+  GetForce() const;
 
   /** Apply the load to the specified element */
-  virtual void ApplyLoad(Element::ConstPointer element, Element::VectorType & Fe) ITK_OVERRIDE;
+  void
+  ApplyLoad(Element::ConstPointer element, Element::VectorType & Fe) override;
 
 protected:
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   vnl_vector<Float> m_GravityForce;
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMLoadGrav_h
+#endif // itkFEMLoadGrav_h

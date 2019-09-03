@@ -18,50 +18,52 @@
 
 #include "itkKappaSigmaThresholdImageCalculator.h"
 #include "itkImageFileReader.h"
+#include "itkTestingMacros.h"
 
 
-int itkKappaSigmaThresholdImageCalculatorTest( int argc, char * argv [] )
+int
+itkKappaSigmaThresholdImageCalculatorTest(int argc, char * argv[])
 {
-  if( argc < 5 )
-    {
+  if (argc < 5)
+  {
     std::cerr << "Missing arguments" << std::endl;
     std::cerr << "Usage:" << std::endl;
-    std::cerr << argv[0] << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << std::endl;
     std::cerr << "inputImage numberOfIterations sigmaFactor expectedThreshold" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef signed short                          PixelType;
-  const unsigned int                            Dimension = 2;
+  using PixelType = signed short;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::Image< PixelType, Dimension >     ImageType;
-  typedef itk::Image< unsigned char, Dimension > MaskType;
-  typedef itk::ImageFileReader< ImageType >      ReaderType;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using MaskType = itk::Image<unsigned char, Dimension>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::KappaSigmaThresholdImageCalculator< ImageType, MaskType >  CalculatorType;
+  using CalculatorType = itk::KappaSigmaThresholdImageCalculator<ImageType, MaskType>;
 
   std::cout << "Testing Kappa Sigma Image Calulator:\n";
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   /* Create and initialize the calculator */
   CalculatorType::Pointer calculator = CalculatorType::New();
-  calculator->SetImage( reader->GetOutput() );
-  calculator->SetNumberOfIterations( atoi( argv[2] ) );
-  calculator->SetSigmaFactor( atof( argv[3] ) );
-  calculator->SetMaskValue( 255 );
+  calculator->SetImage(reader->GetOutput());
+  calculator->SetNumberOfIterations(std::stoi(argv[2]));
+  calculator->SetSigmaFactor(std::stod(argv[3]));
+  calculator->SetMaskValue(255);
 
   // Exercise Get methods
   std::cout << "Number of iterations = " << calculator->GetNumberOfIterations() << std::endl;
@@ -79,15 +81,15 @@ int itkKappaSigmaThresholdImageCalculatorTest( int argc, char * argv [] )
 
   // Note that this notion of "expected" value is only for regression testing of the class.
   // In a typical usage of this class, you will simply take the calculator->GetOutput().
-  PixelType expectedThreshold = atoi( argv[4] );
+  PixelType expectedThreshold = std::stoi(argv[4]);
 
-  if( itk::Math::abs( expectedThreshold - threshold ) > 1e-3 )
-    {
+  if (itk::Math::abs(expectedThreshold - threshold) > 1e-3)
+  {
     std::cerr << "Test failed" << std::endl;
     std::cerr << "Expected threshold = " << expectedThreshold << std::endl;
     std::cerr << "bu Found threshold = " << threshold << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

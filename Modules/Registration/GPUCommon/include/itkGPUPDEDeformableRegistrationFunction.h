@@ -38,95 +38,107 @@ namespace itk
  * \ingroup ITKGPURegistrationCommon
  */
 template <typename TFixedImage, typename TMovingImage, typename TDisplacementField>
-class GPUPDEDeformableRegistrationFunction :
-  public GPUFiniteDifferenceFunction<TDisplacementField>
+class GPUPDEDeformableRegistrationFunction : public GPUFiniteDifferenceFunction<TDisplacementField>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUPDEDeformableRegistrationFunction            Self;
-  typedef GPUFiniteDifferenceFunction<TDisplacementField> Superclass;
-  typedef SmartPointer<Self>                              Pointer;
-  typedef SmartPointer<const Self>                        ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUPDEDeformableRegistrationFunction);
+
+  /** Standard class type aliases. */
+  using Self = GPUPDEDeformableRegistrationFunction;
+  using Superclass = GPUFiniteDifferenceFunction<TDisplacementField>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(GPUPDEDeformableRegistrationFunction,
-               GPUFiniteDifferenceFunction);
+  itkTypeMacro(GPUPDEDeformableRegistrationFunction, GPUFiniteDifferenceFunction);
 
   /** MovingImage image type. */
-  typedef TMovingImage                           MovingImageType;
-  typedef typename MovingImageType::ConstPointer MovingImagePointer;
+  using MovingImageType = TMovingImage;
+  using MovingImagePointer = typename MovingImageType::ConstPointer;
 
   /** FixedImage image type. */
-  typedef TFixedImage                           FixedImageType;
-  typedef typename FixedImageType::ConstPointer FixedImagePointer;
+  using FixedImageType = TFixedImage;
+  using FixedImagePointer = typename FixedImageType::ConstPointer;
 
   /** Deformation field type. */
-  typedef TDisplacementField                      DisplacementFieldType;
-  typedef typename DisplacementFieldType::Pointer DisplacementFieldTypePointer;
+  using DisplacementFieldType = TDisplacementField;
+  using DisplacementFieldTypePointer = typename DisplacementFieldType::Pointer;
 
   /** Set the moving image.  */
-  void SetMovingImage(const MovingImageType *ptr)
+  void
+  SetMovingImage(const MovingImageType * ptr)
   {
     m_MovingImage = ptr;
   }
 
   /** Get the moving image. */
-  const MovingImageType * GetMovingImage(void) const
+  const MovingImageType *
+  GetMovingImage() const
   {
     return m_MovingImage;
   }
 
   /** Set the fixed image. */
-  void SetFixedImage(const FixedImageType *ptr)
+  void
+  SetFixedImage(const FixedImageType * ptr)
   {
     m_FixedImage = ptr;
   }
 
   /** Get the fixed image. */
-  const FixedImageType * GetFixedImage(void) const
+  const FixedImageType *
+  GetFixedImage() const
   {
     return m_FixedImage;
   }
 
   /** Set the deformation field image. */
-  void SetDisplacementField(DisplacementFieldTypePointer ptr)
+  void
+  SetDisplacementField(DisplacementFieldTypePointer ptr)
   {
     m_DisplacementField = ptr;
   }
 
   /** Get the deformation field. This function should have been
    *  declared const. It is not for backward compatibility reasons. */
-  DisplacementFieldType * GetDisplacementField(void)
+  DisplacementFieldType *
+  GetDisplacementField()
   {
     return m_DisplacementField;
   }
 
-  void SetEnergy(double e)
+  void
+  SetEnergy(double e)
   {
     m_Energy = e;
   }
 
-  double GetEnergy() const
+  double
+  GetEnergy() const
   {
     return m_Energy;
   }
 
-  void SetGradientStep(double e)
+  void
+  SetGradientStep(double e)
   {
     m_GradientStep = e;
   }
 
-  double GetGradientStep() const
+  double
+  GetGradientStep() const
   {
     return m_GradientStep;
   }
 
-  void SetNormalizeGradient(bool e)
+  void
+  SetNormalizeGradient(bool e)
   {
     m_NormalizeGradient = e;
   }
 
-  bool GetNormalizeGradient() const
+  bool
+  GetNormalizeGradient() const
   {
     return m_NormalizeGradient;
   }
@@ -134,17 +146,18 @@ public:
 protected:
   GPUPDEDeformableRegistrationFunction()
   {
-    m_MovingImage = ITK_NULLPTR;
-    m_FixedImage = ITK_NULLPTR;
-    m_DisplacementField = ITK_NULLPTR;
+    m_MovingImage = nullptr;
+    m_FixedImage = nullptr;
+    m_DisplacementField = nullptr;
     m_Energy = 0.0;
     m_NormalizeGradient = true;
     m_GradientStep = 1.0;
   }
 
-  ~GPUPDEDeformableRegistrationFunction() ITK_OVERRIDE {}
+  ~GPUPDEDeformableRegistrationFunction() override {}
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     Superclass::PrintSelf(os, indent);
     os << indent << "MovingImage: ";
@@ -167,10 +180,6 @@ protected:
   bool m_NormalizeGradient;
 
   mutable double m_GradientStep;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUPDEDeformableRegistrationFunction);
-
 };
 } // end namespace itk
 

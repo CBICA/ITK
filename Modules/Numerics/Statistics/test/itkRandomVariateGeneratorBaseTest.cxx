@@ -19,42 +19,46 @@
 #include "itkRandomVariateGeneratorBase.h"
 #include "itkObjectFactory.h"
 
-namespace itk {
-namespace Statistics {
+namespace itk
+{
+namespace Statistics
+{
 
 class VariateGeneratorTestHelper : public RandomVariateGeneratorBase
 {
 public:
-  typedef VariateGeneratorTestHelper Self;
-  typedef RandomVariateGeneratorBase Superclass;
-  typedef SmartPointer<Self>         Pointer;
-  typedef SmartPointer<const Self>   ConstPointer;
+  using Self = VariateGeneratorTestHelper;
+  using Superclass = RandomVariateGeneratorBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkTypeMacro(VariateGeneratorTestHelper, RandomVariateGeneratorBase );
+  itkTypeMacro(VariateGeneratorTestHelper, RandomVariateGeneratorBase);
 
   itkNewMacro(Self);
 
-  virtual double GetVariate() ITK_OVERRIDE
-    {
+  double
+  GetVariate() override
+  {
     double theAnswerToTheQuestionOfLifeTheUniverseAndEverything = 42.0;
     return theAnswerToTheQuestionOfLifeTheUniverseAndEverything;
-    }
+  }
 
-  void RunTests()
-    {
+  void
+  RunTests()
+  {
     std::cout << "Superclass Name " << this->Superclass::GetNameOfClass() << std::endl;
     std::cout << "This class Name " << this->GetNameOfClass() << std::endl;
-    std::cout << "GetVariate() = "  << this->GetVariate() << std::endl;
-    }
-
+    std::cout << "GetVariate() = " << this->GetVariate() << std::endl;
+  }
 };
 
-}
-}
+} // namespace Statistics
+} // namespace itk
 
-int itkRandomVariateGeneratorBaseTest( int , char* [] )
+int
+itkRandomVariateGeneratorBaseTest(int, char *[])
 {
-  typedef itk::Statistics::VariateGeneratorTestHelper GeneratorType;
+  using GeneratorType = itk::Statistics::VariateGeneratorTestHelper;
 
   GeneratorType::Pointer generator = GeneratorType::New();
 
@@ -62,7 +66,7 @@ int itkRandomVariateGeneratorBaseTest( int , char* [] )
 
   generator->RunTests();
 
-  generator->Print( std::cout );
+  generator->Print(std::cout);
 
   std::cerr << "[PASSED]" << std::endl;
   return EXIT_SUCCESS;

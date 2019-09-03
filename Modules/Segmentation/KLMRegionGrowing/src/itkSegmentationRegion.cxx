@@ -19,22 +19,15 @@
 
 namespace itk
 {
-SegmentationRegion
-::SegmentationRegion(void):
-  m_RegionLabel(0),
-  m_RegionArea(0)
-{}
+SegmentationRegion ::SegmentationRegion(void) {}
 
-SegmentationRegion
-::~SegmentationRegion()
-{}
+SegmentationRegion ::~SegmentationRegion() = default;
 
 /**
  * PrintSelf
  */
 void
-SegmentationRegion
-::PrintSelf(std::ostream & os, Indent indent) const
+SegmentationRegion ::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 

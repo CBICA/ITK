@@ -36,11 +36,11 @@ namespace fem
 class ITKFEM_EXPORT LoadPoint : public LoadElement
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoadPoint                Self;
-  typedef LoadElement              Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoadPoint;
+  using Superclass = LoadElement;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
@@ -50,45 +50,49 @@ public:
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
   /** Default constructor. */
-  LoadPoint() :
-    m_Point(2, NumericTraits<Float>::ZeroValue() ),
-    m_ForcePoint(2, NumericTraits<Float>::ZeroValue() )
+  LoadPoint()
+    : m_Point(2, NumericTraits<Float>::ZeroValue())
+    , m_ForcePoint(2, NumericTraits<Float>::ZeroValue())
   {
     // Default initialization of 2D point and force vector
   }
 
   /** Set the point where the load acts. */
-  void SetPoint(const vnl_vector<Float> p);
+  void
+  SetPoint(const vnl_vector<Float> p);
 
   /** Get the point where the load acts. */
-  vnl_vector<Float> GetPoint();
+  vnl_vector<Float>
+  GetPoint();
 
   /** Set the force vector. */
-  void SetForce(const vnl_vector<Float> f);
+  void
+  SetForce(const vnl_vector<Float> f);
 
   /** Get the force vector. */
-  vnl_vector<Float> GetForce();
+  vnl_vector<Float>
+  GetForce();
 
   /** Apply the load to the specified element.
-  * Modified version from the one in itk::fem::LoadLandmark. */
-  virtual void ApplyLoad(Element::ConstPointer element, Element::VectorType & Fe) ITK_OVERRIDE;
+   * Modified version from the one in itk::fem::LoadLandmark. */
+  void
+  ApplyLoad(Element::ConstPointer element, Element::VectorType & Fe) override;
 
 protected:
-
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Point of which the load acts in global the coordinate system. */
   vnl_vector<Float> m_Point;
 
   /** The actual load vector. */
   vnl_vector<Float> m_ForcePoint;
-
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMLoadPoint_h
+#endif // itkFEMLoadPoint_h

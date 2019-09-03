@@ -24,48 +24,47 @@
 #include "itkTestingMacros.h"
 
 
-int itkInvertIntensityImageFilterTest( int argc, char * argv[] )
+int
+itkInvertIntensityImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 3 )
+  if (argc < 3)
   {
     std::cerr << "Missing Arguments" << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << " inputImage outputImage " << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << " inputImage outputImage " << std::endl;
     return EXIT_FAILURE;
   }
 
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned char                       PixelType;
-  typedef itk::Image< PixelType, Dimension >  ImageType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::InvertIntensityImageFilter< ImageType, ImageType > FilterType;
+  using FilterType = itk::InvertIntensityImageFilter<ImageType, ImageType>;
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, InvertIntensityImageFilter,
-    UnaryFunctorImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, InvertIntensityImageFilter, UnaryFunctorImageFilter);
 
-  itk::SimpleFilterWatcher watcher( filter );
+  itk::SimpleFilterWatcher watcher(filter);
 
-  FilterType::InputPixelType maximum =
-    itk::NumericTraits< FilterType::InputPixelType >::max();
-  filter->SetMaximum( maximum );
-  TEST_SET_GET_VALUE( maximum, filter->GetMaximum() );
+  FilterType::InputPixelType maximum = itk::NumericTraits<FilterType::InputPixelType>::max();
+  filter->SetMaximum(maximum);
+  ITK_TEST_SET_GET_VALUE(maximum, filter->GetMaximum());
 
   filter->SetFunctor(filter->GetFunctor());
 
-  filter->SetInput( reader->GetOutput() );
+  filter->SetInput(reader->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(argv[2]);
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

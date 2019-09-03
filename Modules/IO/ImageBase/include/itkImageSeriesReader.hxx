@@ -22,6 +22,7 @@
 
 #include "itkImageAlgorithm.h"
 #include "itkArray.h"
+#include "itkVector.h"
 #include "itkMath.h"
 #include "itkProgressReporter.h"
 #include "itkMetaDataObject.h"
@@ -29,249 +30,231 @@
 namespace itk
 {
 // Destructor
-template< typename TOutputImage >
-ImageSeriesReader< TOutputImage >
-::~ImageSeriesReader()
+template <typename TOutputImage>
+ImageSeriesReader<TOutputImage>::~ImageSeriesReader()
 {
   // Clear the eventual previous content of the MetaDictionary array
-  if ( m_MetaDataDictionaryArray.size() )
+  if (!m_MetaDataDictionaryArray.empty())
+  {
+    for (unsigned int i = 0; i < m_MetaDataDictionaryArray.size(); i++)
     {
-    for ( unsigned int i = 0; i < m_MetaDataDictionaryArray.size(); i++ )
-      {
       // each element is a raw pointer, delete them.
       delete m_MetaDataDictionaryArray[i];
-      }
     }
+  }
   m_MetaDataDictionaryArray.clear();
 }
 
-template< typename TOutputImage >
-void ImageSeriesReader< TOutputImage >
-::PrintSelf(std::ostream & os, Indent indent) const
+template <typename TOutputImage>
+void
+ImageSeriesReader<TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
   os << indent << "ReverseOrder: " << m_ReverseOrder << std::endl;
+  os << indent << "ForceOrthogonalDirection: " << m_ForceOrthogonalDirection << std::endl;
   os << indent << "UseStreaming: " << m_UseStreaming << std::endl;
 
-  itkPrintSelfObjectMacro( ImageIO );
+  itkPrintSelfObjectMacro(ImageIO);
 
-  os << indent << "MetaDataDictionaryArrayMTime: " <<  m_MetaDataDictionaryArrayMTime  << std::endl;
+  os << indent << "MetaDataDictionaryArrayMTime: " << m_MetaDataDictionaryArrayMTime << std::endl;
   os << indent << "MetaDataDictionaryArrayUpdate: " << m_MetaDataDictionaryArrayUpdate << std::endl;
 }
 
-template< typename TOutputImage >
-int ImageSeriesReader< TOutputImage >
-::ComputeMovingDimensionIndex(ReaderType *reader)
+template <typename TOutputImage>
+int
+ImageSeriesReader<TOutputImage>::ComputeMovingDimensionIndex(ReaderType * reader)
 {
-  // This method computes the the diminesion index which we are going
+  // This method computes the the dimension index which we are going
   // to be moving in for slices
 
   unsigned int movingDimension = reader->GetImageIO()->GetNumberOfDimensions();
 
-  if ( movingDimension > TOutputImage::ImageDimension - 1 )
-    {
+  if (movingDimension > TOutputImage::ImageDimension - 1)
+  {
     movingDimension = TOutputImage::ImageDimension - 1;
-    }
+  }
 
-  const TOutputImage * readerOutput = reader->GetOutput();
-  SizeType dimSize = readerOutput->GetLargestPossibleRegion().GetSize();
+  const TOutputImage * first = reader->GetOutput();
+  SizeType             dimSize = first->GetLargestPossibleRegion().GetSize();
 
   // collapse the number of dimensions in image if any of the last
   // dimensions are one
-  while ( movingDimension > 0 && dimSize[movingDimension - 1] == 1 )
-    {
+  while (movingDimension > 0 && dimSize[movingDimension - 1] == 1)
+  {
     --movingDimension;
-    }
+  }
 
   return movingDimension;
 }
 
-template< typename TOutputImage >
-void ImageSeriesReader< TOutputImage >
-::GenerateOutputInformation(void)
+template <typename TOutputImage>
+void
+ImageSeriesReader<TOutputImage>::GenerateOutputInformation()
 {
   typename TOutputImage::Pointer output = this->GetOutput();
 
-  Array< float > position1(TOutputImage::ImageDimension); position1.Fill(0.0f);
-  Array< float > position2(TOutputImage::ImageDimension); position2.Fill(0.0f);
-
-  ImageRegionType largestRegion;
-  typename TOutputImage::SpacingType spacing;
-  typename TOutputImage::PointType origin;
-  typename TOutputImage::DirectionType direction;
-  unsigned int numberOfComponents = 1;
-
-  origin.Fill(0.0);
+  using SpacingScalarType = typename TOutputImage::SpacingValueType;
+  Array<SpacingScalarType> position1(TOutputImage::ImageDimension);
+  position1.Fill(0.0f);
+  Array<SpacingScalarType> positionN(TOutputImage::ImageDimension);
+  positionN.Fill(0.0f);
 
   std::string key("ITK_ImageOrigin");
 
   // Clear the previous content of the MetaDictionary array
-  if ( m_MetaDataDictionaryArray.size() )
+  if (!m_MetaDataDictionaryArray.empty())
+  {
+    for (unsigned int i = 0; i < m_MetaDataDictionaryArray.size(); i++)
     {
-    for ( unsigned int i = 0; i < m_MetaDataDictionaryArray.size(); i++ )
-      {
       // each element is a raw pointer, delete them.
       delete m_MetaDataDictionaryArray[i];
-      }
     }
+  }
   m_MetaDataDictionaryArray.clear();
 
-  if ( m_FileNames.size() == 0 )
-    {
+  const auto numberOfFiles = static_cast<int>(m_FileNames.size());
+  if (numberOfFiles == 0)
+  {
     itkExceptionMacro(<< "At least one filename is required.");
-    }
+  }
 
-  const int numberOfFiles = static_cast< int >( m_FileNames.size() );
-  for ( int i = 0; i < 2 && i < numberOfFiles; ++i )
+  const int firstFileName = (m_ReverseOrder ? numberOfFiles - 1 : 0);
+  const int lastFileName = (m_ReverseOrder ? 0 : numberOfFiles - 1);
+
+  typename ReaderType::Pointer firstReader = ReaderType::New();
+  typename ReaderType::Pointer lastReader = ReaderType::New();
+  firstReader->SetFileName(m_FileNames[firstFileName].c_str());
+  lastReader->SetFileName(m_FileNames[lastFileName].c_str());
+  if (m_ImageIO)
+  {
+    firstReader->SetImageIO(m_ImageIO);
+    lastReader->SetImageIO(m_ImageIO);
+  }
+
+  // update the MetaDataDictionary and output information
+  firstReader->UpdateOutputInformation();
+  const TOutputImage * first = firstReader->GetOutput();
+
+  typename TOutputImage::SpacingType   spacing = first->GetSpacing();
+  typename TOutputImage::PointType     origin = first->GetOrigin();
+  typename TOutputImage::DirectionType direction = first->GetDirection();
+  ImageRegionType                      largestRegion = first->GetLargestPossibleRegion();
+  unsigned int                         numberOfComponents = first->GetNumberOfComponentsPerPixel();
+
+  if (numberOfFiles == 1)
+  {
+    // just retain all of the file's meta data
+
+    // the slice moving direction for a single image can be the
+    // output image dimensions, since this will indicate that we can
+    // not move in the slice moving direction
+    this->m_NumberOfDimensionsInImage = firstReader->GetImageIO()->GetNumberOfDimensions();
+    if (this->m_NumberOfDimensionsInImage > TOutputImage::ImageDimension)
     {
-    const int iFileName = ( m_ReverseOrder ? numberOfFiles - i - 1 : i );
+      this->m_NumberOfDimensionsInImage = TOutputImage::ImageDimension;
+    }
+  }
+  else
+  {
+    // first of multiple slices
+    spacing = first->GetSpacing();
+    direction = first->GetDirection();
+    numberOfComponents = first->GetNumberOfComponentsPerPixel();
+    SizeType dimSize = largestRegion.GetSize();
 
-    typename ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName( m_FileNames[iFileName].c_str() );
-    if ( m_ImageIO )
+    // compute the moving dimensions index, or the number of image
+    // dimensions we are going to use
+    this->m_NumberOfDimensionsInImage = ComputeMovingDimensionIndex(firstReader);
+    dimSize[this->m_NumberOfDimensionsInImage] = static_cast<typename SizeType::SizeValueType>(numberOfFiles);
+    IndexType start;
+    start.Fill(0);
+    largestRegion.SetSize(dimSize);
+    largestRegion.SetIndex(start);
+
+    // Initialize the position to the origin returned by the reader
+    unsigned int j;
+    for (j = 0; j < TOutputImage::ImageDimension; j++)
+    {
+      position1[j] = static_cast<SpacingScalarType>(origin[j]);
+    }
+    // Override the position if there is an ITK_ImageOrigin
+    ExposeMetaData<Array<SpacingScalarType>>(firstReader->GetImageIO()->GetMetaDataDictionary(), key, position1);
+
+
+    // last of multiple slices
+    lastReader->UpdateOutputInformation();
+    const TOutputImage * last = lastReader->GetOutput();
+
+    // Initialize the position to the origin returned by the reader
+    for (j = 0; j < TOutputImage::ImageDimension; j++)
+    {
+      positionN[j] = static_cast<SpacingScalarType>(last->GetOrigin()[j]);
+    }
+    // Override the position if there is an ITK_ImageOrigin
+    ExposeMetaData<Array<SpacingScalarType>>(lastReader->GetImageIO()->GetMetaDataDictionary(), key, positionN);
+
+    // Compute and set the inter slice spacing
+    // and last (usually third) axis of direction
+    Vector<SpacingScalarType, TOutputImage::ImageDimension> dirN;
+    for (j = 0; j < TOutputImage::ImageDimension; ++j)
+    {
+      dirN[j] = positionN[j] - position1[j];
+    }
+    SpacingScalarType dirNnorm = dirN.GetNorm();
+    if (Math::AlmostEquals(dirNnorm, 0.0))
+    {
+      spacing[this->m_NumberOfDimensionsInImage] = 1.0;
+    }
+    else
+    {
+      spacing[this->m_NumberOfDimensionsInImage] = dirNnorm / (numberOfFiles - 1);
+      if (!m_ForceOrthogonalDirection)
       {
-      reader->SetImageIO(m_ImageIO);
-      }
-
-    // update the MetaDataDictionary and output information
-    reader->UpdateOutputInformation();
-
-    const TOutputImage * readerOutput = reader->GetOutput();
-
-    if ( m_FileNames.size() == 1 )
-      {
-      // ----------------------------
-      // there is only one file need to copy all of it's meta data
-      spacing = readerOutput->GetSpacing();
-      origin = readerOutput->GetOrigin();
-      direction = readerOutput->GetDirection();
-      largestRegion = readerOutput->GetLargestPossibleRegion();
-      numberOfComponents = readerOutput->GetNumberOfComponentsPerPixel();
-
-      // the slice moving direction for a single image can be the
-      // output image dimensions, since this will indicate that we can
-      // not move in the slice moving direction
-      this->m_NumberOfDimensionsInImage = reader->GetImageIO()->GetNumberOfDimensions();
-      if ( this->m_NumberOfDimensionsInImage > TOutputImage::ImageDimension )
+        for (j = 0; j < TOutputImage::ImageDimension; ++j)
         {
-        this->m_NumberOfDimensionsInImage = TOutputImage::ImageDimension;
+          direction[j][this->m_NumberOfDimensionsInImage] = dirN[j] / dirNnorm;
         }
-      }
-    else if ( i == 0 )
-      {
-      // ----------------------------
-      // first of multiple slices
-
-      spacing = readerOutput->GetSpacing();
-      direction = readerOutput->GetDirection();
-      numberOfComponents = readerOutput->GetNumberOfComponentsPerPixel();
-
-      SizeType dimSize = readerOutput->GetLargestPossibleRegion().GetSize();
-
-      // compute the moving dimensions index, or the number of image
-      // dimensions we are going to use
-      this->m_NumberOfDimensionsInImage = ComputeMovingDimensionIndex(reader);
-
-      dimSize[this->m_NumberOfDimensionsInImage] = static_cast<typename SizeType::SizeValueType>( m_FileNames.size() );
-
-      IndexType start;
-      start.Fill(0);
-      largestRegion.SetSize(dimSize);
-      largestRegion.SetIndex(start);
-
-      // Initialize the position to the origin returned by the reader
-      unsigned int j;
-      for ( j = 0; j < TOutputImage::ImageDimension; j++ )
-        {
-        position1[j] = static_cast< float >( readerOutput->GetOrigin()[j] );
-        }
-      // Override the position if there is an ITK_ImageOrigin
-      ExposeMetaData< Array< float > >(reader->GetImageIO()->GetMetaDataDictionary(), key, position1);
-
-      for ( j = 0; j < TOutputImage::ImageDimension; j++ )
-        {
-        if ( j < position1.size() )
-          {
-          origin[j] = position1[j];
-          }
-        else
-          {
-          origin[j] = static_cast< float >( readerOutput->GetOrigin()[j] );
-          }
-        }
-      }
-    else if ( i == 1 )
-      {
-      // ----------------------------
-      // second of multiple slices
-
-      // Initialize the position to the origin returned by the reader
-      unsigned int j;
-      for ( j = 0; j < TOutputImage::ImageDimension; j++ )
-        {
-        position2[j] = static_cast< float >( readerOutput->GetOrigin()[j] );
-        }
-      // Override the position if there is an ITK_ImageOrigin
-      ExposeMetaData< Array< float > >(reader->GetImageIO()->GetMetaDataDictionary(), key, position2);
-
-      // Compute the inter slice spacing by computing the distance
-      // between two consective slices
-      float interSliceSpacing = 0.0f;
-      for ( j = 0; j < position1.size(); ++j )
-        {
-        interSliceSpacing += itk::Math::sqr(position2[j] - position1[j]);
-        }
-      interSliceSpacing = static_cast< float >( std::sqrt(interSliceSpacing) );
-
-      if ( interSliceSpacing == 0.0f )
-        {
-        interSliceSpacing = 1.0f;
-        }
-
-      // set interslice spacing
-      spacing[this->m_NumberOfDimensionsInImage] = interSliceSpacing;
       }
     }
+  }
 
-  output->SetOrigin(origin);       // Set the image origin
-  output->SetSpacing(spacing);     // Set the image spacing
-  output->SetDirection(direction); // Set the image direction
+  output->SetOrigin(origin);
+  output->SetSpacing(spacing);
+  output->SetDirection(direction);
   output->SetLargestPossibleRegion(largestRegion);
 
-  // If a VectorImage, this requires us to set the
-  // VectorLength before allocate
-  if ( strcmp(output->GetNameOfClass(), "VectorImage") == 0 )
-    {
-    typedef typename TOutputImage::AccessorFunctorType AccessorFunctorType;
-    AccessorFunctorType::SetVectorLength( output, numberOfComponents );
-    }
+  // If a VectorImage, this requires us to set the VectorLength before allocate
+  if (strcmp(output->GetNameOfClass(), "VectorImage") == 0)
+  {
+    using AccessorFunctorType = typename TOutputImage::AccessorFunctorType;
+    AccessorFunctorType::SetVectorLength(output, numberOfComponents);
+  }
 }
 
-template< typename TOutputImage >
+template <typename TOutputImage>
 void
-ImageSeriesReader< TOutputImage >
-::EnlargeOutputRequestedRegion(DataObject *output)
+ImageSeriesReader<TOutputImage>::EnlargeOutputRequestedRegion(DataObject * output)
 {
-  typename TOutputImage::Pointer out = dynamic_cast< TOutputImage * >( output );
-  ImageRegionType requestedRegion = out->GetRequestedRegion();
-  ImageRegionType largestRegion = out->GetLargestPossibleRegion();
+  typename TOutputImage::Pointer out = dynamic_cast<TOutputImage *>(output);
+  ImageRegionType                requestedRegion = out->GetRequestedRegion();
+  ImageRegionType                largestRegion = out->GetLargestPossibleRegion();
 
-  if ( m_UseStreaming )
-    {
+  if (m_UseStreaming)
+  {
     out->SetRequestedRegion(requestedRegion);
-    }
+  }
   else
-    {
+  {
     out->SetRequestedRegion(largestRegion);
-    }
+  }
 }
 
-template< typename TOutputImage >
-void ImageSeriesReader< TOutputImage >
-::GenerateData()
+template <typename TOutputImage>
+void
+ImageSeriesReader<TOutputImage>::GenerateData()
 {
-  TOutputImage *output = this->GetOutput();
+  TOutputImage * output = this->GetOutput();
 
   ImageRegionType requestedRegion = output->GetRequestedRegion();
   ImageRegionType largestRegion = output->GetLargestPossibleRegion();
@@ -285,21 +268,19 @@ void ImageSeriesReader< TOutputImage >
   // the last dimension that is other than 1 of validSize to 1.  However, if the
   // input and output have the same number of dimensions, this should
   // not be done because it will lower the dimension of the output image.
-  if ( TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage )
-    {
+  if (TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage)
+  {
     validSize[this->m_NumberOfDimensionsInImage] = 1;
     sliceRegionToRequest.SetSize(this->m_NumberOfDimensionsInImage, 1);
     sliceRegionToRequest.SetIndex(this->m_NumberOfDimensionsInImage, 0);
-    }
+  }
 
   // Allocate the output buffer
   output->SetBufferedRegion(requestedRegion);
   output->Allocate();
 
   // progress reported on a per slice basis
-  ProgressReporter progress(this, 0,
-                            requestedRegion.GetSize(TOutputImage::ImageDimension-1),
-                            100);
+  ProgressReporter progress(this, 0, requestedRegion.GetSize(TOutputImage::ImageDimension - 1), 100);
 
   // We utilize the modified time of the output information to
   // know when the meta array needs to be updated, when the output
@@ -307,49 +288,48 @@ void ImageSeriesReader< TOutputImage >
   // Each file can not be read in the UpdateOutputInformation methods
   // due to the poor performance of reading each file a second time there.
   bool needToUpdateMetaDataDictionaryArray =
-    this->m_OutputInformationMTime > this->m_MetaDataDictionaryArrayMTime
-    && m_MetaDataDictionaryArrayUpdate;
+    this->m_OutputInformationMTime > this->m_MetaDataDictionaryArrayMTime && m_MetaDataDictionaryArrayUpdate;
 
-  typename  TOutputImage::InternalPixelType *outputBuffer = output->GetBufferPointer();
-  IndexType                           sliceStartIndex = requestedRegion.GetIndex();
-  const int                           numberOfFiles = static_cast< int >( m_FileNames.size() );
+  typename TOutputImage::InternalPixelType * outputBuffer = output->GetBufferPointer();
+  IndexType                                  sliceStartIndex = requestedRegion.GetIndex();
+  const auto                                 numberOfFiles = static_cast<int>(m_FileNames.size());
 
-  for ( int i = 0; i != numberOfFiles; ++i )
+  for (int i = 0; i != numberOfFiles; ++i)
+  {
+    if (TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage)
     {
-    if ( TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage )
-      {
       sliceStartIndex[this->m_NumberOfDimensionsInImage] = i;
-      }
+    }
 
     const bool insideRequestedRegion = requestedRegion.IsInside(sliceStartIndex);
-    const int  iFileName = ( m_ReverseOrder ? numberOfFiles - i - 1 : i );
+    const int  iFileName = (m_ReverseOrder ? numberOfFiles - i - 1 : i);
 
     // check if we need this slice
-    if ( !insideRequestedRegion && !needToUpdateMetaDataDictionaryArray )
-      {
+    if (!insideRequestedRegion && !needToUpdateMetaDataDictionaryArray)
+    {
       continue;
-      }
+    }
 
     // configure reader
     typename ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName( m_FileNames[iFileName].c_str() );
+    reader->SetFileName(m_FileNames[iFileName].c_str());
 
     TOutputImage * readerOutput = reader->GetOutput();
 
-    if ( m_ImageIO )
-      {
+    if (m_ImageIO)
+    {
       reader->SetImageIO(m_ImageIO);
-      }
+    }
     reader->SetUseStreaming(m_UseStreaming);
     readerOutput->SetRequestedRegion(sliceRegionToRequest);
 
     // update the data or info
-    if ( !insideRequestedRegion )
-      {
+    if (!insideRequestedRegion)
+    {
       reader->UpdateOutputInformation();
-      }
+    }
     else
-      {
+    {
       // read the meta data information
       readerOutput->UpdateOutputInformation();
 
@@ -358,60 +338,58 @@ void ImageSeriesReader< TOutputImage >
       readerOutput->PropagateRequestedRegion();
 
       // check that the size of each slice is the same
-      if ( readerOutput->GetLargestPossibleRegion().GetSize() != validSize )
-        {
-        itkExceptionMacro( << "Size mismatch! The size of  "
-                           << m_FileNames[iFileName].c_str()
-                           << " is "
-                           << readerOutput->GetLargestPossibleRegion().GetSize()
-                           << " and does not match the required size "
-                           << validSize
-                           << " from file "
-                           << m_FileNames[m_ReverseOrder ? m_FileNames.size() - 1 : 0].c_str() );
-        }
+      if (readerOutput->GetLargestPossibleRegion().GetSize() != validSize)
+      {
+        itkExceptionMacro(<< "Size mismatch! The size of  " << m_FileNames[iFileName].c_str() << " is "
+                          << readerOutput->GetLargestPossibleRegion().GetSize()
+                          << " and does not match the required size " << validSize << " from file "
+                          << m_FileNames[m_ReverseOrder ? numberOfFiles - 1 : 0].c_str());
+      }
 
       // get the size of the region to be read
       SizeType readSize = readerOutput->GetRequestedRegion().GetSize();
 
-      if( readSize == sliceRegionToRequest.GetSize() )
-        {
+      if (readSize == sliceRegionToRequest.GetSize())
+      {
         // if the buffer of the ImageReader is going to match that of
         // ourselves, then set the ImageReader's buffer to a section
         // of ours
 
-        const size_t  numberOfPixelsInSlice = sliceRegionToRequest.GetNumberOfPixels();
+        const size_t numberOfPixelsInSlice = sliceRegionToRequest.GetNumberOfPixels();
 
-        typedef typename TOutputImage::AccessorFunctorType AccessorFunctorType;
-        const size_t      numberOfInternalComponentsPerPixel =  AccessorFunctorType::GetVectorLength( output );
+        using AccessorFunctorType = typename TOutputImage::AccessorFunctorType;
+        const size_t numberOfInternalComponentsPerPixel = AccessorFunctorType::GetVectorLength(output);
 
 
-        const ptrdiff_t   sliceOffset = ( TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage ) ?
-          ( i - requestedRegion.GetIndex(this->m_NumberOfDimensionsInImage)) : 0;
+        const ptrdiff_t sliceOffset = (TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage)
+                                        ? (i - requestedRegion.GetIndex(this->m_NumberOfDimensionsInImage))
+                                        : 0;
 
-        const ptrdiff_t  numberOfPixelComponentsUpToSlice =  numberOfPixelsInSlice * numberOfInternalComponentsPerPixel * sliceOffset;
-        const bool       bufferDelete = false;
+        const ptrdiff_t numberOfPixelComponentsUpToSlice =
+          numberOfPixelsInSlice * numberOfInternalComponentsPerPixel * sliceOffset;
+        const bool bufferDelete = false;
 
-        typename  TOutputImage::InternalPixelType * outputSliceBuffer = outputBuffer + numberOfPixelComponentsUpToSlice;
+        typename TOutputImage::InternalPixelType * outputSliceBuffer = outputBuffer + numberOfPixelComponentsUpToSlice;
 
-        if ( strcmp(output->GetNameOfClass(), "VectorImage") == 0 )
-          {
+        if (strcmp(output->GetNameOfClass(), "VectorImage") == 0)
+        {
           // if the input image type is a vector image then the number
           // of components needs to be set for the size
-          readerOutput->GetPixelContainer()->SetImportPointer( outputSliceBuffer,
-                                                               static_cast<unsigned long>( numberOfPixelsInSlice*numberOfInternalComponentsPerPixel ),
-                                                               bufferDelete );
-          }
-        else
-          {
-          // otherwise the actual number of pixels needs to be passed
-          readerOutput->GetPixelContainer()->SetImportPointer( outputSliceBuffer,
-                                                               static_cast<unsigned long>( numberOfPixelsInSlice ),
-                                                               bufferDelete );
-          }
-        readerOutput->UpdateOutputData();
+          readerOutput->GetPixelContainer()->SetImportPointer(
+            outputSliceBuffer,
+            static_cast<unsigned long>(numberOfPixelsInSlice * numberOfInternalComponentsPerPixel),
+            bufferDelete);
         }
-      else
+        else
         {
+          // otherwise the actual number of pixels needs to be passed
+          readerOutput->GetPixelContainer()->SetImportPointer(
+            outputSliceBuffer, static_cast<unsigned long>(numberOfPixelsInSlice), bufferDelete);
+        }
+        readerOutput->UpdateOutputData();
+      }
+      else
+      {
         // the read region isn't going to match exactly what we need
         // to update to buffer created by the reader, then copy
 
@@ -419,55 +397,52 @@ void ImageSeriesReader< TOutputImage >
 
         // output of buffer copy
         ImageRegionType outRegion = requestedRegion;
-        outRegion.SetIndex( sliceStartIndex );
+        outRegion.SetIndex(sliceStartIndex);
 
         // set the moving dimension to a size of 1
-        if ( TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage )
-          {
+        if (TOutputImage::ImageDimension != this->m_NumberOfDimensionsInImage)
+        {
           outRegion.SetSize(this->m_NumberOfDimensionsInImage, 1);
-          }
-
-        ImageAlgorithm::Copy( readerOutput, output, sliceRegionToRequest, outRegion );
-
         }
+
+        ImageAlgorithm::Copy(readerOutput, output, sliceRegionToRequest, outRegion);
+      }
 
       // report progress for read slices
       progress.CompletedPixel();
 
-     } // end !insidedRequestedRegion
+    } // end !insidedRequestedRegion
 
     // Deep copy the MetaDataDictionary into the array
-    if ( reader->GetImageIO() &&  needToUpdateMetaDataDictionaryArray )
-      {
-      DictionaryRawPointer newDictionary = new DictionaryType;
+    if (reader->GetImageIO() && needToUpdateMetaDataDictionaryArray)
+    {
+      auto newDictionary = new DictionaryType;
       *newDictionary = reader->GetImageIO()->GetMetaDataDictionary();
       m_MetaDataDictionaryArray.push_back(newDictionary);
-      }
+    }
 
-    } // end per slice loop
+  } // end per slice loop
 
   // update the time if we modified the meta array
-  if ( needToUpdateMetaDataDictionaryArray )
-    {
+  if (needToUpdateMetaDataDictionaryArray)
+  {
     m_MetaDataDictionaryArrayMTime.Modified();
-    }
+  }
 }
 
-template< typename TOutputImage >
-typename
-ImageSeriesReader< TOutputImage >::DictionaryArrayRawPointer
-ImageSeriesReader< TOutputImage >
-::GetMetaDataDictionaryArray() const
+template <typename TOutputImage>
+typename ImageSeriesReader<TOutputImage>::DictionaryArrayRawPointer
+ImageSeriesReader<TOutputImage>::GetMetaDataDictionaryArray() const
 {
   // this warning has been introduced in 3.17 due to a change in
   // behavior. It may be removed in the future.
-  if ( this->m_OutputInformationMTime > this->m_MetaDataDictionaryArrayMTime )
-    {
-    itkWarningMacro(
-      "The MetaDataDictionaryArray is not up to date. This is no longer updated in the UpdateOutputInformation method but in GenerateData.")
-    }
+  if (this->m_OutputInformationMTime > this->m_MetaDataDictionaryArrayMTime)
+  {
+    itkWarningMacro("The MetaDataDictionaryArray is not up to date. This is no longer updated in the "
+                    "UpdateOutputInformation method but in GenerateData.")
+  }
   return &m_MetaDataDictionaryArray;
 }
-} //namespace ITK
+} // namespace itk
 
 #endif

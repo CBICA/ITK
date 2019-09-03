@@ -46,11 +46,11 @@ namespace fem
 class ITKFEM_EXPORT Material : public FEMLightObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef Material                 Self;
-  typedef FEMLightObject           Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Material;
+  using Superclass = FEMLightObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Material, FEMLightObject);
@@ -58,15 +58,13 @@ public:
   /**
    * Array class that holds special pointers to objects of all Material classes
    */
-  typedef FEMPArray<Self> ArrayType;
+  using ArrayType = FEMPArray<Self>;
 
 protected:
-
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
-
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMMaterialBase_h
+#endif // itkFEMMaterialBase_h

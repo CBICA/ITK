@@ -46,16 +46,17 @@ namespace itk
  * \ingroup Numerics Optimizers
  * \ingroup ITKLevelSets
  */
-template< typename TFeatureImage, typename TOutputPixel >
-class ITK_TEMPLATE_EXPORT ShapePriorMAPCostFunction:
-  public ShapePriorMAPCostFunctionBase< TFeatureImage, TOutputPixel >
+template <typename TFeatureImage, typename TOutputPixel>
+class ITK_TEMPLATE_EXPORT ShapePriorMAPCostFunction : public ShapePriorMAPCostFunctionBase<TFeatureImage, TOutputPixel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ShapePriorMAPCostFunction                                    Self;
-  typedef ShapePriorMAPCostFunctionBase< TFeatureImage, TOutputPixel > Superclass;
-  typedef SmartPointer< Self >                                         Pointer;
-  typedef SmartPointer< const Self >                                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ShapePriorMAPCostFunction);
+
+  /** Standard class type aliases. */
+  using Self = ShapePriorMAPCostFunction;
+  using Superclass = ShapePriorMAPCostFunctionBase<TFeatureImage, TOutputPixel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -63,36 +64,36 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(ShapePriorMAPCostFunction, ShapePriorMAPCostFunctionBase);
 
-  /**  ParametersType typedef.
+  /**  ParametersType type alias.
    *  It defines a position in the optimization search space. */
-  typedef typename Superclass::ParametersType ParametersType;
+  using ParametersType = typename Superclass::ParametersType;
 
   /** Type of the feature image representing the edge potential map. */
-  typedef typename Superclass::FeatureImageType    FeatureImageType;
-  typedef typename Superclass::FeatureImagePointer FeatureImagePointer;
+  using FeatureImageType = typename Superclass::FeatureImageType;
+  using FeatureImagePointer = typename Superclass::FeatureImagePointer;
 
   /** Type of the return measure value. */
-  typedef typename Superclass::MeasureType MeasureType;
+  using MeasureType = typename Superclass::MeasureType;
 
   /** Dimension constant. */
-  itkStaticConstMacro(ImageDimension, unsigned int, TFeatureImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TFeatureImage::ImageDimension;
 
   /** Type of pixel used to represent the level set. */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** Type of node used to represent the active region around the zero set. */
-  typedef typename Superclass::NodeType NodeType;
+  using NodeType = typename Superclass::NodeType;
 
   /** Type of container used to store the level set nodes. */
-  typedef typename Superclass::NodeContainerType NodeContainerType;
+  using NodeContainerType = typename Superclass::NodeContainerType;
 
   /** Type of the shape signed distance function. */
-  typedef typename Superclass::ShapeFunctionType ShapeFunctionType;
+  using ShapeFunctionType = typename Superclass::ShapeFunctionType;
 
   /** Type of the array for storing shape parameter mean and standard deivation.
-    * FIXME: should be templated.
-    */
-  typedef Array< double > ArrayType;
+   * FIXME: should be templated.
+   */
+  using ArrayType = Array<double>;
 
   /** Set/Get the array of shape parameters mean. */
   itkSetMacro(ShapeParameterMeans, ArrayType);
@@ -106,7 +107,7 @@ public:
    * The weights are applied to terms in the following order:
    * LogInsideTerm, LogGradientTerm, LogShapePriorTerm and
    * LogPosePriorTerm. */
-  typedef FixedArray< double, 4 > WeightsType;
+  using WeightsType = FixedArray<double, 4>;
   itkSetMacro(Weights, WeightsType);
   itkGetConstReferenceMacro(Weights, WeightsType);
 
@@ -115,39 +116,43 @@ public:
    * the current contour (defined by nodes of the active region
    * that are less than zero) which are outside the shape
    * specified by the input parameters. */
-  virtual MeasureType ComputeLogInsideTerm(const ParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  ComputeLogInsideTerm(const ParametersType & parameters) const override;
 
   /** Compute the gradient term component of the MAP cost function.
    * In particular, this method assume that ( 1 - FeatureImage ) approximates
    * a Gaussian (zero mean, unit variance) algon the normal of the evolving contour.
    * The gradient term is then given by a Laplacian of the goodness of fit of
    * the Gaussian. */
-  virtual MeasureType ComputeLogGradientTerm(const ParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  ComputeLogGradientTerm(const ParametersType & parameters) const override;
 
   /** Compute the shape prior component of the MAP cost function.
    * In particular, the method assumes that the shape parameters comes from
    * independent Gaussian distributions defined by the ShapeParameterMeans
    * and ShapeParameterVariances array. */
-  virtual MeasureType ComputeLogShapePriorTerm(const ParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  ComputeLogShapePriorTerm(const ParametersType & parameters) const override;
 
   /** Compute the pose prior component of the MAP cost function.
    * In particular, this method assumes that the pose parameters are
    * uniformly distributed and returns a constant of zero. */
-  virtual MeasureType ComputeLogPosePriorTerm(const ParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  ComputeLogPosePriorTerm(const ParametersType & parameters) const override;
 
   /** Initialize the cost function by making sure that all the components
    *  are present. */
-  virtual void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
 protected:
   ShapePriorMAPCostFunction();
-  virtual ~ShapePriorMAPCostFunction() ITK_OVERRIDE {}
+  ~ShapePriorMAPCostFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ShapePriorMAPCostFunction);
-
   ArrayType   m_ShapeParameterMeans;
   ArrayType   m_ShapeParameterStandardDeviations;
   WeightsType m_Weights;
@@ -157,7 +162,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkShapePriorMAPCostFunction.hxx"
+#  include "itkShapePriorMAPCostFunction.hxx"
 #endif
 
 #endif

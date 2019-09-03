@@ -18,7 +18,7 @@
 #ifndef itkConstrainedValueAdditionImageFilter_h
 #define itkConstrainedValueAdditionImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkNumericTraits.h"
 
 namespace itk
@@ -30,37 +30,39 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput1, typename TInput2, typename TOutput >
+template <typename TInput1, typename TInput2, typename TOutput>
 class ConstrainedValueAddition
 {
 public:
-  ConstrainedValueAddition() {}
-  ~ConstrainedValueAddition() {}
-  bool operator!=(const ConstrainedValueAddition &) const
+  ConstrainedValueAddition() = default;
+  ~ConstrainedValueAddition() = default;
+  bool
+  operator!=(const ConstrainedValueAddition &) const
   {
     return false;
   }
 
-  bool operator==(const ConstrainedValueAddition & other) const
+  bool
+  operator==(const ConstrainedValueAddition & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput1 & A,
-                            const TInput2 & B) const
+  inline TOutput
+  operator()(const TInput1 & A, const TInput2 & B) const
   {
-    const double dA = static_cast< double >( A );
-    const double dB = static_cast< double >( B );
+    const auto   dA = static_cast<double>(A);
+    const auto   dB = static_cast<double>(B);
     const double add = dA + dB;
-    const double cadd1 = ( add < NumericTraits< TOutput >::max() ) ?
-                         add : NumericTraits< TOutput >::max();
-    const double cadd2 = ( cadd1 > NumericTraits< TOutput >::NonpositiveMin() ) ?
-                         cadd1 : NumericTraits< TOutput >::NonpositiveMin();
+    const double cadd1 = (add < NumericTraits<TOutput>::max()) ? add : NumericTraits<TOutput>::max();
+    const double cadd2 =
+      (cadd1 > NumericTraits<TOutput>::NonpositiveMin()) ? cadd1 : NumericTraits<TOutput>::NonpositiveMin();
 
-    return static_cast< TOutput >( cadd2 );
+    return static_cast<TOutput>(cadd2);
   }
 };
-}
+} // namespace Functor
+
 /** \class ConstrainedValueAdditionImageFilter
  * \brief Implements pixel-wise the computation of constrained value addition.
  *
@@ -91,53 +93,44 @@ public:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  */
-template< typename TInputImage1, typename TInputImage2, typename TOutputImage >
-class ConstrainedValueAdditionImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::ConstrainedValueAddition<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage1, typename TInputImage2, typename TOutputImage>
+class ConstrainedValueAdditionImageFilter : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ConstrainedValueAdditionImageFilter Self;
-  typedef BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                                    Functor::ConstrainedValueAddition<
-                                      typename TInputImage1::PixelType,
-                                      typename TInputImage2::PixelType,
-                                      typename TOutputImage::PixelType > >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ConstrainedValueAdditionImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ConstrainedValueAdditionImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::ConstrainedValueAddition<typename TInputImage1::PixelType,
+                                                        typename TInputImage2::PixelType,
+                                                        typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ConstrainedValueAdditionImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(ConstrainedValueAdditionImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1ConvertibleToDoubleCheck,
-                   ( Concept::Convertible< typename TInputImage1::PixelType, double > ) );
-  itkConceptMacro( Input2ConvertibleToDoubleCheck,
-                   ( Concept::Convertible< typename TInputImage2::PixelType, double > ) );
-  itkConceptMacro( DoubleConvertibleToOutputCastCheck,
-                   ( Concept::Convertible< double, typename TOutputImage::PixelType > ) );
-  itkConceptMacro( DoubleLessThanOutputCheck,
-                   ( Concept::LessThanComparable< double, typename TOutputImage::PixelType > ) );
+  itkConceptMacro(Input1ConvertibleToDoubleCheck, (Concept::Convertible<typename TInputImage1::PixelType, double>));
+  itkConceptMacro(Input2ConvertibleToDoubleCheck, (Concept::Convertible<typename TInputImage2::PixelType, double>));
+  itkConceptMacro(DoubleConvertibleToOutputCastCheck, (Concept::Convertible<double, typename TOutputImage::PixelType>));
+  itkConceptMacro(DoubleLessThanOutputCheck, (Concept::LessThanComparable<double, typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  ConstrainedValueAdditionImageFilter() {}
-  virtual ~ConstrainedValueAdditionImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ConstrainedValueAdditionImageFilter);
+  ConstrainedValueAdditionImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
+  ~ConstrainedValueAdditionImageFilter() override = default;
 };
 } // end namespace itk
 

@@ -37,44 +37,43 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TImage, typename TFeatureImage >
-class ITK_TEMPLATE_EXPORT StatisticsLabelMapFilter:
-  public ShapeLabelMapFilter< TImage,
-                              Image< typename TImage::PixelType,  TImage ::ImageDimension > >
+template <typename TImage, typename TFeatureImage>
+class ITK_TEMPLATE_EXPORT StatisticsLabelMapFilter
+  : public ShapeLabelMapFilter<TImage, Image<typename TImage::PixelType, TImage ::ImageDimension>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef StatisticsLabelMapFilter      Self;
-  typedef ShapeLabelMapFilter< TImage > Superclass;
-  typedef SmartPointer< Self >          Pointer;
-  typedef SmartPointer< const Self >    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StatisticsLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                               ImageType;
-  typedef typename ImageType::Pointer          ImagePointer;
-  typedef typename ImageType::ConstPointer     ImageConstPointer;
-  typedef typename ImageType::PixelType        PixelType;
-  typedef typename ImageType::IndexType        IndexType;
-  typedef typename ImageType::PointType        PointType;
-  typedef typename ImageType::LabelObjectType  LabelObjectType;
-  typedef typename LabelObjectType::MatrixType MatrixType;
-  typedef typename LabelObjectType::VectorType VectorType;
+  /** Standard class type aliases. */
+  using Self = StatisticsLabelMapFilter;
+  using Superclass = ShapeLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TFeatureImage                           FeatureImageType;
-  typedef typename FeatureImageType::Pointer      FeatureImagePointer;
-  typedef typename FeatureImageType::ConstPointer FeatureImageConstPointer;
-  typedef typename FeatureImageType::PixelType    FeatureImagePixelType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using PointType = typename ImageType::PointType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
+  using MatrixType = typename LabelObjectType::MatrixType;
+  using VectorType = typename LabelObjectType::VectorType;
+
+  using FeatureImageType = TFeatureImage;
+  using FeatureImagePointer = typename FeatureImageType::Pointer;
+  using FeatureImageConstPointer = typename FeatureImageType::ConstPointer;
+  using FeatureImagePixelType = typename FeatureImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(StatisticsLabelMapFilter,
-               ShapeLabelMapFilter);
+  itkTypeMacro(StatisticsLabelMapFilter, ShapeLabelMapFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
@@ -88,26 +87,30 @@ public:
 #endif
 
   /** Set the feature image */
-  void SetFeatureImage(const TFeatureImage *input)
+  void
+  SetFeatureImage(const TFeatureImage * input)
   {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast< TFeatureImage * >( input ) );
+    this->SetNthInput(1, const_cast<TFeatureImage *>(input));
   }
 
   /** Get the feature image */
-  FeatureImageType * GetFeatureImage()
+  FeatureImageType *
+  GetFeatureImage()
   {
-    return static_cast< FeatureImageType * >( const_cast< DataObject * >( this->ProcessObject::GetInput(1) ) );
+    return static_cast<FeatureImageType *>(const_cast<DataObject *>(this->ProcessObject::GetInput(1)));
   }
 
   /** Set the input image */
-  void SetInput1(TImage *input)
+  void
+  SetInput1(TImage * input)
   {
     this->SetInput(input);
   }
 
   /** Set the feature image */
-  void SetInput2(const TFeatureImage *input)
+  void
+  SetInput2(const TFeatureImage * input)
   {
     this->SetFeatureImage(input);
   }
@@ -132,17 +135,18 @@ public:
 
 protected:
   StatisticsLabelMapFilter();
-  ~StatisticsLabelMapFilter() ITK_OVERRIDE {}
+  ~StatisticsLabelMapFilter() override = default;
 
-  virtual void ThreadedProcessLabelObject(LabelObjectType *labelObject) ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(StatisticsLabelMapFilter);
-
   FeatureImagePixelType m_Minimum;
   FeatureImagePixelType m_Maximum;
   unsigned int          m_NumberOfBins;
@@ -151,7 +155,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkStatisticsLabelMapFilter.hxx"
+#  include "itkStatisticsLabelMapFilter.hxx"
 #endif
 
 #endif

@@ -55,15 +55,16 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT ImageRegionSplitterMultidimensional
-  : public ImageRegionSplitterBase
+class ITKCommon_EXPORT ImageRegionSplitterMultidimensional : public ImageRegionSplitterBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRegionSplitterMultidimensional Self;
-  typedef ImageRegionSplitterBase             Superclass;
-  typedef SmartPointer< Self >                Pointer;
-  typedef SmartPointer< const Self >          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageRegionSplitterMultidimensional);
+
+  /** Standard class type aliases. */
+  using Self = ImageRegionSplitterMultidimensional;
+  using Superclass = ImageRegionSplitterBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -75,28 +76,29 @@ protected:
   ImageRegionSplitterMultidimensional();
 
 
-  virtual unsigned int GetNumberOfSplitsInternal(unsigned int dim,
-                                                 const IndexValueType regionIndex[],
-                                                 const SizeValueType regionSize[],
-                                                 unsigned int requestedNumber) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfSplitsInternal(unsigned int         dim,
+                            const IndexValueType regionIndex[],
+                            const SizeValueType  regionSize[],
+                            unsigned int         requestedNumber) const override;
 
-  virtual unsigned int GetSplitInternal(unsigned int dim,
-                                        unsigned int i,
-                                        unsigned int numberOfPieces,
-                                        IndexValueType regionIndex[],
-                                        SizeValueType regionSize[]) const ITK_OVERRIDE;
+  unsigned int
+  GetSplitInternal(unsigned int   dim,
+                   unsigned int   i,
+                   unsigned int   numberOfPieces,
+                   IndexValueType regionIndex[],
+                   SizeValueType  regionSize[]) const override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageRegionSplitterMultidimensional);
-
-  static unsigned int ComputeSplits(unsigned int dim,
-                                    unsigned int requestedNumber,
-                                    const IndexValueType regionIndex[],
-                                    const SizeValueType regionSize[],
-                                    unsigned int splits[]);
-
+  static unsigned int
+  ComputeSplits(unsigned int         dim,
+                unsigned int         requestedNumber,
+                const IndexValueType regionIndex[],
+                const SizeValueType  regionSize[],
+                unsigned int         splits[]);
 };
 } // end namespace itk
 

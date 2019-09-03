@@ -30,55 +30,45 @@
 namespace itk
 {
 
-template< typename TInputImage, typename TOutputImage >
-HessianToObjectnessMeasureImageFilter< TInputImage, TOutputImage >
-::HessianToObjectnessMeasureImageFilter() :
-  m_Alpha(0.5),
-  m_Beta(0.5),
-  m_Gamma(5.0),
-  m_ObjectDimension(1),
-  m_BrightObject(true),
-  m_ScaleObjectnessMeasure(true)
+template <typename TInputImage, typename TOutputImage>
+HessianToObjectnessMeasureImageFilter<TInputImage, TOutputImage>::HessianToObjectnessMeasureImageFilter()
+
 {
+  this->DynamicMultiThreadingOn();
 }
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-HessianToObjectnessMeasureImageFilter< TInputImage, TOutputImage >
-::VerifyPreconditions(void)
+HessianToObjectnessMeasureImageFilter<TInputImage, TOutputImage>::VerifyPreconditions() ITKv5_CONST
 {
   Superclass::VerifyPreconditions();
-  if ( m_ObjectDimension >= ImageDimension )
-    {
+  if (m_ObjectDimension >= ImageDimension)
+  {
     itkExceptionMacro("ObjectDimension must be lower than ImageDimension.");
-    }
+  }
 }
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-HessianToObjectnessMeasureImageFilter< TInputImage, TOutputImage >
-::ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                       ThreadIdType threadId)
+HessianToObjectnessMeasureImageFilter<TInputImage, TOutputImage>::DynamicThreadedGenerateData(
+  const OutputImageRegionType & outputRegionForThread)
 {
-  OutputImageType * output = this->GetOutput();
-  const InputImageType* input = this->GetInput();
-
-  // Support progress methods/callbacks
-  ProgressReporter progress( this, threadId, outputRegionForThread.GetNumberOfPixels(), 1000 / this->GetNumberOfThreads() );
+  OutputImageType *      output = this->GetOutput();
+  const InputImageType * input = this->GetInput();
 
   // Calculator for computation of the eigen values
-  typedef SymmetricEigenAnalysis< InputPixelType, EigenValueArrayType > CalculatorType;
-  CalculatorType eigenCalculator(ImageDimension);
+  using CalculatorType = SymmetricEigenAnalysisFixedDimension<ImageDimension, InputPixelType, EigenValueArrayType>;
+  CalculatorType eigenCalculator;
 
   // Walk the region of eigen values and get the objectness measure
-  ImageRegionConstIterator< InputImageType > it(input, outputRegionForThread);
-  ImageRegionIterator< OutputImageType >     oit(output, outputRegionForThread);
+  ImageRegionConstIterator<InputImageType> it(input, outputRegionForThread);
+  ImageRegionIterator<OutputImageType>     oit(output, outputRegionForThread);
 
   oit.GoToBegin();
   it.GoToBegin();
 
-  while ( !it.IsAtEnd() )
-    {
+  while (!it.IsAtEnd())
+  {
     // Compute eigen values
     EigenValueArrayType eigenValues;
     eigenCalculator.ComputeEigenValues(it.Get(), eigenValues);
@@ -86,109 +76,105 @@ HessianToObjectnessMeasureImageFilter< TInputImage, TOutputImage >
     // Sort the eigenvalues by magnitude but retain their sign.
     // The eigenvalues are to be sorted |e1|<=|e2|<=...<=|eN|
     EigenValueArrayType sortedEigenValues = eigenValues;
-    std::sort( sortedEigenValues.Begin(), sortedEigenValues.End(), AbsLessEqualCompare() );
+    std::sort(sortedEigenValues.Begin(), sortedEigenValues.End(), AbsLessCompare());
 
     // Check whether eigenvalues have the right sign
     bool signConstraintsSatisfied = true;
-    for ( unsigned int i = m_ObjectDimension; i < ImageDimension; i++ )
+    for (unsigned int i = m_ObjectDimension; i < ImageDimension; i++)
+    {
+      if ((m_BrightObject && sortedEigenValues[i] > 0.0) || (!m_BrightObject && sortedEigenValues[i] < 0.0))
       {
-      if ( ( m_BrightObject && sortedEigenValues[i] > 0.0 )
-           || ( !m_BrightObject && sortedEigenValues[i] < 0.0 ) )
-        {
         signConstraintsSatisfied = false;
         break;
-        }
       }
+    }
 
-    if ( !signConstraintsSatisfied )
-      {
-      oit.Set(NumericTraits< OutputPixelType >::ZeroValue());
+    if (!signConstraintsSatisfied)
+    {
+      oit.Set(NumericTraits<OutputPixelType>::ZeroValue());
       ++it;
       ++oit;
-      progress.CompletedPixel();
       continue;
-      }
+    }
 
     EigenValueArrayType sortedAbsEigenValues;
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
+    for (unsigned int i = 0; i < ImageDimension; i++)
+    {
       sortedAbsEigenValues[i] = itk::Math::abs(sortedEigenValues[i]);
-      }
+    }
 
     // Initialize the objectness measure
     double objectnessMeasure = 1.0;
 
     // Compute objectness from eigenvalue ratios and second-order structureness
-    if ( m_ObjectDimension < ImageDimension - 1 )
-      {
+    if (m_ObjectDimension < ImageDimension - 1)
+    {
       double rA = sortedAbsEigenValues[m_ObjectDimension];
       double rADenominatorBase = 1.0;
-      for ( unsigned int j = m_ObjectDimension + 1; j < ImageDimension; j++ )
-        {
+      for (unsigned int j = m_ObjectDimension + 1; j < ImageDimension; j++)
+      {
         rADenominatorBase *= sortedAbsEigenValues[j];
-        }
-      if ( std::fabs(rADenominatorBase) > 0.0 )
+      }
+      if (std::fabs(rADenominatorBase) > 0.0)
+      {
+        if (std::fabs(m_Alpha) > 0.0)
         {
-        if ( std::fabs(m_Alpha) > 0.0 )
-          {
-          rA /= std::pow( rADenominatorBase, 1.0 / ( ImageDimension - m_ObjectDimension - 1 ) );
-          objectnessMeasure *= 1.0 - std::exp( -0.5 * itk::Math::sqr(rA) / itk::Math::sqr(m_Alpha) );
-          }
-        }
-      else
-        {
-        objectnessMeasure = 0.0;
+          rA /= std::pow(rADenominatorBase, 1.0 / (ImageDimension - m_ObjectDimension - 1));
+          objectnessMeasure *= 1.0 - std::exp(-0.5 * itk::Math::sqr(rA) / itk::Math::sqr(m_Alpha));
         }
       }
-
-    if ( m_ObjectDimension > 0 )
+      else
       {
+        objectnessMeasure = 0.0;
+      }
+    }
+
+    if (m_ObjectDimension > 0)
+    {
       double rB = sortedAbsEigenValues[m_ObjectDimension - 1];
       double rBDenominatorBase = 1.0;
-      for ( unsigned int j = m_ObjectDimension; j < ImageDimension; j++ )
-        {
-        rBDenominatorBase *= sortedAbsEigenValues[j];
-        }
-      if ( std::fabs(rBDenominatorBase) > 0.0 && std::fabs(m_Beta) > 0.0 )
-        {
-        rB /= std::pow( rBDenominatorBase, 1.0 / ( ImageDimension - m_ObjectDimension ) );
-
-        objectnessMeasure *= std::exp( -0.5 * itk::Math::sqr(rB) / itk::Math::sqr(m_Beta) );
-        }
-      else
-        {
-        objectnessMeasure = 0.0;
-        }
-      }
-
-    if ( std::fabs(m_Gamma) > 0.0 )
+      for (unsigned int j = m_ObjectDimension; j < ImageDimension; j++)
       {
-      double frobeniusNormSquared = 0.0;
-      for ( unsigned int i = 0; i < ImageDimension; i++ )
-        {
-        frobeniusNormSquared += itk::Math::sqr(sortedAbsEigenValues[i]);
-        }
-      objectnessMeasure *= 1.0 - std::exp( -0.5 * frobeniusNormSquared / itk::Math::sqr(m_Gamma) );
+        rBDenominatorBase *= sortedAbsEigenValues[j];
       }
+      if (std::fabs(rBDenominatorBase) > 0.0 && std::fabs(m_Beta) > 0.0)
+      {
+        rB /= std::pow(rBDenominatorBase, 1.0 / (ImageDimension - m_ObjectDimension));
+
+        objectnessMeasure *= std::exp(-0.5 * itk::Math::sqr(rB) / itk::Math::sqr(m_Beta));
+      }
+      else
+      {
+        objectnessMeasure = 0.0;
+      }
+    }
+
+    if (std::fabs(m_Gamma) > 0.0)
+    {
+      double frobeniusNormSquared = 0.0;
+      for (unsigned int i = 0; i < ImageDimension; i++)
+      {
+        frobeniusNormSquared += itk::Math::sqr(sortedAbsEigenValues[i]);
+      }
+      objectnessMeasure *= 1.0 - std::exp(-0.5 * frobeniusNormSquared / itk::Math::sqr(m_Gamma));
+    }
 
     // Just in case, scale by largest absolute eigenvalue
-    if ( m_ScaleObjectnessMeasure )
-      {
+    if (m_ScaleObjectnessMeasure)
+    {
       objectnessMeasure *= sortedAbsEigenValues[ImageDimension - 1];
-      }
+    }
 
-    oit.Set( static_cast< OutputPixelType >( objectnessMeasure ) );
+    oit.Set(static_cast<OutputPixelType>(objectnessMeasure));
 
     ++it;
     ++oit;
-    progress.CompletedPixel();
-    }
+  }
 }
 
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-HessianToObjectnessMeasureImageFilter< TInputImage, TOutputImage >
-::PrintSelf(std::ostream & os, Indent indent) const
+HessianToObjectnessMeasureImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 

@@ -42,66 +42,79 @@ namespace itk
 class ITKVideoCore_EXPORT TemporalRegion : public Region
 {
 public:
-
-  /** Standard class typedefs */
-  typedef TemporalRegion       Self;
-  typedef Region               Superclass;
+  /** Standard class type aliases */
+  using Self = TemporalRegion;
+  using Superclass = Region;
 
   itkTypeMacro(TemporalRegion, Region);
 
   /** Typedef for frame offsets */
-  typedef ::itk::SizeValueType FrameOffsetType;
+  using FrameOffsetType = ::itk::SizeValueType;
 
   /** Get/Set RealStart */
-  void SetRealStart(const RealTimeStamp s);
-  RealTimeStamp GetRealStart() const;
+  void
+  SetRealStart(const RealTimeStamp s);
+  RealTimeStamp
+  GetRealStart() const;
 
   /** Get/Set RealDuration */
-  void SetRealDuration(const RealTimeInterval d);
-  RealTimeInterval GetRealDuration() const;
+  void
+  SetRealDuration(const RealTimeInterval d);
+  RealTimeInterval
+  GetRealDuration() const;
 
   /** Get/Set FrameStart */
-  void SetFrameStart(const FrameOffsetType s);
-  FrameOffsetType GetFrameStart() const;
+  void
+  SetFrameStart(const FrameOffsetType s);
+  FrameOffsetType
+  GetFrameStart() const;
 
   /** Get/Set FrameDuration */
-  void SetFrameDuration(const FrameOffsetType d);
-  FrameOffsetType GetFrameDuration() const;
+  void
+  SetFrameDuration(const FrameOffsetType d);
+  FrameOffsetType
+  GetFrameDuration() const;
 
   /** Return RegionType (SRUCTURED_REGION) */
-  virtual RegionType GetRegionType() const ITK_OVERRIDE;
+  RegionType
+  GetRegionType() const override;
 
   /** Constructor */
   TemporalRegion();
 
   /** Destructor */
-  virtual ~TemporalRegion() ITK_OVERRIDE;
+  ~TemporalRegion() override;
 
   /** Compare two temporal regions in Frame space */
-  virtual bool IsEqualInFrames(const Self & region) const;
+  virtual bool
+  IsEqualInFrames(const Self & region) const;
 
   /** Compare two temporal regions in Frame space */
-  bool IsEqualInRealTime(const Self & region) const;
+  bool
+  IsEqualInRealTime(const Self & region) const;
 
   /** Compare two temporal regions. (Both Frame and RealTime) */
-  bool operator==(const Self & region) const;
+  bool
+  operator==(const Self & region) const;
 
-  bool operator!=(const Self & region) const;
+  bool
+  operator!=(const Self & region) const;
 
 protected:
-
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Time boundaries */
   RealTimeStamp    m_RealStart;
   RealTimeInterval m_RealDuration;
-  FrameOffsetType  m_FrameStart;
-  FrameOffsetType  m_FrameDuration;
+  FrameOffsetType  m_FrameStart{ 0 };
+  FrameOffsetType  m_FrameDuration{ 0 };
 
-};  // end class TemporalRegion
+}; // end class TemporalRegion
 
 /** ostream operator */
-ITKVideoCore_EXPORT std::ostream & operator<<(std::ostream & os, const TemporalRegion & region);
+ITKVideoCore_EXPORT std::ostream &
+                    operator<<(std::ostream & os, const TemporalRegion & region);
 
 } // end namespace itk
 

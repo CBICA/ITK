@@ -24,35 +24,37 @@
 
 namespace itk
 {
-  /** \class ConjugateGradientLineSearchOptimizerv4Template
-   *  \brief Conjugate gradient descent optimizer with a golden section line search for nonlinear optimization.
-   *
-   * ConjugateGradientLineSearchOptimizer implements a conjugate gradient descent optimizer
-   * that is followed by a line search to find the best value for the learning rate.
-   * At each iteration the current position is updated according to
-   *
-   * \f[
-   *        p_{n+1} = p_n
-   *                + \mbox{learningRateByGoldenSectionLineSearch}
-   *                 \, d
-   * \f]
-   *
-   * where d is defined as the Polak-Ribiere conjugate gradient.
-   *
-   * Options are identical to the superclass's.
-   *
-   * \ingroup ITKOptimizersv4
-   */
-template<typename TInternalComputationValueType>
+/** \class ConjugateGradientLineSearchOptimizerv4Template
+ *  \brief Conjugate gradient descent optimizer with a golden section line search for nonlinear optimization.
+ *
+ * ConjugateGradientLineSearchOptimizer implements a conjugate gradient descent optimizer
+ * that is followed by a line search to find the best value for the learning rate.
+ * At each iteration the current position is updated according to
+ *
+ * \f[
+ *        p_{n+1} = p_n
+ *                + \mbox{learningRateByGoldenSectionLineSearch}
+ *                 \, d
+ * \f]
+ *
+ * where d is defined as the Polak-Ribiere conjugate gradient.
+ *
+ * Options are identical to the superclass's.
+ *
+ * \ingroup ITKOptimizersv4
+ */
+template <typename TInternalComputationValueType>
 class ITK_TEMPLATE_EXPORT ConjugateGradientLineSearchOptimizerv4Template
-: public GradientDescentLineSearchOptimizerv4Template<TInternalComputationValueType>
+  : public GradientDescentLineSearchOptimizerv4Template<TInternalComputationValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ConjugateGradientLineSearchOptimizerv4Template                        Self;
-  typedef GradientDescentLineSearchOptimizerv4Template<TInternalComputationValueType> Superclass;
-  typedef SmartPointer< Self >                                                  Pointer;
-  typedef SmartPointer< const Self >                                            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ConjugateGradientLineSearchOptimizerv4Template);
+
+  /** Standard class type aliases. */
+  using Self = ConjugateGradientLineSearchOptimizerv4Template;
+  using Superclass = GradientDescentLineSearchOptimizerv4Template<TInternalComputationValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ConjugateGradientLineSearchOptimizerv4Template, Superclass);
@@ -61,49 +63,47 @@ public:
   itkNewMacro(Self);
 
   /** It should be possible to derive the internal computation type from the class object. */
-  typedef TInternalComputationValueType            InternalComputationValueType;
+  using InternalComputationValueType = TInternalComputationValueType;
 
   /** Derivative type */
-  typedef typename Superclass::DerivativeType      DerivativeType;
+  using DerivativeType = typename Superclass::DerivativeType;
 
   /** Metric type over which this class is templated */
-  typedef typename Superclass::MeasureType                  MeasureType;
+  using MeasureType = typename Superclass::MeasureType;
 
   /** Type for the convergence checker */
-  typedef itk::Function::WindowConvergenceMonitoringFunction<TInternalComputationValueType> ConvergenceMonitoringType;
+  using ConvergenceMonitoringType = itk::Function::WindowConvergenceMonitoringFunction<TInternalComputationValueType>;
 
-  virtual void StartOptimization( bool doOnlyInitialization = false ) ITK_OVERRIDE;
+  void
+  StartOptimization(bool doOnlyInitialization = false) override;
 
 protected:
-
   /** Advance one Step following the gradient direction.
    * Includes transform update. */
-  virtual void AdvanceOneStep(void) ITK_OVERRIDE;
+  void
+  AdvanceOneStep() override;
 
   /** Default constructor */
-  ConjugateGradientLineSearchOptimizerv4Template();
+  ConjugateGradientLineSearchOptimizerv4Template() = default;
 
   /** Destructor */
-  virtual ~ConjugateGradientLineSearchOptimizerv4Template() ITK_OVERRIDE;
+  ~ConjugateGradientLineSearchOptimizerv4Template() override = default;
 
-  virtual void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
-  DerivativeType               m_LastGradient;
-  DerivativeType               m_ConjugateGradient;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(ConjugateGradientLineSearchOptimizerv4Template);
-
+  DerivativeType m_LastGradient;
+  DerivativeType m_ConjugateGradient;
 };
 
 /** This helps to meet backward compatibility */
-typedef ConjugateGradientLineSearchOptimizerv4Template<double> ConjugateGradientLineSearchOptimizerv4;
+using ConjugateGradientLineSearchOptimizerv4 = ConjugateGradientLineSearchOptimizerv4Template<double>;
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConjugateGradientLineSearchOptimizerv4.hxx"
+#  include "itkConjugateGradientLineSearchOptimizerv4.hxx"
 #endif
 
 #endif

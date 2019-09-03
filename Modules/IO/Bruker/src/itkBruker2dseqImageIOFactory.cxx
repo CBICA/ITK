@@ -20,36 +20,35 @@
 #include "itkVersion.h"
 
 /*
-* \author Don C. Bigler
-*         The Pennsylvania State University 2005
-*
-* This implementation was contributed as a paper to the Insight Journal
-* http://insight-journal.org/midas/handle.php?handle=1926/1381
-*
-*/
+ * \author Don C. Bigler
+ *         The Pennsylvania State University 2005
+ *
+ * This implementation was contributed as a paper to the Insight Journal
+ * http://insight-journal.org/midas/handle.php?handle=1926/1381
+ *
+ */
 
 namespace itk
 {
 Bruker2dseqImageIOFactory::Bruker2dseqImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkBruker2dseqImageIO",
-                          "Bruker2dseq Image IO",
-                          1,
-                          CreateObjectFunction< Bruker2dseqImageIO >::New() );
+  this->RegisterOverride("itkImageIOBase",
+                         "itkBruker2dseqImageIO",
+                         "Bruker2dseq Image IO",
+                         true,
+                         CreateObjectFunction<Bruker2dseqImageIO>::New());
 }
 
-Bruker2dseqImageIOFactory::~Bruker2dseqImageIOFactory()
-{}
+Bruker2dseqImageIOFactory::~Bruker2dseqImageIOFactory() = default;
 
 const char *
-Bruker2dseqImageIOFactory::GetITKSourceVersion(void) const
+Bruker2dseqImageIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
 
 const char *
-Bruker2dseqImageIOFactory::GetDescription(void) const
+Bruker2dseqImageIOFactory::GetDescription() const
 {
   return "Bruker2dseq ImageIO Factory, allows the loading of Bruker2dseq"
          " images into Insight";
@@ -60,12 +59,13 @@ Bruker2dseqImageIOFactory::GetDescription(void) const
 
 static bool Bruker2dseqImageIOFactoryHasBeenRegistered;
 
-void ITKIOBruker_EXPORT Bruker2dseqImageIOFactoryRegister__Private(void)
+void ITKIOBruker_EXPORT
+     Bruker2dseqImageIOFactoryRegister__Private()
 {
-  if( ! Bruker2dseqImageIOFactoryHasBeenRegistered )
-    {
+  if (!Bruker2dseqImageIOFactoryHasBeenRegistered)
+  {
     Bruker2dseqImageIOFactoryHasBeenRegistered = true;
     Bruker2dseqImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 } // end namespace itk

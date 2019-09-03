@@ -28,11 +28,13 @@ namespace itk
 class DOMTestObject : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef DOMTestObject               Self;
-  typedef Object                      Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DOMTestObject);
+
+  /** Standard class type aliases. */
+  using Self = DOMTestObject;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -41,17 +43,15 @@ public:
   itkTypeMacro(DOMTestObject, Object);
 
   /** Functions to set/get foo value. */
-  itkSetMacro( FooValue, std::string );
-  itkGetConstMacro( FooValue, std::string );
+  itkSetMacro(FooValue, std::string);
+  itkGetConstMacro(FooValue, std::string);
 
   /** Functions to set/get foo file name. */
-  itkSetMacro( FooFileName, std::string );
-  itkGetConstMacro( FooFileName, std::string );
+  itkSetMacro(FooFileName, std::string);
+  itkGetConstMacro(FooFileName, std::string);
 
 private:
-  DOMTestObject() {}
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(DOMTestObject);
+  DOMTestObject() = default;
 
   std::string m_FooValue;
   std::string m_FooFileName;

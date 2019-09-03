@@ -57,12 +57,12 @@ namespace fem
 class ITKFEM_EXPORT Element2DC0LinearQuadrilateral : public ElementStd<4, 2>
 {
 public:
-  /** Standard class typedefs. */
-  typedef Element2DC0LinearQuadrilateral Self;
-  typedef ElementStd<4, 2>               TemplatedParentClass;
-  typedef TemplatedParentClass           Superclass;
-  typedef SmartPointer<Self>             Pointer;
-  typedef SmartPointer<const Self>       ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Element2DC0LinearQuadrilateral;
+  using TemplatedParentClass = ElementStd<4, 2>;
+  using Superclass = TemplatedParentClass;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Element2DC0LinearQuadrilateral, TemplatedParentClass);
@@ -72,13 +72,18 @@ public:
    * Methods related to numeric integration
    */
 
-  enum { DefaultIntegrationOrder = 2 };
+  enum
+  {
+    DefaultIntegrationOrder = 2
+  };
 
   /** Get the Integration point and weight */
-  virtual void GetIntegrationPointAndWeight(unsigned int i, VectorType & pt, Float & w, unsigned int order) const ITK_OVERRIDE;
+  void
+  GetIntegrationPointAndWeight(unsigned int i, VectorType & pt, Float & w, unsigned int order) const override;
 
   /** Get the number of integration points */
-  virtual unsigned int GetNumberOfIntegrationPoints(unsigned int order) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfIntegrationPoints(unsigned int order) const override;
 
   // ////////////////////////////////////////////////////////////////////////
   /**
@@ -86,32 +91,39 @@ public:
    */
 
   /** Return the shape functions used to interpolate across the element */
-  virtual VectorType ShapeFunctions(const VectorType & pt) const ITK_OVERRIDE;
+  VectorType
+  ShapeFunctions(const VectorType & pt) const override;
 
   /** Return the shape functions derivatives in the shapeD matrix */
-  virtual void ShapeFunctionDerivatives(const VectorType & pt, MatrixType & shapeD) const ITK_OVERRIDE;
+  void
+  ShapeFunctionDerivatives(const VectorType & pt, MatrixType & shapeD) const override;
 
   /** Convert from global to local coordinates */
-  virtual bool GetLocalFromGlobalCoordinates(const VectorType & globalPt, VectorType & localPt) const ITK_OVERRIDE;
+  bool
+  GetLocalFromGlobalCoordinates(const VectorType & globalPt, VectorType & localPt) const override;
 
   /** Interpolation Functions */
-  void InterpolationFunctions( const VectorType & pcoords, VectorType & sf) const;
+  void
+  InterpolationFunctions(const VectorType & pcoords, VectorType & sf) const;
 
   /** Interpolation Derivatives */
-  void InterpolationDerivs(const VectorType & pcoords, VectorType & derivs) const;
+  void
+  InterpolationDerivs(const VectorType & pcoords, VectorType & derivs) const;
 
   /** Return the determinate of a 2x2 matrix */
-  Float Determinant2x2(const VectorType & c1, const VectorType & c2) const;
+  Float
+  Determinant2x2(const VectorType & c1, const VectorType & c2) const;
 
 protected:
-  virtual void PopulateEdgeIds(void) ITK_OVERRIDE;
+  void
+  PopulateEdgeIds() override;
 
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
 };
-}
-}  // end namespace itk::fem
+} // end namespace fem
+} // end namespace itk
 
-#endif  // #ifndef itkFEMElement2DC0LinearQuadrilateral_h
+#endif // itkFEMElement2DC0LinearQuadrilateral_h

@@ -26,46 +26,49 @@
 namespace itk
 {
 /** \class MINCTransformIOFactory
-   * \brief Create instances of MincTransformIO objects using an object factory.
-   *
-   * \ingroup ITKIOTransformMINC
-   */
-  class ITKIOTransformMINC_EXPORT MINCTransformIOFactory:public ObjectFactoryBase
+ * \brief Create instances of MincTransformIO objects using an object factory.
+ *
+ * \ingroup ITKIOTransformMINC
+ */
+class ITKIOTransformMINC_EXPORT MINCTransformIOFactory : public ObjectFactoryBase
+{
+public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(MINCTransformIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = MINCTransformIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Class methods used to interface with the registered factories. */
+  const char *
+  GetITKSourceVersion() const override;
+
+  const char *
+  GetDescription() const override;
+
+  /** Method for class instantiation. */
+  itkFactorylessNewMacro(Self);
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(MINCTransformIOFactory, ObjectFactoryBase);
+
+  /** Register one factory of this type  */
+  static void
+  RegisterOneFactory()
   {
-  public:
-    /** Standard class typedefs. */
-    typedef MINCTransformIOFactory     Self;
-    typedef ObjectFactoryBase          Superclass;
-    typedef SmartPointer< Self >       Pointer;
-    typedef SmartPointer< const Self > ConstPointer;
+    MINCTransformIOFactory::Pointer metaFactory = MINCTransformIOFactory::New();
 
-    /** Class methods used to interface with the registered factories. */
-    virtual const char * GetITKSourceVersion() const ITK_OVERRIDE;
+    ObjectFactoryBase::RegisterFactoryInternal(metaFactory);
+  }
 
-    virtual const char * GetDescription() const ITK_OVERRIDE;
-
-    /** Method for class instantiation. */
-    itkFactorylessNewMacro(Self);
-
-    /** Run-time type information (and related methods). */
-    itkTypeMacro(MINCTransformIOFactory, ObjectFactoryBase);
-
-    /** Register one factory of this type  */
-    static void RegisterOneFactory(void)
-    {
-      MINCTransformIOFactory::Pointer metaFactory = MINCTransformIOFactory::New();
-
-      ObjectFactoryBase::RegisterFactoryInternal(metaFactory);
-    }
-
-  protected:
-    MINCTransformIOFactory();
-    ~MINCTransformIOFactory() ITK_OVERRIDE;
-    virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  private:
-    ITK_DISALLOW_COPY_AND_ASSIGN(MINCTransformIOFactory);
-  };
+protected:
+  MINCTransformIOFactory();
+  ~MINCTransformIOFactory() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+};
 } // end namespace itk
 
-#endif //itkMINCTransformIOFactory_h
+#endif // itkMINCTransformIOFactory_h

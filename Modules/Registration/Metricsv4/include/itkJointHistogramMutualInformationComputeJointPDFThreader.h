@@ -40,7 +40,7 @@ namespace itk
  *
  * \ingroup ITKMetricsv4
  */
-template < typename TDomainPartitioner, typename TJointHistogramMetric >
+template <typename TDomainPartitioner, typename TJointHistogramMetric>
 class ITK_TEMPLATE_EXPORT JointHistogramMutualInformationComputeJointPDFThreader
 {};
 
@@ -48,81 +48,88 @@ class ITK_TEMPLATE_EXPORT JointHistogramMutualInformationComputeJointPDFThreader
  * \brief Specialization for ThreadedImageRegionPartitioner.
  * \ingroup ITKMetricsv4
  * */
-template < typename TJointHistogramMetric >
-class ITK_TEMPLATE_EXPORT JointHistogramMutualInformationComputeJointPDFThreader< ThreadedImageRegionPartitioner< TJointHistogramMetric::VirtualImageDimension >, TJointHistogramMetric >
-  : public JointHistogramMutualInformationComputeJointPDFThreaderBase< ThreadedImageRegionPartitioner< TJointHistogramMetric::VirtualImageDimension >, TJointHistogramMetric >
+template <typename TJointHistogramMetric>
+class ITK_TEMPLATE_EXPORT JointHistogramMutualInformationComputeJointPDFThreader<
+  ThreadedImageRegionPartitioner<TJointHistogramMetric::VirtualImageDimension>,
+  TJointHistogramMetric>
+  : public JointHistogramMutualInformationComputeJointPDFThreaderBase<
+      ThreadedImageRegionPartitioner<TJointHistogramMetric::VirtualImageDimension>,
+      TJointHistogramMetric>
 {
 public:
-  /** Standard class typedefs. */
-  typedef JointHistogramMutualInformationComputeJointPDFThreader Self;
-  typedef JointHistogramMutualInformationComputeJointPDFThreaderBase< ThreadedImageRegionPartitioner< TJointHistogramMetric::VirtualImageDimension >, TJointHistogramMetric >
-                                                                 Superclass;
-  typedef SmartPointer< Self >                                   Pointer;
-  typedef SmartPointer< const Self >                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(JointHistogramMutualInformationComputeJointPDFThreader);
 
-  itkTypeMacro( JointHistogramMutualInformationComputeJointPDFThreader, JointHistogramMutualInformationComputeJointPDFThreaderBase );
+  /** Standard class type aliases. */
+  using Self = JointHistogramMutualInformationComputeJointPDFThreader;
+  using Superclass = JointHistogramMutualInformationComputeJointPDFThreaderBase<
+    ThreadedImageRegionPartitioner<TJointHistogramMetric::VirtualImageDimension>,
+    TJointHistogramMetric>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkNewMacro( Self );
+  itkTypeMacro(JointHistogramMutualInformationComputeJointPDFThreader,
+               JointHistogramMutualInformationComputeJointPDFThreaderBase);
+
+  itkNewMacro(Self);
 
   /** Superclass types. */
-  typedef typename Superclass::DomainType    DomainType;
-  typedef typename Superclass::AssociateType AssociateType;
+  using DomainType = typename Superclass::DomainType;
+  using AssociateType = typename Superclass::AssociateType;
 
-  typedef typename Superclass::VirtualImageType VirtualImageType;
-  typedef typename Superclass::VirtualIndexType VirtualIndexType;
-  typedef typename Superclass::VirtualPointType VirtualPointType;
+  using VirtualImageType = typename Superclass::VirtualImageType;
+  using VirtualIndexType = typename Superclass::VirtualIndexType;
+  using VirtualPointType = typename Superclass::VirtualPointType;
 
 protected:
-  JointHistogramMutualInformationComputeJointPDFThreader() {}
+  JointHistogramMutualInformationComputeJointPDFThreader() = default;
 
   /** Walk through the domain, and call this->ProcessPoint on every point. */
-  virtual void ThreadedExecution( const DomainType & subdomain,
-                                  const ThreadIdType threadId ) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(JointHistogramMutualInformationComputeJointPDFThreader);
+  void
+  ThreadedExecution(const DomainType & subdomain, const ThreadIdType threadId) override;
 };
 
 /** \class JointHistogramMutualInformationComputeJointPDFThreader
  * \brief Specialization for ThreadedIndexedContainerPartitioner.
  * \ingroup ITKMetricsv4
  * */
-template < typename TJointHistogramMetric >
-class ITK_TEMPLATE_EXPORT JointHistogramMutualInformationComputeJointPDFThreader< ThreadedIndexedContainerPartitioner, TJointHistogramMetric >
-  : public JointHistogramMutualInformationComputeJointPDFThreaderBase< ThreadedIndexedContainerPartitioner, TJointHistogramMetric >
+template <typename TJointHistogramMetric>
+class ITK_TEMPLATE_EXPORT
+  JointHistogramMutualInformationComputeJointPDFThreader<ThreadedIndexedContainerPartitioner, TJointHistogramMetric>
+  : public JointHistogramMutualInformationComputeJointPDFThreaderBase<ThreadedIndexedContainerPartitioner,
+                                                                      TJointHistogramMetric>
 {
 public:
-  /** Standard class typedefs. */
-  typedef JointHistogramMutualInformationComputeJointPDFThreader Self;
-  typedef JointHistogramMutualInformationComputeJointPDFThreaderBase< ThreadedIndexedContainerPartitioner, TJointHistogramMetric >
-                                                                 Superclass;
-  typedef SmartPointer< Self >                                   Pointer;
-  typedef SmartPointer< const Self >                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(JointHistogramMutualInformationComputeJointPDFThreader);
 
-  itkTypeMacro( JointHistogramMutualInformationComputeJointPDFThreader, JointHistogramMutualInformationComputeJointPDFThreaderBase );
+  /** Standard class type aliases. */
+  using Self = JointHistogramMutualInformationComputeJointPDFThreader;
+  using Superclass = JointHistogramMutualInformationComputeJointPDFThreaderBase<ThreadedIndexedContainerPartitioner,
+                                                                                TJointHistogramMetric>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkNewMacro( Self );
+  itkTypeMacro(JointHistogramMutualInformationComputeJointPDFThreader,
+               JointHistogramMutualInformationComputeJointPDFThreaderBase);
+
+  itkNewMacro(Self);
 
   /** Superclass types. */
-  typedef typename Superclass::DomainType    DomainType;
-  typedef typename Superclass::AssociateType AssociateType;
+  using DomainType = typename Superclass::DomainType;
+  using AssociateType = typename Superclass::AssociateType;
 
-  typedef typename Superclass::VirtualImageType VirtualImageType;
-  typedef typename Superclass::VirtualIndexType VirtualIndexType;
-  typedef typename Superclass::VirtualPointType VirtualPointType;
+  using VirtualImageType = typename Superclass::VirtualImageType;
+  using VirtualIndexType = typename Superclass::VirtualIndexType;
+  using VirtualPointType = typename Superclass::VirtualPointType;
 
-  typedef TJointHistogramMetric                                          JointHistogramMetricType;
-  typedef typename JointHistogramMetricType::VirtualPointSetType  VirtualPointSetType;
+  using JointHistogramMetricType = TJointHistogramMetric;
+  using VirtualPointSetType = typename JointHistogramMetricType::VirtualPointSetType;
 
 protected:
-  JointHistogramMutualInformationComputeJointPDFThreader() {}
+  JointHistogramMutualInformationComputeJointPDFThreader() = default;
 
   /** Walk through the domain, and call this->ProcessPoint on every point. */
-  virtual void ThreadedExecution( const DomainType & subdomain,
-                                  const ThreadIdType threadId ) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(JointHistogramMutualInformationComputeJointPDFThreader);
+  void
+  ThreadedExecution(const DomainType & subdomain, const ThreadIdType threadId) override;
 };
 } // end namespace itk
 

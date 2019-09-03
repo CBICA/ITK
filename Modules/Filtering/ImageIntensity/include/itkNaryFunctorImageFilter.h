@@ -38,40 +38,45 @@ namespace itk
  * \ingroup ITKImageIntensity
  */
 
-template< typename TInputImage, typename TOutputImage, typename TFunction >
-class ITK_TEMPLATE_EXPORT NaryFunctorImageFilter:
-  public InPlaceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage, typename TFunction>
+class ITK_TEMPLATE_EXPORT NaryFunctorImageFilter : public InPlaceImageFilter<TInputImage, TOutputImage>
 
 {
 public:
-  /** Standard class typedefs. */
-  typedef NaryFunctorImageFilter                          Self;
-  typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NaryFunctorImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = NaryFunctorImageFilter;
+  using Superclass = InPlaceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(NaryFunctorImageFilter, InPlaceImageFilter);
 
-  /** Some typedefs. */
-  typedef TFunction                            FunctorType;
-  typedef TInputImage                          InputImageType;
-  typedef typename InputImageType::Pointer     InputImagePointer;
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef typename InputImageType::PixelType   InputImagePixelType;
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::Pointer    OutputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename OutputImageType::PixelType  OutputImagePixelType;
-  typedef std::vector< InputImagePixelType >   NaryArrayType;
+  /** Some type alias. */
+  using FunctorType = TFunction;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using NaryArrayType = std::vector<InputImagePixelType>;
 
   /** Get the functor object.  The functor is returned by reference.
    * (Functors do not have to derive from itk::LightObject, so they do
    * not necessarily have a reference count. So we cannot return a
    * SmartPointer). */
-  FunctorType & GetFunctor() { return m_Functor; }
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
 
   /** Set the functor object.  This replaces the current Functor with a
    * copy of the specified Functor. This allows the user to specify a
@@ -79,56 +84,52 @@ public:
    * This method requires an operator!=() be defined on the functor
    * (or the compiler's default implementation of operator!=() being
    * appropriate). */
-  void SetFunctor(FunctorType & functor)
+  void
+  SetFunctor(FunctorType & functor)
   {
-    if ( m_Functor != functor )
-      {
+    if (m_Functor != functor)
+    {
       m_Functor = functor;
       this->Modified();
-      }
+    }
   }
 
   /** ImageDimension constants */
-  itkStaticConstMacro(
-    InputImageDimension, unsigned int, TInputImage::ImageDimension);
-  itkStaticConstMacro(
-    OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( OutputHasZeroCheck,
-                   ( Concept::HasZero< OutputImagePixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
+  itkConceptMacro(OutputHasZeroCheck, (Concept::HasZero<OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
   NaryFunctorImageFilter();
-  virtual ~NaryFunctorImageFilter() ITK_OVERRIDE {}
+  ~NaryFunctorImageFilter() override = default;
 
   /** NaryFunctorImageFilter can be implemented as a multithreaded filter.
-   * Therefore, this implementation provides a ThreadedGenerateData() routine
+   * Therefore, this implementation provides a DynamicThreadedGenerateData() routine
    * which is called for each processing thread. The output image data is
    * allocated automatically by the superclass prior to calling
-   * ThreadedGenerateData().  ThreadedGenerateData can only write to the
+   * DynamicThreadedGenerateData().  DynamicThreadedGenerateData can only write to the
    * portion of the output image specified by the parameter
    * "outputRegionForThread"
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()  */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NaryFunctorImageFilter);
-
   FunctorType m_Functor;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkNaryFunctorImageFilter.hxx"
+#  include "itkNaryFunctorImageFilter.hxx"
 #endif
 
 #endif

@@ -43,14 +43,16 @@ namespace itk
  * \ingroup RegionGrowingSegmentation
  * \ingroup ITKKLMRegionGrowing
  */
-class ITKKLMRegionGrowing_EXPORT SegmentationBorder:public Object
+class ITKKLMRegionGrowing_EXPORT SegmentationBorder : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef SegmentationBorder         Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SegmentationBorder);
+
+  /** Standard class type aliases. */
+  using Self = SegmentationBorder;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,17 +68,18 @@ public:
    * access to specific instantiations of other border representations. This
    * is the function should be overloaded in any derived classes for the user
    * to access the various methods supported by the method. */
-  virtual void ApplySegmentationBorder(){}
+  virtual void
+  ApplySegmentationBorder()
+  {}
 
 protected:
   SegmentationBorder();
-  ~SegmentationBorder() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SegmentationBorder() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SegmentationBorder);
-
-  double m_BorderLength;
+  double m_BorderLength{ 0 };
 };
 } // end namespace itk
 

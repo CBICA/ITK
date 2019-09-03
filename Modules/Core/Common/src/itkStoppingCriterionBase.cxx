@@ -20,13 +20,9 @@
 
 namespace itk
 {
-StoppingCriterionBase::
-StoppingCriterionBase()
-{}
+StoppingCriterionBase::StoppingCriterionBase() = default;
 
-StoppingCriterionBase::
-~StoppingCriterionBase()
-{}
+StoppingCriterionBase::~StoppingCriterionBase() = default;
 
 
-}
+} // namespace itk

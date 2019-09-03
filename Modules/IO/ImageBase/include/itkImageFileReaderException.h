@@ -20,7 +20,6 @@
 #include "ITKIOImageBaseExport.h"
 
 #include "itkMacro.h"
-#include "itkExceptionObject.h"
 
 namespace itk
 {
@@ -29,28 +28,30 @@ namespace itk
  * \brief Base exception class for IO conflicts.
  * \ingroup ITKIOImageBase
  */
-class ITKIOImageBase_EXPORT ImageFileReaderException:public ExceptionObject
+class ITKIOImageBase_EXPORT ImageFileReaderException : public ExceptionObject
 {
 public:
   /** Run-time information. */
   itkTypeMacro(ImageFileReaderException, ExceptionObject);
 
   /** Constructor. */
-  ImageFileReaderException(const char *file, unsigned int line,
-                           const char *message = "Error in IO",
-                           const char *loc = "Unknown"):
-    ExceptionObject(file, line, message, loc)
+  ImageFileReaderException(const char * file,
+                           unsigned int line,
+                           const char * message = "Error in IO",
+                           const char * loc = "Unknown")
+    : ExceptionObject(file, line, message, loc)
   {}
 
   /** Constructor. */
-  ImageFileReaderException(const std::string & file, unsigned int line,
-                           const char *message = "Error in IO",
-                           const char *loc = "Unknown"):
-    ExceptionObject(file, line, message, loc)
+  ImageFileReaderException(const std::string & file,
+                           unsigned int        line,
+                           const char *        message = "Error in IO",
+                           const char *        loc = "Unknown")
+    : ExceptionObject(file, line, message, loc)
   {}
 
   /** Has to have empty throw(). */
-  virtual ~ImageFileReaderException() ITK_NOEXCEPT ITK_OVERRIDE;
+  ~ImageFileReaderException() noexcept override;
 };
-}
+} // namespace itk
 #endif // itkImageFileReaderException_h

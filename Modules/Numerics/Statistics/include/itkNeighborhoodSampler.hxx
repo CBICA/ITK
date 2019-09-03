@@ -24,35 +24,24 @@ namespace itk
 {
 namespace Statistics
 {
-template< typename TSample >
-NeighborhoodSampler< TSample >
-::NeighborhoodSampler()
-{}
 
-template< typename TSample >
-NeighborhoodSampler< TSample >
-::~NeighborhoodSampler()
-{}
-
-template< typename TSample >
+template <typename TSample>
 void
-NeighborhoodSampler< TSample >
-::GenerateData()
+NeighborhoodSampler<TSample>::GenerateData()
 {
-  const SampleType *inputSample = this->GetInput();
+  const SampleType * inputSample = this->GetInput();
 
-  SubsampleType *outputSubSample =
-    static_cast< SubsampleType * >( this->ProcessObject::GetOutput(0) );
+  auto * outputSubSample = static_cast<SubsampleType *>(this->ProcessObject::GetOutput(0));
 
   outputSubSample->SetSample(inputSample);
   outputSubSample->Clear();
 
-  const InputRadiusObjectType *radiusObject = this->GetRadiusInput();
+  const InputRadiusObjectType * radiusObject = this->GetRadiusInput();
 
-  if ( radiusObject == ITK_NULLPTR )
-    {
+  if (radiusObject == nullptr)
+  {
     itkExceptionMacro("Radius input is missing");
-    }
+  }
 
   // FIXME : What should follow here ?
   //
@@ -60,10 +49,9 @@ NeighborhoodSampler< TSample >
   //
 }
 
-template< typename TSample >
+template <typename TSample>
 void
-NeighborhoodSampler< TSample >
-::PrintSelf(std::ostream & os, Indent indent) const
+NeighborhoodSampler<TSample>::PrintSelf(std::ostream & os, Indent indent) const
 {
   this->Superclass::PrintSelf(os, indent);
   // m_Radius

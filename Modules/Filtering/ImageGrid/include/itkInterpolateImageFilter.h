@@ -40,16 +40,17 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup ITKImageGrid
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT InterpolateImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT InterpolateImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef InterpolateImageFilter                          Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(InterpolateImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = InterpolateImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -57,34 +58,40 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(InterpolateImageFilter, ImageToImageFilter);
 
-  /** Inherit typedefs from Superclass */
-  typedef typename Superclass::InputImageType        InputImageType;
-  typedef typename Superclass::InputImagePointer     InputImagePointer;
-  typedef typename Superclass::OutputImageType       OutputImageType;
-  typedef typename Superclass::OutputImagePointer    OutputImagePointer;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
+  /** Inherit type alias from Superclass */
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
   /** Number of dimensions. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(IntermediateImageDimension, unsigned int,
-                      TOutputImage::ImageDimension + 1);
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int IntermediateImageDimension = TOutputImage::ImageDimension + 1;
 
-  /** Interpolator typedef. */
-  typedef typename TInputImage::PixelType                                             InputPixelType;
-  typedef Image< InputPixelType, itkGetStaticConstMacro(IntermediateImageDimension) > IntermediateImageType;
-  typedef InterpolateImageFunction< IntermediateImageType >                           InterpolatorType;
+  /** Interpolator type alias. */
+  using InputPixelType = typename TInputImage::PixelType;
+  using IntermediateImageType = Image<InputPixelType, Self::IntermediateImageDimension>;
+  using InterpolatorType = InterpolateImageFunction<IntermediateImageType>;
 
   /** Set/Get the first image */
-  void SetInput1(const InputImageType *image)
-  { this->SetInput(image); }
-  const InputImageType * GetInput1()
-  { return this->GetInput(); }
+  void
+  SetInput1(const InputImageType * image)
+  {
+    this->SetInput(image);
+  }
+  const InputImageType *
+  GetInput1()
+  {
+    return this->GetInput();
+  }
 
   /** Set/Get the second image */
-  void SetInput2(const InputImageType *image);
+  void
+  SetInput2(const InputImageType * image);
 
-  const InputImageType * GetInput2();
+  const InputImageType *
+  GetInput2();
 
   /** Set/Get the distance from the first image from which to generate
    * interpolated image. The default value is 0.5 */
@@ -92,35 +99,35 @@ public:
   itkGetConstMacro(Distance, double);
 
   /** Get/Set the interpolator function */
-  itkSetObjectMacro(Interpolator, InterpolatorType)
-  itkGetModifiableObjectMacro(Interpolator, InterpolatorType);
+  itkSetObjectMacro(Interpolator, InterpolatorType) itkGetModifiableObjectMacro(Interpolator, InterpolatorType);
 
   /** This method is used to set the state of the filter before
    * multi-threading. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /** This method is used to run after multi-threading. */
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  AfterThreadedGenerateData() override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputPixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputPixelType>));
   // End concept checking
 #endif
 
 protected:
   InterpolateImageFilter();
-  ~InterpolateImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~InterpolateImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** InterpolateImageFilter can be implemented as a multithreaded filter. */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(InterpolateImageFilter);
-
   typename InterpolatorType::Pointer m_Interpolator;
 
   typename IntermediateImageType::Pointer m_IntermediateImage;
@@ -130,7 +137,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkInterpolateImageFilter.hxx"
+#  include "itkInterpolateImageFilter.hxx"
 #endif
 
 #endif

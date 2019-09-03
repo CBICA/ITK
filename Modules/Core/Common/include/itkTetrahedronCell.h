@@ -33,11 +33,15 @@ namespace itk
  * \ingroup MeshObjects
  * \ingroup ITKCommon
  */
-template< typename TCellInterface >
-class ITK_TEMPLATE_EXPORT TetrahedronCell:public TCellInterface, private TetrahedronCellTopology
+template <typename TCellInterface>
+class ITK_TEMPLATE_EXPORT TetrahedronCell
+  : public TCellInterface
+  , private TetrahedronCellTopology
 {
 public:
-  /** Standard class typedefa. */
+  ITK_DISALLOW_COPY_AND_ASSIGN(TetrahedronCell);
+
+  /** Standard class type aliasa. */
   itkCellCommonTypedefs(TetrahedronCell);
   itkCellInheritedTypedefs(TCellInterface);
 
@@ -45,94 +49,111 @@ public:
   itkTypeMacro(TetrahedronCell, CellInterface);
 
   /** The type of boundary for this triangle's vertices. */
-  typedef VertexCell< TCellInterface >         VertexType;
-  typedef typename VertexType::SelfAutoPointer VertexAutoPointer;
+  using VertexType = VertexCell<TCellInterface>;
+  using VertexAutoPointer = typename VertexType::SelfAutoPointer;
 
   /** The type of boundary for this triangle's edges. */
-  typedef LineCell< TCellInterface >         EdgeType;
-  typedef typename EdgeType::SelfAutoPointer EdgeAutoPointer;
+  using EdgeType = LineCell<TCellInterface>;
+  using EdgeAutoPointer = typename EdgeType::SelfAutoPointer;
 
   /** The type of boundary for this hexahedron's faces. */
-  typedef TriangleCell< TCellInterface >     FaceType;
-  typedef typename FaceType::SelfAutoPointer FaceAutoPointer;
+  using FaceType = TriangleCell<TCellInterface>;
+  using FaceAutoPointer = typename FaceType::SelfAutoPointer;
 
   /** Tetrahedron-specific topology numbers. */
-  itkStaticConstMacro(NumberOfPoints, unsigned int, 4);
-  itkStaticConstMacro(NumberOfVertices, unsigned int, 4);
-  itkStaticConstMacro(NumberOfEdges, unsigned int, 6);
-  itkStaticConstMacro(NumberOfFaces, unsigned int, 4);
-  itkStaticConstMacro(CellDimension, unsigned int, 3);
+  static constexpr unsigned int NumberOfPoints = 4;
+  static constexpr unsigned int NumberOfVertices = 4;
+  static constexpr unsigned int NumberOfEdges = 6;
+  static constexpr unsigned int NumberOfFaces = 4;
+  static constexpr unsigned int CellDimension = 3;
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::TETRAHEDRON_CELL; }
-  virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
+  CellGeometry
+  GetType() const override
+  {
+    return Superclass::TETRAHEDRON_CELL;
+  }
+  void
+  MakeCopy(CellAutoPointer &) const override;
 
-  virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
+  unsigned int
+  GetDimension() const override;
 
-  virtual unsigned int GetNumberOfPoints(void) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfPoints() const override;
 
-  virtual CellFeatureCount GetNumberOfBoundaryFeatures(int dimension) const ITK_OVERRIDE;
+  CellFeatureCount
+  GetNumberOfBoundaryFeatures(int dimension) const override;
 
-  virtual bool GetBoundaryFeature(int dimension, CellFeatureIdentifier,
-                                  CellAutoPointer &) ITK_OVERRIDE;
-  virtual void SetPointIds(PointIdConstIterator first) ITK_OVERRIDE;
+  bool
+  GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) override;
+  void
+  SetPointIds(PointIdConstIterator first) override;
 
-  virtual void SetPointIds(PointIdConstIterator first,
-                           PointIdConstIterator last) ITK_OVERRIDE;
+  void
+  SetPointIds(PointIdConstIterator first, PointIdConstIterator last) override;
 
-  virtual void SetPointId(int localId, PointIdentifier) ITK_OVERRIDE;
-  virtual PointIdIterator      PointIdsBegin(void) ITK_OVERRIDE;
+  void
+  SetPointId(int localId, PointIdentifier) override;
+  PointIdIterator
+  PointIdsBegin() override;
 
-  virtual PointIdConstIterator PointIdsBegin(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsBegin() const override;
 
-  virtual PointIdIterator      PointIdsEnd(void) ITK_OVERRIDE;
+  PointIdIterator
+  PointIdsEnd() override;
 
-  virtual PointIdConstIterator PointIdsEnd(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsEnd() const override;
 
   /** Tetrahedron-specific interface. */
-  virtual CellFeatureCount GetNumberOfVertices() const;
+  virtual CellFeatureCount
+  GetNumberOfVertices() const;
 
-  virtual CellFeatureCount GetNumberOfEdges() const;
+  virtual CellFeatureCount
+  GetNumberOfEdges() const;
 
-  virtual CellFeatureCount GetNumberOfFaces() const;
+  virtual CellFeatureCount
+  GetNumberOfFaces() const;
 
-  virtual bool GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
-  virtual bool GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
-  virtual bool GetFace(CellFeatureIdentifier, FaceAutoPointer &);
+  virtual bool
+  GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
+  virtual bool
+  GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
+  virtual bool
+  GetFace(CellFeatureIdentifier, FaceAutoPointer &);
 
   /** Visitor interface. */
   itkCellVisitMacro(Superclass::TETRAHEDRON_CELL);
 
-  virtual bool EvaluatePosition(CoordRepType *,
-                                PointsContainer *,
-                                CoordRepType *,
-                                CoordRepType[],
-                                double *,
-                                InterpolationWeightType *) ITK_OVERRIDE;
+  bool
+  EvaluatePosition(CoordRepType *,
+                   PointsContainer *,
+                   CoordRepType *,
+                   CoordRepType[],
+                   double *,
+                   InterpolationWeightType *) override;
 
 public:
   TetrahedronCell()
   {
-    for ( PointIdentifier i = 0; i < itkGetStaticConstMacro(NumberOfPoints); i++ )
-      {
-      m_PointIds[i] = NumericTraits< PointIdentifier >::max();
-      }
+    for (PointIdentifier i = 0; i < Self::NumberOfPoints; i++)
+    {
+      m_PointIds[i] = NumericTraits<PointIdentifier>::max();
+    }
   }
 
-  ~TetrahedronCell() ITK_OVERRIDE {}
+  ~TetrahedronCell() override = default;
 
 protected:
   /** Store the number of points needed for a tetrahedron. */
   PointIdentifier m_PointIds[NumberOfPoints];
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TetrahedronCell);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTetrahedronCell.hxx"
+#  include "itkTetrahedronCell.hxx"
 #endif
 
 #endif

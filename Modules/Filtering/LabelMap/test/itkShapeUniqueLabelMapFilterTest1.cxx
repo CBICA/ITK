@@ -25,70 +25,71 @@
 
 #include "itkTestingMacros.h"
 
-int itkShapeUniqueLabelMapFilterTest1(int argc, char * argv[])
+int
+itkShapeUniqueLabelMapFilterTest1(int argc, char * argv[])
 {
-  if( argc != 5 )
-    {
+  if (argc != 5)
+  {
     std::cerr << "Usage: " << argv[0];
     std::cerr << " input output";
     std::cerr << " reverseOrdering(0/1) attribute";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 3;
+  constexpr unsigned int dim = 3;
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, dim > ImageType;
+  using ImageType = itk::Image<PixelType, dim>;
 
-  typedef itk::ShapeLabelObject< PixelType, dim >           ShapeLabelObjectType;
-  typedef itk::LabelMap< ShapeLabelObjectType >             LabelMapType;
+  using ShapeLabelObjectType = itk::ShapeLabelObject<PixelType, dim>;
+  using LabelMapType = itk::LabelMap<ShapeLabelObjectType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::LabelImageToShapeLabelMapFilter< ImageType, LabelMapType> I2LType;
+  using I2LType = itk::LabelImageToShapeLabelMapFilter<ImageType, LabelMapType>;
   I2LType::Pointer i2l = I2LType::New();
-  i2l->SetInput( reader->GetOutput() );
+  i2l->SetInput(reader->GetOutput());
 
-  typedef itk::ShapeUniqueLabelMapFilter< LabelMapType > LabelUniqueType;
+  using LabelUniqueType = itk::ShapeUniqueLabelMapFilter<LabelMapType>;
   LabelUniqueType::Pointer Unique = LabelUniqueType::New();
 
-  //testing get and set macros for ReverseOrdering
-  bool reverseOrdering = atoi( argv[3] );
-  Unique->SetReverseOrdering( reverseOrdering );
-  TEST_SET_GET_VALUE( reverseOrdering , Unique->GetReverseOrdering() );
+  // testing get and set macros for ReverseOrdering
+  bool reverseOrdering = std::stoi(argv[3]);
+  Unique->SetReverseOrdering(reverseOrdering);
+  ITK_TEST_SET_GET_VALUE(reverseOrdering, Unique->GetReverseOrdering());
 
-  //testing boolean macro for ReverseOrdering
+  // testing boolean macro for ReverseOrdering
   Unique->ReverseOrderingOn();
-  TEST_SET_GET_VALUE( true, Unique->GetReverseOrdering() );
+  ITK_TEST_SET_GET_VALUE(true, Unique->GetReverseOrdering());
 
   Unique->ReverseOrderingOff();
-  TEST_SET_GET_VALUE( false, Unique->GetReverseOrdering() );
+  ITK_TEST_SET_GET_VALUE(false, Unique->GetReverseOrdering());
 
-  //testing get and set macros for Attribute
-  LabelUniqueType::AttributeType attribute = atoi( argv[4] );
-  Unique->SetAttribute( attribute );
-  TEST_SET_GET_VALUE( attribute, Unique->GetAttribute() );
+  // testing get and set macros for Attribute
+  LabelUniqueType::AttributeType attribute = std::stoi(argv[4]);
+  Unique->SetAttribute(attribute);
+  ITK_TEST_SET_GET_VALUE(attribute, Unique->GetAttribute());
 
-  Unique->SetInput( i2l->GetOutput() );
+  Unique->SetInput(i2l->GetOutput());
 
   itk::SimpleFilterWatcher watcher(Unique, "filter");
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> L2IType;
+  using L2IType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
   L2IType::Pointer l2i = L2IType::New();
-  l2i->SetInput( Unique->GetOutput() );
+  l2i->SetInput(Unique->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( l2i->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(l2i->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

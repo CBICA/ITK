@@ -68,52 +68,50 @@ namespace itk
  * \ingroup ITKRegistrationCommon
  */
 
-template< typename TFixedImage, typename TMovingImage >
-class ITK_TEMPLATE_EXPORT KullbackLeiblerCompareHistogramImageToImageMetric:
-  public CompareHistogramImageToImageMetric< TFixedImage, TMovingImage >
+template <typename TFixedImage, typename TMovingImage>
+class ITK_TEMPLATE_EXPORT KullbackLeiblerCompareHistogramImageToImageMetric
+  : public CompareHistogramImageToImageMetric<TFixedImage, TMovingImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef KullbackLeiblerCompareHistogramImageToImageMetric Self;
-  typedef CompareHistogramImageToImageMetric< TFixedImage, TMovingImage >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(KullbackLeiblerCompareHistogramImageToImageMetric);
+
+  /** Standard class type aliases. */
+  using Self = KullbackLeiblerCompareHistogramImageToImageMetric;
+  using Superclass = CompareHistogramImageToImageMetric<TFixedImage, TMovingImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(KullbackLeiblerCompareHistogramImageToImageMetric,
-               HistogramImageToImageMetric);
+  itkTypeMacro(KullbackLeiblerCompareHistogramImageToImageMetric, HistogramImageToImageMetric);
 
   /** Types transferred from the base class */
-  typedef typename Superclass::RealType                RealType;
-  typedef typename Superclass::TransformType           TransformType;
-  typedef typename Superclass::TransformPointer        TransformPointer;
-  typedef typename Superclass::ConstPointer            TransformConstPointer;
-  typedef typename Superclass::TransformParametersType TransformParametersType;
-  typedef typename Superclass::TransformJacobianType   TransformJacobianType;
-  typedef typename Superclass::GradientPixelType       GradientPixelType;
+  using RealType = typename Superclass::RealType;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformConstPointer = typename Superclass::ConstPointer;
+  using TransformParametersType = typename Superclass::TransformParametersType;
+  using TransformJacobianType = typename Superclass::TransformJacobianType;
+  using GradientPixelType = typename Superclass::GradientPixelType;
 
-  typedef typename Superclass::MeasureType            MeasureType;
-  typedef typename Superclass::DerivativeType         DerivativeType;
-  typedef typename Superclass::FixedImageType         FixedImageType;
-  typedef typename Superclass::MovingImageType        MovingImageType;
-  typedef typename Superclass::FixedImageConstPointer FixedImageConstPointer;
-  typedef typename Superclass::MovingImageConstPointer
-  MovingImageConstPointer;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using FixedImageConstPointer = typename Superclass::FixedImageConstPointer;
+  using MovingImageConstPointer = typename Superclass::MovingImageConstPointer;
 
-  typedef typename Superclass::HistogramType     HistogramType;
-  typedef typename Superclass::HistogramSizeType HistogramSizeType;
-  typedef typename Superclass::MeasurementVectorType
-  HistogramMeasurementVectorType;
+  using HistogramType = typename Superclass::HistogramType;
+  using HistogramSizeType = typename Superclass::HistogramSizeType;
+  using HistogramMeasurementVectorType = typename Superclass::MeasurementVectorType;
 
-  typedef typename Superclass::HistogramFrequencyType HistogramFrequencyType;
-  typedef typename Superclass::HistogramIteratorType  HistogramIteratorType;
-  typedef typename Superclass::HistogramPointerType   HistogramPointerType;
-  typedef typename Superclass::InterpolatorType       InterpolatorType;
-  typedef typename Superclass::InterpolatorPointer    InterpolatorPointer;
+  using HistogramFrequencyType = typename Superclass::HistogramFrequencyType;
+  using HistogramIteratorType = typename Superclass::HistogramIteratorType;
+  using HistogramPointerType = typename Superclass::HistogramPointerType;
+  using InterpolatorType = typename Superclass::InterpolatorType;
+  using InterpolatorPointer = typename Superclass::InterpolatorPointer;
 
   /** Set epsilon, which is added to each bin in both Histogram */
   itkSetMacro(Epsilon, double);
@@ -122,37 +120,39 @@ public:
   itkGetConstReferenceMacro(Epsilon, double);
 
   /** Return the number of parameters required by the Transform */
-  unsigned int GetNumberOfParameters(void) const ITK_OVERRIDE
-  { return this->GetTransform()->GetNumberOfParameters(); }
+  unsigned int
+  GetNumberOfParameters() const override
+  {
+    return this->GetTransform()->GetNumberOfParameters();
+  }
 
   /** Forms the histogram of the training images to prepare to evaluate the */
   /** metric. Must set all parameters first */
-  void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
 protected:
   /** Constructor is protected to ensure that \c New() function is used to
       create instances. */
   KullbackLeiblerCompareHistogramImageToImageMetric();
-  virtual ~KullbackLeiblerCompareHistogramImageToImageMetric() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~KullbackLeiblerCompareHistogramImageToImageMetric() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Form the Histogram for the Training data */
-  void FormTrainingHistogram();
+  void
+  FormTrainingHistogram();
 
   /** Evaluates the mutual information from the histogram. */
-  virtual MeasureType EvaluateMeasure(HistogramType & histogram) const ITK_OVERRIDE;
+  MeasureType
+  EvaluateMeasure(HistogramType & histogram) const override;
 
   double m_Epsilon;
-
-private:
-  // Purposely not implemented.
-  KullbackLeiblerCompareHistogramImageToImageMetric(Self const &);
-  void operator=(Self const &); // Purposely not implemented.
 };
 } // End namespace itk.
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkKullbackLeiblerCompareHistogramImageToImageMetric.hxx"
+#  include "itkKullbackLeiblerCompareHistogramImageToImageMetric.hxx"
 #endif
 
 #endif // itkKullbackLeiblerCompareHistogramImageToImageMetric_h

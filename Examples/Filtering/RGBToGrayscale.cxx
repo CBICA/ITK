@@ -45,55 +45,55 @@
 #include "itkImageFileWriter.h"
 
 
-int main( int argc, char * argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputRGBImageFile  outputGrayscaleImageFile " << std::endl;
+    std::cerr << argv[0] << "  inputRGBImageFile  outputGrayscaleImageFile "
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef   itk::RGBPixel< unsigned char >            InputPixelType;
-  typedef   itk::Image< InputPixelType, Dimension >   InputImageType;
-  typedef   itk::Image< unsigned char,  Dimension >   OutputImageType;
+  using InputPixelType = itk::RGBPixel<unsigned char>;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<unsigned char, Dimension>;
 
 
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
 
-  typedef itk::RGBToLuminanceImageFilter<
-                                 InputImageType,
-                                 OutputImageType >  FilterType;
+  using FilterType = itk::RGBToLuminanceImageFilter<InputImageType, OutputImageType>;
 
   FilterType::Pointer filter = FilterType::New();
 
-  filter->SetInput( reader->GetOutput() );
+  filter->SetInput(reader->GetOutput());
 
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetInput( filter->GetOutput() );
+  writer->SetInput(filter->GetOutput());
 
-  writer->SetFileName( argv[2] );
+  writer->SetFileName(argv[2]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Exception Thrown" << std::endl;
     std::cerr << excp << std::endl;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

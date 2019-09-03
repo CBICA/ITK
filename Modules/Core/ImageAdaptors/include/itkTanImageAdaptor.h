@@ -36,23 +36,29 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TInternalType, typename TExternalType >
+template <typename TInternalType, typename TExternalType>
 class TanPixelAccessor
 {
 public:
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef TExternalType ExternalType;
+  using ExternalType = TExternalType;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data. */
-  typedef TInternalType InternalType;
+  using InternalType = TInternalType;
 
-  static inline void Set(TInternalType & output, const TExternalType & input)
-  { output = (TInternalType)std::tan( (double)input ); }
+  static inline void
+  Set(TInternalType & output, const TExternalType & input)
+  {
+    output = (TInternalType)std::tan((double)input);
+  }
 
-  static inline TExternalType Get(const TInternalType & input)
-  { return (TExternalType)std::tan( (double)input ); }
+  static inline TExternalType
+  Get(const TInternalType & input)
+  {
+    return (TExternalType)std::tan((double)input);
+  }
 };
 } // end namespace Accessor
 
@@ -66,22 +72,19 @@ public:
  *
  * \ingroup ITKImageAdaptors
  */
-template< typename TImage, typename TOutputPixelType >
-class TanImageAdaptor:public
-  ImageAdaptor< TImage,
-                Accessor::TanPixelAccessor<
-                  typename TImage::PixelType,
-                  TOutputPixelType >   >
+template <typename TImage, typename TOutputPixelType>
+class TanImageAdaptor
+  : public ImageAdaptor<TImage, Accessor::TanPixelAccessor<typename TImage::PixelType, TOutputPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TanImageAdaptor Self;
-  typedef ImageAdaptor< TImage, Accessor::TanPixelAccessor<
-                          typename TImage::PixelType,
-                          TOutputPixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TanImageAdaptor);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = TanImageAdaptor;
+  using Superclass = ImageAdaptor<TImage, Accessor::TanPixelAccessor<typename TImage::PixelType, TOutputPixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -90,11 +93,8 @@ public:
   itkTypeMacro(TanImageAdaptor, ImageAdaptor);
 
 protected:
-  TanImageAdaptor() {}
-  virtual ~TanImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TanImageAdaptor);
+  TanImageAdaptor() = default;
+  ~TanImageAdaptor() override = default;
 };
 } // end namespace itk
 

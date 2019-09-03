@@ -26,51 +26,52 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 3 )
-    {
-    std::cerr << "Usage: inputImage outputImage [sigma] [alpha_1] [alpha_2]" << std::endl;
-    }
+  if (argc < 3)
+  {
+    std::cerr << "Usage: inputImage outputImage [sigma] [alpha_1] [alpha_2]"
+              << std::endl;
+  }
 
-  const unsigned int Dimension       = 3;
-  typedef double     InputPixelType;
-  typedef float      OutputPixelType;
+  constexpr unsigned int Dimension = 3;
+  using InputPixelType = double;
+  using OutputPixelType = float;
 
-  typedef itk::Image< InputPixelType, Dimension >  InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
-  typedef itk::HessianRecursiveGaussianImageFilter<
-                                    InputImageType >     HessianFilterType;
-  typedef itk::Hessian3DToVesselnessMeasureImageFilter<
-                                       OutputPixelType > VesselnessMeasureFilterType;
-  typedef itk::ImageFileReader< InputImageType >         ReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >        WriterType;
+  using HessianFilterType = itk::HessianRecursiveGaussianImageFilter<InputImageType>;
+  using VesselnessMeasureFilterType =
+    itk::Hessian3DToVesselnessMeasureImageFilter<OutputPixelType>;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
-  HessianFilterType::Pointer hessianFilter = HessianFilterType::New();
+  HessianFilterType::Pointer           hessianFilter = HessianFilterType::New();
   VesselnessMeasureFilterType::Pointer vesselnessFilter =
-                            VesselnessMeasureFilterType::New();
+    VesselnessMeasureFilterType::New();
 
-  ReaderType::Pointer   reader = ReaderType::New();
-  WriterType::Pointer   writer = WriterType::New();
+  ReaderType::Pointer reader = ReaderType::New();
+  WriterType::Pointer writer = WriterType::New();
 
-  reader->SetFileName( argv[1] );
-  hessianFilter->SetInput( reader->GetOutput() );
-  if( argc >= 4 )
-    {
-    hessianFilter->SetSigma( static_cast< double >(atof(argv[3])) );
-    }
-  vesselnessFilter->SetInput( hessianFilter->GetOutput() );
-  writer->SetInput( vesselnessFilter->GetOutput() );
-  writer->SetFileName( argv[2] );
-  if( argc >= 5 )
-    {
-    vesselnessFilter->SetAlpha1( static_cast< double >(atof(argv[4])));
-    }
-  if( argc >= 6 )
-    {
-    vesselnessFilter->SetAlpha2( static_cast< double >(atof(argv[5])));
-    }
+  reader->SetFileName(argv[1]);
+  hessianFilter->SetInput(reader->GetOutput());
+  if (argc >= 4)
+  {
+    hessianFilter->SetSigma(static_cast<double>(std::stod(argv[3])));
+  }
+  vesselnessFilter->SetInput(hessianFilter->GetOutput());
+  writer->SetInput(vesselnessFilter->GetOutput());
+  writer->SetFileName(argv[2]);
+  if (argc >= 5)
+  {
+    vesselnessFilter->SetAlpha1(static_cast<double>(std::stod(argv[4])));
+  }
+  if (argc >= 6)
+  {
+    vesselnessFilter->SetAlpha2(static_cast<double>(std::stod(argv[5])));
+  }
 
   writer->Update();
   return EXIT_SUCCESS;

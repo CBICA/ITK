@@ -63,41 +63,43 @@ namespace itk
  * should be in the range [0.1,1] for reasonable results.
  * \ingroup ITKLevelSets
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT UnsharpMaskLevelSetImageFilter:
-  public SparseFieldFourthOrderLevelSetImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT UnsharpMaskLevelSetImageFilter
+  : public SparseFieldFourthOrderLevelSetImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs */
-  typedef UnsharpMaskLevelSetImageFilter                                         Self;
-  typedef SparseFieldFourthOrderLevelSetImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                                   Pointer;
-  typedef SmartPointer< const Self >                                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(UnsharpMaskLevelSetImageFilter);
+
+  /** Standard class type aliases */
+  using Self = UnsharpMaskLevelSetImageFilter;
+  using Superclass = SparseFieldFourthOrderLevelSetImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(UnsharpMaskLevelSetImageFilter,
-               SparseFieldFourthOrderLevelSetImageFilter);
+  itkTypeMacro(UnsharpMaskLevelSetImageFilter, SparseFieldFourthOrderLevelSetImageFilter);
 
   /** Standard new macro */
   itkNewMacro(Self);
 
   /** The sparse image type used in LevelSetFunctionWithRefitTerm */
-  typedef typename Superclass::SparseImageType SparseImageType;
+  using SparseImageType = typename Superclass::SparseImageType;
 
   /** The level set function class with a refit term that forces the curvature
       of the moving front to match a prescribed curvature image. */
-  typedef LevelSetFunctionWithRefitTerm< TOutputImage, SparseImageType > FunctionType;
+  using FunctionType = LevelSetFunctionWithRefitTerm<TOutputImage, SparseImageType>;
 
   /** The radius type for the neighborhoods. */
-  typedef typename FunctionType::RadiusType RadiusType;
+  using RadiusType = typename FunctionType::RadiusType;
 
   itkGetConstMacro(MaxFilterIteration, unsigned int);
   itkSetMacro(MaxFilterIteration, unsigned int);
 
 protected:
   UnsharpMaskLevelSetImageFilter();
-  ~UnsharpMaskLevelSetImageFilter() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~UnsharpMaskLevelSetImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** The LevelSetFunctionWithRefitTerm object. */
   typename FunctionType::Pointer m_Function;
@@ -106,25 +108,23 @@ protected:
   unsigned int m_MaxFilterIteration;
 
   /** This filter halts when the iteration count reaches the specified count. */
-  virtual bool Halt() ITK_OVERRIDE
+  bool
+  Halt() override
   {
-    if ( this->GetElapsedIterations() == m_MaxFilterIteration )
-      {
+    if (this->GetElapsedIterations() == m_MaxFilterIteration)
+    {
       return true;
-      }
+    }
     else
-      {
+    {
       return false;
-      }
+    }
   }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(UnsharpMaskLevelSetImageFilter);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkUnsharpMaskLevelSetImageFilter.hxx"
+#  include "itkUnsharpMaskLevelSetImageFilter.hxx"
 #endif
 
 #endif

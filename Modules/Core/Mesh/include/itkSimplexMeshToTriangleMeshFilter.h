@@ -39,19 +39,21 @@ namespace itk
  *
  * \ingroup ITKMesh
  */
-template< typename TInputMesh, typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT SimplexMeshToTriangleMeshFilter:public MeshToMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT SimplexMeshToTriangleMeshFilter : public MeshToMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef SimplexMeshToTriangleMeshFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SimplexMeshToTriangleMeshFilter);
 
-  /** Standard "Superclass" typedef. */
-  typedef MeshToMeshFilter< TInputMesh, TOutputMesh > Superclass;
+  /** Standard "Self" type alias. */
+  using Self = SimplexMeshToTriangleMeshFilter;
 
-  /** Smart pointer typedef support */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard "Superclass" type alias. */
+  using Superclass = MeshToMeshFilter<TInputMesh, TOutputMesh>;
+
+  /** Smart pointer type alias support */
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method of creation through the object factory. */
   itkNewMacro(Self);
@@ -59,29 +61,29 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(SimplexMeshToTriangleMeshFilter, MeshToMeshFilter);
 
-  typedef TInputMesh                                     InputMeshType;
-  typedef typename InputMeshType::ConstPointer           InputMeshConstPointer;
-  typedef typename InputMeshType::PointType              InputPointType;
-  typedef typename InputMeshType::PixelType              InputPixelType;
-  typedef typename InputMeshType::MeshTraits::CellTraits InputCellTraitsType;
-  typedef typename InputMeshType::PointIdentifier        PointIdentifier;
-  typedef typename InputMeshType::CellIdentifier         CellIdentifier;
+  using InputMeshType = TInputMesh;
+  using InputMeshConstPointer = typename InputMeshType::ConstPointer;
+  using InputPointType = typename InputMeshType::PointType;
+  using InputPixelType = typename InputMeshType::PixelType;
+  using InputCellTraitsType = typename InputMeshType::MeshTraits::CellTraits;
+  using PointIdentifier = typename InputMeshType::PointIdentifier;
+  using CellIdentifier = typename InputMeshType::CellIdentifier;
 
-  typedef typename InputMeshType::PointsContainer InputPointsContainer;
-  typedef typename InputPointsContainer::Pointer  InputPointsContainerPointer;
-  typedef typename InputPointsContainer::Iterator InputPointsContainerIterator;
+  using InputPointsContainer = typename InputMeshType::PointsContainer;
+  using InputPointsContainerPointer = typename InputPointsContainer::Pointer;
+  using InputPointsContainerIterator = typename InputPointsContainer::Iterator;
 
-  typedef typename InputMeshType::NeighborListType           InputNeighbors;
-  typedef typename InputMeshType::NeighborListType::iterator InputNeighborsIterator;
+  using InputNeighbors = typename InputMeshType::NeighborListType;
+  using InputNeighborsIterator = typename InputMeshType::NeighborListType::iterator;
 
-  typedef          itk::AutomaticTopologyMeshSource< TOutputMesh > AutoMeshSourceType;
+  using AutoMeshSourceType = itk::AutomaticTopologyMeshSource<TOutputMesh>;
 
-  typedef typename InputMeshType::CellType             SimplexCellType;
-  typedef          itk::PolygonCell< SimplexCellType > SimplexPolygonType;
+  using SimplexCellType = typename InputMeshType::CellType;
+  using SimplexPolygonType = itk::PolygonCell<SimplexCellType>;
 
   // stores the center for each simplex mesh cell, key is the point id
-  typedef          itk::MapContainer< PointIdentifier, InputPointType > PointMapType;
-  typedef typename PointMapType::Pointer                                PointMapPointer;
+  using PointMapType = itk::MapContainer<PointIdentifier, InputPointType>;
+  using PointMapPointer = typename PointMapType::Pointer;
 
   /** \class SimplexCellVisitor
    * This class provides methods for visiting
@@ -91,40 +93,37 @@ public:
    */
   class SimplexCellVisitor
   {
-public:
-
+  public:
     /**
      * default constructor
      */
-    SimplexCellVisitor()
-    {
-      m_CenterMap = PointMapType::New();
-    }
+    SimplexCellVisitor() { m_CenterMap = PointMapType::New(); }
 
     /**
      * default destructor
      */
-    virtual ~SimplexCellVisitor() {}
+    virtual ~SimplexCellVisitor() = default;
 
     /**
      * \brief visits all polygon cells and compute the cell centers
      */
-    void Visit(CellIdentifier cellId, SimplexPolygonType *poly)
+    void
+    Visit(CellIdentifier cellId, SimplexPolygonType * poly)
     {
-      typedef typename SimplexPolygonType::PointIdIterator PointIdIterator;
-      PointIdIterator it =  poly->PointIdsBegin();
+      using PointIdIterator = typename SimplexPolygonType::PointIdIterator;
+      PointIdIterator it = poly->PointIdsBegin();
       InputPointType  center;
       center.Fill(0);
 
       InputPointType p;
       p.Fill(0);
 
-      while ( it != poly->PointIdsEnd() )
-        {
+      while (it != poly->PointIdsEnd())
+      {
         this->m_Mesh->GetPoint(*it, &p);
         center += p.GetVectorFromOrigin();
         it++;
-        }
+      }
 
       center[0] /= poly->GetNumberOfPoints();
       center[1] /= poly->GetNumberOfPoints();
@@ -133,57 +132,58 @@ public:
       m_CenterMap->InsertElement(cellId, center);
     }
 
-    PointMapPointer GetCenterMap()
+    PointMapPointer
+    GetCenterMap()
     {
       return m_CenterMap;
     }
 
-    void SetMesh(const InputMeshType *mesh)
+    void
+    SetMesh(const InputMeshType * mesh)
     {
       this->m_Mesh = mesh;
     }
 
-protected:
+  protected:
     InputMeshConstPointer m_Mesh;
     PointMapPointer       m_CenterMap;
   };
 
-  typedef itk::CellInterfaceVisitorImplementation< InputPixelType,
-                                                   InputCellTraitsType,
-                                                   SimplexPolygonType,
-                                                   SimplexCellVisitor >
-  SimplexVisitorInterfaceType;
+  using SimplexVisitorInterfaceType = itk::
+    CellInterfaceVisitorImplementation<InputPixelType, InputCellTraitsType, SimplexPolygonType, SimplexCellVisitor>;
 
-  typedef typename SimplexVisitorInterfaceType::Pointer SimplexVisitorInterfacePointer;
-  typedef typename SimplexCellType::MultiVisitor        CellMultiVisitorType;
-  typedef typename CellMultiVisitorType::Pointer        CellMultiVisitorPointer;
+  using SimplexVisitorInterfacePointer = typename SimplexVisitorInterfaceType::Pointer;
+  using CellMultiVisitorType = typename SimplexCellType::MultiVisitor;
+  using CellMultiVisitorPointer = typename CellMultiVisitorType::Pointer;
 
 protected:
+  SimplexMeshToTriangleMeshFilter() = default;
+  ~SimplexMeshToTriangleMeshFilter() override = default;
 
-  SimplexMeshToTriangleMeshFilter();
-  virtual ~SimplexMeshToTriangleMeshFilter() ITK_OVERRIDE;
-  SimplexMeshToTriangleMeshFilter(const Self &) {}
-  void operator=(const Self &) {}
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
-
-  void Initialize();
+  void
+  Initialize();
 
   /** creates dual triangles for all simplex cells */
-  void CreateTriangles();
+  void
+  CreateTriangles();
 
   /** part of algorithm */
-  CellIdentifier FindCellId(CellIdentifier id1, CellIdentifier id2, CellIdentifier id3);
+  CellIdentifier
+  FindCellId(CellIdentifier id1, CellIdentifier id2, CellIdentifier id3);
 
   /** attribute stores the result of the simplex cell visitor */
   PointMapPointer m_Centers;
 };
-} //end of namespace
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSimplexMeshToTriangleMeshFilter.hxx"
+#  include "itkSimplexMeshToTriangleMeshFilter.hxx"
 #endif
 
 #endif //__SimplexMeshToTriangleMeshFilter_h

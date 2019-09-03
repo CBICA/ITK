@@ -18,7 +18,7 @@
 #ifndef itkMagnitudeAndPhaseToComplexImageFilter_h
 #define itkMagnitudeAndPhaseToComplexImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 
 namespace itk
 {
@@ -54,87 +54,81 @@ namespace itk
  */
 namespace Functor
 {
-template< typename TInput1, typename TInput2, typename TOutput >
+template <typename TInput1, typename TInput2, typename TOutput>
 class MagnitudeAndPhaseToComplex
 {
 public:
-  MagnitudeAndPhaseToComplex() {}
-  ~MagnitudeAndPhaseToComplex() {}
-  bool operator!=(const MagnitudeAndPhaseToComplex &) const
+  MagnitudeAndPhaseToComplex() = default;
+  ~MagnitudeAndPhaseToComplex() = default;
+  bool
+  operator!=(const MagnitudeAndPhaseToComplex &) const
   {
     return false;
   }
 
-  bool operator==(const MagnitudeAndPhaseToComplex & other) const
+  bool
+  operator==(const MagnitudeAndPhaseToComplex & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline std::complex< TOutput > operator()(const TInput1 & A, const TInput2 & B) const
+  inline std::complex<TOutput>
+  operator()(const TInput1 & A, const TInput2 & B) const
   {
-    return std::complex< TOutput >( std::polar( static_cast< TOutput >( A ),  static_cast< TOutput >( B ) ) );
+    return std::complex<TOutput>(std::polar(static_cast<TOutput>(A), static_cast<TOutput>(B)));
   }
 };
-}
+} // namespace Functor
 
-template< typename TInputImage1,
+template <typename TInputImage1,
           typename TInputImage2 = TInputImage1,
-          typename TOutputImage = itk::Image< std::complex< typename TInputImage1::PixelType >,
-                                           TInputImage1::ImageDimension > >
-class MagnitudeAndPhaseToComplexImageFilter:
-  public BinaryFunctorImageFilter<
-    TInputImage1,
-    TInputImage2,
-    TOutputImage,
-    Functor::MagnitudeAndPhaseToComplex<
-      typename TInputImage1::PixelType,
-      typename TInputImage2::PixelType,
-      typename TOutputImage::PixelType::value_type > >
-
+          typename TOutputImage =
+            itk::Image<std::complex<typename TInputImage1::PixelType>, TInputImage1::ImageDimension>>
+class MagnitudeAndPhaseToComplexImageFilter
+  : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MagnitudeAndPhaseToComplexImageFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MagnitudeAndPhaseToComplexImageFilter);
 
-  typedef BinaryFunctorImageFilter<
-    TInputImage1,
-    TInputImage2,
-    TOutputImage,
-    Functor::MagnitudeAndPhaseToComplex<
-      typename TInputImage1::PixelType,
-      typename TInputImage2::PixelType,
-      typename TOutputImage::PixelType::value_type > > Superclass;
+  /** Standard class type aliases. */
+  using Self = MagnitudeAndPhaseToComplexImageFilter;
 
-  typedef typename TInputImage1::PixelType InputPixel1Type;
-  typedef typename TInputImage2::PixelType InputPixel2Type;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using InputPixel1Type = typename TInputImage1::PixelType;
+  using InputPixel2Type = typename TInputImage2::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using FunctorType = Functor::MagnitudeAndPhaseToComplex<typename TInputImage1::PixelType,
+                                                          typename TInputImage2::PixelType,
+                                                          typename TOutputImage::PixelType::value_type>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(MagnitudeAndPhaseToComplexImageFilter, BinaryFunctorImageFilter);
+  itkTypeMacro(MagnitudeAndPhaseToComplexImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1ConvertibleToDoubleCheck,
-                   ( Concept::Convertible< InputPixel1Type, double > ) );
-  itkConceptMacro( Input2ConvertibleToDoubleCheck,
-                   ( Concept::Convertible< InputPixel2Type, double > ) );
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, OutputPixelType > ) );
+  itkConceptMacro(Input1ConvertibleToDoubleCheck, (Concept::Convertible<InputPixel1Type, double>));
+  itkConceptMacro(Input2ConvertibleToDoubleCheck, (Concept::Convertible<InputPixel2Type, double>));
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  MagnitudeAndPhaseToComplexImageFilter() {}
-  virtual ~MagnitudeAndPhaseToComplexImageFilter() ITK_OVERRIDE {}
+  MagnitudeAndPhaseToComplexImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MagnitudeAndPhaseToComplexImageFilter);
+  ~MagnitudeAndPhaseToComplexImageFilter() override = default;
 };
 } // end namespace itk
 

@@ -64,22 +64,23 @@ namespace itk
 /** \class ImageFileReader
  * \ingroup ITKIOImageBase
  *
- * \wiki
- * \wikiexample{IO/ReadVectorImage,Read an image file with an unknown number of components}
- * \wikiexample{IO/ReadUnknownImageType,Read an image file without knowing its type before hand}
- * \wikiexample{IO/ImageFileReader,Read an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/ReadWriteVectorImage,Read Write Vector Image}
+ * \sphinxexample{IO/ImageBase/ReadUnknownImageType, Read Unknown Image Type}
+ * \sphinxexample{IO/ImageBase/ReadAnImage,Read An Image}
+ * \endsphinx
  */
-template< typename TOutputImage,
-          typename ConvertPixelTraits = DefaultConvertPixelTraits<
-            typename TOutputImage::IOPixelType > >
-class ITKIOImageBase_HIDDEN ImageFileReader:public ImageSource< TOutputImage >
+template <typename TOutputImage,
+          typename ConvertPixelTraits = DefaultConvertPixelTraits<typename TOutputImage::IOPixelType>>
+class ITK_TEMPLATE_EXPORT ImageFileReader : public ImageSource<TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageFileReader             Self;
-  typedef ImageSource< TOutputImage > Superclass;
-  typedef SmartPointer< Self >        Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFileReader);
+
+  /** Standard class type aliases. */
+  using Self = ImageFileReader;
+  using Superclass = ImageSource<TOutputImage>;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -88,16 +89,16 @@ public:
   itkTypeMacro(ImageFileReader, ImageSource);
 
   /** The size of the output image. */
-  typedef typename TOutputImage::SizeType SizeType;
+  using SizeType = typename TOutputImage::SizeType;
 
   /** The size of the output image. */
-  typedef typename TOutputImage::IndexType IndexType;
+  using IndexType = typename TOutputImage::IndexType;
 
   /** The region of the output image. */
-  typedef typename TOutputImage::RegionType ImageRegionType;
+  using ImageRegionType = typename TOutputImage::RegionType;
 
   /** The pixel type of the output image. */
-  typedef typename TOutputImage::InternalPixelType OutputImagePixelType;
+  using OutputImagePixelType = typename TOutputImage::InternalPixelType;
 
   /** Specify the file to read. This is forwarded to the IO instance. */
   itkSetGetDecoratedInputMacro(FileName, std::string);
@@ -108,7 +109,8 @@ public:
    * instance that is created. Or you can directly specify the ImageIO
    * to use to read a particular file in case the factory mechanism will
    * not work properly (e.g., unknown or unusual extension). */
-  void  SetImageIO(ImageIOBase *imageIO);
+  void
+  SetImageIO(ImageIOBase * imageIO);
   itkGetModifiableObjectMacro(ImageIO, ImageIOBase);
 
   /** Set the stream On or Off */
@@ -118,32 +120,38 @@ public:
 
 protected:
   ImageFileReader();
-  ~ImageFileReader() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageFileReader() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Convert a block of pixels from one type to another. */
-  void DoConvertBuffer(void *buffer, size_t numberOfPixels);
+  void
+  DoConvertBuffer(void * buffer, size_t numberOfPixels);
 
   /** Test whether the given filename exist and it is readable, this
-    * is intended to be called before attempting to use  ImageIO
-    * classes for actually reading the file. If the file doesn't exist
-    * or it is not readable, and exception with an approriate message
-    * will be thrown. */
-  void TestFileExistanceAndReadability();
+   * is intended to be called before attempting to use  ImageIO
+   * classes for actually reading the file. If the file doesn't exist
+   * or it is not readable, and exception with an approriate message
+   * will be thrown. */
+  void
+  TestFileExistanceAndReadability();
 
   /** Prepare the allocation of the output image during the first back
    * propagation of the pipeline. */
-  virtual void GenerateOutputInformation(void) ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
   /** Give the reader a chance to indicate that it will produce more
    * output than it was requested to produce. ImageFileReader cannot
    * currently read a portion of an image (since the ImageIO objects
    * cannot read a portion of an image), so the ImageFileReader must
    * enlarge the RequestedRegion to the size of the image on disk. */
-  virtual void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
   /** Does the real work. */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   ImageIOBase::Pointer m_ImageIO;
 
@@ -153,22 +161,20 @@ protected:
   bool m_UseStreaming;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFileReader);
-
   std::string m_ExceptionMessage;
 
   // The region that the ImageIO class will return when we ask to
   // produce the requested region.
   ImageIORegion m_ActualIORegion;
 };
-} //namespace ITK
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageFileReader.hxx"
+#  include "itkImageFileReader.hxx"
 #endif
 
 #ifdef ITK_IO_FACTORY_REGISTER_MANAGER
-#include "itkImageIOFactoryRegisterManager.h"
+#  include "itkImageIOFactoryRegisterManager.h"
 #endif
 
 #endif // itkImageFileReader_h

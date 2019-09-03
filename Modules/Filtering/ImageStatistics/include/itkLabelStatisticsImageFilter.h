@@ -18,18 +18,19 @@
 #ifndef itkLabelStatisticsImageFilter_h
 #define itkLabelStatisticsImageFilter_h
 
-#include "itkImageToImageFilter.h"
+#include "itkImageSink.h"
 #include "itkNumericTraits.h"
 #include "itkSimpleDataObjectDecorator.h"
-#include "itksys/hash_map.hxx"
 #include "itkHistogram.h"
-#include "itkFastMutexLock.h"
+#include <mutex>
+#include <unordered_map>
 #include <vector>
 
 namespace itk
 {
 /** \class LabelStatisticsImageFilter
- * \brief Given an intensity image and a label map, compute min, max, variance and mean of the pixels associated with each label or segment
+ * \brief Given an intensity image and a label map, compute min, max, variance and mean of the pixels associated with
+ * each label or segment
  *
  * LabelStatisticsImageFilter computes the minimum, maximum, sum,
  * mean, median, variance and sigma of regions of an intensity image, where
@@ -45,27 +46,29 @@ namespace itk
  * of the histogram. If histograms are not enabled, the median returns
  * zero.
  *
- * The filter passes its intensity input through unmodified.  The filter is
- * threaded. It computes statistics in each thread then combines them in
- * its AfterThreadedGenerate method.
+ * This filter is automatically multi-threaded and can stream its
+ * input when NumberOfStreamDivisions is set to more than
+ * 1. Statistics are independently computed for each streamed and
+ * threaded region then merged.
  *
  * \ingroup MathematicalStatisticsImageFilters
  * \ingroup ITKImageStatistics
  *
- * \wiki
- * \wikiexample{ImageProcessing/LabelStatisticsImageFilter,Get statistical properties of labeled regions in an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageStatistics/StatisticalPropertiesOfRegions,Statistical Properties Of Labeled Regions}
+ * \endsphinx
  */
-template< typename TInputImage, typename TLabelImage >
-class ITK_TEMPLATE_EXPORT LabelStatisticsImageFilter:
-  public ImageToImageFilter< TInputImage, TInputImage >
+template <typename TInputImage, typename TLabelImage>
+class ITK_TEMPLATE_EXPORT LabelStatisticsImageFilter : public ImageSink<TInputImage>
 {
 public:
-  /** Standard Self typedef */
-  typedef LabelStatisticsImageFilter                     Self;
-  typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelStatisticsImageFilter);
+
+  /** Standard Self type alias */
+  using Self = LabelStatisticsImageFilter;
+  using Superclass = ImageSink<TInputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,40 +76,39 @@ public:
   /** Runtime information support. */
   itkTypeMacro(LabelStatisticsImageFilter, ImageToImageFilter);
 
-  /** Image related typedefs. */
-  typedef typename TInputImage::Pointer    InputImagePointer;
-  typedef typename TInputImage::RegionType RegionType;
-  typedef typename TInputImage::SizeType   SizeType;
-  typedef typename TInputImage::IndexType  IndexType;
-  typedef typename TInputImage::PixelType  PixelType;
+  /** Image related type alias. */
+  using InputImagePointer = typename TInputImage::Pointer;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
 
-  /** Label image related typedefs. */
-  typedef TLabelImage                      LabelImageType;
-  typedef typename TLabelImage::Pointer    LabelImagePointer;
-  typedef typename TLabelImage::RegionType LabelRegionType;
-  typedef typename TLabelImage::SizeType   LabelSizeType;
-  typedef typename TLabelImage::IndexType  LabelIndexType;
-  typedef typename TLabelImage::PixelType  LabelPixelType;
+  /** Label image related type alias. */
+  using LabelImageType = TLabelImage;
+  using LabelImagePointer = typename TLabelImage::Pointer;
+  using LabelRegionType = typename TLabelImage::RegionType;
+  using LabelSizeType = typename TLabelImage::SizeType;
+  using LabelIndexType = typename TLabelImage::IndexType;
+  using LabelPixelType = typename TLabelImage::PixelType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Type to use for computations. */
-  typedef typename NumericTraits< PixelType >::RealType RealType;
+  using RealType = typename NumericTraits<PixelType>::RealType;
 
   /** Smart Pointer type to a DataObject. */
-  typedef typename DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = typename DataObject::Pointer;
 
   /** Type of DataObjects used for scalar outputs */
-  typedef SimpleDataObjectDecorator< RealType > RealObjectType;
+  using RealObjectType = SimpleDataObjectDecorator<RealType>;
 
-  /** Bounding Box-related typedefs */
-  typedef std::vector< IndexValueType > BoundingBoxType;
+  /** Bounding Box-related type alias */
+  using BoundingBoxType = std::vector<IndexValueType>;
 
-  /** Histogram-related typedefs */
-  typedef itk::Statistics::Histogram< RealType > HistogramType;
-  typedef typename HistogramType::Pointer        HistogramPointer;
+  /** Histogram-related type alias */
+  using HistogramType = itk::Statistics::Histogram<RealType>;
+  using HistogramPointer = typename HistogramType::Pointer;
 
   /** \class LabelStatistics
    * \brief Statistics stored per label
@@ -114,63 +116,62 @@ public:
    */
   class LabelStatistics
   {
-public:
-
+  public:
     // default constructor
     LabelStatistics()
     {
       // initialized to the default values
-      m_Count = NumericTraits< IdentifierType >::ZeroValue();
-      m_Sum = NumericTraits< RealType >::ZeroValue();
-      m_SumOfSquares = NumericTraits< RealType >::ZeroValue();
+      m_Count = NumericTraits<IdentifierType>::ZeroValue();
+      m_Sum = NumericTraits<RealType>::ZeroValue();
+      m_SumOfSquares = NumericTraits<RealType>::ZeroValue();
 
       // Set such that the first pixel encountered can be compared
-      m_Minimum = NumericTraits< RealType >::max();
-      m_Maximum = NumericTraits< RealType >::NonpositiveMin();
+      m_Minimum = NumericTraits<RealType>::max();
+      m_Maximum = NumericTraits<RealType>::NonpositiveMin();
 
       // Default these to zero
-      m_Mean = NumericTraits< RealType >::ZeroValue();
-      m_Sigma = NumericTraits< RealType >::ZeroValue();
-      m_Variance = NumericTraits< RealType >::ZeroValue();
+      m_Mean = NumericTraits<RealType>::ZeroValue();
+      m_Sigma = NumericTraits<RealType>::ZeroValue();
+      m_Variance = NumericTraits<RealType>::ZeroValue();
 
-      const unsigned int imageDimension = itkGetStaticConstMacro(ImageDimension);
+      const unsigned int imageDimension = Self::ImageDimension;
       m_BoundingBox.resize(imageDimension * 2);
-      for ( unsigned int i = 0; i < imageDimension * 2; i += 2 )
-        {
-        m_BoundingBox[i] = NumericTraits< IndexValueType >::max();
-        m_BoundingBox[i + 1] = NumericTraits< IndexValueType >::NonpositiveMin();
-        }
-      m_Histogram = ITK_NULLPTR;
+      for (unsigned int i = 0; i < imageDimension * 2; i += 2)
+      {
+        m_BoundingBox[i] = NumericTraits<IndexValueType>::max();
+        m_BoundingBox[i + 1] = NumericTraits<IndexValueType>::NonpositiveMin();
+      }
+      m_Histogram = nullptr;
     }
 
     // constructor with histogram enabled
     LabelStatistics(int size, RealType lowerBound, RealType upperBound)
     {
       // initialized to the default values
-      m_Count = NumericTraits< IdentifierType >::ZeroValue();
-      m_Sum = NumericTraits< RealType >::ZeroValue();
-      m_SumOfSquares = NumericTraits< RealType >::ZeroValue();
+      m_Count = NumericTraits<IdentifierType>::ZeroValue();
+      m_Sum = NumericTraits<RealType>::ZeroValue();
+      m_SumOfSquares = NumericTraits<RealType>::ZeroValue();
 
       // Set such that the first pixel encountered can be compared
-      m_Minimum = NumericTraits< RealType >::max();
-      m_Maximum = NumericTraits< RealType >::NonpositiveMin();
+      m_Minimum = NumericTraits<RealType>::max();
+      m_Maximum = NumericTraits<RealType>::NonpositiveMin();
 
       // Default these to zero
-      m_Mean = NumericTraits< RealType >::ZeroValue();
-      m_Sigma = NumericTraits< RealType >::ZeroValue();
-      m_Variance = NumericTraits< RealType >::ZeroValue();
+      m_Mean = NumericTraits<RealType>::ZeroValue();
+      m_Sigma = NumericTraits<RealType>::ZeroValue();
+      m_Variance = NumericTraits<RealType>::ZeroValue();
 
-      const unsigned int imageDimension = itkGetStaticConstMacro(ImageDimension);
+      const unsigned int imageDimension = Self::ImageDimension;
       m_BoundingBox.resize(imageDimension * 2);
-      for ( unsigned int i = 0; i < imageDimension * 2; i += 2 )
-        {
-        m_BoundingBox[i] = NumericTraits< IndexValueType >::max();
-        m_BoundingBox[i + 1] = NumericTraits< IndexValueType >::NonpositiveMin();
-        }
+      for (unsigned int i = 0; i < imageDimension * 2; i += 2)
+      {
+        m_BoundingBox[i] = NumericTraits<IndexValueType>::max();
+        m_BoundingBox[i + 1] = NumericTraits<IndexValueType>::NonpositiveMin();
+      }
 
       // Histogram
       m_Histogram = HistogramType::New();
-      typename HistogramType::SizeType hsize;
+      typename HistogramType::SizeType              hsize;
       typename HistogramType::MeasurementVectorType lb;
       typename HistogramType::MeasurementVectorType ub;
       hsize.SetSize(1);
@@ -198,11 +199,14 @@ public:
       m_Histogram = l.m_Histogram;
     }
 
+    LabelStatistics(LabelStatistics &&) = default;
+
     // added for completeness
-    LabelStatistics &operator= (const LabelStatistics& l)
+    LabelStatistics &
+    operator=(const LabelStatistics & l)
     {
-      if(this != &l)
-        {
+      if (this != &l)
+      {
         m_Count = l.m_Count;
         m_Minimum = l.m_Minimum;
         m_Maximum = l.m_Maximum;
@@ -213,30 +217,30 @@ public:
         m_Variance = l.m_Variance;
         m_BoundingBox = l.m_BoundingBox;
         m_Histogram = l.m_Histogram;
-        }
+      }
       return *this;
     }
 
-    IdentifierType  m_Count;
-    RealType        m_Minimum;
-    RealType        m_Maximum;
-    RealType        m_Mean;
-    RealType        m_Sum;
-    RealType        m_SumOfSquares;
-    RealType        m_Sigma;
-    RealType        m_Variance;
-    BoundingBoxType m_BoundingBox;
+    IdentifierType                  m_Count;
+    RealType                        m_Minimum;
+    RealType                        m_Maximum;
+    RealType                        m_Mean;
+    RealType                        m_Sum;
+    RealType                        m_SumOfSquares;
+    RealType                        m_Sigma;
+    RealType                        m_Variance;
+    BoundingBoxType                 m_BoundingBox;
     typename HistogramType::Pointer m_Histogram;
   };
 
   /** Type of the map used to store data per label */
-  typedef itksys::hash_map< LabelPixelType, LabelStatistics >                          MapType;
-  typedef typename itksys::hash_map< LabelPixelType, LabelStatistics >::iterator       MapIterator;
-  typedef typename itksys::hash_map< LabelPixelType, LabelStatistics >::const_iterator MapConstIterator;
-  typedef IdentifierType                                                               MapSizeType;
+  using MapType = std::unordered_map<LabelPixelType, LabelStatistics>;
+  using MapIterator = typename MapType::iterator;
+  using MapConstIterator = typename MapType::const_iterator;
+  using MapSizeType = IdentifierType;
 
   /** Type of the container used to store valid label values */
-  typedef std::vector<LabelPixelType> ValidLabelValuesContainerType;
+  using ValidLabelValuesContainerType = std::vector<LabelPixelType>;
 
   // macros for Histogram enables
   itkSetMacro(UseHistograms, bool);
@@ -244,117 +248,117 @@ public:
   itkBooleanMacro(UseHistograms);
 
 
-  virtual const ValidLabelValuesContainerType &GetValidLabelValues() const
+  virtual const ValidLabelValuesContainerType &
+  GetValidLabelValues() const
   {
     return m_ValidLabelValues;
   }
 
   /** Set the label image */
-  void SetLabelInput(const TLabelImage *input)
-  {
-    // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast< TLabelImage * >( input ) );
-  }
-
-  /** Get the label image */
-  const LabelImageType * GetLabelInput() const
-  {
-    return itkDynamicCastInDebugMode< LabelImageType * >( const_cast< DataObject * >( this->ProcessObject::GetInput(1) ) );
-  }
+  itkSetInputMacro(LabelInput, TLabelImage);
+  itkGetInputMacro(LabelInput, TLabelImage);
 
   /** Does the specified label exist? Can only be called after a call
    * a call to Update(). */
-  bool HasLabel(LabelPixelType label) const
+  bool
+  HasLabel(LabelPixelType label) const
   {
     return m_LabelStatistics.find(label) != m_LabelStatistics.end();
   }
 
   /** Get the number of labels used */
-  MapSizeType GetNumberOfObjects() const
+  MapSizeType
+  GetNumberOfObjects() const
   {
-    return static_cast<MapSizeType>( m_LabelStatistics.size() );
+    return static_cast<MapSizeType>(m_LabelStatistics.size());
   }
 
-  MapSizeType GetNumberOfLabels() const
+  MapSizeType
+  GetNumberOfLabels() const
   {
-    return static_cast<MapSizeType>( this->GetNumberOfObjects() );
+    return static_cast<MapSizeType>(this->GetNumberOfObjects());
   }
 
   /** Return the computed Minimum for a label. */
-  RealType GetMinimum(LabelPixelType label) const;
+  RealType
+  GetMinimum(LabelPixelType label) const;
 
   /** Return the computed Maximum for a label. */
-  RealType GetMaximum(LabelPixelType label) const;
+  RealType
+  GetMaximum(LabelPixelType label) const;
 
   /** Return the computed Mean for a label. */
-  RealType GetMean(LabelPixelType label) const;
+  RealType
+  GetMean(LabelPixelType label) const;
 
   /** Return the computed Median for a label. Requires histograms to be enabled!
-    */
-  RealType GetMedian(LabelPixelType label) const;
+   */
+  RealType
+  GetMedian(LabelPixelType label) const;
 
   /** Return the computed Standard Deviation for a label. */
-  RealType GetSigma(LabelPixelType label) const;
+  RealType
+  GetSigma(LabelPixelType label) const;
 
   /** Return the computed Variance for a label. */
-  RealType GetVariance(LabelPixelType label) const;
+  RealType
+  GetVariance(LabelPixelType label) const;
 
   /** Return the computed bounding box for a label. A vector of
    * minIndex, maxIndex pairs for each axis. The intervals include
    * the endpoints.*/
-  BoundingBoxType GetBoundingBox(LabelPixelType label) const;
+  BoundingBoxType
+  GetBoundingBox(LabelPixelType label) const;
 
   /** Return the computed region. */
-  RegionType GetRegion(LabelPixelType label) const;
+  RegionType
+  GetRegion(LabelPixelType label) const;
 
   /** Return the compute Sum for a label. */
-  RealType GetSum(LabelPixelType label) const;
+  RealType
+  GetSum(LabelPixelType label) const;
 
   /** Return the number of pixels for a label. */
-  MapSizeType GetCount(LabelPixelType label) const;
+  MapSizeType
+  GetCount(LabelPixelType label) const;
 
   /** Return the histogram for a label */
-  HistogramPointer GetHistogram(LabelPixelType label) const;
+  HistogramPointer
+  GetHistogram(LabelPixelType label) const;
 
   /** specify Histogram parameters  */
-  void SetHistogramParameters(const int numBins, RealType lowerBound,
-                              RealType upperBound);
+  void
+  SetHistogramParameters(const int numBins, RealType lowerBound, RealType upperBound);
+
+  // Change the acces from protected to public to expose streaming option
+  using Superclass::SetNumberOfStreamDivisions;
+  using Superclass::GetNumberOfStreamDivisions;
+
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< PixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<PixelType>));
   // End concept checking
 #endif
 
 protected:
   LabelStatisticsImageFilter();
-  ~LabelStatisticsImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  /** Pass the input through unmodified. Do this by Grafting in the
-    AllocateOutputs method. */
-  void AllocateOutputs() ITK_OVERRIDE;
-
-  /** Initialize some accumulators before the threads run. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  ~LabelStatisticsImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Do final mean and variance computation from data accumulated in threads.
-    */
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+   */
+  void
+  AfterStreamedGenerateData() override;
 
-  /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const RegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
-
-  // Override since the filter produces all of its output
-  void EnlargeOutputRequestedRegion(DataObject *data) ITK_OVERRIDE;
+  void
+  ThreadedStreamedGenerateData(const RegionType &) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelStatisticsImageFilter);
+  void
+  MergeMap(MapType &, MapType &) const;
 
-  std::vector< MapType >        m_LabelStatisticsPerThread;
   MapType                       m_LabelStatistics;
   ValidLabelValuesContainerType m_ValidLabelValues;
 
@@ -362,14 +366,16 @@ private:
 
   typename HistogramType::SizeType m_NumBins;
 
-  RealType            m_LowerBound;
-  RealType            m_UpperBound;
-  SimpleFastMutexLock m_Mutex;
+  RealType m_LowerBound;
+  RealType m_UpperBound;
+
+  std::mutex m_Mutex;
+
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelStatisticsImageFilter.hxx"
+#  include "itkLabelStatisticsImageFilter.hxx"
 #endif
 
 #endif

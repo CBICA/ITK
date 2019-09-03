@@ -32,11 +32,11 @@
  *
  */
 
-namespace itk {
+namespace itk
+{
 
 template <typename TImage>
-StatisticsPositionLabelMapFilter<TImage>
-::StatisticsPositionLabelMapFilter()
+StatisticsPositionLabelMapFilter<TImage>::StatisticsPositionLabelMapFilter()
 {
   this->m_Attribute = LabelObjectType::CENTER_OF_GRAVITY;
 }
@@ -44,37 +44,36 @@ StatisticsPositionLabelMapFilter<TImage>
 
 template <typename TImage>
 void
-StatisticsPositionLabelMapFilter<TImage>
-::ThreadedProcessLabelObject( LabelObjectType * labelObject )
+StatisticsPositionLabelMapFilter<TImage>::ThreadedProcessLabelObject(LabelObjectType * labelObject)
 {
-  switch( this->m_Attribute )
-    {
+  switch (this->m_Attribute)
+  {
     case LabelObjectType::MAXIMUM_INDEX:
-      {
-      typedef typename Functor::MaximumIndexLabelObjectAccessor< LabelObjectType > AccessorType;
+    {
+      using AccessorType = typename Functor::MaximumIndexLabelObjectAccessor<LabelObjectType>;
       AccessorType accessor;
       this->TemplatedThreadedProcessLabelObject(accessor, false, labelObject);
       break;
-      }
+    }
     case LabelObjectType::MINIMUM_INDEX:
-      {
-      typedef typename Functor::MinimumIndexLabelObjectAccessor< LabelObjectType > AccessorType;
+    {
+      using AccessorType = typename Functor::MinimumIndexLabelObjectAccessor<LabelObjectType>;
       AccessorType accessor;
       this->TemplatedThreadedProcessLabelObject(accessor, false, labelObject);
       break;
-      }
+    }
     case LabelObjectType::CENTER_OF_GRAVITY:
-      {
-      typedef typename Functor::CenterOfGravityLabelObjectAccessor< LabelObjectType > AccessorType;
+    {
+      using AccessorType = typename Functor::CenterOfGravityLabelObjectAccessor<LabelObjectType>;
       AccessorType accessor;
       this->TemplatedThreadedProcessLabelObject(accessor, true, labelObject);
       break;
-      }
-    default:
-      Superclass::ThreadedProcessLabelObject( labelObject );
-      break;
     }
+    default:
+      Superclass::ThreadedProcessLabelObject(labelObject);
+      break;
+  }
 }
 
-}// end namespace itk
+} // end namespace itk
 #endif

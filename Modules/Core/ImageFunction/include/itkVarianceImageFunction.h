@@ -39,19 +39,20 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = float >
-class ITK_TEMPLATE_EXPORT VarianceImageFunction:
-  public ImageFunction< TInputImage, typename NumericTraits< typename TInputImage::PixelType >::RealType,
-                        TCoordRep >
+template <typename TInputImage, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT VarianceImageFunction
+  : public ImageFunction<TInputImage, typename NumericTraits<typename TInputImage::PixelType>::RealType, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VarianceImageFunction Self;
-  typedef ImageFunction< TInputImage, typename NumericTraits< typename TInputImage::PixelType >::RealType,
-                         TCoordRep > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VarianceImageFunction);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = VarianceImageFunction;
+  using Superclass =
+    ImageFunction<TInputImage, typename NumericTraits<typename TInputImage::PixelType>::RealType, TCoordRep>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(VarianceImageFunction, ImageFunction);
@@ -59,34 +60,34 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** InputImageType typedef support. */
-  typedef TInputImage InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = TInputImage;
 
   /** OutputType typdef support. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
   /** Dimension of the underlying image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
   /** Datatype used for the variance */
-  typedef typename NumericTraits< typename InputImageType::PixelType >::RealType
-  RealType;
+  using RealType = typename NumericTraits<typename InputImageType::PixelType>::RealType;
 
   /** Evalulate the function at specified index */
-  virtual RealType EvaluateAtIndex(const IndexType & index) const ITK_OVERRIDE;
+  RealType
+  EvaluateAtIndex(const IndexType & index) const override;
 
   /** Evaluate the function at non-integer positions */
-  virtual RealType Evaluate(const PointType & point) const ITK_OVERRIDE
+  RealType
+  Evaluate(const PointType & point) const override
   {
     IndexType index;
 
@@ -94,8 +95,8 @@ public:
     return this->EvaluateAtIndex(index);
   }
 
-  virtual RealType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & cindex) const ITK_OVERRIDE
+  RealType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & cindex) const override
   {
     IndexType index;
 
@@ -110,18 +111,17 @@ public:
 
 protected:
   VarianceImageFunction();
-  ~VarianceImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~VarianceImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VarianceImageFunction);
-
   unsigned int m_NeighborhoodRadius;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVarianceImageFunction.hxx"
+#  include "itkVarianceImageFunction.hxx"
 #endif
 
 #endif

@@ -55,29 +55,29 @@ namespace itk
  * \ingroup ClassificationFilters
  * \ingroup ITKClassifiers
  *
- * \wiki
- * \wikiexample{Statistics/ScalarImageKmeansImageFilter,Cluster the pixels in a greyscale image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Segmentation/Classifiers/ClusterPixelsInGrayscaleImage,Cluster Pixels In Grayscale Image}
+ * \sphinxexample{Segmentation/Classifiers/KMeansClustering,K-Means Clustering}
+ * \endsphinx
  */
-template< typename TInputImage,
-          typename TOutputImage = Image< unsigned char, TInputImage::ImageDimension > >
-class ITK_TEMPLATE_EXPORT ScalarImageKmeansImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = Image<unsigned char, TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT ScalarImageKmeansImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ScalarImageKmeansImageFilter);
+
   /** Extract dimension from input and output image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage  InputImageType;
-  typedef TOutputImage OutputImageType;
+  /** Convenient type alias for simplifying declarations. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
 
-  /** Standard class typedefs. */
-  typedef ScalarImageKmeansImageFilter                          Self;
-  typedef ImageToImageFilter< InputImageType, OutputImageType > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ScalarImageKmeansImageFilter;
+  using Superclass = ImageToImageFilter<InputImageType, OutputImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -85,45 +85,44 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(ScalarImageKmeansImageFilter, ImageToImageFilter);
 
-  /** Image typedef support. */
-  typedef typename InputImageType::PixelType  InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  /** Image type alias support */
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
   /** Type used for representing the Mean values. */
-  typedef typename NumericTraits< InputPixelType >::RealType RealPixelType;
+  using RealPixelType = typename NumericTraits<InputPixelType>::RealType;
 
   /** Create a List from the scalar image. */
-  typedef itk::Statistics::ImageToListSampleAdaptor< InputImageType > AdaptorType;
+  using AdaptorType = itk::Statistics::ImageToListSampleAdaptor<InputImageType>;
 
   /** Define the Measurement vector type from the AdaptorType. */
-  typedef typename AdaptorType::MeasurementVectorType MeasurementVectorType;
+  using MeasurementVectorType = typename AdaptorType::MeasurementVectorType;
 
-  typedef itk::Statistics::DistanceToCentroidMembershipFunction< MeasurementVectorType > MembershipFunctionType;
-  typedef itk::Statistics::SampleClassifierFilter< AdaptorType >                         ClassifierType;
-  typedef itk::Statistics::MinimumDecisionRule  DecisionRuleType;
+  using MembershipFunctionType = itk::Statistics::DistanceToCentroidMembershipFunction<MeasurementVectorType>;
+  using ClassifierType = itk::Statistics::SampleClassifierFilter<AdaptorType>;
+  using DecisionRuleType = itk::Statistics::MinimumDecisionRule;
 
-  typedef typename ClassifierType::ClassLabelVectorType ClassLabelVectorType;
+  using ClassLabelVectorType = typename ClassifierType::ClassLabelVectorType;
 
-  typedef typename ClassifierType::MembershipFunctionVectorType MembershipFunctionVectorType;
-  typedef typename MembershipFunctionType::CentroidType         MembershipFunctionOriginType;
+  using MembershipFunctionVectorType = typename ClassifierType::MembershipFunctionVectorType;
+  using MembershipFunctionOriginType = typename MembershipFunctionType::CentroidType;
 
-  typedef typename MembershipFunctionType::Pointer MembershipFunctionPointer;
+  using MembershipFunctionPointer = typename MembershipFunctionType::Pointer;
 
   /** Create the K-d tree structure. */
-  typedef itk::Statistics::WeightedCentroidKdTreeGenerator< AdaptorType > TreeGeneratorType;
-  typedef typename TreeGeneratorType::KdTreeType                          TreeType;
-  typedef itk::Statistics::KdTreeBasedKmeansEstimator< TreeType >         EstimatorType;
+  using TreeGeneratorType = itk::Statistics::WeightedCentroidKdTreeGenerator<AdaptorType>;
+  using TreeType = typename TreeGeneratorType::KdTreeType;
+  using EstimatorType = itk::Statistics::KdTreeBasedKmeansEstimator<TreeType>;
 
-  typedef typename EstimatorType::ParametersType ParametersType;
+  using ParametersType = typename EstimatorType::ParametersType;
 
-  typedef typename InputImageType::RegionType ImageRegionType;
+  using ImageRegionType = typename InputImageType::RegionType;
 
-  typedef RegionOfInterestImageFilter<
-    InputImageType,
-    InputImageType  > RegionOfInterestFilterType;
+  using RegionOfInterestFilterType = RegionOfInterestImageFilter<InputImageType, InputImageType>;
 
   /** Add a new class to the classification by specifying its initial mean. */
-  void AddClassWithInitialMean(RealPixelType mean);
+  void
+  AddClassWithInitialMean(RealPixelType mean);
 
   /** Return the array of Means found after the classification. */
   itkGetConstReferenceMacro(FinalMeans, ParametersType);
@@ -138,53 +137,54 @@ public:
   itkBooleanMacro(UseNonContiguousLabels);
 
   /** Set Region method to constrain classfication to a certain region */
-  void SetImageRegion(const ImageRegionType & region);
+  void
+  SetImageRegion(const ImageRegionType & region);
 
   /** Get the region over which the statistics will be computed */
   itkGetConstReferenceMacro(ImageRegion, ImageRegionType);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputPixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputPixelType>));
   // End concept checking
 #endif
 
 protected:
   ScalarImageKmeansImageFilter();
-  virtual ~ScalarImageKmeansImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ScalarImageKmeansImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** This method runs the statistical methods that identify the means of the
    * classes and the use the distances to those means in order to label the
    * image pixels.
    * \sa ImageToImageFilter::GenerateData()
    */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /* See superclass for doxygen. This methods additionally checks that
    * the number of means is not 0. */
-  virtual void VerifyPreconditions() ITK_OVERRIDE;
+  void
+  VerifyPreconditions() ITKv5_CONST override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ScalarImageKmeansImageFilter);
-
-  typedef std::vector< RealPixelType > MeansContainer;
+  using MeansContainer = std::vector<RealPixelType>;
 
   MeansContainer m_InitialMeans;
 
   ParametersType m_FinalMeans;
 
-  bool m_UseNonContiguousLabels;
+  bool m_UseNonContiguousLabels{ false };
 
   ImageRegionType m_ImageRegion;
 
-  bool m_ImageRegionDefined;
+  bool m_ImageRegionDefined{ false };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScalarImageKmeansImageFilter.hxx"
+#  include "itkScalarImageKmeansImageFilter.hxx"
 #endif
 
 #endif

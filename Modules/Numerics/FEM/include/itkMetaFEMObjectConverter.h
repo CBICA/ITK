@@ -40,16 +40,17 @@ namespace itk
  * \ingroup ITKFEM
  */
 
-template< unsigned int NDimensions = 3 >
-class ITK_TEMPLATE_EXPORT MetaFEMObjectConverter :
-    public MetaConverterBase< NDimensions >
+template <unsigned int NDimensions = 3>
+class ITK_TEMPLATE_EXPORT MetaFEMObjectConverter : public MetaConverterBase<NDimensions>
 {
 public:
-  /** Standard class typedefs */
-  typedef MetaFEMObjectConverter           Self;
-  typedef MetaConverterBase< NDimensions > Superclass;
-  typedef SmartPointer< Self >             Pointer;
-  typedef SmartPointer< const Self >       ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MetaFEMObjectConverter);
+
+  /** Standard class type aliases */
+  using Self = MetaFEMObjectConverter;
+  using Superclass = MetaConverterBase<NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -57,38 +58,37 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MetaFEMObjectConverter, MetaConverterBase);
 
-  typedef typename Superclass::SpatialObjectType SpatialObjectType;
-  typedef typename SpatialObjectType::Pointer    SpatialObjectPointer;
-  typedef typename Superclass::MetaObjectType    MetaObjectType;
+  using SpatialObjectType = typename Superclass::SpatialObjectType;
+  using SpatialObjectPointer = typename SpatialObjectType::Pointer;
+  using MetaObjectType = typename Superclass::MetaObjectType;
 
   /** Specific class types for conversion */
-  typedef FEMObjectSpatialObject<NDimensions>               FEMObjectSpatialObjectType;
-  typedef typename FEMObjectSpatialObjectType::Pointer      FEMObjectSpatialObjectPointer;
-  typedef typename FEMObjectSpatialObjectType::ConstPointer FEMObjectSpatialObjectConstPointer;
-  typedef MetaFEMObject                                     FEMObjectMetaObjectType;
+  using FEMObjectSpatialObjectType = FEMObjectSpatialObject<NDimensions>;
+  using FEMObjectSpatialObjectPointer = typename FEMObjectSpatialObjectType::Pointer;
+  using FEMObjectSpatialObjectConstPointer = typename FEMObjectSpatialObjectType::ConstPointer;
+  using FEMObjectMetaObjectType = MetaFEMObject;
 
   /** Convert the MetaObject to Spatial Object */
-  virtual SpatialObjectPointer MetaObjectToSpatialObject(const MetaObjectType *mo) ITK_OVERRIDE;
+  SpatialObjectPointer
+  MetaObjectToSpatialObject(const MetaObjectType * mo) override;
 
   /** Convert the SpatialObject to MetaObject */
-  virtual MetaObjectType *SpatialObjectToMetaObject(const SpatialObjectType *spatialObject) ITK_OVERRIDE;
+  MetaObjectType *
+  SpatialObjectToMetaObject(const SpatialObjectType * spatialObject) override;
 
 protected:
   /** Create the specific MetaObject for this class */
-  virtual MetaObjectType *CreateMetaObject() ITK_OVERRIDE;
+  MetaObjectType *
+  CreateMetaObject() override;
 
   MetaFEMObjectConverter();
-  ~MetaFEMObjectConverter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MetaFEMObjectConverter);
-
+  ~MetaFEMObjectConverter() override {}
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaFEMObjectConverter.hxx"
+#  include "itkMetaFEMObjectConverter.hxx"
 #endif
 
 
-#endif
+#endif // itkMetaFEMObjectConverter_h

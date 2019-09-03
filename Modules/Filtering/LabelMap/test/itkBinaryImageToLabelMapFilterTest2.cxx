@@ -23,10 +23,11 @@
 #include "itkTestingMacros.h"
 
 
-int itkBinaryImageToLabelMapFilterTest2( int argc, char * argv [] )
+int
+itkBinaryImageToLabelMapFilterTest2(int argc, char * argv[])
 {
 
-  if( argc != 6 )
+  if (argc != 6)
   {
     std::cerr << "usage: " << argv[0];
     std::cerr << "inputBinaryImage outputLabelImage";
@@ -35,41 +36,41 @@ int itkBinaryImageToLabelMapFilterTest2( int argc, char * argv [] )
     return EXIT_FAILURE;
   }
 
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned char   BinaryPixelType;
-  typedef unsigned short  LabelPixelType;
+  using BinaryPixelType = unsigned char;
+  using LabelPixelType = unsigned short;
 
-  typedef itk::Image< BinaryPixelType, Dimension >      ImageType;
-  typedef itk::LabelObject< LabelPixelType, Dimension > LabelObjectType;
-  typedef itk::LabelMap< LabelObjectType >              LabelMapType;
+  using ImageType = itk::Image<BinaryPixelType, Dimension>;
+  using LabelObjectType = itk::LabelObject<LabelPixelType, Dimension>;
+  using LabelMapType = itk::LabelMap<LabelObjectType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::BinaryImageToLabelMapFilter< ImageType, LabelMapType > ImageToLabelType;
+  using ImageToLabelType = itk::BinaryImageToLabelMapFilter<ImageType, LabelMapType>;
   ImageToLabelType::Pointer imageToLabel = ImageToLabelType::New();
 
-  imageToLabel->SetInput( reader->GetOutput() );
+  imageToLabel->SetInput(reader->GetOutput());
   imageToLabel->SetFullyConnected(true);
-  imageToLabel->SetInputForegroundValue( atoi(argv[3]) );
-  imageToLabel->SetOutputBackgroundValue( atoi(argv[4]) );
-  imageToLabel->SetNumberOfThreads( atoi(argv[5]) );
+  imageToLabel->SetInputForegroundValue(std::stoi(argv[3]));
+  imageToLabel->SetOutputBackgroundValue(std::stoi(argv[4]));
+  imageToLabel->SetNumberOfWorkUnits(std::stoi(argv[5]));
   imageToLabel->Update();
 
   std::cout << "There are " << imageToLabel->GetOutput()->GetNumberOfLabelObjects() << " objects." << std::endl;
 
-  TEST_EXPECT_EQUAL( imageToLabel->GetOutput()->GetNumberOfLabelObjects(), imageToLabel->GetNumberOfObjects() );
+  ITK_TEST_EXPECT_EQUAL(imageToLabel->GetOutput()->GetNumberOfLabelObjects(), imageToLabel->GetNumberOfObjects());
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> LabelToImageType;
+  using LabelToImageType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
   LabelToImageType::Pointer labelToImage = LabelToImageType::New();
-  labelToImage->SetInput( imageToLabel->GetOutput() );
+  labelToImage->SetInput(imageToLabel->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( labelToImage->GetOutput() );
+  writer->SetFileName(argv[2]);
+  writer->SetInput(labelToImage->GetOutput());
   writer->Update();
 
   return EXIT_SUCCESS;

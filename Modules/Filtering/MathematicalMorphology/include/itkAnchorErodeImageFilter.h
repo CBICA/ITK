@@ -22,39 +22,33 @@
 
 namespace itk
 {
-template< typename TImage, typename TKernel >
-class AnchorErodeImageFilter:
-  public AnchorErodeDilateImageFilter< TImage, TKernel, std::less< typename TImage::PixelType > >
+template <typename TImage, typename TKernel>
+class AnchorErodeImageFilter
+  : public AnchorErodeDilateImageFilter<TImage, TKernel, std::less<typename TImage::PixelType>>
 
 {
 public:
-  typedef AnchorErodeImageFilter Self;
-  typedef AnchorErodeDilateImageFilter< TImage, TKernel, std::less< typename TImage::PixelType > >
-                                 Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AnchorErodeImageFilter);
+
+  using Self = AnchorErodeImageFilter;
+  using Superclass = AnchorErodeDilateImageFilter<TImage, TKernel, std::less<typename TImage::PixelType>>;
 
   /** Runtime information support. */
-  itkTypeMacro(AnchorErodeImageFilter,
-               AnchorErodeDilateImageFilter);
+  itkTypeMacro(AnchorErodeImageFilter, AnchorErodeDilateImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename TImage::PixelType PixelType;
+  using PixelType = typename TImage::PixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  protected:
-
-  AnchorErodeImageFilter()
-  {
-    this->m_Boundary = NumericTraits< PixelType >::max();
-  }
-  virtual ~AnchorErodeImageFilter() ITK_OVERRIDE {}
+protected:
+  AnchorErodeImageFilter() { this->m_Boundary = NumericTraits<PixelType>::max(); }
+  ~AnchorErodeImageFilter() override = default;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(AnchorErodeImageFilter);
 };
 } // namespace itk
 

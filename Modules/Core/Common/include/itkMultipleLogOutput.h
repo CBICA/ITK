@@ -37,53 +37,56 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT MultipleLogOutput:public LogOutput
+class ITKCommon_EXPORT MultipleLogOutput : public LogOutput
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(MultipleLogOutput);
 
-  typedef MultipleLogOutput          Self;
-  typedef LogOutput                  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = MultipleLogOutput;
+  using Superclass = LogOutput;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef LogOutput OutputType;
+  using OutputType = LogOutput;
 
   itkTypeMacro(MultipleLogOutput, LogOutput);
   itkNewMacro(MultipleLogOutput);
 
 public:
-
   /** Register a additional output stream into the list of LogOutputs to write
    * to. The messages will be sent to the streams in the same order that the
    * streams have been added here.  */
-  void AddLogOutput(OutputType *output);
+  void
+  AddLogOutput(OutputType * output);
 
   /** Broadcast a flush operation to all the output streams */
-  virtual void Flush() ITK_OVERRIDE;
+  void
+  Flush() override;
 
   /** Write to multiple outputs */
-  virtual void Write(double timestamp) ITK_OVERRIDE;
+  void
+  Write(double timestamp) override;
 
   /** Write to multiple outputs */
-  virtual void Write(const std::string & content) ITK_OVERRIDE;
+  void
+  Write(const std::string & content) override;
 
   /** Write to a buffer */
-  virtual void Write(const std::string & content, double timestamp) ITK_OVERRIDE;
+  void
+  Write(const std::string & content, double timestamp) override;
 
 protected:
   /** Constructor */
   MultipleLogOutput();
 
   /** Destructor */
-  virtual ~MultipleLogOutput() ITK_OVERRIDE;
+  ~MultipleLogOutput() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MultipleLogOutput);
-
-  typedef std::set< OutputType::Pointer > ContainerType;
+  using ContainerType = std::set<OutputType::Pointer>;
 
   ContainerType m_Output;
 };
-}
+} // namespace itk
 
-#endif //itkMultipleLogOutput_h
+#endif // itkMultipleLogOutput_h

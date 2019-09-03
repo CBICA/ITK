@@ -32,15 +32,17 @@ namespace itk
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizers
  */
-class ITKOptimizers_EXPORT NonLinearOptimizer:public Optimizer
+class ITKOptimizers_EXPORT NonLinearOptimizer : public Optimizer
 
 {
 public:
-  /** Standard class typedefs. */
-  typedef NonLinearOptimizer         Self;
-  typedef Optimizer                  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NonLinearOptimizer);
+
+  /** Standard class type aliases. */
+  using Self = NonLinearOptimizer;
+  using Superclass = Optimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -49,15 +51,12 @@ public:
   itkTypeMacro(NonLinearOptimizer, Optimizer);
 
   /**  Types inherited from the superclass */
-  typedef Superclass::ParametersType ParametersType;
-  typedef Superclass::ScalesType     ScalesType;
+  using ParametersType = Superclass::ParametersType;
+  using ScalesType = Superclass::ScalesType;
 
 protected:
-  NonLinearOptimizer() {}
-  virtual ~NonLinearOptimizer() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NonLinearOptimizer);
+  NonLinearOptimizer() = default;
+  ~NonLinearOptimizer() override;
 };
 } // end namespace itk
 

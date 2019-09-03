@@ -30,7 +30,7 @@ namespace itk
  * \brief Representation of a tube based on the spatial object classes.
  *
  * The tube is basically defined by a set of points. Each tube can
- * be connected to a tube network, by using the AddSpatialObject() methods
+ * be connected to a tube network, by using the AddChild() methods
  * of a DTITubeSpatialObject Object.
  * A tube is also identified by an id number when connected to a network.
  *
@@ -38,28 +38,29 @@ namespace itk
  * \ingroup ITKSpatialObjects
  */
 
-template< unsigned int TDimension = 3 >
-class ITK_TEMPLATE_EXPORT DTITubeSpatialObject:
-  public TubeSpatialObject< TDimension,
-                            DTITubeSpatialObjectPoint< TDimension >  >
+template <unsigned int TDimension = 3>
+class ITK_TEMPLATE_EXPORT DTITubeSpatialObject
+  : public TubeSpatialObject<TDimension, DTITubeSpatialObjectPoint<TDimension>>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(DTITubeSpatialObject);
 
-  typedef DTITubeSpatialObject Self;
-  typedef TubeSpatialObject< TDimension,
-                             DTITubeSpatialObjectPoint< TDimension > >    Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
-  typedef DTITubeSpatialObjectPoint< TDimension >      TubePointType;
-  typedef typename Superclass::PointListType           PointListType;
-  typedef typename Superclass::PointType               PointType;
-  typedef typename Superclass::TransformType           TransformType;
-  typedef typename Superclass::SpatialObjectPointType  SpatialObjectPointType;
-  typedef VectorContainer< IdentifierType, PointType > PointContainerType;
-  typedef SmartPointer< PointContainerType >           PointContainerPointer;
-  typedef typename Superclass::VectorType              VectorType;
-  typedef typename Superclass::CovariantVectorType     CovariantVectorType;
-  typedef typename Superclass::BoundingBoxType         BoundingBoxType;
+  using Self = DTITubeSpatialObject;
+  using Superclass = TubeSpatialObject<TDimension, DTITubeSpatialObjectPoint<TDimension>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using DTITubePointType = DTITubeSpatialObjectPoint<TDimension>;
+  using DTITubePointListType = std::vector<DTITubePointType>;
+
+  using PointType = typename Superclass::PointType;
+  using TransformType = typename Superclass::TransformType;
+  using SpatialObjectPointType = typename Superclass::SpatialObjectPointType;
+  using PointContainerType = VectorContainer<IdentifierType, PointType>;
+  using PointContainerPointer = SmartPointer<PointContainerType>;
+  using VectorType = typename Superclass::VectorType;
+  using CovariantVectorType = typename Superclass::CovariantVectorType;
+  using BoundingBoxType = typename Superclass::BoundingBoxType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -68,20 +69,20 @@ public:
   itkTypeMacro(DTITubeSpatialObject, TubeSpatialObject);
 
 protected:
-
   DTITubeSpatialObject();
-  virtual ~DTITubeSpatialObject() ITK_OVERRIDE;
+  ~DTITubeSpatialObject() override = default;
 
   /** Method to print the object.*/
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DTITubeSpatialObject);
+  typename LightObject::Pointer
+  InternalClone() const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDTITubeSpatialObject.hxx"
+#  include "itkDTITubeSpatialObject.hxx"
 #endif
 
 #endif // itkDTITubeSpatialObject_h

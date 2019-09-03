@@ -33,75 +33,121 @@ namespace itk
  * \ingroup ITKSpatialObjects
  */
 
-template< unsigned int TDimension = 3 >
-class ITK_TEMPLATE_EXPORT PointBasedSpatialObject:
-  public SpatialObject< TDimension >
+template <unsigned int TDimension = 3, class TSpatialObjectPointType = SpatialObjectPoint<TDimension>>
+class ITK_TEMPLATE_EXPORT PointBasedSpatialObject : public SpatialObject<TDimension>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(PointBasedSpatialObject);
 
-  typedef PointBasedSpatialObject                  Self;
-  typedef SpatialObject< TDimension >              Superclass;
-  typedef SmartPointer< Self >                     Pointer;
-  typedef SmartPointer< const Self >               ConstPointer;
-  typedef double                                   ScalarType;
-  typedef SpatialObjectPoint< TDimension >         SpatialObjectPointType;
-  typedef typename Superclass::PointType           PointType;
-  typedef typename Superclass::TransformType       TransformType;
-  typedef typename Superclass::VectorType          VectorType;
-  typedef typename Superclass::CovariantVectorType CovariantVectorType;
+  using Self = PointBasedSpatialObject;
+  using Superclass = SpatialObject<TDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
+  using ScalarType = double;
+
+  using SpatialObjectPointType = TSpatialObjectPointType;
+  using SpatialObjectPointListType = std::vector<SpatialObjectPointType>;
+
+  using PointType = typename Superclass::PointType;
+  using TransformType = typename Superclass::TransformType;
+  using VectorType = typename Superclass::VectorType;
+  using CovariantVectorType = typename Superclass::CovariantVectorType;
+  using BoundingBoxType = typename Superclass::BoundingBoxType;
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Method for creation through the object factory. */
   itkTypeMacro(PointBasedSpatialObject, SpatialObject);
 
+  /** Reset the spatial object to its initial condition, yet preserves
+   *   Id, Parent, and Child information */
+  void
+  Clear(void) override;
+
+  /** Assign points to this object, and assigned this object to
+   * each point (for computing world coordinates) */
+  virtual void
+  AddPoint(const SpatialObjectPointType & newPoints);
+
+  /** Removes the indicated point from this object */
+  virtual void
+  RemovePoint(IdentifierType id);
+
+  /** Assign points to this object, and assigned this object to
+   * each point (for computing world coordinates) */
+  virtual void
+  SetPoints(const SpatialObjectPointListType & newPoints);
+
+  /** Get the list of points assigned to this object */
+  virtual SpatialObjectPointListType &
+  GetPoints()
+  {
+    return m_Points;
+  }
+
+  /** Get a const list of the points assigned to this object */
+  virtual const SpatialObjectPointListType &
+  GetPoints() const
+  {
+    return m_Points;
+  }
+
   /** Return a SpatialObjectPoint given its position in the list */
   virtual const SpatialObjectPointType *
-  GetPoint( IdentifierType itkNotUsed(id) ) const
+  GetPoint(IdentifierType id) const
   {
-    itkWarningMacro(<< "PointBasedSpatialObject::GetPoint() is not implemented"
-                    << " in the base class" << std::endl);
-    return ITK_NULLPTR;
+    return &(m_Points[id]);
   }
 
   virtual SpatialObjectPointType *
-  GetPoint( IdentifierType itkNotUsed(id) )
+  GetPoint(IdentifierType id)
   {
-    itkWarningMacro(<< "PointBasedSpatialObject::GetPoint() is not implemented"
-                    << " in the base class" << std::endl);
-    return ITK_NULLPTR;
+    return &(m_Points[id]);
   }
 
   /** Return the number of points in the list */
-  virtual SizeValueType GetNumberOfPoints(void) const
+  virtual SizeValueType
+  GetNumberOfPoints() const
   {
-    itkWarningMacro(<< "PointBasedSpatialObject::GetNumberOfPoints() is not"
-                    << " implemented in the base class" << std::endl);
-    return 0;
+    return static_cast<SizeValueType>(m_Points.size());
   }
 
-  /**  */
-  bool ComputeLocalBoundingBox() const ITK_OVERRIDE
-  {
-    itkWarningMacro(<< "PointBasedSpatialObject::ComputeLocalBoundingBox() is"
-                    << " not implemented in the base class" << std::endl);
-    return false;
-  }
+  /** Method returns the Point closest to the given point */
+  TSpatialObjectPointType
+  ClosestPointInWorldSpace(const PointType & point) const;
+
+  TSpatialObjectPointType
+  ClosestPointInObjectSpace(const PointType & point) const;
+
+  /** Returns true if the point is inside the Blob, false otherwise. */
+  bool
+  IsInsideInObjectSpace(const PointType & point) const override;
+
+  /* Avoid hiding the overload that supports depth and name arguments */
+  using Superclass::IsInsideInObjectSpace;
 
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PointBasedSpatialObject);
+  /** Compute the boundaries of the Blob. */
+  void
+  ComputeMyBoundingBox() override;
 
   PointBasedSpatialObject();
-  virtual ~PointBasedSpatialObject() ITK_OVERRIDE;
+  ~PointBasedSpatialObject() override = default;
+
+  SpatialObjectPointListType m_Points;
 
   /** Method to print the object.*/
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  typename LightObject::Pointer
+  InternalClone() const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPointBasedSpatialObject.hxx"
+#  include "itkPointBasedSpatialObject.hxx"
 #endif
 
 #endif // itkPointBasedSpatialObject_h

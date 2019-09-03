@@ -34,33 +34,33 @@ namespace itk
  * \author: Arnaud Gelas, Alexandre Gouaillard
  * \ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TInputMesh, typename TOutputMesh=TInputMesh >
-class DiscreteGaussianCurvatureQuadEdgeMeshFilter:
-  public DiscreteCurvatureQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh = TInputMesh>
+class DiscreteGaussianCurvatureQuadEdgeMeshFilter : public DiscreteCurvatureQuadEdgeMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  typedef DiscreteGaussianCurvatureQuadEdgeMeshFilter   Self;
-  typedef SmartPointer< Self >                          Pointer;
-  typedef SmartPointer< const Self >                    ConstPointer;
-  typedef DiscreteCurvatureQuadEdgeMeshFilter<
-    TInputMesh, TOutputMesh >                           Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DiscreteGaussianCurvatureQuadEdgeMeshFilter);
 
-  typedef typename Superclass::InputMeshType    InputMeshType;
-  typedef typename Superclass::InputMeshPointer InputMeshPointer;
+  using Self = DiscreteGaussianCurvatureQuadEdgeMeshFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = DiscreteCurvatureQuadEdgeMeshFilter<TInputMesh, TOutputMesh>;
 
-  typedef typename Superclass::OutputMeshType                OutputMeshType;
-  typedef typename Superclass::OutputMeshPointer             OutputMeshPointer;
-  typedef typename Superclass::OutputPointsContainerPointer  OutputPointsContainerPointer;
-  typedef typename Superclass::OutputPointsContainerIterator OutputPointsContainerIterator;
-  typedef typename Superclass::OutputPointType               OutputPointType;
-  typedef typename Superclass::OutputVectorType              OutputVectorType;
-  typedef typename Superclass::OutputCoordType               OutputCoordType;
-  typedef typename Superclass::OutputPointIdentifier         OutputPointIdentifier;
-  typedef typename Superclass::OutputCellIdentifier          OutputCellIdentifier;
-  typedef typename Superclass::OutputQEType                  OutputQEType;
-  typedef typename Superclass::OutputMeshTraits              OutputMeshTraits;
-  typedef typename Superclass::OutputCurvatureType           OutputCurvatureType;
-  typedef typename Superclass::TriangleType                  TriangleType;
+  using InputMeshType = typename Superclass::InputMeshType;
+  using InputMeshPointer = typename Superclass::InputMeshPointer;
+
+  using OutputMeshType = typename Superclass::OutputMeshType;
+  using OutputMeshPointer = typename Superclass::OutputMeshPointer;
+  using OutputPointsContainerPointer = typename Superclass::OutputPointsContainerPointer;
+  using OutputPointsContainerIterator = typename Superclass::OutputPointsContainerIterator;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
+  using OutputCoordType = typename Superclass::OutputCoordType;
+  using OutputPointIdentifier = typename Superclass::OutputPointIdentifier;
+  using OutputCellIdentifier = typename Superclass::OutputCellIdentifier;
+  using OutputQEType = typename Superclass::OutputQEType;
+  using OutputMeshTraits = typename Superclass::OutputMeshTraits;
+  using OutputCurvatureType = typename Superclass::OutputCurvatureType;
+  using TriangleType = typename Superclass::TriangleType;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(DiscreteGaussianCurvatureQuadEdgeMeshFilter, DiscreteCurvatureQuadEdgeMeshFilter);
@@ -70,25 +70,25 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputIsFloatingPointCheck,
-                   ( Concept::IsFloatingPoint< OutputCurvatureType > ) );
+  itkConceptMacro(OutputIsFloatingPointCheck, (Concept::IsFloatingPoint<OutputCurvatureType>));
   // End concept checking
 #endif
 
 protected:
-  DiscreteGaussianCurvatureQuadEdgeMeshFilter() {}
-  ~DiscreteGaussianCurvatureQuadEdgeMeshFilter() ITK_OVERRIDE {}
+  DiscreteGaussianCurvatureQuadEdgeMeshFilter() = default;
+  ~DiscreteGaussianCurvatureQuadEdgeMeshFilter() override = default;
 
-  virtual OutputCurvatureType EstimateCurvature(const OutputPointType & iP) ITK_OVERRIDE
+  OutputCurvatureType
+  EstimateCurvature(const OutputPointType & iP) override
   {
     OutputMeshPointer output = this->GetOutput();
 
-    OutputQEType *qe = iP.GetEdge();
+    OutputQEType * qe = iP.GetEdge();
 
-    if ( qe != ITK_NULLPTR )
-      {
-      OutputQEType *qe_it = qe;
-      OutputQEType *qe_it2;
+    if (qe != nullptr)
+    {
+      OutputQEType * qe_it = qe;
+      OutputQEType * qe_it2;
 
       OutputPointType q0, q1;
 
@@ -96,29 +96,24 @@ protected:
       OutputCurvatureType area = 0.;
 
       do
-        {
+      {
         // cell_id = qe_it->GetLeft();
         qe_it2 = qe_it->GetOnext();
-        q0 = output->GetPoint( qe_it->GetDestination() );
-        q1 = output->GetPoint( qe_it2->GetDestination() );
+        q0 = output->GetPoint(qe_it->GetDestination());
+        q1 = output->GetPoint(qe_it2->GetDestination());
 
         // Compute Angle;
-        sum_theta += static_cast< OutputCurvatureType >(
-          TriangleType::ComputeAngle(q0, iP, q1) );
+        sum_theta += static_cast<OutputCurvatureType>(TriangleType::ComputeAngle(q0, iP, q1));
         area += this->ComputeMixedArea(qe_it, qe_it2);
         qe_it = qe_it2;
-        }
-      while ( qe_it != qe );
+      } while (qe_it != qe);
 
-      return ( 2.0 * itk::Math::pi - sum_theta ) / area;
-      }
+      return (2.0 * itk::Math::pi - sum_theta) / area;
+    }
 
     return 0.;
   }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DiscreteGaussianCurvatureQuadEdgeMeshFilter);
 };
-}
+} // namespace itk
 
 #endif

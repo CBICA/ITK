@@ -28,61 +28,90 @@ namespace itk
  *  copy of the input SpatialObject
  * \ingroup ITKSpatialObjects
  */
-template< typename TInputSpatialObject >
-class ITK_TEMPLATE_EXPORT SpatialObjectDuplicator:public Object
+template <typename TInputSpatialObject>
+class ITK_TEMPLATE_EXPORT SpatialObjectDuplicator : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef SpatialObjectDuplicator    Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectDuplicator);
 
-  /** Method for creation through the object factory. */
+  /** Standard class type aliases. */
+  using Self = SpatialObjectDuplicator;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SpatialObjectDuplicator, Object);
 
   /** Type definitions for the input SpatialObject. */
-  typedef TInputSpatialObject                        SpatialObjectType;
-  typedef typename TInputSpatialObject::Pointer      SpatialObjectPointer;
-  typedef typename TInputSpatialObject::ConstPointer SpatialObjectConstPointer;
+  using SpatialObjectType = TInputSpatialObject;
+  using SpatialObjectPointer = typename TInputSpatialObject::Pointer;
+  using SpatialObjectConstPointer = typename TInputSpatialObject::ConstPointer;
 
-  itkStaticConstMacro(ObjectDimension, unsigned int,
-                      SpatialObjectType::ObjectDimension);
+  static constexpr unsigned int ObjectDimension = SpatialObjectType::ObjectDimension;
 
-  typedef SpatialObject< itkGetStaticConstMacro(ObjectDimension) >
-  InternalSpatialObjectType;
+  using InternalSpatialObjectType = SpatialObject<Self::ObjectDimension>;
 
   /** Get/Set the input SpatialObject. */
   itkSetConstObjectMacro(Input, SpatialObjectType);
 
-  /** Get/Set the output SpatialObject. */
-  itkGetModifiableObjectMacro(Output, SpatialObjectType);
+  /**
+   * Provide an interface to match that
+   * of other ProcessObjects
+   * for this source generation object
+   * by returning a non-const pointer
+   * for the generated Object.
+   */
+  // NOTE:  The m_GeneratedImageSource is only
+  //       exposed via the Source generation interface
+  //       by the GetOutput() method that mimics
+  //       a process object.
+  virtual const SpatialObjectType *
+  GetOutput() const
+  {
+    return this->m_DuplicateSpatialObject.GetPointer();
+  }
+  virtual SpatialObjectType *
+  GetOutput()
+  {
+    return this->m_DuplicateSpatialObject.GetPointer();
+  }
+
+#if !defined(ITK_LEGACY_REMOVE)
+  // This interface was exposed in ITKv4 when the itkGetModifiableObjectMacro was used
+  virtual SpatialObjectType *
+  GetModifiedOutput()
+  {
+    return this->m_DuplicateSpatialObject.GetPointer();
+  }
+#endif
+
 
   /** Compute of the input SpatialObject. */
-  void Update();
+  void
+  Update();
 
 protected:
   SpatialObjectDuplicator();
-  virtual ~SpatialObjectDuplicator() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SpatialObjectDuplicator() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void CopyObject(const InternalSpatialObjectType *source,
-                  InternalSpatialObjectType *destination);
+  /** Recursive function to copy the objects */
+  void
+  CopyObject(const InternalSpatialObjectType * source, InternalSpatialObjectType * destination);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectDuplicator);
-
   SpatialObjectConstPointer m_Input;
-  SpatialObjectPointer      m_Output;
+  SpatialObjectPointer      m_DuplicateSpatialObject;
   ModifiedTimeType          m_InternalSpatialObjectTime;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSpatialObjectDuplicator.hxx"
+#  include "itkSpatialObjectDuplicator.hxx"
 #endif
 
 #endif /* itkSpatialObjectDuplicator_h */

@@ -28,19 +28,23 @@ namespace itk
  * \brief Create instances of DCMTKImageIO objects using an object factory.
  * \ingroup ITKIODCMTK
  */
-class ITKIODCMTK_EXPORT DCMTKImageIOFactory:public ObjectFactoryBase
+class ITKIODCMTK_EXPORT DCMTKImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef DCMTKImageIOFactory        Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DCMTKImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = DCMTKImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion() const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription() const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -49,7 +53,8 @@ public:
   itkTypeMacro(DCMTKImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     DCMTKImageIOFactory::Pointer DCMTKFactory = DCMTKImageIOFactory::New();
 
@@ -59,8 +64,6 @@ public:
 protected:
   DCMTKImageIOFactory();
   ~DCMTKImageIOFactory();
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DCMTKImageIOFactory);
 };
 } // end namespace itk
 

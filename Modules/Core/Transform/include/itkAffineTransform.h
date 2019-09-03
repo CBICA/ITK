@@ -95,22 +95,18 @@ namespace itk
  * \ingroup ITKTransform
  */
 
-template<
-  typename TParametersValueType = double,
-  unsigned int NDimensions = 3 >
+template <typename TParametersValueType = double, unsigned int NDimensions = 3>
 // Number of dimensions in the input space
-class ITK_TEMPLATE_EXPORT AffineTransform:
-  public MatrixOffsetTransformBase< TParametersValueType, NDimensions, NDimensions>
+class ITK_TEMPLATE_EXPORT AffineTransform
+  : public MatrixOffsetTransformBase<TParametersValueType, NDimensions, NDimensions>
 {
 public:
-  /** Standard typedefs   */
-  typedef AffineTransform Self;
-  typedef MatrixOffsetTransformBase< TParametersValueType,
-                                     NDimensions,
-                                     NDimensions >  Superclass;
+  /** Standard type alias   */
+  using Self = AffineTransform;
+  using Superclass = MatrixOffsetTransformBase<TParametersValueType, NDimensions, NDimensions>;
 
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(AffineTransform, MatrixOffsetTransformBase);
@@ -119,35 +115,36 @@ public:
   itkNewMacro(Self);
 
   /** Dimension of the domain space. */
-  itkStaticConstMacro(InputSpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro(OutputSpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro(SpaceDimension, unsigned int, NDimensions);
-  itkStaticConstMacro( ParametersDimension, unsigned int,
-                       NDimensions *( NDimensions + 1 ) );
+  static constexpr unsigned int InputSpaceDimension = NDimensions;
+  static constexpr unsigned int OutputSpaceDimension = NDimensions;
+  static constexpr unsigned int SpaceDimension = NDimensions;
+  static constexpr unsigned int ParametersDimension = NDimensions * (NDimensions + 1);
 
   /** Parameters Type   */
-  typedef typename Superclass::ParametersType            ParametersType;
-  typedef typename Superclass::FixedParametersType       FixedParametersType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::ScalarType                ScalarType;
-  typedef typename Superclass::InputPointType            InputPointType;
-  typedef typename Superclass::OutputPointType           OutputPointType;
-  typedef typename Superclass::InputVectorType           InputVectorType;
-  typedef typename Superclass::OutputVectorType          OutputVectorType;
-  typedef typename Superclass::InputVnlVectorType        InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType       OutputVnlVectorType;
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
-  typedef typename Superclass::MatrixType                MatrixType;
-  typedef typename Superclass::InverseMatrixType         InverseMatrixType;
-  typedef typename Superclass::CenterType                CenterType;
-  typedef typename Superclass::OffsetType                OffsetType;
-  typedef typename Superclass::TranslationType           TranslationType;
+  using ParametersType = typename Superclass::ParametersType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
+  using ScalarType = typename Superclass::ScalarType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
+  using MatrixType = typename Superclass::MatrixType;
+  using InverseMatrixType = typename Superclass::InverseMatrixType;
+  using CenterType = typename Superclass::CenterType;
+  using OffsetType = typename Superclass::OffsetType;
+  using TranslationType = typename Superclass::TranslationType;
 
   /** Base inverse transform type. This type should not be changed to the
    * concrete inverse transform type or inheritance would be lost.*/
-  typedef typename Superclass::InverseTransformBaseType InverseTransformBaseType;
-  typedef typename InverseTransformBaseType::Pointer    InverseTransformBasePointer;
+  using InverseTransformBaseType = typename Superclass::InverseTransformBaseType;
+  using InverseTransformBasePointer = typename InverseTransformBaseType::Pointer;
 
   /** Compose affine transformation with a translation
    *
@@ -155,7 +152,8 @@ public:
    * origin.  The translation is precomposed with self if pre is
    * true, and postcomposed otherwise.
    * This updates Translation based on current center. */
-  void Translate(const OutputVectorType & offset, bool pre = 0);
+  void
+  Translate(const OutputVectorType & offset, bool pre = false);
 
   /** Compose affine transformation with a scaling
    *
@@ -168,9 +166,11 @@ public:
    * and is not invertible.  The scaling is precomposed with self if
    * pre is true, and postcomposed otherwise.
    * Note that the scaling is applied centered at the origin. */
-  void Scale(const OutputVectorType & factor, bool pre = 0);
+  void
+  Scale(const OutputVectorType & factor, bool pre = false);
 
-  void Scale(const TParametersValueType & factor, bool pre = 0);
+  void
+  Scale(const TParametersValueType & factor, bool pre = false);
 
   /** Compose affine transformation with an elementary rotation
    *
@@ -187,7 +187,8 @@ public:
    * The rotation is precomposed with self if pre is true, and
    * postcomposed otherwise.
    * Note that the rotation is applied centered at the origin. */
-  void Rotate(int axis1, int axis2, TParametersValueType angle, bool pre = 0);
+  void
+  Rotate(int axis1, int axis2, TParametersValueType angle, bool pre = false);
 
   /** Compose 2D affine transformation with a rotation
    *
@@ -202,7 +203,8 @@ public:
    *
    * \todo Find a way to generate a compile-time error
    *       is this is used with NDimensions != 2. */
-  void Rotate2D(TParametersValueType angle, bool pre = 0);
+  void
+  Rotate2D(TParametersValueType angle, bool pre = false);
 
   /** Compose 3D affine transformation with a rotation
    *
@@ -217,7 +219,8 @@ public:
    *
    * \todo Find a way to generate a compile-time error
    * is this is used with NDimensions != 3. */
-  void Rotate3D(const OutputVectorType & axis, TParametersValueType angle, bool pre = 0);
+  void
+  Rotate3D(const OutputVectorType & axis, TParametersValueType angle, bool pre = false);
 
   /** Compose affine transformation with a shear
    *
@@ -230,37 +233,16 @@ public:
    * y[axis2] =                 x[axis2].
    *
    * Note that the shear is applied centered at the origin. */
-  void Shear(int axis1, int axis2, TParametersValueType coef, bool pre = 0);
+  void
+  Shear(int axis1, int axis2, TParametersValueType coef, bool pre = false);
 
   /** Get an inverse of this transform. */
-  bool GetInverse(Self *inverse) const;
+  bool
+  GetInverse(Self * inverse) const;
 
   /** Return an inverse of this transform. */
-  virtual InverseTransformBasePointer GetInverseTransform() const ITK_OVERRIDE;
-
-  /** Back transform by an affine transformation
-   *
-   * This method finds the point or vector that maps to a given
-   * point or vector under the affine transformation defined by
-   * self.  If no such point exists, an exception is thrown.
-   *
-   * \deprecated Please use GetInverseTransform and then call the
-   *   forward transform function */
-  itkLegacyMacro(InputPointType   BackTransform(const OutputPointType  & point) const);
-  itkLegacyMacro(InputVectorType  BackTransform(const OutputVectorType & vector) const);
-  itkLegacyMacro(InputVnlVectorType BackTransform( const OutputVnlVectorType & vector) const);
-  itkLegacyMacro(InputCovariantVectorType BackTransform( const OutputCovariantVectorType & vector) const);
-
-  /** Back transform a point by an affine transform
-   *
-   * This method finds the point that maps to a given point under
-   * the affine transformation defined by self.  If no such point
-   * exists, an exception is thrown.  The returned value is (a
-   * pointer to) a brand new point created with new.
-   *
-   * \deprecated Please use GetInverseTransform and then call the
-   *   forward transform function */
-  itkLegacyMacro(InputPointType BackTransformPoint(const OutputPointType  & point) const);
+  InverseTransformBasePointer
+  GetInverseTransform() const override;
 
   /** Compute distance between two affine transformations
    *
@@ -273,12 +255,14 @@ public:
    * two points transformed by the affine transformation would be
    * more useful, but I don't have time right now to work out the
    * mathematical details.) */
-  ScalarType Metric(const Self *other) const;
+  ScalarType
+  Metric(const Self * other) const;
 
   /** This method computes the distance from self to the identity
    * transformation, using the same metric as the one-argument form
    * of the Metric() method. */
-  ScalarType Metric() const;
+  ScalarType
+  Metric() const;
 
 protected:
   /** Construct an AffineTransform object
@@ -288,117 +272,27 @@ protected:
    * to values specified by the caller.  If the arguments are
    * omitted, then the AffineTransform is initialized to an identity
    * transformation in the appropriate number of dimensions.   */
-  AffineTransform(const MatrixType & matrix,
-                  const OutputVectorType & offset);
+  AffineTransform(const MatrixType & matrix, const OutputVectorType & offset);
   AffineTransform(unsigned int paramDims);
   AffineTransform();
 
   /** Destroy an AffineTransform object   */
-  virtual ~AffineTransform() ITK_OVERRIDE;
+  ~AffineTransform() override = default;
 
   /** Print contents of an AffineTransform */
-  void PrintSelf(std::ostream & s, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & s, Indent indent) const override;
 
 private:
+  AffineTransform(const Self & other) = delete;
+  const Self &
+  operator=(const Self &) = delete;
+}; // class AffineTransform
 
-  AffineTransform(const Self & other);
-  const Self & operator=(const Self &);
-}; //class AffineTransform
-
-#if !defined(ITK_LEGACY_REMOVE)
-/** Back transform a vector */
-template<typename TParametersValueType, unsigned int NDimensions>
-inline
-typename AffineTransform<TParametersValueType, NDimensions>::InputVectorType
-AffineTransform<TParametersValueType, NDimensions>::BackTransform(const OutputVectorType & vect) const
-{
-  itkWarningMacro(
-    << "BackTransform(): This method is slated to be removed "
-    << "from ITK. Instead, please use GetInverse() to generate an inverse "
-    << "transform and then perform the transform using that inverted transform.");
-  return this->GetInverseMatrix() * vect;
-}
-
-/** Back transform a vnl_vector */
-template<typename TParametersValueType, unsigned int NDimensions>
-inline
-typename AffineTransform<TParametersValueType, NDimensions>::InputVnlVectorType
-AffineTransform<TParametersValueType, NDimensions>::BackTransform(const OutputVnlVectorType & vect) const
-{
-  itkWarningMacro(
-    << "BackTransform(): This method is slated to be removed "
-    << "from ITK. Instead, please use GetInverse() to generate an inverse "
-    << "transform and then perform the transform using that inverted transform.");
-  return this->GetInverseMatrix() * vect;
-}
-
-/** Back Transform a CovariantVector */
-template<typename TParametersValueType, unsigned int NDimensions>
-inline
-typename AffineTransform<TParametersValueType, NDimensions>::InputCovariantVectorType
-AffineTransform<TParametersValueType, NDimensions>::BackTransform(const OutputCovariantVectorType & vec) const
-{
-  itkWarningMacro(
-    << "BackTransform(): This method is slated to be removed "
-    << "from ITK. Instead, please use GetInverse() to generate an inverse "
-    << "transform and then perform the transform using that inverted transform.");
-
-  InputCovariantVectorType result;    // Converted vector
-
-  for ( unsigned int i = 0; i < NDimensions; i++ )
-    {
-    result[i] = NumericTraits< ScalarType >::ZeroValue();
-    for ( unsigned int j = 0; j < NDimensions; j++ )
-      {
-      result[i] += this->GetMatrix()[j][i] * vec[j]; // Direct matrix transposed
-      }
-    }
-  return result;
-}
-
-/** Back transform a given point which is represented as type PointType */
-template<typename TParametersValueType, unsigned int NDimensions>
-inline
-typename AffineTransform<TParametersValueType, NDimensions>::InputPointType
-AffineTransform<TParametersValueType, NDimensions>::BackTransformPoint(const OutputPointType & point) const
-{
-  return this->BackTransform(point);
-}
-
-/** Back transform a point */
-template<typename TParametersValueType, unsigned int NDimensions>
-inline
-typename AffineTransform<TParametersValueType, NDimensions>::InputPointType
-AffineTransform<TParametersValueType, NDimensions>::BackTransform(const OutputPointType & point) const
-{
-  itkWarningMacro(
-    << "BackTransform(): This method is slated to be removed "
-    << "from ITK.  Instead, please use GetInverse() to generate an inverse "
-    << "transform and then perform the transform using that inverted transform.");
-  InputPointType result;       // Converted point
-  ScalarType     temp[NDimensions];
-  unsigned int   i, j;
-
-  for ( j = 0; j < NDimensions; j++ )
-    {
-    temp[j] = point[j] - this->GetOffset()[j];
-    }
-
-  for ( i = 0; i < NDimensions; i++ )
-    {
-    result[i] = 0.0;
-    for ( j = 0; j < NDimensions; j++ )
-      {
-      result[i] += this->GetInverseMatrix()[i][j] * temp[j];
-      }
-    }
-  return result;
-}
-#endif
-}  // namespace itk
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAffineTransform.hxx"
+#  include "itkAffineTransform.hxx"
 #endif
 
 #endif /* itkAffineTransform_h */

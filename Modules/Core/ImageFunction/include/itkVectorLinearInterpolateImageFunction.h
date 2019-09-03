@@ -39,46 +39,46 @@ namespace itk
  *
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = double >
-class ITK_TEMPLATE_EXPORT VectorLinearInterpolateImageFunction:
-  public VectorInterpolateImageFunction< TInputImage, TCoordRep >
+template <typename TInputImage, typename TCoordRep = double>
+class ITK_TEMPLATE_EXPORT VectorLinearInterpolateImageFunction
+  : public VectorInterpolateImageFunction<TInputImage, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorLinearInterpolateImageFunction                     Self;
-  typedef VectorInterpolateImageFunction< TInputImage, TCoordRep > Superclass;
-  typedef SmartPointer< Self >                                     Pointer;
-  typedef SmartPointer< const Self >                               ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorLinearInterpolateImageFunction);
+
+  /** Standard class type aliases. */
+  using Self = VectorLinearInterpolateImageFunction;
+  using Superclass = VectorInterpolateImageFunction<TInputImage, TCoordRep>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(VectorLinearInterpolateImageFunction,
-               VectorInterpolateImageFunction);
+  itkTypeMacro(VectorLinearInterpolateImageFunction, VectorInterpolateImageFunction);
 
-  /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
-  typedef typename Superclass::PixelType      PixelType;
-  typedef typename Superclass::ValueType      ValueType;
-  typedef typename Superclass::RealType       RealType;
+  /** InputImageType type alias support */
+  using InputImageType = typename Superclass::InputImageType;
+  using PixelType = typename Superclass::PixelType;
+  using ValueType = typename Superclass::ValueType;
+  using RealType = typename Superclass::RealType;
 
   /** Grab the vector dimension from the superclass. */
-  itkStaticConstMacro(Dimension, unsigned int,
-                      Superclass::Dimension);
+  static constexpr unsigned int Dimension = Superclass::Dimension;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType      IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
-  typedef typename ContinuousIndexType::ValueType  InternalComputationType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
+  using InternalComputationType = typename ContinuousIndexType::ValueType;
 
   /** Output type is Vector<double,Dimension> */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Evaluate the function at a ContinuousIndex position
    *
@@ -88,24 +88,23 @@ public:
    *
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const ITK_OVERRIDE;
+  OutputType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const override;
 
 protected:
-  VectorLinearInterpolateImageFunction();
-  ~VectorLinearInterpolateImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  VectorLinearInterpolateImageFunction() = default;
+  ~VectorLinearInterpolateImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorLinearInterpolateImageFunction);
-
   /** Number of neighbors used in the interpolation */
   static const unsigned long m_Neighbors;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorLinearInterpolateImageFunction.hxx"
+#  include "itkVectorLinearInterpolateImageFunction.hxx"
 #endif
 
 #endif

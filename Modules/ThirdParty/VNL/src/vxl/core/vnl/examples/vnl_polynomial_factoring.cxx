@@ -8,10 +8,9 @@
 //-----------------------------------------------------------------------------
 
 #include <iostream>
-#include <cstdlib>
 #include <vector>
-#include <vcl_compiler.h>
 #include <vnl/vnl_polynomial.h>
+#include <string>
 
 int main(int argc, char* argv[])
 {
@@ -25,7 +24,7 @@ int main(int argc, char* argv[])
   }
   else
     for (int i=0; i<argc; ++i)
-      coef[i] = std::atoi(argv[i]);
+      coef[i] = std::stoi(argv[i]);
 
   vnl_polynomial<long> poly(coef);
   std::cout << "Polynomial = " << poly << std::endl;

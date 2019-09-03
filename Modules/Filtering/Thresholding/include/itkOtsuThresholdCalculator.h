@@ -40,15 +40,17 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKThresholding
  */
-template <typename THistogram, typename TOutput=double>
+template <typename THistogram, typename TOutput = double>
 class ITK_TEMPLATE_EXPORT OtsuThresholdCalculator : public HistogramThresholdCalculator<THistogram, TOutput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef OtsuThresholdCalculator                           Self;
-  typedef HistogramThresholdCalculator<THistogram, TOutput> Superclass;
-  typedef SmartPointer<Self>                                Pointer;
-  typedef SmartPointer<const Self>                          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(OtsuThresholdCalculator);
+
+  /** Standard class type aliases. */
+  using Self = OtsuThresholdCalculator;
+  using Superclass = HistogramThresholdCalculator<THistogram, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -57,34 +59,48 @@ public:
   itkTypeMacro(OtsuThresholdCalculator, HistogramThresholdCalculator);
 
   /** Type definition for the input image. */
-  typedef THistogram  HistogramType;
-  typedef TOutput     OutputType;
+  using HistogramType = THistogram;
+  using OutputType = TOutput;
+
+  /** Should the threshold value be mid-point of the bin or the maximum?
+   * Default is to return bin maximum. */
+  itkSetMacro(ReturnBinMidpoint, bool);
+  itkGetConstReferenceMacro(ReturnBinMidpoint, bool);
+  itkBooleanMacro(ReturnBinMidpoint);
 
   /** for backward compatibility. Update() should be preferred. */
-  void Compute()
+  void
+  Compute()
   {
     this->Update();
   }
 
 protected:
   OtsuThresholdCalculator()
+
   {
     m_OtsuMultipleThresholdsCalculator = OtsuMultipleThresholdsCalculator<THistogram>::New();
   }
-  virtual ~OtsuThresholdCalculator() ITK_OVERRIDE {};
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-  void GenerateData(void) ITK_OVERRIDE;
+  ~OtsuThresholdCalculator() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(OtsuThresholdCalculator);
   typename OtsuMultipleThresholdsCalculator<THistogram>::Pointer m_OtsuMultipleThresholdsCalculator;
+#if defined(ITKV4_COMPATIBILITY)
+  bool m_ReturnBinMidpoint{ true };
+#else
+  bool m_ReturnBinMidpoint{ false };
+#endif
 };
 
 } // end namespace itk
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkOtsuThresholdCalculator.hxx"
+#  include "itkOtsuThresholdCalculator.hxx"
 #endif
 
 #endif

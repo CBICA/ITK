@@ -37,7 +37,8 @@
 #include "itkNormalVariateGenerator.h"
 // Software Guide : EndCodeSnippet
 
-int main()
+int
+main()
 {
   // Software Guide : BeginLatex
   //
@@ -48,14 +49,14 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::Statistics::NormalVariateGenerator GeneratorType;
+  using GeneratorType = itk::Statistics::NormalVariateGenerator;
   GeneratorType::Pointer generator = GeneratorType::New();
-  generator->Initialize( (int) 2003 );
+  generator->Initialize((int)2003);
 
-  for ( unsigned int i = 0; i < 50; ++i )
-    {
+  for (unsigned int i = 0; i < 50; ++i)
+  {
     std::cout << i << " : \t" << generator->GetVariate() << std::endl;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

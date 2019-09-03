@@ -38,76 +38,81 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-class ITKStatistics_EXPORT SparseFrequencyContainer2:public Object
+class ITKStatistics_EXPORT SparseFrequencyContainer2 : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef SparseFrequencyContainer2  Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SparseFrequencyContainer2);
+
+  /** Standard class type aliases. */
+  using Self = SparseFrequencyContainer2;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard macros */
   itkTypeMacro(SparseFrequencyContainer2, Object);
   itkNewMacro(Self);
 
   /** instance idenfitifer alias */
-  typedef MeasurementVectorTraits::InstanceIdentifier InstanceIdentifier;
+  using InstanceIdentifier = MeasurementVectorTraits::InstanceIdentifier;
 
   /** Absolute frequency type alias */
-  typedef MeasurementVectorTraits::AbsoluteFrequencyType AbsoluteFrequencyType;
+  using AbsoluteFrequencyType = MeasurementVectorTraits::AbsoluteFrequencyType;
 
   /** Absolute Total frequency type */
-  typedef MeasurementVectorTraits::TotalAbsoluteFrequencyType TotalAbsoluteFrequencyType;
+  using TotalAbsoluteFrequencyType = MeasurementVectorTraits::TotalAbsoluteFrequencyType;
 
   /** Relative frequency type alias */
-  typedef MeasurementVectorTraits::RelativeFrequencyType RelativeFrequencyType;
+  using RelativeFrequencyType = MeasurementVectorTraits::RelativeFrequencyType;
 
   /** Relative Relative frequency type */
-  typedef MeasurementVectorTraits::TotalRelativeFrequencyType TotalRelativeFrequencyType;
+  using TotalRelativeFrequencyType = MeasurementVectorTraits::TotalRelativeFrequencyType;
 
-  /** Histogram typedef support */
-  typedef std::map< InstanceIdentifier, AbsoluteFrequencyType > FrequencyContainerType;
-  typedef FrequencyContainerType::const_iterator
-  FrequencyContainerConstIterator;
+  /** Histogram type alias support */
+  using FrequencyContainerType = std::map<InstanceIdentifier, AbsoluteFrequencyType>;
+  using FrequencyContainerConstIterator = FrequencyContainerType::const_iterator;
 
   /** prepares the frequency container */
-  void Initialize(SizeValueType length);
+  void
+  Initialize(SizeValueType length);
 
   /** Calls the SetToZero method of superclass to initialize all the bins to Zero.
    *  This should be done before starting to call the IncreaseFrequency method. */
-  void SetToZero();
+  void
+  SetToZero();
 
   /** Method to set the frequency of histogram using instance identifier. It
    * returns false when the Id is out of bounds */
-  bool SetFrequency(const InstanceIdentifier id, const AbsoluteFrequencyType value);
+  bool
+  SetFrequency(const InstanceIdentifier id, const AbsoluteFrequencyType value);
 
   /** Method to increase the frequency by one.  This function is convinent
    * to create a histogram. It returns false when the id is out of bounds. */
-  bool IncreaseFrequency(const InstanceIdentifier id,
-                         const AbsoluteFrequencyType value);
+  bool
+  IncreaseFrequency(const InstanceIdentifier id, const AbsoluteFrequencyType value);
 
   /** Method to get the frequency of a bin from the histogram. It will return
    * zero when the Id is out of bounds.  */
-  AbsoluteFrequencyType GetFrequency(const InstanceIdentifier id) const;
+  AbsoluteFrequencyType
+  GetFrequency(const InstanceIdentifier id) const;
 
-  TotalAbsoluteFrequencyType GetTotalFrequency()
+  TotalAbsoluteFrequencyType
+  GetTotalFrequency()
   {
     return m_TotalFrequency;
   }
 
 protected:
   SparseFrequencyContainer2();
-  virtual ~SparseFrequencyContainer2() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SparseFrequencyContainer2() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SparseFrequencyContainer2);
-
   // Container of histogram
   FrequencyContainerType     m_FrequencyContainer;
   TotalAbsoluteFrequencyType m_TotalFrequency;
-};  // end of class
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 

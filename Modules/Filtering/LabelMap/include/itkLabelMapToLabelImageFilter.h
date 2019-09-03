@@ -38,39 +38,40 @@ namespace itk
  * \ingroup LabeledImageFilters
  * \ingroup ITKLabelMap
  *
- * \wiki
- * \wikiexample{ImageProcessing/LabelMapToLabelImageFilter,Convert a LabelMap to a normal image with different values representing each region}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/LabelMap/ConvertLabelMapToImage,Convert Label Map To Normal Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT LabelMapToLabelImageFilter:
-  public LabelMapFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LabelMapToLabelImageFilter : public LabelMapFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelMapToLabelImageFilter                  Self;
-  typedef LabelMapFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToLabelImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef typename Superclass::InputImageType          InputImageType;
-  typedef typename Superclass::InputImagePointer       InputImagePointer;
-  typedef typename Superclass::InputImageConstPointer  InputImageConstPointer;
-  typedef typename Superclass::InputImageRegionType    InputImageRegionType;
-  typedef typename Superclass::InputImagePixelType     InputImagePixelType;
-  typedef typename Superclass::LabelObjectType         LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = LabelMapToLabelImageFilter;
+  using Superclass = LabelMapFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename Superclass::OutputImageType         OutputImageType;
-  typedef typename Superclass::OutputImagePointer      OutputImagePointer;
-  typedef typename Superclass::OutputImageConstPointer OutputImageConstPointer;
-  typedef typename Superclass::OutputImageRegionType   OutputImageRegionType;
-  typedef typename Superclass::OutputImagePixelType    OutputImagePixelType;
-  typedef typename OutputImageType::IndexType          IndexType;
+  /** Some convenient type alias. */
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputImageConstPointer = typename Superclass::InputImageConstPointer;
+  using InputImageRegionType = typename Superclass::InputImageRegionType;
+  using InputImagePixelType = typename Superclass::InputImagePixelType;
+  using LabelObjectType = typename Superclass::LabelObjectType;
+
+  using OutputImageType = typename Superclass::OutputImageType;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using OutputImageConstPointer = typename Superclass::OutputImageConstPointer;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
+  using IndexType = typename OutputImageType::IndexType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int, TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -79,26 +80,26 @@ public:
   itkTypeMacro(LabelMapToLabelImageFilter, LabelMapFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
 #endif
 
 protected:
   LabelMapToLabelImageFilter();
-  ~LabelMapToLabelImageFilter() ITK_OVERRIDE {}
+  ~LabelMapToLabelImageFilter() override = default;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  virtual void ThreadedProcessLabelObject(LabelObjectType *labelObject) ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapToLabelImageFilter);
-  OutputImageType *m_OutputImage;
-};                                          // end of class
+  OutputImageType * m_OutputImage;
+}; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelMapToLabelImageFilter.hxx"
+#  include "itkLabelMapToLabelImageFilter.hxx"
 #endif
 
 #endif

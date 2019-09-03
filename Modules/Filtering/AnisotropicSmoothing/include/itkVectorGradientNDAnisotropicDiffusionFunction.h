@@ -40,63 +40,61 @@ namespace itk
  * \sa AnisotropicDiffusionFunction
  * \ingroup ITKAnisotropicSmoothing
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT VectorGradientNDAnisotropicDiffusionFunction:
-  public VectorAnisotropicDiffusionFunction< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT VectorGradientNDAnisotropicDiffusionFunction
+  : public VectorAnisotropicDiffusionFunction<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorGradientNDAnisotropicDiffusionFunction Self;
-  typedef VectorAnisotropicDiffusionFunction< TImage > Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorGradientNDAnisotropicDiffusionFunction);
+
+  /** Standard class type aliases. */
+  using Self = VectorGradientNDAnisotropicDiffusionFunction;
+  using Superclass = VectorAnisotropicDiffusionFunction<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(VectorGradientNDAnisotropicDiffusionFunction,
-               ScalarAnisotropicDiffusionFunction);
+  itkTypeMacro(VectorGradientNDAnisotropicDiffusionFunction, ScalarAnisotropicDiffusionFunction);
 
   /** Inherit some parameters from the superclass type. */
-  typedef typename Superclass::ImageType        ImageType;
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
-  typedef typename Superclass::FloatOffsetType  FloatOffsetType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelType = typename Superclass::PixelType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
 
   /** Extract vector and image dimension from superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
-  itkStaticConstMacro(VectorDimension, unsigned int,
-                      Superclass::VectorDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
+  static constexpr unsigned int VectorDimension = Superclass::VectorDimension;
 
   /** Type of a value in a vector (double, float, etc.) */
-  typedef typename PixelType::ValueType ScalarValueType;
+  using ScalarValueType = typename PixelType::ValueType;
 
   /** Compute the equation value. */
-  virtual PixelType ComputeUpdate(const NeighborhoodType & neighborhood,
-                                  void *globalData,
-                                  const FloatOffsetType & offset = FloatOffsetType(0.0)
-                                  ) ITK_OVERRIDE;
+  PixelType
+  ComputeUpdate(const NeighborhoodType & neighborhood,
+                void *                   globalData,
+                const FloatOffsetType &  offset = FloatOffsetType(0.0)) override;
 
   /** This method is called prior to each iteration of the solver. */
-  virtual void InitializeIteration() ITK_OVERRIDE
+  void
+  InitializeIteration() override
   {
-    m_K = this->GetAverageGradientMagnitudeSquared() * this->GetConductanceParameter()
-          * this->GetConductanceParameter() * -2.0f;
+    m_K = this->GetAverageGradientMagnitudeSquared() * this->GetConductanceParameter() *
+          this->GetConductanceParameter() * -2.0f;
   }
 
 protected:
   VectorGradientNDAnisotropicDiffusionFunction();
-  ~VectorGradientNDAnisotropicDiffusionFunction() ITK_OVERRIDE {}
+  ~VectorGradientNDAnisotropicDiffusionFunction() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorGradientNDAnisotropicDiffusionFunction);
-
   /** Inner product function. */
-  VectorNeighborhoodInnerProduct< ImageType > m_InnerProduct;
+  VectorNeighborhoodInnerProduct<ImageType> m_InnerProduct;
 
   /** Slices for the ND neighborhood. */
   std::slice x_slice[ImageDimension];
@@ -104,8 +102,7 @@ private:
   std::slice xd_slice[ImageDimension][ImageDimension];
 
   /** Derivative operators. */
-  DerivativeOperator< ScalarValueType,
-                      itkGetStaticConstMacro(ImageDimension) > dx_op;
+  DerivativeOperator<ScalarValueType, Self::ImageDimension> m_DerivativeOperator;
 
   /** Modified global average gradient magnitude term. */
   ScalarValueType m_K;
@@ -118,7 +115,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorGradientNDAnisotropicDiffusionFunction.hxx"
+#  include "itkVectorGradientNDAnisotropicDiffusionFunction.hxx"
 #endif
 
 #endif

@@ -20,149 +20,87 @@
 
 #include "itkMacro.h"
 
-#if defined( ITK_HAVE_STDINT_H )
-#include <stdint.h>
-#else
-// the system doesn't have the C or C++ version of stdint so lets use
-// KWIML's macros for fixed widths
-#include "itk_kwiml.h"
-
-#ifdef ITK_HAVE_STDDEF_H
-#include <cstddef>
-#endif //ITK_HAVE_STDDEF_H
-
-#endif // ITK_HAVE_CSTDINT
-
+#include <cstdint>
 #include <climits>
 
 namespace itk
 {
-#if defined( ITK_HAVE_STDINT_H )
+using int8_t = ::int8_t;
+using uint8_t = ::uint8_t;
+using int16_t = ::int16_t;
+using uint16_t = ::uint16_t;
+using int32_t = ::int32_t;
+using uint32_t = ::uint32_t;
+using int64_t = ::int64_t;
+using uint64_t = ::uint64_t;
 
-// Note: these types are technically optional in C99 stdint.h file. As
-// such a try complile for their existence may be needed.
-typedef::int8_t   int8_t;
-typedef::uint8_t  uint8_t;
-typedef::int16_t  int16_t;
-typedef::uint16_t uint16_t;
-typedef::int32_t  int32_t;
-typedef::uint32_t uint32_t;
-typedef::int64_t  int64_t;
-typedef::uint64_t uint64_t;
+using int_least8_t = ::int_least8_t;
+using uint_least8_t = ::uint_least8_t;
+using int_least16_t = ::int_least16_t;
+using uint_least16_t = ::uint_least16_t;
+using int_least32_t = ::int_least32_t;
+using uint_least32_t = ::uint_least32_t;
+using int_least64_t = ::int_least64_t;
+using uint_least64_t = ::uint_least64_t;
 
-// Note: these types are required for the C99 stdint.h file.
-typedef::int_least8_t   int_least8_t;
-typedef::uint_least8_t  uint_least8_t;
-typedef::int_least16_t  int_least16_t;
-typedef::uint_least16_t uint_least16_t;
-typedef::int_least32_t  int_least32_t;
-typedef::uint_least32_t uint_least32_t;
-typedef::int_least64_t  int_least64_t;
-typedef::uint_least64_t uint_least64_t;
+using int_fast8_t = ::int_fast8_t;
+using uint_fast8_t = ::uint_fast8_t;
+using int_fast16_t = ::int_fast16_t;
+using uint_fast16_t = ::uint_fast16_t;
+using int_fast32_t = ::int_fast32_t;
+using uint_fast32_t = ::uint_fast32_t;
+using int_fast64_t = ::int_fast64_t;
+using uint_fast64_t = ::uint_fast64_t;
 
-// Note: these types are required for the C99 stdint.h file.
-typedef::int_fast8_t   int_fast8_t;
-typedef::uint_fast8_t  uint_fast8_t;
-typedef::int_fast16_t  int_fast16_t;
-typedef::uint_fast16_t uint_fast16_t;
-typedef::int_fast32_t  int_fast32_t;
-typedef::uint_fast32_t uint_fast32_t;
-typedef::int_fast64_t  int_fast64_t;
-typedef::uint_fast64_t uint_fast64_t;
+using intmax_t = ::intmax_t;
+using uintmax_t = ::uintmax_t;
 
-typedef::intmax_t  intmax_t;
-typedef::uintmax_t uintmax_t;
+using intptr_t = ::intptr_t;
+using uintptr_t = ::uintptr_t;
 
-typedef::intptr_t  intptr_t;
-typedef::uintptr_t uintptr_t;
 
-#else // ITK_HAVE_STDINT_H
-
-/** Fixed width integer types. */
-typedef KWIML_INT_int8_t   int8_t;
-typedef KWIML_INT_uint8_t  uint8_t;
-typedef KWIML_INT_int16_t  int16_t;
-typedef KWIML_INT_uint16_t uint16_t;
-typedef KWIML_INT_int32_t  int32_t;
-typedef KWIML_INT_uint32_t uint32_t;
-typedef KWIML_INT_int64_t  int64_t;
-typedef KWIML_INT_uint64_t uint64_t;
-
-/** Types which are at least a certain size, these are preferred over
- *  fixed width. */
-typedef int8_t   int_least8_t;
-typedef uint8_t  uint_least8_t;
-typedef int16_t  int_least16_t;
-typedef uint16_t uint_least16_t;
-typedef int32_t  int_least32_t;
-typedef uint32_t uint_least32_t;
-typedef int64_t  int_least64_t;
-typedef uint64_t uint_least64_t;
-
-/** Types which are at least a certain size but may be greater if
- *  performace benefits, these are preferred over fixed width. */
-typedef int8_t   int_fast8_t;
-typedef uint8_t  uint_fast8_t;
-typedef int16_t  int_fast16_t;
-typedef uint16_t uint_fast16_t;
-typedef int32_t  int_fast32_t;
-typedef uint32_t uint_fast32_t;
-typedef int64_t  int_fast64_t;
-typedef uint64_t uint_fast64_t;
-
-/** Types which contain the largest represetable integer. */
-typedef int64_t  intmax_t;
-typedef uint64_t uintmax_t;
-
-typedef::ptrdiff_t intptr_t;
-typedef::size_t    uintptr_t;
-
-#endif // ITK_HAVE_STDINT_H
-
-#if !defined(ITKV3_COMPATIBILITY) && defined(ITK_USE_64BITS_IDS) && ((ULLONG_MAX != ULONG_MAX) || (LLONG_MAX != LONG_MAX))
+#if defined(ITK_USE_64BITS_IDS) && ((ULLONG_MAX != ULONG_MAX) || (LLONG_MAX != LONG_MAX))
 
 /** Any count of number of items (number of pixels in an image, number of
  *  points) (it is unsigned) */
-typedef uint64_t      SizeValueType;
+using SizeValueType = uint64_t;
 
 /** Same type as SizeValueType but when used as an Id (pointId, cellId,
  *  labelObjectId..)(it is unsigned) */
-typedef SizeValueType IdentifierType;
+using IdentifierType = SizeValueType;
 
 /** The components of the Index array (they are signed) */
-typedef int64_t       IndexValueType;
+using IndexValueType = int64_t;
 
 /** Differences between components of indexes, distance from one pointer
  *  to the origin of a buffer (it is signed) */
-typedef int64_t       OffsetValueType;
+using OffsetValueType = int64_t;
 
 #else
 
 /** Any count of number of items (number of pixels in an image, number of
  *  points) (it is unsigned) */
-typedef unsigned long     SizeValueType;
+using SizeValueType = unsigned long;
 
 /** Same type as SizeValueType but when used as an Id (pointId, cellId,
  *  labelObjectId..)(it is unsigned) */
-typedef SizeValueType IdentifierType;
+using IdentifierType = SizeValueType;
 
 /** The components of the Index array (they are signed) */
-typedef signed long   IndexValueType;
+using IndexValueType = signed long;
 
 /** Differences between components of indexes, distance from one pointer
  *  to the origin of a buffer (it is signed) */
-typedef signed long   OffsetValueType;
+using OffsetValueType = signed long;
 
 #endif
 
 /** Type to count and reference number of threads */
-typedef unsigned int  ThreadIdType;
+using ThreadIdType = unsigned int;
 
-/** Type to count and reference the modification time of objects.
- * May in the future be replaced by SizeValueType to avoid overflows.
- */
-typedef unsigned long ModifiedTimeType;
+/** Type to count and reference the modification time of objects */
+using ModifiedTimeType = SizeValueType;
 
-}
+} // namespace itk
 
-#endif  /* itkIntTypes_h */
+#endif /* itkIntTypes_h */

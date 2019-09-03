@@ -19,6 +19,7 @@
 #define itkImageToListSampleAdaptor_h
 
 #include <typeinfo>
+#include <utility>
 
 #include "itkImage.h"
 #include "itkPixelTraits.h"
@@ -44,25 +45,26 @@ namespace Statistics
  * \sa Sample, ListSample
  * \ingroup ITKStatistics
  *
- * \wiki
- * \wikiexample{Statistics/ImageToListSampleAdaptor,Create a list of samples from an image without duplicating the data}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Numerics/Statistics/CreateListOfSamplesFromImageWithoutDuplication,Create List Of Samples From Image
+ * Without Duplication} \endsphinx
  */
 
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageToListSampleAdaptor:
-  public ListSample< typename MeasurementVectorPixelTraits< typename TImage::PixelType >::MeasurementVectorType >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageToListSampleAdaptor
+  : public ListSample<typename MeasurementVectorPixelTraits<typename TImage::PixelType>::MeasurementVectorType>
 {
 public:
-  /** Standard class typedefs */
-  typedef ImageToListSampleAdaptor Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToListSampleAdaptor);
 
-  typedef ListSample< typename MeasurementVectorPixelTraits<
-                        typename TImage::PixelType >::MeasurementVectorType >
-  Superclass;
+  /** Standard class type aliases */
+  using Self = ImageToListSampleAdaptor;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Superclass =
+    ListSample<typename MeasurementVectorPixelTraits<typename TImage::PixelType>::MeasurementVectorType>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToListSampleAdaptor, ListSample);
@@ -70,67 +72,74 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** Image typedefs */
-  typedef TImage                                         ImageType;
-  typedef typename ImageType::Pointer                    ImagePointer;
-  typedef typename ImageType::ConstPointer               ImageConstPointer;
-  typedef typename ImageType::IndexType                  IndexType;
-  typedef typename ImageType::PixelType                  PixelType;
-  typedef typename ImageType::PixelContainerConstPointer PixelContainerConstPointer;
+  /** Image type alias */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using IndexType = typename ImageType::IndexType;
+  using PixelType = typename ImageType::PixelType;
+  using PixelContainerConstPointer = typename ImageType::PixelContainerConstPointer;
 
-  /** Image Iterator typedef support */
-  typedef ImageRegionIterator< ImageType >          ImageIteratorType;
-  typedef ImageRegionConstIterator< ImageType >     ImageConstIteratorType;
-  typedef PixelTraits< typename TImage::PixelType > PixelTraitsType;
+  /** Image Iterator type alias support */
+  using ImageIteratorType = ImageRegionIterator<ImageType>;
+  using ImageConstIteratorType = ImageRegionConstIterator<ImageType>;
+  using PixelTraitsType = PixelTraits<typename TImage::PixelType>;
 
 
-  /** Superclass typedefs for Measurement vector, measurement,
+  /** Superclass type alias for Measurement vector, measurement,
    * Instance Identifier, frequency, size, size element value */
-  typedef MeasurementVectorPixelTraits< PixelType >                   MeasurementPixelTraitsType;
-  typedef typename MeasurementPixelTraitsType::MeasurementVectorType  MeasurementVectorType;
+  using MeasurementPixelTraitsType = MeasurementVectorPixelTraits<PixelType>;
+  using MeasurementVectorType = typename MeasurementPixelTraitsType::MeasurementVectorType;
 
-  typedef MeasurementVectorTraitsTypes< MeasurementVectorType > MeasurementVectorTraitsType;
-  typedef typename MeasurementVectorTraitsType::ValueType       MeasurementType;
+  using MeasurementVectorTraitsType = MeasurementVectorTraitsTypes<MeasurementVectorType>;
+  using MeasurementType = typename MeasurementVectorTraitsType::ValueType;
 
-  typedef typename Superclass::AbsoluteFrequencyType      AbsoluteFrequencyType;
-  typedef typename Superclass::TotalAbsoluteFrequencyType TotalAbsoluteFrequencyType;
-  typedef typename Superclass::MeasurementVectorSizeType  MeasurementVectorSizeType;
-  typedef typename Superclass::InstanceIdentifier         InstanceIdentifier;
+  using AbsoluteFrequencyType = typename Superclass::AbsoluteFrequencyType;
+  using TotalAbsoluteFrequencyType = typename Superclass::TotalAbsoluteFrequencyType;
+  using MeasurementVectorSizeType = typename Superclass::MeasurementVectorSizeType;
+  using InstanceIdentifier = typename Superclass::InstanceIdentifier;
 
-  typedef MeasurementVectorType ValueType;
+  using ValueType = MeasurementVectorType;
 
   /** Method to set the image */
-  void SetImage(const TImage *image);
+  void
+  SetImage(const TImage * image);
 
   /** Method to get the image */
-  const TImage * GetImage() const;
+  const TImage *
+  GetImage() const;
 
   /** returns the number of measurement vectors in this container */
-  InstanceIdentifier Size() const ITK_OVERRIDE;
+  InstanceIdentifier
+  Size() const override;
 
   /** method to return measurement vector for a specified id */
-  virtual const MeasurementVectorType & GetMeasurementVector(InstanceIdentifier id) const ITK_OVERRIDE;
+  const MeasurementVectorType &
+  GetMeasurementVector(InstanceIdentifier id) const override;
 
-  virtual MeasurementVectorSizeType GetMeasurementVectorSize() const ITK_OVERRIDE
+  MeasurementVectorSizeType
+  GetMeasurementVectorSize() const override
   {
     // some filter are expected that this method returns something even if the
     // input is not set. This won't be the right value for a variable length vector
     // but it's better than an exception.
-    if( m_Image.IsNull() )
-      {
+    if (m_Image.IsNull())
+    {
       return Superclass::GetMeasurementVectorSize();
-      }
+    }
     else
-      {
+    {
       return m_Image->GetNumberOfComponentsPerPixel();
-      }
+    }
   }
 
   /** method to return frequency for a specified id */
-  AbsoluteFrequencyType GetFrequency(InstanceIdentifier id) const ITK_OVERRIDE;
+  AbsoluteFrequencyType
+  GetFrequency(InstanceIdentifier id) const override;
 
   /** method to return the total frequency */
-  TotalAbsoluteFrequencyType GetTotalFrequency() const ITK_OVERRIDE;
+  TotalAbsoluteFrequencyType
+  GetTotalFrequency() const override;
 
   /** \class ConstIterator
    *  \brief Const Iterator
@@ -141,66 +150,69 @@ public:
     friend class ImageToListSampleAdaptor;
 
   public:
+    ConstIterator(const ImageToListSampleAdaptor * adaptor) { *this = adaptor->Begin(); }
 
-    ConstIterator(const ImageToListSampleAdaptor *adaptor)
-    {
-      *this = adaptor->Begin();
-    }
-
-    ConstIterator(const ConstIterator & iter) :
-      m_Iter(iter.m_Iter),
-      m_InstanceIdentifier(iter.m_InstanceIdentifier)
+    ConstIterator(const ConstIterator & iter)
+      : m_Iter(iter.m_Iter)
+      , m_InstanceIdentifier(iter.m_InstanceIdentifier)
     {}
 
-    ConstIterator & operator=(const ConstIterator & iter)
+    ConstIterator &
+    operator=(const ConstIterator & iter)
     {
       m_Iter = iter.m_Iter;
       m_InstanceIdentifier = iter.m_InstanceIdentifier;
       return *this;
     }
 
-    AbsoluteFrequencyType GetFrequency() const
+    AbsoluteFrequencyType
+    GetFrequency() const
     {
       return 1;
     }
 
-    const MeasurementVectorType & GetMeasurementVector() const
+    const MeasurementVectorType &
+    GetMeasurementVector() const
     {
-      MeasurementVectorTraits::Assign( this->m_MeasurementVectorCache, m_Iter.Get() );
+      MeasurementVectorTraits::Assign(this->m_MeasurementVectorCache, m_Iter.Get());
       return this->m_MeasurementVectorCache;
     }
 
-    InstanceIdentifier GetInstanceIdentifier() const
+    InstanceIdentifier
+    GetInstanceIdentifier() const
     {
       return m_InstanceIdentifier;
     }
 
-    ConstIterator & operator++()
+    ConstIterator &
+    operator++()
     {
       ++m_Iter;
       ++m_InstanceIdentifier;
       return *this;
     }
 
-    bool operator!=(const ConstIterator & it)
+    bool
+    operator!=(const ConstIterator & it)
     {
-      return ( m_Iter != it.m_Iter );
+      return (m_Iter != it.m_Iter);
     }
 
-    bool operator==(const ConstIterator & it)
+    bool
+    operator==(const ConstIterator & it)
     {
-      return ( m_Iter == it.m_Iter );
+      return (m_Iter == it.m_Iter);
     }
 
   protected:
     // This method should only be available to the ListSample class
-    ConstIterator(const ImageConstIteratorType & iter, InstanceIdentifier iid) :
-      m_Iter(iter),
-      m_InstanceIdentifier(iid)
+    ConstIterator(ImageConstIteratorType iter, InstanceIdentifier iid)
+      : m_Iter(std::move(iter))
+      , m_InstanceIdentifier(iid)
     {}
 
   private:
-    ConstIterator() ITK_DELETED_FUNCTION;
+    ConstIterator() = delete;
     ImageConstIteratorType        m_Iter;
     mutable MeasurementVectorType m_MeasurementVectorCache;
     InstanceIdentifier            m_InstanceIdentifier;
@@ -210,102 +222,105 @@ public:
    *  \brief Iterator
    * \ingroup ITKStatistics
    */
-  class Iterator:
-    public ConstIterator
+  class Iterator : public ConstIterator
   {
     friend class ImageToListSampleAdaptor;
 
   public:
-
-    Iterator(Self *adaptor) :
-      ConstIterator(adaptor)
+    Iterator(Self * adaptor)
+      : ConstIterator(adaptor)
     {}
 
-    Iterator(const Iterator & iter):
-      ConstIterator(iter)
+    Iterator(const Iterator & iter)
+      : ConstIterator(iter)
     {}
 
-    Iterator & operator=(const Iterator & iter)
+    Iterator &
+    operator=(const Iterator & iter)
     {
       this->ConstIterator::operator=(iter);
       return *this;
     }
 
   protected:
-    Iterator(const ImageIteratorType & iter, InstanceIdentifier iid) :
-      ConstIterator(iter, iid)
+    Iterator(const ImageIteratorType & iter, InstanceIdentifier iid)
+      : ConstIterator(iter, iid)
     {}
 
   private:
     // To ensure const-correctness these method must not be in the public API.
     // The are purposly not implemented, since they should never be called.
-    Iterator() ITK_DELETED_FUNCTION;
-    Iterator(const Self *adaptor) ITK_DELETED_FUNCTION;
-    Iterator(const ImageConstIteratorType & iter, InstanceIdentifier iid) ITK_DELETED_FUNCTION;
-    Iterator(const ConstIterator & it) ITK_DELETED_FUNCTION;
-    ConstIterator & operator=(const ConstIterator & it) ITK_DELETED_FUNCTION;
+    Iterator() = delete;
+    Iterator(const Self * adaptor) = delete;
+    Iterator(const ImageConstIteratorType & iter, InstanceIdentifier iid) = delete;
+    Iterator(const ConstIterator & it) = delete;
+    ConstIterator &
+    operator=(const ConstIterator & it) = delete;
   };
 
   /** returns an iterator that points to the beginning of the container */
-  Iterator Begin()
+  Iterator
+  Begin()
   {
-    ImagePointer           nonConstImage = const_cast< ImageType * >( m_Image.GetPointer() );
-    ImageIteratorType imageIterator( nonConstImage, nonConstImage->GetLargestPossibleRegion() );
+    ImagePointer      nonConstImage = const_cast<ImageType *>(m_Image.GetPointer());
+    ImageIteratorType imageIterator(nonConstImage, nonConstImage->GetLargestPossibleRegion());
     imageIterator.GoToBegin();
-    Iterator               iter(imageIterator, 0);
+    Iterator iter(imageIterator, 0);
     return iter;
   }
 
   /** returns an iterator that points to the end of the container */
-  Iterator End()
+  Iterator
+  End()
   {
-    ImagePointer           nonConstImage = const_cast< ImageType * >( m_Image.GetPointer() );
+    ImagePointer                           nonConstImage = const_cast<ImageType *>(m_Image.GetPointer());
     const typename ImageType::RegionType & largestRegion = nonConstImage->GetLargestPossibleRegion();
-    ImageIteratorType imageIterator( nonConstImage, largestRegion );
+    ImageIteratorType                      imageIterator(nonConstImage, largestRegion);
     imageIterator.GoToEnd();
-    Iterator          iter( imageIterator, largestRegion.GetNumberOfPixels() );
+    Iterator iter(imageIterator, largestRegion.GetNumberOfPixels());
 
     return iter;
   }
 
   /** returns an iterator that points to the beginning of the container */
-  ConstIterator Begin() const
+  ConstIterator
+  Begin() const
   {
-    ImageConstIteratorType imageConstIterator( m_Image, m_Image->GetLargestPossibleRegion() );
+    ImageConstIteratorType imageConstIterator(m_Image, m_Image->GetLargestPossibleRegion());
     imageConstIterator.GoToBegin();
-    ConstIterator          iter(imageConstIterator, 0);
+    ConstIterator iter(imageConstIterator, 0);
 
     return iter;
   }
 
   /** returns an iterator that points to the end of the container */
-  ConstIterator End() const
+  ConstIterator
+  End() const
   {
     const typename ImageType::RegionType & largestRegion = m_Image->GetLargestPossibleRegion();
-    ImageConstIteratorType imageConstIterator( m_Image, largestRegion );
+    ImageConstIteratorType                 imageConstIterator(m_Image, largestRegion);
     imageConstIterator.GoToEnd();
-    ConstIterator          iter( imageConstIterator, largestRegion.GetNumberOfPixels() );
+    ConstIterator iter(imageConstIterator, largestRegion.GetNumberOfPixels());
 
     return iter;
   }
 
 protected:
   ImageToListSampleAdaptor();
-  virtual ~ImageToListSampleAdaptor() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageToListSampleAdaptor() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToListSampleAdaptor);
-
   ImageConstPointer             m_Image;
   mutable MeasurementVectorType m_MeasurementVectorInternal;
 
-};  // end of class ImageToListSampleAdaptor
+}; // end of class ImageToListSampleAdaptor
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToListSampleAdaptor.hxx"
+#  include "itkImageToListSampleAdaptor.hxx"
 #endif
 
 #endif

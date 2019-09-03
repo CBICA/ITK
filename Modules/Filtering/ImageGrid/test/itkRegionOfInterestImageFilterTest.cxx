@@ -21,45 +21,44 @@
 #include "itkSimpleFilterWatcher.h"
 #include "itkTestingMacros.h"
 
-int itkRegionOfInterestImageFilterTest( int, char* [] )
+int
+itkRegionOfInterestImageFilterTest(int, char *[])
 {
 
-  const unsigned int              Dimension = 3;
-  typedef itk::Index< Dimension > PixelType;
+  constexpr unsigned int Dimension = 3;
+  using PixelType = itk::Index<Dimension>;
 
-  typedef itk::Image< PixelType, Dimension > ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::RegionOfInterestImageFilter<
-                                      ImageType,
-                                      ImageType > FilterType;
+  using FilterType = itk::RegionOfInterestImageFilter<ImageType, ImageType>;
 
 
-  typedef ImageType::RegionType    RegionType;
-  typedef ImageType::SizeType      SizeType;
-  typedef ImageType::IndexType     IndexType;
-  typedef ImageType::DirectionType DirectionType;
+  using RegionType = ImageType::RegionType;
+  using SizeType = ImageType::SizeType;
+  using IndexType = ImageType::IndexType;
+  using DirectionType = ImageType::DirectionType;
 
-  typedef itk::ImageRegionIterator< ImageType > IteratorType;
+  using IteratorType = itk::ImageRegionIterator<ImageType>;
 
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, RegionOfInterestImageFilter, ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, RegionOfInterestImageFilter, ImageToImageFilter);
 
   ImageType::Pointer image = ImageType::New();
 
   IndexType start;
-  start.Fill( 0 );
+  start.Fill(0);
 
-  SizeType  size;
+  SizeType size;
   size[0] = 40;
   size[1] = 40;
   size[2] = 40;
 
   RegionType region;
-  region.SetIndex( start );
-  region.SetSize(  size  );
+  region.SetIndex(start);
+  region.SetSize(size);
 
-  image->SetRegions( region );
+  image->SetRegions(region);
   image->Allocate();
 
   DirectionType directions;
@@ -70,19 +69,19 @@ int itkRegionOfInterestImageFilterTest( int, char* [] )
   directions[0][1] = 1.0;
   directions[1][1] = 0.0;
   directions[2][1] = 0.0;
-  image->SetDirection( directions );
+  image->SetDirection(directions);
 
   // Fill the image pixels with their own index.
-  IteratorType intr( image, region );
+  IteratorType intr(image, region);
   intr.GoToBegin();
-  while( !intr.IsAtEnd() )
-    {
-    intr.Set( intr.GetIndex() );
+  while (!intr.IsAtEnd())
+  {
+    intr.Set(intr.GetIndex());
     ++intr;
-    }
+  }
 
 
-  filter->SetInput( image );
+  filter->SetInput(image);
 
   SizeType roiSize;
   roiSize[0] = 20;
@@ -95,49 +94,45 @@ int itkRegionOfInterestImageFilterTest( int, char* [] )
   roiStart[2] = 9;
 
   RegionType regionOfInterest;
-  regionOfInterest.SetIndex( roiStart );
-  regionOfInterest.SetSize(  roiSize  );
+  regionOfInterest.SetIndex(roiStart);
+  regionOfInterest.SetSize(roiSize);
 
   itk::SimpleFilterWatcher watcher(filter);
 
-  filter->SetRegionOfInterest( regionOfInterest );
-  TEST_SET_GET_VALUE( regionOfInterest, filter->GetRegionOfInterest() );
+  filter->SetRegionOfInterest(regionOfInterest);
+  ITK_TEST_SET_GET_VALUE(regionOfInterest, filter->GetRegionOfInterest());
 
   filter->Update();
 
-  IteratorType ot( filter->GetOutput(),
-                   filter->GetOutput()->GetLargestPossibleRegion() );
+  IteratorType ot(filter->GetOutput(), filter->GetOutput()->GetLargestPossibleRegion());
 
-  IteratorType it( image, regionOfInterest );
+  IteratorType it(image, regionOfInterest);
 
   it.GoToBegin();
   ot.GoToBegin();
 
   bool passed = true;
-  while( !it.IsAtEnd() )
-    {
-    IndexType inIndex  = it.Get();
+  while (!it.IsAtEnd())
+  {
+    IndexType inIndex = it.Get();
     IndexType outIndex = ot.Get();
-    if( inIndex[0] != outIndex[0] ||
-        inIndex[1] != outIndex[1] ||
-        inIndex[2] != outIndex[2] )
-      {
+    if (inIndex[0] != outIndex[0] || inIndex[1] != outIndex[1] || inIndex[2] != outIndex[2])
+    {
       std::cerr << "Test failed at pixel " << inIndex << std::endl;
       std::cerr << "pixel value is       " << outIndex << std::endl;
       passed = false;
       break;
-      }
+    }
 
     ++it;
     ++ot;
-    }
+  }
 
-  if( !passed )
-    {
+  if (!passed)
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "Test PASSED !" << std::endl;
   return EXIT_SUCCESS;
-
 }

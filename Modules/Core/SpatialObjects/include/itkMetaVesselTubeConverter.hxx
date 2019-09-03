@@ -22,213 +22,200 @@
 
 namespace itk
 {
-/** Constructor */
-template< unsigned int NDimensions >
-MetaVesselTubeConverter< NDimensions >
-::MetaVesselTubeConverter()
-{}
 
-template< unsigned int NDimensions >
-typename MetaVesselTubeConverter< NDimensions >::MetaObjectType *
-MetaVesselTubeConverter< NDimensions>
-::CreateMetaObject()
+template <unsigned int NDimensions>
+typename MetaVesselTubeConverter<NDimensions>::MetaObjectType *
+MetaVesselTubeConverter<NDimensions>::CreateMetaObject()
 {
   return dynamic_cast<MetaObjectType *>(new VesselTubeMetaObjectType);
 }
 
 /** Convert a MetaVesselTube into an Tube SpatialObject  */
-template< unsigned int NDimensions >
-typename MetaVesselTubeConverter< NDimensions >::SpatialObjectPointer
-MetaVesselTubeConverter< NDimensions >
-::MetaObjectToSpatialObject(const MetaObjectType *mo)
+template <unsigned int NDimensions>
+typename MetaVesselTubeConverter<NDimensions>::SpatialObjectPointer
+MetaVesselTubeConverter<NDimensions>::MetaObjectToSpatialObject(const MetaObjectType * mo)
 {
-  const VesselTubeMetaObjectType *vesselTubeMO =
-    dynamic_cast<const VesselTubeMetaObjectType *>(mo);
-  if(vesselTubeMO == ITK_NULLPTR)
-    {
-    itkExceptionMacro(<< "Can't convert MetaObject to MetaVesselTube" );
-    }
+  const auto * vesselTubeMO = dynamic_cast<const VesselTubeMetaObjectType *>(mo);
+  if (vesselTubeMO == nullptr)
+  {
+    itkExceptionMacro(<< "Can't convert MetaObject to MetaVesselTube");
+  }
 
-  VesselTubeSpatialObjectPointer
-    vesselTubeSO = VesselTubeSpatialObjectType::New();
-  double spacing[NDimensions];
+  typename VesselTubeSpatialObjectType::Pointer vesselTubeSO = VesselTubeSpatialObjectType::New();
 
-  unsigned int ndims = vesselTubeMO->NDims();
-  for ( unsigned int ii = 0; ii < ndims; ii++ )
-    {
-    spacing[ii] = vesselTubeMO->ElementSpacing()[ii];
-    }
+  vesselTubeSO->SetTypeName("VesselTubeSpatialObject");
+  vesselTubeSO->GetProperty().SetName(vesselTubeMO->Name());
+  vesselTubeSO->SetParentPoint(vesselTubeMO->ParentPoint());
+  vesselTubeSO->SetId(vesselTubeMO->ID());
+  vesselTubeSO->SetRoot(vesselTubeMO->Root());
+  vesselTubeSO->SetParentId(vesselTubeMO->ParentID());
+  vesselTubeSO->GetProperty().SetRed(vesselTubeMO->Color()[0]);
+  vesselTubeSO->GetProperty().SetGreen(vesselTubeMO->Color()[1]);
+  vesselTubeSO->GetProperty().SetBlue(vesselTubeMO->Color()[2]);
+  vesselTubeSO->GetProperty().SetAlpha(vesselTubeMO->Color()[3]);
+  if (vesselTubeMO->Artery())
+  {
+    vesselTubeSO->GetProperty().SetTagStringValue("Artery", "true");
+  }
+  else
+  {
+    vesselTubeSO->GetProperty().SetTagStringValue("Artery", "false");
+  }
 
-  vesselTubeSO->GetIndexToObjectTransform()->SetScaleComponent(spacing);
-  vesselTubeSO->GetProperty()->SetName( vesselTubeMO->Name() );
-  vesselTubeSO->SetParentPoint( vesselTubeMO->ParentPoint() );
-  vesselTubeSO->SetId( vesselTubeMO->ID() );
-  vesselTubeSO->SetRoot( vesselTubeMO->Root() );
-  vesselTubeSO->SetArtery( vesselTubeMO->Artery() );
-  vesselTubeSO->SetParentId( vesselTubeMO->ParentID() );
-  vesselTubeSO->GetProperty()->SetRed(vesselTubeMO->Color()[0]);
-  vesselTubeSO->GetProperty()->SetGreen(vesselTubeMO->Color()[1]);
-  vesselTubeSO->GetProperty()->SetBlue(vesselTubeMO->Color()[2]);
-  vesselTubeSO->GetProperty()->SetAlpha(vesselTubeMO->Color()[3]);
+  using VesselTubePointType = itk::TubeSpatialObjectPoint<NDimensions>;
 
-  typedef itk::VesselTubeSpatialObjectPoint< NDimensions > VesselTubePointType;
+  auto it2 = vesselTubeMO->GetPoints().begin();
 
-  typedef VesselTubeMetaObjectType::PointListType ListType;
-  ListType::const_iterator it2 = vesselTubeMO->GetPoints().begin();
+  itk::CovariantVector<double, NDimensions> v;
+  itk::Vector<double, NDimensions>          t;
 
-  itk::CovariantVector< double, NDimensions > v;
-  itk::Vector< double, NDimensions >          t;
-
-  for ( unsigned int identifier = 0; identifier < vesselTubeMO->GetPoints().size(); identifier++ )
-    {
+  for (unsigned int identifier = 0; identifier < vesselTubeMO->GetPoints().size(); identifier++)
+  {
     VesselTubePointType pnt;
 
-    typedef typename VesselTubeSpatialObjectType::PointType SOPointType;
-    SOPointType point;
+    pnt.SetPositionInObjectSpace((*it2)->m_X);
+    pnt.SetRadiusInObjectSpace((*it2)->m_R);
+    pnt.SetMedialness((*it2)->m_Medialness);
+    pnt.SetRidgeness((*it2)->m_Ridgeness);
+    pnt.SetBranchness((*it2)->m_Branchness);
 
-    for ( unsigned int ii = 0; ii < ndims; ii++ )
-      {
-      point[ii] = ( *it2 )->m_X[ii];
-      }
+    for (unsigned int ii = 0; ii < NDimensions; ii++)
+    {
+      v[ii] = (*it2)->m_V1[ii];
+    }
+    pnt.SetNormal1InObjectSpace(v);
 
-    pnt.SetPosition(point);
-    pnt.SetRadius( ( *it2 )->m_R );
-    pnt.SetMedialness( ( *it2 )->m_Medialness );
-    pnt.SetRidgeness( ( *it2 )->m_Ridgeness );
-    pnt.SetBranchness( ( *it2 )->m_Branchness );
-    pnt.SetMark( ( *it2 )->m_Mark );
+    for (unsigned int ii = 0; ii < NDimensions; ii++)
+    {
+      v[ii] = (*it2)->m_V2[ii];
+    }
+    pnt.SetNormal2InObjectSpace(v);
 
-    for ( unsigned int ii = 0; ii < ndims; ii++ )
-      {
-      v[ii] = ( *it2 )->m_V1[ii];
-      }
-    pnt.SetNormal1(v);
+    for (unsigned int ii = 0; ii < NDimensions; ii++)
+    {
+      t[ii] = (*it2)->m_T[ii];
+    }
+    pnt.SetTangentInObjectSpace(t);
 
-    for ( unsigned int ii = 0; ii < ndims; ii++ )
-      {
-      v[ii] = ( *it2 )->m_V2[ii];
-      }
-    pnt.SetNormal2(v);
+    pnt.SetAlpha1((*it2)->m_Alpha1);
+    pnt.SetAlpha2((*it2)->m_Alpha2);
+    pnt.SetAlpha3((*it2)->m_Alpha3);
 
-    for ( unsigned int ii = 0; ii < ndims; ii++ )
-      {
-      t[ii] = ( *it2 )->m_T[ii];
-      }
-    pnt.SetTangent(t);
+    pnt.SetRed((*it2)->m_Color[0]);
+    pnt.SetGreen((*it2)->m_Color[1]);
+    pnt.SetBlue((*it2)->m_Color[2]);
+    pnt.SetAlpha((*it2)->m_Color[3]);
 
-    pnt.SetAlpha1( ( *it2 )->m_Alpha1 );
-    pnt.SetAlpha2( ( *it2 )->m_Alpha2 );
-    pnt.SetAlpha3( ( *it2 )->m_Alpha3 );
+    pnt.SetId((*it2)->m_ID);
 
-    pnt.SetRed( ( *it2 )->m_Color[0] );
-    pnt.SetGreen( ( *it2 )->m_Color[1] );
-    pnt.SetBlue( ( *it2 )->m_Color[2] );
-    pnt.SetAlpha( ( *it2 )->m_Color[3] );
-
-    pnt.SetID( ( *it2 )->m_ID );
-
-    vesselTubeSO->GetPoints().push_back(pnt);
+    vesselTubeSO->AddPoint(pnt);
 
     it2++;
-    }
+  }
 
   return vesselTubeSO.GetPointer();
 }
 
 /** Convert a Tube SpatialObject into a MetaVesselTube */
-template< unsigned int NDimensions >
-typename MetaVesselTubeConverter< NDimensions >::MetaObjectType *
-MetaVesselTubeConverter< NDimensions >
-::SpatialObjectToMetaObject(const SpatialObjectType *so)
+template <unsigned int NDimensions>
+typename MetaVesselTubeConverter<NDimensions>::MetaObjectType *
+MetaVesselTubeConverter<NDimensions>::SpatialObjectToMetaObject(const SpatialObjectType * so)
 {
-  const VesselTubeSpatialObjectConstPointer vesselTubeSO =
+  const typename VesselTubeSpatialObjectType::ConstPointer vesselTubeSO =
     dynamic_cast<const VesselTubeSpatialObjectType *>(so);
 
-  if(vesselTubeSO.IsNull())
-    {
+  if (vesselTubeSO.IsNull())
+  {
     itkExceptionMacro(<< "Can't downcast SpatialObject to VesselTubeSpatialObject");
-    }
-  MetaVesselTube *vesselTubeMO = new MetaVesselTube(NDimensions);
+  }
+  auto * vesselTubeMO = new MetaVesselTube(NDimensions);
 
   // fill in the tube information
 
-  typename VesselTubeSpatialObjectType::PointListType::const_iterator i;
-  for ( i = vesselTubeSO->GetPoints().begin();
-        i != vesselTubeSO->GetPoints().end();
-        i++ )
+  typename VesselTubeSpatialObjectType::TubePointListType::const_iterator i;
+  for (i = vesselTubeSO->GetPoints().begin(); i != vesselTubeSO->GetPoints().end(); i++)
+  {
+    auto * pnt = new VesselTubePnt(NDimensions);
+
+    for (unsigned int d = 0; d < NDimensions; d++)
     {
-    VesselTubePnt *pnt = new VesselTubePnt(NDimensions);
+      pnt->m_X[d] = (*i).GetPositionInObjectSpace()[d];
+    }
 
-    for ( unsigned int d = 0; d < NDimensions; d++ )
-      {
-      pnt->m_X[d] = ( *i ).GetPosition()[d];
-      }
+    pnt->m_ID = (*i).GetId();
+    pnt->m_R = (*i).GetRadiusInObjectSpace();
+    pnt->m_Alpha1 = (*i).GetAlpha1();
+    pnt->m_Alpha2 = (*i).GetAlpha2();
+    pnt->m_Alpha3 = (*i).GetAlpha3();
+    pnt->m_Medialness = (*i).GetMedialness();
+    pnt->m_Ridgeness = (*i).GetRidgeness();
+    pnt->m_Branchness = (*i).GetBranchness();
 
-    pnt->m_ID = ( *i ).GetID();
-    pnt->m_R = ( *i ).GetRadius();
-    pnt->m_Alpha1 = ( *i ).GetAlpha1();
-    pnt->m_Alpha2 = ( *i ).GetAlpha2();
-    pnt->m_Alpha3 = ( *i ).GetAlpha3();
-    pnt->m_Medialness = ( *i ).GetMedialness();
-    pnt->m_Ridgeness = ( *i ).GetRidgeness();
-    pnt->m_Branchness = ( *i ).GetBranchness();
-    pnt->m_Mark = ( *i ).GetMark();
+    for (unsigned int d = 0; d < NDimensions; d++)
+    {
+      pnt->m_V1[d] = (*i).GetNormal1InObjectSpace()[d];
+    }
 
-    for ( unsigned int d = 0; d < NDimensions; d++ )
-      {
-      pnt->m_V1[d] = ( *i ).GetNormal1()[d];
-      }
+    for (unsigned int d = 0; d < NDimensions; d++)
+    {
+      pnt->m_V2[d] = (*i).GetNormal2InObjectSpace()[d];
+    }
 
-    for ( unsigned int d = 0; d < NDimensions; d++ )
-      {
-      pnt->m_V2[d] = ( *i ).GetNormal2()[d];
-      }
+    for (unsigned int d = 0; d < NDimensions; d++)
+    {
+      pnt->m_T[d] = (*i).GetTangentInObjectSpace()[d];
+    }
 
-    for ( unsigned int d = 0; d < NDimensions; d++ )
-      {
-      pnt->m_T[d] = ( *i ).GetTangent()[d];
-      }
-
-    pnt->m_Color[0] = ( *i ).GetRed();
-    pnt->m_Color[1] = ( *i ).GetGreen();
-    pnt->m_Color[2] = ( *i ).GetBlue();
-    pnt->m_Color[3] = ( *i ).GetAlpha();
+    pnt->m_Color[0] = (*i).GetRed();
+    pnt->m_Color[1] = (*i).GetGreen();
+    pnt->m_Color[2] = (*i).GetBlue();
+    pnt->m_Color[3] = (*i).GetAlpha();
 
     vesselTubeMO->GetPoints().push_back(pnt);
-    }
+  }
 
-  if ( NDimensions == 2 )
-    {
+  if (NDimensions == 2)
+  {
     vesselTubeMO->PointDim("x y r rn mn bn mk v1x v1y tx ty a1 a2 red green blue alpha id");
-    }
+  }
   else
-    {
+  {
     vesselTubeMO->PointDim("x y z r rn mn bn mk v1x v1y v1z v2x v2y v2z tx ty tz a1 a2 a3 red green blue alpha id");
-    }
+  }
 
   float color[4];
-  for ( unsigned int ii = 0; ii < 4; ii++ )
-    {
-    color[ii] = vesselTubeSO->GetProperty()->GetColor()[ii];
-    }
+  for (unsigned int ii = 0; ii < 4; ii++)
+  {
+    color[ii] = vesselTubeSO->GetProperty().GetColor()[ii];
+  }
 
   vesselTubeMO->Color(color);
-  vesselTubeMO->ID( vesselTubeSO->GetId() );
-  vesselTubeMO->Root( vesselTubeSO->GetRoot() );
-  vesselTubeMO->Artery( vesselTubeSO->GetArtery() );
+  vesselTubeMO->ID(vesselTubeSO->GetId());
+  vesselTubeMO->Root(vesselTubeSO->GetRoot());
+  std::string str;
+  if (vesselTubeSO->GetProperty().GetTagStringValue("Artery", str) && str == "True")
+  {
+    vesselTubeMO->Artery(true);
+  }
+  else
+  {
+    vesselTubeMO->Artery(false);
+  }
 
-  if ( vesselTubeSO->GetParent() )
-    {
-    vesselTubeMO->ParentID( vesselTubeSO->GetParent()->GetId() );
-    }
-  vesselTubeMO->ParentPoint( vesselTubeSO->GetParentPoint() );
-  vesselTubeMO->NPoints(static_cast<int>( vesselTubeMO->GetPoints().size() ) );
 
-  for ( unsigned int ii = 0; ii < NDimensions; ii++ )
-    {
-    vesselTubeMO->ElementSpacing(ii, vesselTubeSO->GetIndexToObjectTransform()
-                         ->GetScaleComponent()[ii]);
-    }
+  if (vesselTubeSO->GetParent())
+  {
+    vesselTubeMO->ParentID(vesselTubeSO->GetParent()->GetId());
+  }
+  vesselTubeMO->ParentPoint(vesselTubeSO->GetParentPoint());
+  vesselTubeMO->NPoints(static_cast<int>(vesselTubeMO->GetPoints().size()));
+
+  for (unsigned int ii = 0; ii < NDimensions; ii++)
+  {
+    vesselTubeMO->ElementSpacing(ii, 1);
+    // Spacing is no longer used
+    // vesselTubeSO->GetObjectToParentTransform()->GetScaleComponent()[ii]);
+  }
   return vesselTubeMO;
 }
 

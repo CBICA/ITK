@@ -36,73 +36,74 @@
 
 #include "itkTestingMacros.h"
 
-int itkPadLabelMapFilterTest1(int argc, char * argv[])
+int
+itkPadLabelMapFilterTest1(int argc, char * argv[])
 {
 
-  if( argc != 5 )
-    {
+  if (argc != 5)
+  {
     std::cerr << "usage: " << argv[0] << " input output size0 size1" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 2;
+  constexpr unsigned int dim = 2;
 
-  typedef itk::Image< unsigned char, dim > ImageType;
+  using ImageType = itk::Image<unsigned char, dim>;
 
-  typedef itk::LabelObject< unsigned char, dim >    LabelObjectType;
-  typedef itk::LabelMap< LabelObjectType >          LabelMapType;
+  using LabelObjectType = itk::LabelObject<unsigned char, dim>;
+  using LabelMapType = itk::LabelMap<LabelObjectType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  TRY_EXPECT_NO_EXCEPTION( reader->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(reader->Update());
 
-  typedef itk::LabelImageToLabelMapFilter< ImageType, LabelMapType> I2LType;
+  using I2LType = itk::LabelImageToLabelMapFilter<ImageType, LabelMapType>;
   I2LType::Pointer i2l = I2LType::New();
-  i2l->SetInput( reader->GetOutput() );
+  i2l->SetInput(reader->GetOutput());
 
-  typedef itk::PadLabelMapFilter< LabelMapType > PadLabelMapFilterType;
+  using PadLabelMapFilterType = itk::PadLabelMapFilter<LabelMapType>;
   PadLabelMapFilterType::Pointer padLabelMapFilter = PadLabelMapFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( padLabelMapFilter, PadLabelMapFilter, ChangeRegionLabelMapFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(padLabelMapFilter, PadLabelMapFilter, ChangeRegionLabelMapFilter);
 
-  PadLabelMapFilterType::SizeType upperBoundaryPadSize = {{0}};
-  padLabelMapFilter->SetPadSize( upperBoundaryPadSize );
-  TEST_SET_GET_VALUE( upperBoundaryPadSize, padLabelMapFilter->GetUpperBoundaryPadSize() );
+  PadLabelMapFilterType::SizeType upperBoundaryPadSize = { { 0 } };
+  padLabelMapFilter->SetPadSize(upperBoundaryPadSize);
+  ITK_TEST_SET_GET_VALUE(upperBoundaryPadSize, padLabelMapFilter->GetUpperBoundaryPadSize());
 
-  PadLabelMapFilterType::SizeType lowerBoundaryPadSize = {{0}};
-  padLabelMapFilter->SetPadSize( lowerBoundaryPadSize );
-  TEST_SET_GET_VALUE( upperBoundaryPadSize, padLabelMapFilter->GetLowerBoundaryPadSize() );
+  PadLabelMapFilterType::SizeType lowerBoundaryPadSize = { { 0 } };
+  padLabelMapFilter->SetPadSize(lowerBoundaryPadSize);
+  ITK_TEST_SET_GET_VALUE(upperBoundaryPadSize, padLabelMapFilter->GetLowerBoundaryPadSize());
 
-  padLabelMapFilter->SetInput( i2l->GetOutput() );
+  padLabelMapFilter->SetInput(i2l->GetOutput());
   PadLabelMapFilterType::SizeType size;
-  size[0] = atoi( argv[3] );
-  size[1] = atoi( argv[4] );
+  size[0] = std::stoi(argv[3]);
+  size[1] = std::stoi(argv[4]);
 
-  padLabelMapFilter->SetPadSize( size );
-  TEST_SET_GET_VALUE( size, padLabelMapFilter->GetLowerBoundaryPadSize() );
-  TEST_SET_GET_VALUE( size, padLabelMapFilter->GetUpperBoundaryPadSize() );
+  padLabelMapFilter->SetPadSize(size);
+  ITK_TEST_SET_GET_VALUE(size, padLabelMapFilter->GetLowerBoundaryPadSize());
+  ITK_TEST_SET_GET_VALUE(size, padLabelMapFilter->GetUpperBoundaryPadSize());
 
-  itk::SimpleFilterWatcher watcher( padLabelMapFilter, "filter" );
+  itk::SimpleFilterWatcher watcher(padLabelMapFilter, "filter");
 
-  TRY_EXPECT_NO_EXCEPTION( padLabelMapFilter->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(padLabelMapFilter->Update());
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> L2IType;
+  using L2IType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
   L2IType::Pointer l2i = L2IType::New();
 
-  l2i->SetInput( padLabelMapFilter->GetOutput() );
+  l2i->SetInput(padLabelMapFilter->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( l2i->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(l2i->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
-  l2i->SetInput( ITK_NULLPTR );
-  TRY_EXPECT_EXCEPTION( l2i->Update() );
+  l2i->SetInput(nullptr);
+  ITK_TRY_EXPECT_EXCEPTION(l2i->Update());
 
   return EXIT_SUCCESS;
 }

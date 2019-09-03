@@ -36,31 +36,31 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Operators/ForwardDifferenceOperator,Create a forward difference kernel}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateForwardDifferenceKernel,Create Forward Difference Kernel}
+ * \endsphinx
  */
-template< typename TPixel, unsigned int VDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT ForwardDifferenceOperator:
-  public NeighborhoodOperator< TPixel, VDimension, TAllocator >
+template <typename TPixel, unsigned int VDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT ForwardDifferenceOperator : public NeighborhoodOperator<TPixel, VDimension, TAllocator>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ForwardDifferenceOperator                              Self;
-  typedef NeighborhoodOperator< TPixel, VDimension, TAllocator > Superclass;
+  /** Standard class type aliases. */
+  using Self = ForwardDifferenceOperator;
+  using Superclass = NeighborhoodOperator<TPixel, VDimension, TAllocator>;
 
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** Constructor. */
-  ForwardDifferenceOperator() {}
+  ForwardDifferenceOperator() = default;
 
   /** Copy constructor */
-  ForwardDifferenceOperator(const Self & other):
-    NeighborhoodOperator< TPixel, VDimension, TAllocator >(other) {}
+  ForwardDifferenceOperator(const Self & other)
+    : NeighborhoodOperator<TPixel, VDimension, TAllocator>(other)
+  {}
 
   /** Assignment operator */
-  Self & operator=(const Self & other)
+  Self &
+  operator=(const Self & other)
   {
     Superclass::operator=(other);
     return *this;
@@ -68,20 +68,23 @@ public:
 
 protected:
   /** Necessary to work around VC++ compiler bug. */
-  typedef typename Superclass::CoefficientVector CoefficientVector;
+  using CoefficientVector = typename Superclass::CoefficientVector;
 
   /** Calculates operator coefficients. */
-  CoefficientVector GenerateCoefficients();
+  CoefficientVector
+  GenerateCoefficients() override;
 
   /** Arranges coefficients spatially in the memory buffer. */
-  void Fill(const CoefficientVector & coeff)
-
-  { this->FillCenteredDirectional(coeff); }
+  void
+  Fill(const CoefficientVector & coeff) override
+  {
+    this->FillCenteredDirectional(coeff);
+  }
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkForwardDifferenceOperator.hxx"
+#  include "itkForwardDifferenceOperator.hxx"
 #endif
 
 #endif

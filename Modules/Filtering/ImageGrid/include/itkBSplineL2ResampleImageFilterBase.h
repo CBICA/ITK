@@ -79,35 +79,35 @@ namespace itk
  * \ingroup CannotBeStreamed
  * \ingroup ITKImageGrid
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT BSplineL2ResampleImageFilterBase:
-  public BSplineResampleImageFilterBase< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT BSplineL2ResampleImageFilterBase
+  : public BSplineResampleImageFilterBase<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BSplineL2ResampleImageFilterBase                            Self;
-  typedef BSplineResampleImageFilterBase< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineL2ResampleImageFilterBase);
+
+  /** Standard class type aliases. */
+  using Self = BSplineL2ResampleImageFilterBase;
+  using Superclass = BSplineResampleImageFilterBase<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(BSplineL2ResampleImageFilterBase, BSplineResampleImageFilterBase);
 
 protected:
+  void
+  InitializePyramidSplineFilter(int SplineOrder) override;
 
-  virtual void InitializePyramidSplineFilter(int SplineOrder) ITK_OVERRIDE;
-
-  BSplineL2ResampleImageFilterBase();
-  virtual ~BSplineL2ResampleImageFilterBase() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineL2ResampleImageFilterBase);
+  BSplineL2ResampleImageFilterBase() = default;
+  ~BSplineL2ResampleImageFilterBase() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBSplineL2ResampleImageFilterBase.hxx"
+#  include "itkBSplineL2ResampleImageFilterBase.hxx"
 #endif
 
 #endif

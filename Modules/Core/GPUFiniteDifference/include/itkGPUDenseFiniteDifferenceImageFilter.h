@@ -49,49 +49,49 @@ itkGPUKernelClassMacro(GPUDenseFiniteDifferenceImageFilterKernel);
  *
  * \ingroup ITKGPUFiniteDifference
  */
-template< typename TInputImage, typename TOutputImage, typename TParentImageFilter =
-            DenseFiniteDifferenceImageFilter< TInputImage, TOutputImage > >
-class ITK_TEMPLATE_EXPORT GPUDenseFiniteDifferenceImageFilter :
-  public GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter >
+template <typename TInputImage,
+          typename TOutputImage,
+          typename TParentImageFilter = DenseFiniteDifferenceImageFilter<TInputImage, TOutputImage>>
+class ITK_TEMPLATE_EXPORT GPUDenseFiniteDifferenceImageFilter
+  : public GPUFiniteDifferenceImageFilter<TInputImage, TOutputImage, TParentImageFilter>
 {
 public:
-  /** Standard class typedefs */
-  typedef GPUDenseFiniteDifferenceImageFilter                                             Self;
-  typedef GPUFiniteDifferenceImageFilter< TInputImage, TOutputImage, TParentImageFilter > GPUSuperclass;
-  typedef TParentImageFilter                                                              CPUSuperclass;
-  typedef SmartPointer< Self >                                                            Pointer;
-  typedef SmartPointer< const Self >                                                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUDenseFiniteDifferenceImageFilter);
+
+  /** Standard class type aliases */
+  using Self = GPUDenseFiniteDifferenceImageFilter;
+  using GPUSuperclass = GPUFiniteDifferenceImageFilter<TInputImage, TOutputImage, TParentImageFilter>;
+  using CPUSuperclass = TParentImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(GPUDenseFiniteDifferenceImageFilter, GPUFiniteDifferenceImageFilter);
 
-  /** Convenient typedefs */
-  typedef typename GPUSuperclass::InputImageType               InputImageType;
-  typedef typename GPUSuperclass::OutputImageType              OutputImageType;
-  typedef typename GPUSuperclass::FiniteDifferenceFunctionType FiniteDifferenceFunctionType;
+  /** Convenient type alias */
+  using InputImageType = typename GPUSuperclass::InputImageType;
+  using OutputImageType = typename GPUSuperclass::OutputImageType;
+  using FiniteDifferenceFunctionType = typename GPUSuperclass::FiniteDifferenceFunctionType;
 
   /** Dimensionality of input and output data is assumed to be the same.
    * It is inherited from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int, GPUSuperclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = GPUSuperclass::ImageDimension;
 
   /** The pixel type of the output image will be used in computations.
    * Inherited from the superclass. */
-  typedef typename GPUSuperclass::PixelType PixelType;
+  using PixelType = typename GPUSuperclass::PixelType;
 
   /** The value type of a time step.  Inherited from the superclass. */
-  typedef typename GPUSuperclass::TimeStepType TimeStepType;
+  using TimeStepType = typename GPUSuperclass::TimeStepType;
 
   /** The container type for the update buffer. */
-  typedef OutputImageType UpdateBufferType;
+  using UpdateBufferType = OutputImageType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputTimesDoubleCheck,
-                   ( Concept::MultiplyOperator< PixelType, double > ) );
-  itkConceptMacro( OutputAdditiveOperatorsCheck,
-                   ( Concept::AdditiveOperators< PixelType > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< typename TInputImage::PixelType, PixelType > ) );
+  itkConceptMacro(OutputTimesDoubleCheck, (Concept::MultiplyOperator<PixelType, double>));
+  itkConceptMacro(OutputAdditiveOperatorsCheck, (Concept::AdditiveOperators<PixelType>));
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<typename TInputImage::PixelType, PixelType>));
   // End concept checking
 #endif
 
@@ -100,45 +100,49 @@ public:
 
 protected:
   GPUDenseFiniteDifferenceImageFilter();
-  ~GPUDenseFiniteDifferenceImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GPUDenseFiniteDifferenceImageFilter() override {}
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** This method applies changes from the m_UpdateBuffer to the output using
    * the GPU.  "dt" is the time step to use for the update of each pixel. */
-  virtual void ApplyUpdate(const TimeStepType& dt) ITK_OVERRIDE;
+  void
+  ApplyUpdate(const TimeStepType & dt) override;
 
-  virtual void GPUApplyUpdate(const TimeStepType& dt) ITK_OVERRIDE;
+  void
+  GPUApplyUpdate(const TimeStepType & dt) override;
 
   /** This method populates an update buffer with changes for each pixel in the
    * output using the GPU. Returns value is a time step to be used for the update. */
-  virtual TimeStepType GPUCalculateChange() ITK_OVERRIDE;
+  TimeStepType
+  GPUCalculateChange() override;
 
   /** A simple method to copy the data from the input to the output.  ( Supports
    * "read-only" image adaptors in the case where the input image type converts
    * to a different output image type. )  */
-  virtual void CopyInputToOutput() ITK_OVERRIDE;
+  void
+  CopyInputToOutput() override;
 
   /** Method to allow subclasses to get direct access to the update
    * buffer */
-  virtual UpdateBufferType * GetUpdateBuffer() ITK_OVERRIDE {
+  UpdateBufferType *
+  GetUpdateBuffer() override
+  {
     return CPUSuperclass::GetUpdateBuffer();
   }
 
   /** This method allocates storage in m_UpdateBuffer.  It is called from
    * Superclass::GenerateData(). */
-  virtual void AllocateUpdateBuffer() ITK_OVERRIDE;
+  void
+  AllocateUpdateBuffer() override;
 
   /* GPU kernel handle for GPUApplyUpdate */
   int m_ApplyUpdateGPUKernelHandle;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUDenseFiniteDifferenceImageFilter);
-
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUDenseFiniteDifferenceImageFilter.hxx"
+#  include "itkGPUDenseFiniteDifferenceImageFilter.hxx"
 #endif
 
 #endif

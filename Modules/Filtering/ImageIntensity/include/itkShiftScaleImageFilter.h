@@ -35,52 +35,52 @@ namespace itk
  *
  * \ingroup ITKImageIntensity
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ShiftScaleImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ShiftScaleImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ShiftScaleImageFilter                           Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ShiftScaleImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ShiftScaleImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Typedef to describe the output and input image region types. */
-  typedef typename TInputImage::RegionType  InputImageRegionType;
-  typedef typename TOutputImage::RegionType OutputImageRegionType;
+  using InputImageRegionType = typename TInputImage::RegionType;
+  using OutputImageRegionType = typename TOutputImage::RegionType;
 
   /** Typedef to describe the pointer to the input/output. */
-  typedef typename TInputImage::Pointer  InputImagePointer;
-  typedef typename TOutputImage::Pointer OutputImagePointer;
+  using InputImagePointer = typename TInputImage::Pointer;
+  using OutputImagePointer = typename TOutputImage::Pointer;
 
   /** Typedef to describe the type of pixel. */
-  typedef typename TInputImage::PixelType  InputImagePixelType;
-  typedef typename TOutputImage::PixelType OutputImagePixelType;
+  using InputImagePixelType = typename TInputImage::PixelType;
+  using OutputImagePixelType = typename TOutputImage::PixelType;
 
   /** Typedef to describe the output and input image index and size types. */
-  typedef typename TInputImage::IndexType   InputImageIndexType;
-  typedef typename TInputImage::SizeType    InputImageSizeType;
-  typedef typename TInputImage::OffsetType  InputImageOffsetType;
-  typedef typename TOutputImage::IndexType  OutputImageIndexType;
-  typedef typename TOutputImage::SizeType   OutputImageSizeType;
-  typedef typename TOutputImage::OffsetType OutputImageOffsetType;
+  using InputImageIndexType = typename TInputImage::IndexType;
+  using InputImageSizeType = typename TInputImage::SizeType;
+  using InputImageOffsetType = typename TInputImage::OffsetType;
+  using OutputImageIndexType = typename TOutputImage::IndexType;
+  using OutputImageSizeType = typename TOutputImage::SizeType;
+  using OutputImageOffsetType = typename TOutputImage::OffsetType;
 
   /** Type to use form computations. */
-  typedef typename NumericTraits< OutputImagePixelType >::RealType RealType;
+  using RealType = typename NumericTraits<OutputImagePixelType>::RealType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ShiftScaleImageFilter, ImageToImageFilter);
 
   /** Set/Get the amount to Shift each Pixel. The shift is followed by a Scale.
-    */
+   */
   itkSetMacro(Shift, RealType);
   itkGetConstMacro(Shift, RealType);
 
@@ -95,50 +95,53 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< OutputImagePixelType > ) );
-  itkConceptMacro( InputPlusRealTypeCheck,
-                   ( Concept::AdditiveOperators< InputImagePixelType, RealType, RealType > ) );
-  itkConceptMacro( RealTypeMultiplyOperatorCheck,
-                   ( Concept::MultiplyOperator< RealType > ) );
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<OutputImagePixelType>));
+  itkConceptMacro(InputPlusRealTypeCheck, (Concept::AdditiveOperators<InputImagePixelType, RealType, RealType>));
+  itkConceptMacro(RealTypeMultiplyOperatorCheck, (Concept::MultiplyOperator<RealType>));
   // End concept checking
 #endif
 
 protected:
   ShiftScaleImageFilter();
-  ~ShiftScaleImageFilter() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ShiftScaleImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Initialize some accumulators before the threads run. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /** Tally accumulated in threads. */
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  AfterThreadedGenerateData() override;
 
   /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const OutputImageRegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) override;
+
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType &) override
+  {
+    itkExceptionMacro("This class requires threadId so it must use classic multi-threading model");
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ShiftScaleImageFilter);
-
   RealType m_Shift;
   RealType m_Scale;
 
   long m_UnderflowCount;
   long m_OverflowCount;
 
-  Array< long > m_ThreadUnderflow;
-  Array< long > m_ThreadOverflow;
+  Array<long> m_ThreadUnderflow;
+  Array<long> m_ThreadOverflow;
 
-  const TInputImage *m_InputImage;
-  TOutputImage      *m_OutputImage;
+  const TInputImage * m_InputImage;
+  TOutputImage *      m_OutputImage;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkShiftScaleImageFilter.hxx"
+#  include "itkShiftScaleImageFilter.hxx"
 #endif
 
 #endif

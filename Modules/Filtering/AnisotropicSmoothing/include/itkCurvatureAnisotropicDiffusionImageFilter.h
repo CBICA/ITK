@@ -54,62 +54,57 @@ namespace itk
  * \ingroup ImageEnhancement
  * \ingroup ITKAnisotropicSmoothing
  */
-template< typename TInputImage, typename TOutputImage >
-class CurvatureAnisotropicDiffusionImageFilter:
-  public AnisotropicDiffusionImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class CurvatureAnisotropicDiffusionImageFilter : public AnisotropicDiffusionImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef CurvatureAnisotropicDiffusionImageFilter Self;
-  typedef AnisotropicDiffusionImageFilter< TInputImage, TOutputImage >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CurvatureAnisotropicDiffusionImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = CurvatureAnisotropicDiffusionImageFilter;
+  using Superclass = AnisotropicDiffusionImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard method for creation through object factory. */
   itkNewMacro(Self);
 
   /** Run-time information. */
-  itkTypeMacro(CurvatureAnisotropicDiffusionImageFilter,
-               AnisotropicDiffusionImageFilter);
+  itkTypeMacro(CurvatureAnisotropicDiffusionImageFilter, AnisotropicDiffusionImageFilter);
 
   /** Extract superclass information. */
-  typedef typename Superclass::UpdateBufferType UpdateBufferType;
+  using UpdateBufferType = typename Superclass::UpdateBufferType;
 
   /** Extract superclass image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename TOutputImage::PixelType > ) );
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
   CurvatureAnisotropicDiffusionImageFilter()
   {
-    typename CurvatureNDAnisotropicDiffusionFunction< UpdateBufferType >::Pointer q =
-      CurvatureNDAnisotropicDiffusionFunction< UpdateBufferType >::New();
+    typename CurvatureNDAnisotropicDiffusionFunction<UpdateBufferType>::Pointer q =
+      CurvatureNDAnisotropicDiffusionFunction<UpdateBufferType>::New();
     this->SetDifferenceFunction(q);
   }
 
-  ~CurvatureAnisotropicDiffusionImageFilter() ITK_OVERRIDE {}
+  ~CurvatureAnisotropicDiffusionImageFilter() override = default;
 
-  virtual void InitializeIteration() ITK_OVERRIDE
+  void
+  InitializeIteration() override
   {
     Superclass::InitializeIteration();
-    if ( this->GetTimeStep() >  0.5 / std::pow( 2.0, static_cast< double >( ImageDimension ) ) )
-      {
+    if (this->GetTimeStep() > 0.5 / std::pow(2.0, static_cast<double>(ImageDimension)))
+    {
       itkWarningMacro(
         << "Anisotropic diffusion is using a time step which may introduce instability into the solution.");
-      }
+    }
   }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CurvatureAnisotropicDiffusionImageFilter);
 };
-} // end namspace itk
+} // namespace itk
 
 #endif

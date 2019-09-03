@@ -23,101 +23,102 @@
 
 #include "itkTestingMacros.h"
 
-int itkBinaryImageToShapeLabelMapFilterTest1(int argc, char * argv[])
+int
+itkBinaryImageToShapeLabelMapFilterTest1(int argc, char * argv[])
 {
 
-  if( argc != 8 )
-    {
+  if (argc != 8)
+  {
     std::cerr << "Usage: " << argv[0];
     std::cerr << " inputBinaryImage outputShapeLabelMap";
     std::cerr << " fullyConnected(0/1) foregroundValue backgroundValue";
     std::cerr << " feretDiameter, perimeter";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 2;
+  constexpr unsigned int dim = 2;
 
-  typedef itk::Image< unsigned char, dim > ImageType;
+  using ImageType = itk::Image<unsigned char, dim>;
 
-  typedef itk::ShapeLabelObject< unsigned char, dim > LabelObjectType;
-  typedef itk::LabelMap< LabelObjectType >            LabelMapType;
+  using LabelObjectType = itk::ShapeLabelObject<unsigned char, dim>;
+  using LabelMapType = itk::LabelMap<LabelObjectType>;
 
-  //reading image to file
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  // reading image to file
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  //converting binary image to shape label map
-  typedef itk::BinaryImageToShapeLabelMapFilter< ImageType, LabelMapType> I2LType;
-  I2LType::Pointer i2l = I2LType::New();
-  itk::SimpleFilterWatcher watcher1( i2l );
+  // converting binary image to shape label map
+  using I2LType = itk::BinaryImageToShapeLabelMapFilter<ImageType, LabelMapType>;
+  I2LType::Pointer         i2l = I2LType::New();
+  itk::SimpleFilterWatcher watcher1(i2l);
 
-  i2l->SetInput( reader->GetOutput() );
+  i2l->SetInput(reader->GetOutput());
 
-  //testing get/set FullyConnected macro
-  bool fullyConnected =  atoi(argv[3]);
-  i2l->SetFullyConnected( fullyConnected );
-  TEST_SET_GET_VALUE( fullyConnected, i2l->GetFullyConnected() );
+  // testing get/set FullyConnected macro
+  bool fullyConnected = std::stoi(argv[3]);
+  i2l->SetFullyConnected(fullyConnected);
+  ITK_TEST_SET_GET_VALUE(fullyConnected, i2l->GetFullyConnected());
 
-  //testing boolean FullyConnected macro
+  // testing boolean FullyConnected macro
   i2l->FullyConnectedOff();
-  TEST_SET_GET_VALUE( false, i2l->GetFullyConnected() );
+  ITK_TEST_SET_GET_VALUE(false, i2l->GetFullyConnected());
 
   i2l->FullyConnectedOn();
-  TEST_SET_GET_VALUE( true, i2l->GetFullyConnected() );
+  ITK_TEST_SET_GET_VALUE(true, i2l->GetFullyConnected());
 
-  //testing get/set InputForegroundValue macro
-  int inputForegroundValue = ( atoi(argv[4]) );
-  i2l->SetInputForegroundValue( inputForegroundValue );
-  TEST_SET_GET_VALUE( inputForegroundValue, i2l->GetInputForegroundValue() );
+  // testing get/set InputForegroundValue macro
+  int inputForegroundValue = (std::stoi(argv[4]));
+  i2l->SetInputForegroundValue(inputForegroundValue);
+  ITK_TEST_SET_GET_VALUE(inputForegroundValue, i2l->GetInputForegroundValue());
 
-  //testing get/set OutputBackgroundValue macro
-  int outputBackgroundValue = ( atoi(argv[5]) );
-  i2l->SetOutputBackgroundValue( outputBackgroundValue );
-  TEST_SET_GET_VALUE( outputBackgroundValue, i2l->GetOutputBackgroundValue() );
+  // testing get/set OutputBackgroundValue macro
+  int outputBackgroundValue = (std::stoi(argv[5]));
+  i2l->SetOutputBackgroundValue(outputBackgroundValue);
+  ITK_TEST_SET_GET_VALUE(outputBackgroundValue, i2l->GetOutputBackgroundValue());
 
-  //testing get/set ComputeFeretDiameter macro
-  bool computeFeretDiameter =  ( atoi(argv[6]) );
-  i2l->SetComputeFeretDiameter( computeFeretDiameter );
-  TEST_SET_GET_VALUE( computeFeretDiameter, i2l->GetComputeFeretDiameter() );
+  // testing get/set ComputeFeretDiameter macro
+  bool computeFeretDiameter = (std::stoi(argv[6]));
+  i2l->SetComputeFeretDiameter(computeFeretDiameter);
+  ITK_TEST_SET_GET_VALUE(computeFeretDiameter, i2l->GetComputeFeretDiameter());
 
-  //testing boolean ComputeFeretDiameter macro
+  // testing boolean ComputeFeretDiameter macro
   i2l->ComputeFeretDiameterOff();
-  TEST_SET_GET_VALUE( false, i2l->GetComputeFeretDiameter() );
+  ITK_TEST_SET_GET_VALUE(false, i2l->GetComputeFeretDiameter());
 
   i2l->ComputeFeretDiameterOn();
-  TEST_SET_GET_VALUE( true, i2l->GetComputeFeretDiameter() );
+  ITK_TEST_SET_GET_VALUE(true, i2l->GetComputeFeretDiameter());
 
-  //testing get/set ComputePerimeter macro
-  bool computePerimeter =  atoi(argv[7]);
-  i2l->SetComputePerimeter( computePerimeter );
-  TEST_SET_GET_VALUE( computePerimeter, i2l->GetComputePerimeter() );
+  // testing get/set ComputePerimeter macro
+  bool computePerimeter = std::stoi(argv[7]);
+  i2l->SetComputePerimeter(computePerimeter);
+  ITK_TEST_SET_GET_VALUE(computePerimeter, i2l->GetComputePerimeter());
 
-  //testing boolean ComputePerimeter macro
+  // testing boolean ComputePerimeter macro
   i2l->ComputePerimeterOff();
-  TEST_SET_GET_VALUE( false, i2l->GetComputePerimeter() );
+  ITK_TEST_SET_GET_VALUE(false, i2l->GetComputePerimeter());
 
   i2l->ComputePerimeterOn();
-  TEST_SET_GET_VALUE( true, i2l->GetComputePerimeter() );
+  ITK_TEST_SET_GET_VALUE(true, i2l->GetComputePerimeter());
 
   i2l->SetComputeOrientedBoundingBox(true);
-  TEST_SET_GET_VALUE(true, i2l->GetComputeOrientedBoundingBox() );
+  ITK_TEST_SET_GET_VALUE(true, i2l->GetComputeOrientedBoundingBox());
 
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> L2IType;
-  L2IType::Pointer l2i = L2IType::New();
-  itk::SimpleFilterWatcher watcher2( l2i );
+  using L2IType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
+  L2IType::Pointer         l2i = L2IType::New();
+  itk::SimpleFilterWatcher watcher2(l2i);
 
-  l2i->SetInput( i2l->GetOutput() );
+  l2i->SetInput(i2l->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( l2i->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(l2i->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

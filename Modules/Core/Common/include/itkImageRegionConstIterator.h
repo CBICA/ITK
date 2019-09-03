@@ -58,15 +58,15 @@ namespace itk
  * wraps to the next row, starting at the first pixel in the row that is
  * part of the region. This allows for simple processing loops of the form:
  *
- * \code
- *
- *      it = it.Begin();
- *      for (; !it.IsAtEnd(); ++it)
- *         {
- *         *it += 100.0;
- *         }
- *
- * \endcode
+   \code
+
+        it = it.Begin();
+        for (; !it.IsAtEnd(); ++it)
+           {
+           *it += 100.0;
+           }
+
+   \endcode
  *
  * \par MORE INFORMATION
  * For a complete description of the ITK Image Iterators and their API, please
@@ -99,46 +99,46 @@ namespace itk
  * \sa ImageConstIteratorWithIndex
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Iterators/ImageRegionConstIterator,Iterate over a region of an image (without write access)}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/IterateRegionWithoutWriteAccess,Iterate Region In Image Without Write Access}
+ * \endsphinx
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageRegionConstIterator:public ImageConstIterator< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageRegionConstIterator : public ImageConstIterator<TImage>
 {
 public:
-  /** Standard class typedef. */
-  typedef ImageRegionConstIterator     Self;
-  typedef ImageConstIterator< TImage > Superclass;
+  /** Standard class type alias. */
+  using Self = ImageRegionConstIterator;
+  using Superclass = ImageConstIterator<TImage>;
 
   /** Dimension of the image that the iterator walks.  This constant is needed so
    * functions that are templated over image iterator type (as opposed to
    * being templated over pixel type and dimension) can have compile time
    * access to the dimension of the image that the iterator walks. */
-  itkStaticConstMacro(ImageIteratorDimension, unsigned int,
-                      Superclass::ImageIteratorDimension);
+  static constexpr unsigned int ImageIteratorDimension = Superclass::ImageIteratorDimension;
 
   /**
-   * Index typedef support. While these were already typdef'ed in the superclass,
+   * Index type alias support While these were already typdef'ed in the superclass,
    * they need to be redone here for this subclass to compile properly with gcc.
    */
   /** Types inherited from the Superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageRegionConstIterator, ImageConstIterator);
 
   /** Default constructor. Needed since we provide a cast constructor. */
-  ImageRegionConstIterator():ImageConstIterator< TImage >()
+  ImageRegionConstIterator()
+    : ImageConstIterator<TImage>()
   {
     m_SpanBeginOffset = 0;
     m_SpanEndOffset = 0;
@@ -146,12 +146,11 @@ public:
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageRegionConstIterator(const ImageType *ptr,
-                           const RegionType & region):
-    ImageConstIterator< TImage >(ptr, region)
+  ImageRegionConstIterator(const ImageType * ptr, const RegionType & region)
+    : ImageConstIterator<TImage>(ptr, region)
   {
     m_SpanBeginOffset = this->m_BeginOffset;
-    m_SpanEndOffset   = this->m_BeginOffset + static_cast< OffsetValueType >( this->m_Region.GetSize()[0] );
+    m_SpanEndOffset = this->m_BeginOffset + static_cast<OffsetValueType>(this->m_Region.GetSize()[0]);
   }
 
   /** Constructor that can be used to cast from an ImageIterator to an
@@ -160,15 +159,14 @@ public:
    * provide overloaded APIs that return different types of Iterators, itk
    * returns ImageIterators and uses constructors to cast from an
    * ImageIterator to a ImageRegionConstIterator. */
-  ImageRegionConstIterator(const ImageIterator< TImage > & it)
+  ImageRegionConstIterator(const ImageIterator<TImage> & it)
   {
-    this->ImageConstIterator< TImage >::operator=(it);
+    this->ImageConstIterator<TImage>::operator=(it);
 
     IndexType ind = this->GetIndex();
-    m_SpanEndOffset = this->m_Offset + static_cast< OffsetValueType >( this->m_Region.GetSize()[0] )
-                      - ( ind[0] - this->m_Region.GetIndex()[0] );
-    m_SpanBeginOffset = m_SpanEndOffset
-                        - static_cast< OffsetValueType >( this->m_Region.GetSize()[0] );
+    m_SpanEndOffset = this->m_Offset + static_cast<OffsetValueType>(this->m_Region.GetSize()[0]) -
+                      (ind[0] - this->m_Region.GetIndex()[0]);
+    m_SpanBeginOffset = m_SpanEndOffset - static_cast<OffsetValueType>(this->m_Region.GetSize()[0]);
   }
 
   /** Constructor that can be used to cast from an ImageConstIterator to an
@@ -177,58 +175,50 @@ public:
    * provide overloaded APIs that return different types of Iterators, itk
    * returns ImageIterators and uses constructors to cast from an
    * ImageIterator to a ImageRegionConstIterator. */
-  ImageRegionConstIterator(const ImageConstIterator< TImage > & it)
+  ImageRegionConstIterator(const ImageConstIterator<TImage> & it)
   {
-    this->ImageConstIterator< TImage >::operator=(it);
+    this->ImageConstIterator<TImage>::operator=(it);
 
     IndexType ind = this->GetIndex();
-    m_SpanEndOffset = this->m_Offset + static_cast< OffsetValueType >( this->m_Region.GetSize()[0] )
-                      - ( ind[0] - this->m_Region.GetIndex()[0] );
-    m_SpanBeginOffset = m_SpanEndOffset
-                        - static_cast< OffsetValueType >( this->m_Region.GetSize()[0] );
+    m_SpanEndOffset = this->m_Offset + static_cast<OffsetValueType>(this->m_Region.GetSize()[0]) -
+                      (ind[0] - this->m_Region.GetIndex()[0]);
+    m_SpanBeginOffset = m_SpanEndOffset - static_cast<OffsetValueType>(this->m_Region.GetSize()[0]);
   }
 
   /** Move an iterator to the beginning of the region. "Begin" is
    * defined as the first pixel in the region. */
-  void GoToBegin()
+  void
+  GoToBegin()
   {
     Superclass::GoToBegin();
 
     // reset the span offsets
     m_SpanBeginOffset = this->m_BeginOffset;
-    m_SpanEndOffset   = this->m_BeginOffset + static_cast< OffsetValueType >( this->m_Region.GetSize()[0] );
+    m_SpanEndOffset = this->m_BeginOffset + static_cast<OffsetValueType>(this->m_Region.GetSize()[0]);
   }
 
   /** Move an iterator to the end of the region. "End" is defined as
    * one pixel past the last pixel of the region. */
-  void GoToEnd()
+  void
+  GoToEnd()
   {
     Superclass::GoToEnd();
 
     // reset the span offsets
     m_SpanEndOffset = this->m_EndOffset;
-    m_SpanBeginOffset = m_SpanEndOffset - static_cast< OffsetValueType >( this->m_Region.GetSize()[0] );
+    m_SpanBeginOffset = m_SpanEndOffset - static_cast<OffsetValueType>(this->m_Region.GetSize()[0]);
   }
-
-  /** Return an iterator for the beginning of the region. "Begin"
-   * is defined as the first pixel in the region.
-   * \deprecated Use GoToBegin() instead */
-  itkLegacyMacro(Self Begin(void) const);
-
-  /** Return an iterator for the end of the region. "End" is defined
-  * as one pixel past the last pixel of the region.
-  * \deprecated Use GoToEnd() instead */
-  itkLegacyMacro(Self End(void) const);
 
   /** Set the index. No bounds checking is performed. This is overridden
    * from the parent because we have an extra ivar.
    * \sa GetIndex */
-  void SetIndex(const IndexType & ind) ITK_OVERRIDE
+  void
+  SetIndex(const IndexType & ind) override
   {
     Superclass::SetIndex(ind);
-    m_SpanEndOffset = this->m_Offset + static_cast< OffsetValueType >( this->m_Region.GetSize()[0] )
-                      - ( ind[0] - this->m_Region.GetIndex()[0] );
-    m_SpanBeginOffset = m_SpanEndOffset - static_cast< OffsetValueType >( this->m_Region.GetSize()[0] );
+    m_SpanEndOffset = this->m_Offset + static_cast<OffsetValueType>(this->m_Region.GetSize()[0]) -
+                      (ind[0] - this->m_Region.GetIndex()[0]);
+    m_SpanBeginOffset = m_SpanEndOffset - static_cast<OffsetValueType>(this->m_Region.GetSize()[0]);
   }
 
   /** Increment (prefix) the fastest moving dimension of the iterator's index.
@@ -241,10 +231,10 @@ public:
   Self &
   operator++()
   {
-    if ( ++this->m_Offset >= m_SpanEndOffset )
-      {
+    if (++this->m_Offset >= m_SpanEndOffset)
+    {
       this->Increment();
-      }
+    }
     return *this;
   }
 
@@ -255,29 +245,32 @@ public:
    * tries to moves past the first pixel of the region.  Here, the iterator
    * will be set to be one pixel past the beginning of the region.
    * \sa operator--(int) */
-  Self & operator--()
+  Self &
+  operator--()
   {
-    if ( --this->m_Offset < m_SpanBeginOffset )
-      {
+    if (--this->m_Offset < m_SpanBeginOffset)
+    {
       this->Decrement();
-      }
+    }
     return *this;
   }
 
 protected:
   OffsetValueType m_SpanBeginOffset; // one pixel before the beginning of the span
-                                   // (row)
+                                     // (row)
   OffsetValueType m_SpanEndOffset;   // one pixel past the end of the span (row)
 
 private:
-  void Increment(); // advance in a direction other than the fastest moving
+  void
+  Increment(); // advance in a direction other than the fastest moving
 
-  void Decrement(); // go back in a direction other than the fastest moving
+  void
+  Decrement(); // go back in a direction other than the fastest moving
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRegionConstIterator.hxx"
+#  include "itkImageRegionConstIterator.hxx"
 #endif
 
 #endif

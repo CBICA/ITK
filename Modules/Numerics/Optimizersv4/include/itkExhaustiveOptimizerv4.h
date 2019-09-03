@@ -37,28 +37,28 @@ namespace itk
  * application:
  *     Here it is assumed that the transform is Euler3DTransform.
  *
- * \code
- *  OptimizerType::StepsType steps( m_Transform->GetNumberOfParameters() );
- *  steps[0] = 10;
- *  steps[1] = 10;
- *  steps[2] = 10;
- *  m_Optimizer->SetNumberOfSteps( steps );
- *  m_Optimizer->SetStepLength( 2 );
- * \endcode
+   \code
+    OptimizerType::StepsType steps( m_Transform->GetNumberOfParameters() );
+    steps[0] = 10;
+    steps[1] = 10;
+    steps[2] = 10;
+    m_Optimizer->SetNumberOfSteps( steps );
+    m_Optimizer->SetStepLength( 2 );
+   \endcode
  *
  * The optimizer throws IterationEvents after every iteration. We use this to plot
  * the metric space in an image as follows:
  *
- * \code
- *  if( itk::IterationEvent().CheckEvent(& event ) )
- *  {
- *    IndexType index;
- *    index[0] = m_Optimizer->GetCurrentIndex()[0];
- *    index[1] = m_Optimizer->GetCurrentIndex()[1];
- *    index[2] = m_Optimizer->GetCurrentIndex()[2];
- *    image->SetPixel( index, m_Optimizer->GetCurrentValue() );
- *  }
- * \endcode
+   \code
+    if( itk::IterationEvent().CheckEvent(& event ) )
+    {
+      IndexType index;
+      index[0] = m_Optimizer->GetCurrentIndex()[0];
+      index[1] = m_Optimizer->GetCurrentIndex()[1];
+      index[2] = m_Optimizer->GetCurrentIndex()[2];
+      image->SetPixel( index, m_Optimizer->GetCurrentValue() );
+    }
+   \endcode
  *
  * The image size is expected to be 11 x 11 x 11.
  *
@@ -74,16 +74,18 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-template<typename TInternalComputationValueType>
-class ITK_TEMPLATE_EXPORT ExhaustiveOptimizerv4:
-  public ObjectToObjectOptimizerBaseTemplate<TInternalComputationValueType>
+template <typename TInternalComputationValueType>
+class ITK_TEMPLATE_EXPORT ExhaustiveOptimizerv4
+  : public ObjectToObjectOptimizerBaseTemplate<TInternalComputationValueType>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef ExhaustiveOptimizerv4                                               Self;
-  typedef ObjectToObjectOptimizerBaseTemplate<TInternalComputationValueType>  Superclass;
-  typedef SmartPointer< Self >                                                Pointer;
-  typedef SmartPointer< const Self >                                          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ExhaustiveOptimizerv4);
+
+  /** Standard "Self" type alias. */
+  using Self = ExhaustiveOptimizerv4;
+  using Superclass = ObjectToObjectOptimizerBaseTemplate<TInternalComputationValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -92,27 +94,31 @@ public:
   itkTypeMacro(ExhaustiveOptimizerv4, Superclass);
 
   /** Steps type */
-  typedef Array< SizeValueType >                StepsType;
+  using StepsType = Array<SizeValueType>;
 
   /** Measure type */
-  typedef typename Superclass::MeasureType      MeasureType;
+  using MeasureType = typename Superclass::MeasureType;
 
   /** Parameters type */
-  typedef typename Superclass::ParametersType   ParametersType;
+  using ParametersType = typename Superclass::ParametersType;
 
   /** Scales type */
-  typedef typename Superclass::ScalesType       ScalesType;
+  using ScalesType = typename Superclass::ScalesType;
 
-  virtual void StartOptimization(bool doOnlyInitialization = false) ITK_OVERRIDE;
+  void
+  StartOptimization(bool doOnlyInitialization = false) override;
 
   /** Start optimization */
-  void StartWalking();
+  void
+  StartWalking();
 
   /** Resume the optimization */
-  void ResumeWalking();
+  void
+  ResumeWalking();
 
   /** Stop optimization */
-  void StopWalking();
+  void
+  StopWalking();
 
   itkSetMacro(StepLength, double);
   itkSetMacro(NumberOfSteps, StepsType);
@@ -126,48 +132,52 @@ public:
   itkGetConstReferenceMacro(CurrentIndex, ParametersType);
 
   /** Get the reason for termination */
-  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
+  const std::string
+  GetStopConditionDescription() const override;
 
   /**  Set the position to initialize the optimization. */
-  void SetInitialPosition(const ParametersType & param);
+  void
+  SetInitialPosition(const ParametersType & param);
 
   /** Get the position to initialize the optimization. */
-  ParametersType & GetInitialPosition(void)
+  ParametersType &
+  GetInitialPosition()
   {
     return m_InitialPosition;
   }
 
 protected:
   ExhaustiveOptimizerv4();
-  virtual ~ExhaustiveOptimizerv4() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ExhaustiveOptimizerv4() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Advance to the next grid position. */
-  void AdvanceOneStep();
+  void
+  AdvanceOneStep();
 
-  void IncrementIndex(ParametersType & param);
+  void
+  IncrementIndex(ParametersType & param);
 
 protected:
-  ParametersType  m_InitialPosition;
-  MeasureType     m_CurrentValue;
-  StepsType       m_NumberOfSteps;
-  bool            m_Stop;
-  double          m_StepLength;
-  ParametersType  m_CurrentIndex;
-  MeasureType     m_MaximumMetricValue;
-  MeasureType     m_MinimumMetricValue;
-  ParametersType  m_MinimumMetricValuePosition;
-  ParametersType  m_MaximumMetricValuePosition;
+  ParametersType m_InitialPosition;
+  MeasureType    m_CurrentValue;
+  StepsType      m_NumberOfSteps;
+  bool           m_Stop{ false };
+  double         m_StepLength{ 1.0 };
+  ParametersType m_CurrentIndex;
+  MeasureType    m_MaximumMetricValue;
+  MeasureType    m_MinimumMetricValue;
+  ParametersType m_MinimumMetricValuePosition;
+  ParametersType m_MaximumMetricValuePosition;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ExhaustiveOptimizerv4);
-
   std::ostringstream m_StopConditionDescription;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkExhaustiveOptimizerv4.hxx"
+#  include "itkExhaustiveOptimizerv4.hxx"
 #endif
 
 #endif

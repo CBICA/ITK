@@ -70,30 +70,31 @@ namespace itk
  *
  * \ingroup ITKConnectedComponents
  */
-template< typename TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT ThresholdMaximumConnectedComponentsImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT ThresholdMaximumConnectedComponentsImageFilter
+  : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ThresholdMaximumConnectedComponentsImageFilter  Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdMaximumConnectedComponentsImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ThresholdMaximumConnectedComponentsImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ThresholdMaximumConnectedComponentsImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(ThresholdMaximumConnectedComponentsImageFilter, ImageToImageFilter);
 
   /** Typedef to describe the type of pixel. */
-  typedef typename TInputImage::PixelType  PixelType;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  using PixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
   /** The pixel type must support comparison operators. */
-  itkConceptMacro( PixelTypeComparable, ( Concept::Comparable< PixelType > ) );
+  itkConceptMacro(PixelTypeComparable, (Concept::Comparable<PixelType>));
 
   /**
    * Set the minimum pixel area used to count objects on the
@@ -136,69 +137,63 @@ public:
    * only valid after the filter has executed. */
   itkGetConstMacro(ThresholdValue, PixelType);
 
-  /** Some additional typedefs.  */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::ConstPointer InputImagePointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Some additional type alias.  */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
-  /** Some additional typedefs.  */
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::Pointer    OutputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename OutputImageType::PixelType  OutputImagePixelType;
+  /** Some additional type alias.  */
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
 protected:
   ThresholdMaximumConnectedComponentsImageFilter();
-  ~ThresholdMaximumConnectedComponentsImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ThresholdMaximumConnectedComponentsImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /**
    * Runs a series of filters that thresholds the image,
    * dilates/erodes  for edge enhancement, and counts the number of
    * relabeled connected components */
-  SizeValueType ComputeConnectedComponents();
+  SizeValueType
+  ComputeConnectedComponents();
 
 private:
-
   /** Typedef for filter pixel type.  */
-  typedef unsigned int FilterPixelType;
+  using FilterPixelType = unsigned int;
 
-  itkStaticConstMacro(ImageDimension,
-                      unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef itk::Image< FilterPixelType, itkGetStaticConstMacro(ImageDimension) >
-  FilterImageType;
+  using FilterImageType = itk::Image<FilterPixelType, Self::ImageDimension>;
 
-  typedef typename FilterImageType::Pointer FilterImagePointer;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(ThresholdMaximumConnectedComponentsImageFilter);
+  using FilterImagePointer = typename FilterImageType::Pointer;
 
   //
   // Binary Threshold Filter
   //
-  typedef BinaryThresholdImageFilter< InputImageType, OutputImageType >
-  ThresholdFilterType;
+  using ThresholdFilterType = BinaryThresholdImageFilter<InputImageType, OutputImageType>;
 
   //
   // Connected Components Filter
   //
-  typedef ConnectedComponentImageFilter< OutputImageType, FilterImageType >
-  ConnectedFilterType;
+  using ConnectedFilterType = ConnectedComponentImageFilter<OutputImageType, FilterImageType>;
 
   //
   // Relabeled Components Filter
   //
-  typedef RelabelComponentImageFilter< FilterImageType, FilterImageType >
-  RelabelFilterType;
+  using RelabelFilterType = RelabelComponentImageFilter<FilterImageType, FilterImageType>;
 
   //
   // Minimum maximum calculator
   //
-  typedef MinimumMaximumImageCalculator< InputImageType > MinMaxCalculatorType;
+  using MinMaxCalculatorType = MinimumMaximumImageCalculator<InputImageType>;
 
   //
   // Declare member variables for the filters of the internal pipeline.
@@ -227,7 +222,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkThresholdMaximumConnectedComponentsImageFilter.hxx"
+#  include "itkThresholdMaximumConnectedComponentsImageFilter.hxx"
 #endif
 
 #endif

@@ -49,45 +49,46 @@
 // Software Guide : EndCodeSnippet
 
 
-int main(int argc, char* argv[])
+int
+main(int argc, char * argv[])
 {
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Usage: " << std::endl;
     std::cerr << argv[0] << " inputImage outputImageDoublePixelType ";
     std::cerr << " outputImage8BitsPixelType [RMS] [numberOfIterations]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const char * inputFilename   = argv[1];
+  const char * inputFilename = argv[1];
   const char * outputFilename1 = argv[2];
   const char * outputFilename2 = argv[3];
 
-  double maximumRMSError = 0.01;
+  double       maximumRMSError = 0.01;
   unsigned int numberOfIterations = 50;
 
-  if( argc > 4 )
-    {
-    maximumRMSError = atof( argv[4] );
-    }
+  if (argc > 4)
+  {
+    maximumRMSError = std::stod(argv[4]);
+  }
 
-  if( argc > 5 )
-    {
-    numberOfIterations = atoi( argv[5] );
-    }
+  if (argc > 5)
+  {
+    numberOfIterations = std::stoi(argv[5]);
+  }
 
 
-  typedef unsigned char    CharPixelType;  //  IO
-  typedef double           RealPixelType;  //  Operations
-  const   unsigned int     Dimension = 3;
+  using CharPixelType = unsigned char; //  IO
+  using RealPixelType = double;        //  Operations
+  constexpr unsigned int Dimension = 3;
 
-  typedef itk::Image<CharPixelType, Dimension>    CharImageType;
-  typedef itk::Image<RealPixelType, Dimension>    RealImageType;
+  using CharImageType = itk::Image<CharPixelType, Dimension>;
+  using RealImageType = itk::Image<RealPixelType, Dimension>;
 
-  typedef itk::ImageFileReader< CharImageType >  ReaderType;
-  typedef itk::ImageFileWriter< CharImageType >  WriterType;
+  using ReaderType = itk::ImageFileReader<CharImageType>;
+  using WriterType = itk::ImageFileWriter<CharImageType>;
 
-  typedef itk::ImageFileWriter< RealImageType >  RealWriterType;
+  using RealWriterType = itk::ImageFileWriter<RealImageType>;
 
   //  Software Guide : BeginLatex
   //
@@ -100,84 +101,83 @@ int main(int argc, char* argv[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::CastImageFilter< CharImageType,
-          RealImageType> CastToRealFilterType;
+  using CastToRealFilterType = itk::CastImageFilter<CharImageType, RealImageType>;
   // Software Guide : EndCodeSnippet
 
-  typedef itk::RescaleIntensityImageFilter<RealImageType, CharImageType > RescaleFilter;
+  using RescaleFilter = itk::RescaleIntensityImageFilter<RealImageType, CharImageType>;
 
 
   //  Software Guide : BeginLatex
   //
-  //  The \doxygen{AntiAliasBinaryImageFilter} is instantiated using the float image type.
+  //  The \doxygen{AntiAliasBinaryImageFilter} is instantiated using the float image
+  //  type.
   //
   //  \index{itk::AntiAliasBinaryImageFilter|textbf}
   //
   //  Software Guide : EndLatex
 
 
-  typedef itk::AntiAliasBinaryImageFilter<RealImageType, RealImageType> AntiAliasFilterType;
+  using AntiAliasFilterType =
+    itk::AntiAliasBinaryImageFilter<RealImageType, RealImageType>;
 
-  //Setting the IO
+  // Setting the IO
 
   ReaderType::Pointer reader = ReaderType::New();
 
   CastToRealFilterType::Pointer toReal = CastToRealFilterType::New();
-  RescaleFilter::Pointer rescale = RescaleFilter::New();
+  RescaleFilter::Pointer        rescale = RescaleFilter::New();
 
-  //Setting the ITK pipeline filter
+  // Setting the ITK pipeline filter
 
   // Software Guide : BeginCodeSnippet
   AntiAliasFilterType::Pointer antiAliasFilter = AntiAliasFilterType::New();
 
-  reader->SetFileName( inputFilename  );
+  reader->SetFileName(inputFilename);
 
-  //The output of an edge filter is 0 or 1
-  rescale->SetOutputMinimum(   0 );
-  rescale->SetOutputMaximum( 255 );
+  // The output of an edge filter is 0 or 1
+  rescale->SetOutputMinimum(0);
+  rescale->SetOutputMaximum(255);
 
-  toReal->SetInput( reader->GetOutput() );
+  toReal->SetInput(reader->GetOutput());
 
-  antiAliasFilter->SetInput( toReal->GetOutput() );
-  antiAliasFilter->SetMaximumRMSError( maximumRMSError );
-  antiAliasFilter->SetNumberOfIterations( numberOfIterations );
-  antiAliasFilter->SetNumberOfLayers( 2 );
+  antiAliasFilter->SetInput(toReal->GetOutput());
+  antiAliasFilter->SetMaximumRMSError(maximumRMSError);
+  antiAliasFilter->SetNumberOfIterations(numberOfIterations);
+  antiAliasFilter->SetNumberOfLayers(2);
 
   RealWriterType::Pointer realWriter = RealWriterType::New();
-  realWriter->SetInput( antiAliasFilter->GetOutput() );
-  realWriter->SetFileName( outputFilename1 );
+  realWriter->SetInput(antiAliasFilter->GetOutput());
+  realWriter->SetFileName(outputFilename1);
 
   try
-    {
+  {
     realWriter->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "ExceptionObject caught !" << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   WriterType::Pointer rescaledWriter = WriterType::New();
-  rescale->SetInput( antiAliasFilter->GetOutput() );
-  rescaledWriter->SetInput( rescale->GetOutput() );
-  rescaledWriter->SetFileName( outputFilename2 );
+  rescale->SetInput(antiAliasFilter->GetOutput());
+  rescaledWriter->SetInput(rescale->GetOutput());
+  rescaledWriter->SetFileName(outputFilename2);
   try
-    {
+  {
     rescaledWriter->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "ExceptionObject caught !" << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
-  std::cout << "Completed in "
-    << antiAliasFilter->GetNumberOfIterations() << std::endl;
+  }
+  std::cout << "Completed in " << antiAliasFilter->GetNumberOfIterations() << std::endl;
 
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;
-
 }

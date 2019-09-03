@@ -28,21 +28,23 @@
 /* Example of FEM-base deformable registration in 3D */
 
 
-const unsigned int Dimension = 3;
-typedef itk::Image<unsigned char, Dimension>            FileImageType;
-typedef itk::Image<float, Dimension>                    ImageType;
+constexpr unsigned int Dimension = 3;
+using FileImageType = itk::Image<unsigned char, Dimension>;
+using ImageType = itk::Image<float, Dimension>;
 
-typedef itk::fem::Element3DC0LinearHexahedronMembrane   ElementType;
-typedef itk::fem::Element3DC0LinearTetrahedronMembrane  ElementType2;
-typedef itk::fem::FEMObject<Dimension>                  FEMObjectType;
+using ElementType = itk::fem::Element3DC0LinearHexahedronMembrane;
+using ElementType2 = itk::fem::Element3DC0LinearTetrahedronMembrane;
+using FEMObjectType = itk::fem::FEMObject<Dimension>;
 
-typedef itk::fem::FEMRegistrationFilter<ImageType,ImageType,FEMObjectType> RegistrationType;
+using RegistrationType =
+  itk::fem::FEMRegistrationFilter<ImageType, ImageType, FEMObjectType>;
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char * argv[])
 {
   const char *fixedImageName, *movingImageName;
-  if ( argc < 2 )
+  if (argc < 2)
   {
     std::cout << "Image file names missing" << std::endl;
     std::cout << "Usage: " << argv[0] << " fixedImageFile movingImageFile" << std::endl;
@@ -57,8 +59,8 @@ int main(int argc, char *argv[])
   // Setup registration parameters
   RegistrationType::Pointer registrationFilter = RegistrationType::New();
   registrationFilter->SetMaxLevel(1);
-  registrationFilter->SetUseNormalizedGradient( true );
-  registrationFilter->ChooseMetric( 0 );
+  registrationFilter->SetUseNormalizedGradient(true);
+  registrationFilter->ChooseMetric(0);
 
   unsigned int maxiters = 20;
   float        E = 10;
@@ -67,22 +69,22 @@ int main(int argc, char *argv[])
   registrationFilter->SetRho(p, 0);
   registrationFilter->SetGamma(1., 0);
   registrationFilter->SetAlpha(1.);
-  registrationFilter->SetMaximumIterations( maxiters, 0 );
+  registrationFilter->SetMaximumIterations(maxiters, 0);
   registrationFilter->SetMeshPixelsPerElementAtEachResolution(4, 0);
   registrationFilter->SetWidthOfMetricRegion(1, 0);
   registrationFilter->SetNumberOfIntegrationPoints(2, 0);
   registrationFilter->SetDescentDirectionMinimize();
-  registrationFilter->SetDoLineSearchOnImageEnergy( 0 );
+  registrationFilter->SetDoLineSearchOnImageEnergy(0);
   registrationFilter->SetTimeStep(1.);
   registrationFilter->SetEmployRegridding(false);
   registrationFilter->SetUseLandmarks(false);
 
   // Read the image files
-  typedef itk::ImageFileReader< FileImageType > FileSourceType;
+  using FileSourceType = itk::ImageFileReader<FileImageType>;
   FileSourceType::Pointer movingfilter = FileSourceType::New();
-  movingfilter->SetFileName( movingImageName );
+  movingfilter->SetFileName(movingImageName);
   FileSourceType::Pointer fixedfilter = FileSourceType::New();
-  fixedfilter->SetFileName( fixedImageName );
+  fixedfilter->SetFileName(fixedImageName);
 
   std::cout << " reading moving ";
   std::cout << movingImageName << std::endl;
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
   {
     movingfilter->Update();
   }
-  catch( itk::ExceptionObject & e )
+  catch (itk::ExceptionObject & e)
   {
     std::cerr << "Exception caught during reference file reading ";
     std::cerr << std::endl << e << std::endl;
@@ -104,7 +106,7 @@ int main(int argc, char *argv[])
   {
     fixedfilter->Update();
   }
-  catch( itk::ExceptionObject & e )
+  catch (itk::ExceptionObject & e)
   {
     std::cerr << "Exception caught during target file reading ";
     std::cerr << std::endl << e << std::endl;
@@ -113,8 +115,7 @@ int main(int argc, char *argv[])
 
 
   // Rescale the image intensities so that they fall between 0 and 255
-  typedef itk::RescaleIntensityImageFilter<
-                        FileImageType, ImageType > FilterType;
+  using FilterType = itk::RescaleIntensityImageFilter<FileImageType, ImageType>;
 
   FilterType::Pointer movingrescalefilter = FilterType::New();
   FilterType::Pointer fixedrescalefilter = FilterType::New();
@@ -122,25 +123,25 @@ int main(int argc, char *argv[])
   movingrescalefilter->SetInput(movingfilter->GetOutput());
   fixedrescalefilter->SetInput(fixedfilter->GetOutput());
 
-  const double desiredMinimum =  0.0;
-  const double desiredMaximum =  255.0;
+  constexpr double desiredMinimum = 0.0;
+  constexpr double desiredMaximum = 255.0;
 
-  movingrescalefilter->SetOutputMinimum( desiredMinimum );
-  movingrescalefilter->SetOutputMaximum( desiredMaximum );
+  movingrescalefilter->SetOutputMinimum(desiredMinimum);
+  movingrescalefilter->SetOutputMaximum(desiredMaximum);
   movingrescalefilter->UpdateLargestPossibleRegion();
-  fixedrescalefilter->SetOutputMinimum( desiredMinimum );
-  fixedrescalefilter->SetOutputMaximum( desiredMaximum );
+  fixedrescalefilter->SetOutputMinimum(desiredMinimum);
+  fixedrescalefilter->SetOutputMaximum(desiredMaximum);
   fixedrescalefilter->UpdateLargestPossibleRegion();
 
 
   // Histogram match the images
-  typedef itk::HistogramMatchingImageFilter<ImageType,ImageType> HEFilterType;
+  using HEFilterType = itk::HistogramMatchingImageFilter<ImageType, ImageType>;
   HEFilterType::Pointer IntensityEqualizeFilter = HEFilterType::New();
 
-  IntensityEqualizeFilter->SetReferenceImage( fixedrescalefilter->GetOutput() );
-  IntensityEqualizeFilter->SetInput( movingrescalefilter->GetOutput() );
-  IntensityEqualizeFilter->SetNumberOfHistogramLevels( 100);
-  IntensityEqualizeFilter->SetNumberOfMatchPoints( 15);
+  IntensityEqualizeFilter->SetReferenceImage(fixedrescalefilter->GetOutput());
+  IntensityEqualizeFilter->SetInput(movingrescalefilter->GetOutput());
+  IntensityEqualizeFilter->SetNumberOfHistogramLevels(100);
+  IntensityEqualizeFilter->SetNumberOfMatchPoints(15);
   IntensityEqualizeFilter->ThresholdAtMeanIntensityOn();
   IntensityEqualizeFilter->Update();
 
@@ -152,13 +153,13 @@ int main(int argc, char *argv[])
   writer = itk::ImageFileWriter<ImageType>::New();
 
   writer->SetFileName("fixed.mhd");
-  writer->SetInput(registrationFilter->GetFixedImage() );
+  writer->SetInput(registrationFilter->GetFixedImage());
   writer->Write();
 
   itk::ImageFileWriter<ImageType>::Pointer writer2;
-  writer2 =  itk::ImageFileWriter<ImageType>::New();
+  writer2 = itk::ImageFileWriter<ImageType>::New();
   writer2->SetFileName("moving.mhd");
-  writer2->SetInput(registrationFilter->GetMovingImage() );
+  writer2->SetInput(registrationFilter->GetMovingImage());
   writer2->Write();
 
 
@@ -166,17 +167,18 @@ int main(int argc, char *argv[])
   itk::fem::MaterialLinearElasticity::Pointer m;
   m = itk::fem::MaterialLinearElasticity::New();
   m->SetGlobalNumber(0);
-  m->SetYoungsModulus(registrationFilter->GetElasticity()); // Young's modulus used in the membrane
-  m->SetCrossSectionalArea(1.0);                            // Cross-sectional area
-  m->SetThickness(1.0);                                     // Thickness
-  m->SetMomentOfInertia(1.0);                               // Moment of inertia
-  m->SetPoissonsRatio(0.);                                  // Poisson's ratio -- DONT CHOOSE 1.0!!
-  m->SetDensityHeatProduct(1.0);                            // Density-Heat capacity product
+  m->SetYoungsModulus(
+    registrationFilter->GetElasticity()); // Young's modulus used in the membrane
+  m->SetCrossSectionalArea(1.0);          // Cross-sectional area
+  m->SetThickness(1.0);                   // Thickness
+  m->SetMomentOfInertia(1.0);             // Moment of inertia
+  m->SetPoissonsRatio(0.);                // Poisson's ratio -- DONT CHOOSE 1.0!!
+  m->SetDensityHeatProduct(1.0);          // Density-Heat capacity product
 
   // Create the element type
-  ElementType::Pointer e1=ElementType::New();
-  e1->SetMaterial(m.GetPointer());
-  registrationFilter->SetElement(e1.GetPointer());
+  ElementType::Pointer e1 = ElementType::New();
+  e1->SetMaterial(m);
+  registrationFilter->SetElement(e1);
   registrationFilter->SetMaterial(m);
 
   // Run registration
@@ -184,27 +186,27 @@ int main(int argc, char *argv[])
 
   // Warp the moving image and write it to a file.
   writer->SetFileName("warpedMovingImage.mhd");
-  writer->SetInput( registrationFilter->GetWarpedImage() );
+  writer->SetInput(registrationFilter->GetWarpedImage());
   try
   {
     writer->Update();
   }
-  catch( itk::ExceptionObject & excp )
+  catch (itk::ExceptionObject & excp)
   {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
   }
 
   // output the displacement field
-  typedef itk::ImageFileWriter<RegistrationType::FieldType> DispWriterType;
+  using DispWriterType = itk::ImageFileWriter<RegistrationType::FieldType>;
   DispWriterType::Pointer dispWriter = DispWriterType::New();
-  dispWriter->SetInput( registrationFilter->GetDisplacementField() );
+  dispWriter->SetInput(registrationFilter->GetDisplacementField());
   dispWriter->SetFileName("displacement.mha");
   try
   {
     dispWriter->Update();
   }
-  catch( itk::ExceptionObject & excp )
+  catch (itk::ExceptionObject & excp)
   {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;

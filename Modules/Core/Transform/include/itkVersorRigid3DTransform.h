@@ -42,16 +42,17 @@ namespace itk
  *
  * \ingroup ITKTransform
  */
-template<typename TParametersValueType=double>
-class ITK_TEMPLATE_EXPORT VersorRigid3DTransform :
-  public VersorTransform<TParametersValueType>
+template <typename TParametersValueType = double>
+class ITK_TEMPLATE_EXPORT VersorRigid3DTransform : public VersorTransform<TParametersValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VersorRigid3DTransform                Self;
-  typedef VersorTransform<TParametersValueType> Superclass;
-  typedef SmartPointer<Self>                    Pointer;
-  typedef SmartPointer<const Self>              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VersorRigid3DTransform);
+
+  /** Standard class type aliases. */
+  using Self = VersorRigid3DTransform;
+  using Superclass = VersorTransform<TParametersValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer. */
   itkNewMacro(Self);
@@ -60,50 +61,54 @@ public:
   itkTypeMacro(VersorRigid3DTransform, VersorTransform);
 
   /** Dimension of parameters. */
-  itkStaticConstMacro(SpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(InputSpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(OutputSpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(ParametersDimension, unsigned int, 6);
+  static constexpr unsigned int SpaceDimension = 3;
+  static constexpr unsigned int InputSpaceDimension = 3;
+  static constexpr unsigned int OutputSpaceDimension = 3;
+  static constexpr unsigned int ParametersDimension = 6;
 
   /** Parameters Type   */
-  typedef typename Superclass::ScalarType                ScalarType;
-  typedef typename Superclass::ParametersType            ParametersType;
-  typedef typename Superclass::FixedParametersType       FixedParametersType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::InputPointType            InputPointType;
-  typedef typename Superclass::OutputPointType           OutputPointType;
-  typedef typename Superclass::InputVectorType           InputVectorType;
-  typedef typename Superclass::OutputVectorType          OutputVectorType;
-  typedef typename Superclass::InputVnlVectorType        InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType       OutputVnlVectorType;
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
-  typedef typename Superclass::MatrixType                MatrixType;
-  typedef typename Superclass::InverseMatrixType         InverseMatrixType;
-  typedef typename Superclass::CenterType                CenterType;
-  typedef typename Superclass::OffsetType                OffsetType;
-  typedef typename Superclass::TranslationType           TranslationType;
+  using ScalarType = typename Superclass::ScalarType;
+  using ParametersType = typename Superclass::ParametersType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
+  using MatrixType = typename Superclass::MatrixType;
+  using InverseMatrixType = typename Superclass::InverseMatrixType;
+  using CenterType = typename Superclass::CenterType;
+  using OffsetType = typename Superclass::OffsetType;
+  using TranslationType = typename Superclass::TranslationType;
 
   /** Versor type. */
-  typedef typename Superclass::VersorType VersorType;
-  typedef typename VersorType::VectorType VectorType;
+  using VersorType = typename Superclass::VersorType;
+  using VectorType = typename VersorType::VectorType;
 
-  typedef typename Superclass::AxisType   AxisType;
-  typedef typename Superclass::AngleType  AngleType;
+  using AxisType = typename Superclass::AxisType;
+  using AngleType = typename Superclass::AngleType;
 
-  typedef typename Superclass::AxisValueType        AxisValueType;
-  typedef typename Superclass::TranslationValueType TranslationValueType;
-  typedef typename Superclass::ParametersValueType  ParametersValueType;
+  using AxisValueType = typename Superclass::AxisValueType;
+  using TranslationValueType = typename Superclass::TranslationValueType;
+  using ParametersValueType = typename Superclass::ParametersValueType;
 
-  typedef  Array<ParametersValueType>               DerivativeType;
+  using DerivativeType = Array<ParametersValueType>;
 
   /** Set the transformation from a container of parameters
    * This is typically used by optimizers.
    * There are 6 parameters. The first three represent the
    * versor, the last three represent the translation. */
-  void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType & parameters) override;
 
-  virtual const ParametersType & GetParameters(void) const ITK_OVERRIDE;
+  const ParametersType &
+  GetParameters() const override;
 
   /** Update the transform's parameters by the values in \c update.
    * \param update must be of the same length as returned by
@@ -112,30 +117,29 @@ public:
    * SetParameters is called at the end of this method, to allow the transform
    * to perform any required operations on the updated parameters - typically
    * a conversion to member variables for use in TransformPoint. */
-  virtual void UpdateTransformParameters( const DerivativeType & update, TParametersValueType factor = 1.0 ) ITK_OVERRIDE;
+  void
+  UpdateTransformParameters(const DerivativeType & update, TParametersValueType factor = 1.0) override;
 
   /** This method computes the Jacobian matrix of the transformation.
    * given point or vector, returning the transformed point or
    * vector. The rank of the Jacobian will also indicate if the
    * transform is invertible at this point. */
-  virtual void ComputeJacobianWithRespectToParameters( const InputPointType  & p, JacobianType & jacobian) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToParameters(const InputPointType & p, JacobianType & jacobian) const override;
 
 protected:
   VersorRigid3DTransform(const MatrixType & matrix, const OutputVectorType & offset);
   VersorRigid3DTransform(unsigned int paramDim);
   VersorRigid3DTransform();
-  ~VersorRigid3DTransform() ITK_OVERRIDE {}
+  ~VersorRigid3DTransform() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VersorRigid3DTransform);
-
-};                                      // class VersorRigid3DTransform
-}  // namespace itk
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+}; // class VersorRigid3DTransform
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVersorRigid3DTransform.hxx"
+#  include "itkVersorRigid3DTransform.hxx"
 #endif
 
 #endif /* itkVersorRigid3DTransform_h */

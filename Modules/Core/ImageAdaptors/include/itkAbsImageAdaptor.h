@@ -35,28 +35,28 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TInternalType, typename TExternalType >
+template <typename TInternalType, typename TExternalType>
 class AbsPixelAccessor
 {
 public:
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef TExternalType ExternalType;
+  using ExternalType = TExternalType;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data. */
-  typedef TInternalType InternalType;
+  using InternalType = TInternalType;
 
-  static inline void Set(TInternalType & output, const TExternalType & input)
+  static inline void
+  Set(TInternalType & output, const TExternalType & input)
   {
-    output = (TInternalType)(
-      ( input > NumericTraits< TExternalType >::ZeroValue() ) ? input : -input );
+    output = (TInternalType)((input > NumericTraits<TExternalType>::ZeroValue()) ? input : -input);
   }
 
-  static inline TExternalType Get(const TInternalType & input)
+  static inline TExternalType
+  Get(const TInternalType & input)
   {
-    return (TExternalType)(
-             ( input > NumericTraits< TInternalType >::ZeroValue() ) ? input : -input );
+    return (TExternalType)((input > NumericTraits<TInternalType>::ZeroValue()) ? input : -input);
   }
 };
 } // end namespace Accessor
@@ -70,22 +70,19 @@ public:
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TImage, typename TOutputPixelType >
-class AbsImageAdaptor:public
-  ImageAdaptor< TImage,
-                Accessor::AbsPixelAccessor<
-                  typename TImage::PixelType,
-                  TOutputPixelType >   >
+template <typename TImage, typename TOutputPixelType>
+class AbsImageAdaptor
+  : public ImageAdaptor<TImage, Accessor::AbsPixelAccessor<typename TImage::PixelType, TOutputPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef AbsImageAdaptor Self;
-  typedef ImageAdaptor< TImage, Accessor::AbsPixelAccessor<
-                          typename TImage::PixelType,
-                          TOutputPixelType > >  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AbsImageAdaptor);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = AbsImageAdaptor;
+  using Superclass = ImageAdaptor<TImage, Accessor::AbsPixelAccessor<typename TImage::PixelType, TOutputPixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -94,11 +91,8 @@ public:
   itkTypeMacro(AbsImageAdaptor, ImageAdaptor);
 
 protected:
-  AbsImageAdaptor() {}
-  virtual ~AbsImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AbsImageAdaptor);
+  AbsImageAdaptor() = default;
+  ~AbsImageAdaptor() override = default;
 };
 } // end namespace itk
 

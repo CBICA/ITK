@@ -38,19 +38,23 @@ namespace itk
  * \brief Create instances of BioRadImageIO objects using an object factory.
  * \ingroup ITKIOBioRad
  */
-class ITKIOBioRad_EXPORT BioRadImageIOFactory:public ObjectFactoryBase
+class ITKIOBioRad_EXPORT BioRadImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef BioRadImageIOFactory       Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BioRadImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = BioRadImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class Methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion() const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription() const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -59,7 +63,8 @@ public:
   itkTypeMacro(BioRadImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory()
+  static void
+  RegisterOneFactory()
   {
     BioRadImageIOFactory::Pointer bioradFactory = BioRadImageIOFactory::New();
 
@@ -68,10 +73,7 @@ public:
 
 protected:
   BioRadImageIOFactory();
-  ~BioRadImageIOFactory() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BioRadImageIOFactory);
+  ~BioRadImageIOFactory() override;
 };
 } // end namespace itk
 

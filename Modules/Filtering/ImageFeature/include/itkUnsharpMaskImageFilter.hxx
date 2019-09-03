@@ -19,30 +19,28 @@
 #define itkUnsharpMaskImageFilter_hxx
 
 #include "itkUnsharpMaskImageFilter.h"
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkNumericTraits.h"
 #include "itkProgressAccumulator.h"
 
 namespace itk
 {
 
-template< typename TInputImage, typename TOutputImage, typename TInternalPrecision >
-UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
-::UnsharpMaskImageFilter()
-  :m_Amount(0.5),
-  m_Threshold(0),
-  m_Clamp(NumericTraits<OutputPixelType>::IsInteger)
-  // clamping is on for integral types, and off for floating types
-  // this gives intuitive behavior for integral types
-  // and skips min/max checks for floating types
+template <typename TInputImage, typename TOutputImage, typename TInternalPrecision>
+UnsharpMaskImageFilter<TInputImage, TOutputImage, TInternalPrecision>::UnsharpMaskImageFilter()
+  : m_Amount(0.5)
+  , m_Threshold(0)
+  , m_Clamp(NumericTraits<OutputPixelType>::IsInteger)
+// clamping is on for integral types, and off for floating types
+// this gives intuitive behavior for integral types
+// and skips min/max checks for floating types
 {
   m_Sigmas.Fill(1.0);
 }
 
-template< typename TInputImage, typename TOutputImage, typename TInternalPrecision >
+template <typename TInputImage, typename TOutputImage, typename TInternalPrecision>
 void
-UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
-::GenerateInputRequestedRegion()
+UnsharpMaskImageFilter<TInputImage, TOutputImage, TInternalPrecision>::GenerateInputRequestedRegion()
 {
   // call the superclass' implementation of this method. this should
   // copy the output requested region to the input requested region
@@ -50,47 +48,45 @@ UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
 
   // This filter needs all of the input
   InputImagePointer image = const_cast<InputImageType *>(this->GetInput());
-  if ( image )
-    {
+  if (image)
+  {
     image->SetRequestedRegion(this->GetInput()->GetLargestPossibleRegion());
-    }
+  }
 }
 
 
-template< typename TInputImage, typename TOutputImage, typename TInternalPrecision >
+template <typename TInputImage, typename TOutputImage, typename TInternalPrecision>
 void
-UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
-::VerifyPreconditions()
+UnsharpMaskImageFilter<TInputImage, TOutputImage, TInternalPrecision>::VerifyPreconditions() ITKv5_CONST
 {
   Superclass::VerifyPreconditions();
   if (m_Threshold < 0.0)
-    {
+  {
     itkExceptionMacro(<< "Threshold must be non-negative!");
-    }
+  }
 }
 
 
-template< typename TInputImage, typename TOutputImage, typename TInternalPrecision >
+template <typename TInputImage, typename TOutputImage, typename TInternalPrecision>
 void
-UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
-::GenerateData()
+UnsharpMaskImageFilter<TInputImage, TOutputImage, TInternalPrecision>::GenerateData()
 {
   typename TInputImage::Pointer input = TInputImage::New();
   input->Graft(const_cast<TInputImage *>(this->GetInput()));
   typename GaussianType::Pointer gaussianF = GaussianType::New();
   gaussianF->SetInput(input);
   gaussianF->SetSigmaArray(m_Sigmas);
-  gaussianF->SetNumberOfThreads(this->GetNumberOfThreads());
+  gaussianF->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
 
-  typedef UnsharpMaskingFunctor< InputPixelType, TInternalPrecision, OutputPixelType > USMType;
-  typedef BinaryFunctorImageFilter< TInputImage, typename GaussianType::OutputImageType,
-    TOutputImage, USMType > BinaryFunctorType;
+  using USMType = UnsharpMaskingFunctor<InputPixelType, TInternalPrecision, OutputPixelType>;
+  using BinaryFunctorType =
+    BinaryGeneratorImageFilter<TInputImage, typename GaussianType::OutputImageType, TOutputImage>;
   typename BinaryFunctorType::Pointer functorF = BinaryFunctorType::New();
   functorF->SetInput1(this->GetInput());
   functorF->SetInput2(gaussianF->GetOutput());
   USMType usmT(m_Amount, m_Threshold, m_Clamp);
   functorF->SetFunctor(usmT);
-  functorF->SetNumberOfThreads(this->GetNumberOfThreads());
+  functorF->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
 
   ProgressAccumulator::Pointer progress = ProgressAccumulator::New();
   progress->SetMiniPipelineFilter(this);
@@ -103,10 +99,9 @@ UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
 }
 
 
-template< typename TInputImage, typename TOutputImage, typename TInternalPrecision >
+template <typename TInputImage, typename TOutputImage, typename TInternalPrecision>
 void
-UnsharpMaskImageFilter< TInputImage, TOutputImage, TInternalPrecision >
-::PrintSelf(std::ostream & os, Indent indent) const
+UnsharpMaskImageFilter<TInputImage, TOutputImage, TInternalPrecision>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
   os << indent << "Sigmas: " << m_Sigmas << std::endl;

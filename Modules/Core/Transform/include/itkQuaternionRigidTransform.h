@@ -44,16 +44,17 @@ namespace itk
  *
  * \ingroup ITKTransform
  */
-template<typename TParametersValueType=double>
-class ITK_TEMPLATE_EXPORT QuaternionRigidTransform :
-  public Rigid3DTransform<TParametersValueType>
+template <typename TParametersValueType = double>
+class ITK_TEMPLATE_EXPORT QuaternionRigidTransform : public Rigid3DTransform<TParametersValueType>
 {
 public:
-  /** Standard class typedefs.   */
-  typedef QuaternionRigidTransform               Self;
-  typedef Rigid3DTransform<TParametersValueType> Superclass;
-  typedef SmartPointer<Self>                     Pointer;
-  typedef SmartPointer<const Self>               ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(QuaternionRigidTransform);
+
+  /** Standard class type aliases.   */
+  using Self = QuaternionRigidTransform;
+  using Superclass = Rigid3DTransform<TParametersValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer   */
   itkNewMacro(Self);
@@ -62,98 +63,109 @@ public:
   itkTypeMacro(QuaternionRigidTransform, Rigid3DTransform);
 
   /** Dimension of parameters   */
-  itkStaticConstMacro(InputSpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(OutputSpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(SpaceDimension, unsigned int, 3);
-  itkStaticConstMacro(ParametersDimension, unsigned int, 7);
+  static constexpr unsigned int InputSpaceDimension = 3;
+  static constexpr unsigned int OutputSpaceDimension = 3;
+  static constexpr unsigned int SpaceDimension = 3;
+  static constexpr unsigned int ParametersDimension = 7;
 
   /** Parameters Type   */
-  typedef typename Superclass::ParametersType            ParametersType;
-  typedef typename Superclass::ParametersValueType       ParametersValueType;
-  typedef typename Superclass::FixedParametersType       FixedParametersType;
-  typedef typename Superclass::FixedParametersValueType  FixedParametersValueType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::ScalarType                ScalarType;
-  typedef typename Superclass::InputPointType            InputPointType;
-  typedef typename Superclass::OutputPointType           OutputPointType;
-  typedef typename Superclass::InputVectorType           InputVectorType;
-  typedef typename Superclass::OutputVectorType          OutputVectorType;
-  typedef typename Superclass::OutputVectorValueType     OutputVectorValueType;
-  typedef typename Superclass::InputVnlVectorType        InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType       OutputVnlVectorType;
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
-  typedef typename Superclass::MatrixType                MatrixType;
-  typedef typename Superclass::InverseMatrixType         InverseMatrixType;
-  typedef typename Superclass::CenterType                CenterType;
-  typedef typename Superclass::OffsetType                OffsetType;
-  typedef typename Superclass::TranslationType           TranslationType;
+  using ParametersType = typename Superclass::ParametersType;
+  using ParametersValueType = typename Superclass::ParametersValueType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using FixedParametersValueType = typename Superclass::FixedParametersValueType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
+  using ScalarType = typename Superclass::ScalarType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
+  using OutputVectorValueType = typename Superclass::OutputVectorValueType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
+  using MatrixType = typename Superclass::MatrixType;
+  using InverseMatrixType = typename Superclass::InverseMatrixType;
+  using CenterType = typename Superclass::CenterType;
+  using OffsetType = typename Superclass::OffsetType;
+  using TranslationType = typename Superclass::TranslationType;
 
   /** VnlQuaternion type.  */
-  typedef vnl_quaternion<TParametersValueType> VnlQuaternionType;
+  using VnlQuaternionType = vnl_quaternion<TParametersValueType>;
 
   /** Compute the Jacobian Matrix of the transformation at one point */
   /** Set the rotation of the rigid transform.
    * This method sets the rotation of a QuaternionRigidTransform to a
    * value specified by the user. */
-  void SetRotation(const VnlQuaternionType & rotation);
+  void
+  SetRotation(const VnlQuaternionType & rotation);
 
   /** Get the rotation from an QuaternionRigidTransform.
    * This method returns the value of the rotation of the
    * QuaternionRigidTransform. */
-  const VnlQuaternionType & GetRotation(void) const
+  const VnlQuaternionType &
+  GetRotation() const
   {
     return m_Rotation;
   }
 
   /** Set the parameters to the IdentityTransform */
-  virtual void SetIdentity(void) ITK_OVERRIDE;
+  void
+  SetIdentity() override;
 
   /** Set the transformation from a container of parameters.
    * This is typically used by optimizers.
    * There are 7 parameters. The first four represents the
    * quaternion and the last three represents the
    * offset. */
-  void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType & parameters) override;
 
-  virtual const ParametersType & GetParameters() const ITK_OVERRIDE;
+  const ParametersType &
+  GetParameters() const override;
 
   /** Compute the Jacobian of the transformation.
    * This method computes the Jacobian matrix of the transformation.
    * given point or vector, returning the transformed point or
    * vector. The rank of the Jacobian will also indicate if the transform
    * is invertible at this point. */
-  virtual void ComputeJacobianWithRespectToParameters( const InputPointType  & p, JacobianType & jacobian) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToParameters(const InputPointType & p, JacobianType & jacobian) const override;
 
 protected:
   QuaternionRigidTransform(const MatrixType & matrix, const OutputVectorType & offset);
   QuaternionRigidTransform(unsigned int paramDims);
   QuaternionRigidTransform();
-  ~QuaternionRigidTransform() ITK_OVERRIDE {}
+  ~QuaternionRigidTransform() override = default;
 
-  void ComputeMatrix() ITK_OVERRIDE;
+  void
+  ComputeMatrix() override;
 
-  void ComputeMatrixParameters() ITK_OVERRIDE;
+  void
+  ComputeMatrixParameters() override;
 
-  void SetVarRotation(const VnlQuaternionType & rotation)
+  void
+  SetVarRotation(const VnlQuaternionType & rotation)
   {
     m_Rotation = rotation;
   }
 
-  const InverseMatrixType & GetInverseMatrix() const;
+  const InverseMatrixType &
+  GetInverseMatrix() const;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(QuaternionRigidTransform);
-
   /** Rotation of the transformation. */
   VnlQuaternionType m_Rotation;
 }; // class QuaternionRigidTransform
-}  // namespace itk
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkQuaternionRigidTransform.hxx"
+#  include "itkQuaternionRigidTransform.hxx"
 #endif
 
 #endif /* itkQuaternionRigidTransform_h */

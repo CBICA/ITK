@@ -42,15 +42,16 @@ namespace itk
  * \ingroup ITKCommon
  */
 template <unsigned int VDimension>
-class ITK_TEMPLATE_EXPORT ThreadedImageRegionPartitioner
-  : public ThreadedDomainPartitioner< ImageRegion<VDimension> >
+class ITK_TEMPLATE_EXPORT ThreadedImageRegionPartitioner : public ThreadedDomainPartitioner<ImageRegion<VDimension>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ThreadedImageRegionPartitioner                                   Self;
-  typedef ThreadedDomainPartitioner<ImageRegion<VDimension> >              Superclass;
-  typedef SmartPointer<Self>                                               Pointer;
-  typedef SmartPointer<const Self>                                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedImageRegionPartitioner);
+
+  /** Standard class type aliases. */
+  using Self = ThreadedImageRegionPartitioner;
+  using Superclass = ThreadedDomainPartitioner<ImageRegion<VDimension>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -59,13 +60,13 @@ public:
   itkTypeMacro(ThreadedImageRegionPartitioner, ThreadedDomainPartitioner);
 
   /** Type of the object being threaded over */
-  typedef typename Superclass::DomainType  DomainType;
+  using DomainType = typename Superclass::DomainType;
 
-  /** Deprecated typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int, VDimension);
-  typedef typename Self::DomainType            ImageRegionType;
-  typedef typename Self::DomainType::SizeType  SizeType;
-  typedef typename Self::DomainType::IndexType IndexType;
+  /** Deprecated type alias. */
+  static constexpr unsigned int ImageDimension = VDimension;
+  using ImageRegionType = typename Self::DomainType;
+  using SizeType = typename Self::DomainType::SizeType;
+  using IndexType = typename Self::DomainType::IndexType;
 
   /** Split the ImageRegion \c completeRegion into up to \c requestedTotal
    * non-overlapping subregions, setting subregion number \c threadId as
@@ -78,28 +79,27 @@ public:
    * If \c threadId is greater than the return value, the contents of
    * \c subRegion are undefined.
    */
-  virtual
-  ThreadIdType PartitionDomain(const ThreadIdType threadId,
-                           const ThreadIdType requestedTotal,
-                           const DomainType& completeRegion,
-                           DomainType& subRegion) const ITK_OVERRIDE;
+
+  ThreadIdType
+  PartitionDomain(const ThreadIdType threadId,
+                  const ThreadIdType requestedTotal,
+                  const DomainType & completeRegion,
+                  DomainType &       subRegion) const override;
 
 protected:
   ThreadedImageRegionPartitioner();
-  virtual ~ThreadedImageRegionPartitioner() ITK_OVERRIDE;
+  ~ThreadedImageRegionPartitioner() override = default;
 
-  typedef ImageRegionSplitterSlowDimension ImageRegionSplitterType;
+  using ImageRegionSplitterType = ImageRegionSplitterSlowDimension;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedImageRegionPartitioner);
-
   ImageRegionSplitterType::Pointer m_ImageRegionSplitter;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkThreadedImageRegionPartitioner.hxx"
+#  include "itkThreadedImageRegionPartitioner.hxx"
 #endif
 
 #endif

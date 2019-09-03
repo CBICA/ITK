@@ -35,38 +35,39 @@ namespace itk
  * \ingroup ITKSystemObjects
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Utilities/ObserveEvent,Observe an event}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/ObserveAnEvent,Observe An Event}
+ * \endsphinx
  */
 
 // The superclass that all commands should be subclasses of
-class ITKCommon_EXPORT Command:public Object
+class ITKCommon_EXPORT Command : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef Command                    Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(Command);
+
+  /** Standard class type aliases. */
+  using Self = Command;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Command, Object);
 
   /** Abstract method that defines the action to be taken by the command. */
-  virtual void Execute(Object *caller, const EventObject & event) = 0;
+  virtual void
+  Execute(Object * caller, const EventObject & event) = 0;
 
   /** Abstract method that defines the action to be taken by the command.
    * This variant is expected to be used when requests comes from a
    * const Object */
-  virtual void Execute(const Object *caller, const EventObject & event) = 0;
+  virtual void
+  Execute(const Object * caller, const EventObject & event) = 0;
 
 protected:
   Command();
-  ~Command() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(Command);
+  ~Command() override;
 };
 
 // some implementations for several callback types
@@ -80,18 +81,19 @@ private:
  * \ingroup ITKSystemObjects
  * \ingroup ITKCommon
  */
-template< typename T >
-class ITK_TEMPLATE_EXPORT MemberCommand:public Command
+template <typename T>
+class ITK_TEMPLATE_EXPORT MemberCommand : public Command
 {
 public:
-  /** pointer to a member function that takes a Object* and the event */
-  typedef  void ( T::*TMemberFunctionPointer )(Object *, const EventObject &);
-  typedef  void ( T::*TConstMemberFunctionPointer )(const Object *,
-                                                    const EventObject &);
+  ITK_DISALLOW_COPY_AND_ASSIGN(MemberCommand);
 
-  /** Standard class typedefs. */
-  typedef MemberCommand        Self;
-  typedef SmartPointer< Self > Pointer;
+  /** pointer to a member function that takes a Object* and the event */
+  using TMemberFunctionPointer = void (T::*)(Object *, const EventObject &);
+  using TConstMemberFunctionPointer = void (T::*)(const Object *, const EventObject &);
+
+  /** Standard class type aliases. */
+  using Self = MemberCommand;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -101,36 +103,38 @@ public:
 
   /**  Set the callback function along with the object that it will
    *  be invoked on. */
-  void SetCallbackFunction(T *object,
-                           TMemberFunctionPointer memberFunction)
+  void
+  SetCallbackFunction(T * object, TMemberFunctionPointer memberFunction)
   {
     m_This = object;
     m_MemberFunction = memberFunction;
   }
 
-  void SetCallbackFunction(T *object,
-                           TConstMemberFunctionPointer memberFunction)
+  void
+  SetCallbackFunction(T * object, TConstMemberFunctionPointer memberFunction)
   {
     m_This = object;
     m_ConstMemberFunction = memberFunction;
   }
 
   /**  Invoke the member function. */
-  virtual void Execute(Object *caller, const EventObject & event) ITK_OVERRIDE
+  void
+  Execute(Object * caller, const EventObject & event) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( caller, event );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))(caller, event);
+    }
   }
 
   /**  Invoke the member function with a const object. */
-  virtual void Execute(const Object *caller, const EventObject & event) ITK_OVERRIDE
+  void
+  Execute(const Object * caller, const EventObject & event) override
   {
-    if ( m_ConstMemberFunction )
-      {
-      ( ( *m_This ).*( m_ConstMemberFunction ) )( caller, event );
-      }
+    if (m_ConstMemberFunction)
+    {
+      ((*m_This).*(m_ConstMemberFunction))(caller, event);
+    }
   }
 
 protected:
@@ -138,16 +142,13 @@ protected:
   TMemberFunctionPointer      m_MemberFunction;
   TConstMemberFunctionPointer m_ConstMemberFunction;
 
-  MemberCommand() :
-    m_This( ITK_NULLPTR ),
-    m_MemberFunction( ITK_NULLPTR ),
-    m_ConstMemberFunction( ITK_NULLPTR )
+  MemberCommand()
+    : m_This(nullptr)
+    , m_MemberFunction(nullptr)
+    , m_ConstMemberFunction(nullptr)
   {}
 
-  virtual ~MemberCommand() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MemberCommand);
+  ~MemberCommand() override = default;
 };
 
 /** \class ReceptorMemberCommand
@@ -159,16 +160,18 @@ private:
  * \ingroup ITKSystemObjects
  * \ingroup ITKCommon
  */
-template< typename T >
-class ITK_TEMPLATE_EXPORT ReceptorMemberCommand:public Command
+template <typename T>
+class ITK_TEMPLATE_EXPORT ReceptorMemberCommand : public Command
 {
 public:
-  /** pointer to a member function that takes a Object* and the event */
-  typedef  void ( T::*TMemberFunctionPointer )(const EventObject &);
+  ITK_DISALLOW_COPY_AND_ASSIGN(ReceptorMemberCommand);
 
-  /** Standard class typedefs. */
-  typedef ReceptorMemberCommand Self;
-  typedef SmartPointer< Self >  Pointer;
+  /** pointer to a member function that takes a Object* and the event */
+  using TMemberFunctionPointer = void (T::*)(const EventObject &);
+
+  /** Standard class type aliases. */
+  using Self = ReceptorMemberCommand;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -178,44 +181,43 @@ public:
 
   /**  Set the callback function along with the object that it will
    *  be invoked on. */
-  void SetCallbackFunction(T *object,
-                           TMemberFunctionPointer memberFunction)
+  void
+  SetCallbackFunction(T * object, TMemberFunctionPointer memberFunction)
   {
     m_This = object;
     m_MemberFunction = memberFunction;
   }
 
   /**  Invoke the member function. */
-  virtual void Execute(Object *, const EventObject & event) ITK_OVERRIDE
+  void
+  Execute(Object *, const EventObject & event) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( event );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))(event);
+    }
   }
 
   /**  Invoke the member function with a const object */
-  virtual void Execute(const Object *, const EventObject & event) ITK_OVERRIDE
+  void
+  Execute(const Object *, const EventObject & event) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( event );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))(event);
+    }
   }
 
 protected:
   T *                    m_This;
   TMemberFunctionPointer m_MemberFunction;
 
-  ReceptorMemberCommand() :
-    m_This( ITK_NULLPTR ),
-    m_MemberFunction( ITK_NULLPTR )
+  ReceptorMemberCommand()
+    : m_This(nullptr)
+    , m_MemberFunction(nullptr)
   {}
 
-  virtual ~ReceptorMemberCommand() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ReceptorMemberCommand);
+  ~ReceptorMemberCommand() override = default;
 };
 
 /** \class SimpleMemberCommand
@@ -227,16 +229,18 @@ private:
  * \ingroup ITKSystemObjects
  * \ingroup ITKCommon
  */
-template< typename T >
-class ITK_TEMPLATE_EXPORT SimpleMemberCommand:public Command
+template <typename T>
+class ITK_TEMPLATE_EXPORT SimpleMemberCommand : public Command
 {
 public:
-  /** A method callback. */
-  typedef  void ( T::*TMemberFunctionPointer )();
+  ITK_DISALLOW_COPY_AND_ASSIGN(SimpleMemberCommand);
 
-  /** Standard class typedefs. */
-  typedef SimpleMemberCommand  Self;
-  typedef SmartPointer< Self > Pointer;
+  /** A method callback. */
+  using TMemberFunctionPointer = void (T::*)();
+
+  /** Standard class type aliases. */
+  using Self = SimpleMemberCommand;
+  using Pointer = SmartPointer<Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SimpleMemberCommand, Command);
@@ -245,43 +249,42 @@ public:
   itkNewMacro(Self);
 
   /** Specify the callback function. */
-  void SetCallbackFunction(T *object,
-                           TMemberFunctionPointer memberFunction)
+  void
+  SetCallbackFunction(T * object, TMemberFunctionPointer memberFunction)
   {
     m_This = object;
     m_MemberFunction = memberFunction;
   }
 
   /** Invoke the callback function. */
-  virtual void Execute(Object *, const EventObject &) ITK_OVERRIDE
+  void
+  Execute(Object *, const EventObject &) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))();
+    }
   }
 
-  virtual void Execute(const Object *, const EventObject &) ITK_OVERRIDE
+  void
+  Execute(const Object *, const EventObject &) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))();
+    }
   }
 
 protected:
   T *                    m_This;
   TMemberFunctionPointer m_MemberFunction;
 
-  SimpleMemberCommand() :
-    m_This( ITK_NULLPTR ),
-    m_MemberFunction( ITK_NULLPTR )
+  SimpleMemberCommand()
+    : m_This(nullptr)
+    , m_MemberFunction(nullptr)
   {}
 
-  virtual ~SimpleMemberCommand() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SimpleMemberCommand);
+  ~SimpleMemberCommand() override = default;
 };
 
 /** \class SimpleConstMemberCommand
@@ -293,16 +296,18 @@ private:
  * \ingroup ITKSystemObjects
  * \ingroup ITKCommon
  */
-template< typename T >
-class ITK_TEMPLATE_EXPORT SimpleConstMemberCommand:public Command
+template <typename T>
+class ITK_TEMPLATE_EXPORT SimpleConstMemberCommand : public Command
 {
 public:
-  /** A const member method callback. */
-  typedef  void ( T::*TMemberFunctionPointer )() const;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SimpleConstMemberCommand);
 
-  /** Standard class typedefs. */
-  typedef SimpleConstMemberCommand Self;
-  typedef SmartPointer< Self >     Pointer;
+  /** A const member method callback. */
+  using TMemberFunctionPointer = void (T::*)() const;
+
+  /** Standard class type aliases. */
+  using Self = SimpleConstMemberCommand;
+  using Pointer = SmartPointer<Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SimpleConstMemberCommand, Command);
@@ -311,43 +316,42 @@ public:
   itkNewMacro(Self);
 
   /** Specify the const member method callback. */
-  void SetCallbackFunction(const T *object,
-                           TMemberFunctionPointer memberFunction)
+  void
+  SetCallbackFunction(const T * object, TMemberFunctionPointer memberFunction)
   {
     m_This = object;
     m_MemberFunction = memberFunction;
   }
 
   /** Invoke the const member method callback. */
-  virtual void Execute(Object *, const EventObject &) ITK_OVERRIDE
+  void
+  Execute(Object *, const EventObject &) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))();
+    }
   }
 
-  virtual void Execute(const Object *, const EventObject &) ITK_OVERRIDE
+  void
+  Execute(const Object *, const EventObject &) override
   {
-    if ( m_MemberFunction )
-      {
-      ( ( *m_This ).*( m_MemberFunction ) )( );
-      }
+    if (m_MemberFunction)
+    {
+      ((*m_This).*(m_MemberFunction))();
+    }
   }
 
 protected:
   const T *              m_This;
   TMemberFunctionPointer m_MemberFunction;
 
-  SimpleConstMemberCommand() :
-    m_This( ITK_NULLPTR ),
-    m_MemberFunction( ITK_NULLPTR )
+  SimpleConstMemberCommand()
+    : m_This(nullptr)
+    , m_MemberFunction(nullptr)
   {}
 
-  virtual ~SimpleConstMemberCommand() {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SimpleConstMemberCommand);
+  ~SimpleConstMemberCommand() override = default;
 };
 
 /** \class CStyleCommand
@@ -362,18 +366,17 @@ private:
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT CStyleCommand:public Command
+class ITKCommon_EXPORT CStyleCommand : public Command
 {
 public:
   /** Typedefs for C-style callbacks. */
-  typedef  void ( *FunctionPointer )(Object *, const EventObject &, void *);
-  typedef  void ( *ConstFunctionPointer )(const Object *,
-                                          const EventObject &, void *);
-  typedef  void ( *DeleteDataFunctionPointer )(void *);
+  using FunctionPointer = void (*)(Object *, const EventObject &, void *);
+  using ConstFunctionPointer = void (*)(const Object *, const EventObject &, void *);
+  using DeleteDataFunctionPointer = void (*)(void *);
 
-  /** Standard class typedefs. */
-  typedef CStyleCommand        Self;
-  typedef SmartPointer< Self > Pointer;
+  /** Standard class type aliases. */
+  using Self = CStyleCommand;
+  using Pointer = SmartPointer<Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(CStyleCommand, Command);
@@ -383,29 +386,35 @@ public:
 
   /** Set the client data that will be passed into the C function when
    * it is called. */
-  void SetClientData(void *cd);
+  void
+  SetClientData(void * cd);
 
   /** Set the C callback function pointer to be called at Execute time. */
-  void SetCallback(FunctionPointer f);
-  void SetConstCallback(ConstFunctionPointer f);
+  void
+  SetCallback(FunctionPointer f);
+  void
+  SetConstCallback(ConstFunctionPointer f);
 
   /** Set the callback to delete the client data. */
-  void SetClientDataDeleteCallback(DeleteDataFunctionPointer f);
+  void
+  SetClientDataDeleteCallback(DeleteDataFunctionPointer f);
 
   /** Execute the callback function. */
-  virtual void Execute(Object *caller, const EventObject & event) ITK_OVERRIDE;
+  void
+  Execute(Object * caller, const EventObject & event) override;
 
   /** Execute the callback function with a const Object */
-  virtual void Execute(const Object *caller, const EventObject & event) ITK_OVERRIDE;
+  void
+  Execute(const Object * caller, const EventObject & event) override;
 
 protected:
   CStyleCommand();
-  ~CStyleCommand() ITK_OVERRIDE;
+  ~CStyleCommand() override;
 
-  void *                    m_ClientData;
-  FunctionPointer           m_Callback;
-  ConstFunctionPointer      m_ConstCallback;
-  DeleteDataFunctionPointer m_ClientDataDeleteCallback;
+  void *                    m_ClientData{ nullptr };
+  FunctionPointer           m_Callback{ nullptr };
+  ConstFunctionPointer      m_ConstCallback{ nullptr };
+  DeleteDataFunctionPointer m_ClientDataDeleteCallback{ nullptr };
 };
 } // end namespace itk
 

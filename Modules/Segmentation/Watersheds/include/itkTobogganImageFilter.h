@@ -35,50 +35,52 @@ namespace itk
  * \ingroup ITKWatersheds
  */
 
-template< typename TInputImage, typename TOutputImage = Image< IdentifierType, TInputImage::ImageDimension >  >
-class ITK_TEMPLATE_EXPORT TobogganImageFilter:
-  public ImageToImageFilter<
-    TInputImage,
-    TOutputImage>
+template <typename TInputImage, typename TOutputImage = Image<IdentifierType, TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT TobogganImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard "Self" typedef.   */
-  typedef TobogganImageFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TobogganImageFilter);
+
+  /** Standard "Self" type alias.   */
+  using Self = TobogganImageFilter;
 
   /** The type of input image.   */
-  typedef TInputImage InputImageType;
+  using InputImageType = TInputImage;
 
   /** Number of dimensions. */
-  itkStaticConstMacro(NDimensions, unsigned int, TInputImage::ImageDimension);
+  static constexpr unsigned int NDimensions = TInputImage::ImageDimension;
 
   /** The type of output image.   */
-  typedef TOutputImage OutputImageType;
+  using OutputImageType = TOutputImage;
 
   /** Output image pixel type. */
-  typedef typename OutputImageType::PixelType OutputImagePixelType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
   /** Input image pixel type. */
-  typedef typename InputImageType::PixelType InputImagePixelType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** Dimension of the input and output images. */
-  enum { ImageDimension = InputImageType::ImageDimension };
+  enum
+  {
+    ImageDimension = InputImageType::ImageDimension
+  };
 
-  /** Other convenient typedefs   */
-  typedef typename InputImageType::RegionType   RegionType;
-  typedef typename InputImageType::SizeType     SizeType;
-  typedef typename InputImageType::IndexType    IndexType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename OutputImageType::Pointer     OutputImagePointer;
+  /** Other convenient type alias   */
+  using RegionType = typename InputImageType::RegionType;
+  using SizeType = typename InputImageType::SizeType;
+  using IndexType = typename InputImageType::IndexType;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using OutputImagePointer = typename OutputImageType::Pointer;
 
-  /** Standard super class typedef support. */
-  typedef ImageToImageFilter< InputImageType, OutputImageType > Superclass;
+  /** Standard super class type alias support */
+  using Superclass = ImageToImageFilter<InputImageType, OutputImageType>;
 
   /** Typedef support for the input image scalar value type. */
-  typedef typename InputImageType::PixelType ScalarType;
+  using ScalarType = typename InputImageType::PixelType;
 
-  /** Smart pointer typedef support  */
-  typedef SmartPointer< Self > Pointer;
+  /** Smart pointer type alias support  */
+  using Pointer = SmartPointer<Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(TobogganImageFilter, ImageToImageFilter);
@@ -87,37 +89,35 @@ public:
   itkNewMacro(Self);
 
   /** Standard process object method.  This filter is not multithreaded. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
-  void EnlargeOutputRequestedRegion(DataObject *) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject *) override;
 
   /** Neighborhood iterator type */
-  typedef ConstNeighborhoodIterator< TInputImage >
-  NeighborhoodIteratorType;
+  using NeighborhoodIteratorType = ConstNeighborhoodIterator<Image<float, 2>>;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( LessThanComparableCheck,
-                   ( Concept::LessThanComparable< InputImagePixelType > ) );
-  itkConceptMacro( OStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputImagePixelType > ) );
+  itkConceptMacro(LessThanComparableCheck, (Concept::LessThanComparable<InputImagePixelType>));
+  itkConceptMacro(OStreamWritableCheck, (Concept::OStreamWritable<InputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
-  TobogganImageFilter();
-  ~TobogganImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TobogganImageFilter);
-};                                   // end of class
+  TobogganImageFilter() = default;
+  ~TobogganImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+}; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTobogganImageFilter.hxx"
+#  include "itkTobogganImageFilter.hxx"
 #endif
 
 #endif

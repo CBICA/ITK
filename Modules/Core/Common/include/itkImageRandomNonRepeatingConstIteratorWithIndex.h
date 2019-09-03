@@ -44,23 +44,24 @@ public:
   SizeValueType m_Index;
   double        m_Value;
 
-  NodeOfPermutation ()
+  NodeOfPermutation()
   {
     m_Priority = 0;
     m_Index = 0;
     m_Value = 0.0;
   }
 
-  bool operator<(const NodeOfPermutation & b) const
+  bool
+  operator<(const NodeOfPermutation & b) const
   {
-    if ( m_Priority == b.m_Priority )
-      {
+    if (m_Priority == b.m_Priority)
+    {
       return m_Value < b.m_Value;
-      }
+    }
     else
-      {
+    {
       return m_Priority < b.m_Priority;
-      }
+    }
   }
 };
 
@@ -71,10 +72,10 @@ public:
 class RandomPermutation
 {
 public:
-  typedef Statistics::MersenneTwisterRandomVariateGenerator::Pointer GeneratorPointer;
-  NodeOfPermutation *m_Permutation;
-  GeneratorPointer   m_Generator;
-  SizeValueType      m_Size;
+  using GeneratorPointer = typename Statistics::MersenneTwisterRandomVariateGenerator::Pointer;
+  NodeOfPermutation * m_Permutation;
+  GeneratorPointer    m_Generator;
+  SizeValueType       m_Size;
 
   RandomPermutation(SizeValueType sz)
   {
@@ -84,70 +85,57 @@ public:
     this->Shuffle();
   }
 
-  RandomPermutation &operator=(const RandomPermutation &it)
-    {
-      delete[] m_Permutation;
-      m_Size = it.m_Size;
-      m_Permutation = new NodeOfPermutation[m_Size];
-      m_Generator = it.m_Generator;
-      return *this;
-    }
-
-#if !defined(ITK_LEGACY_REMOVE)
-  void Dump()
+  RandomPermutation &
+  operator=(const RandomPermutation & it)
   {
-    for ( SizeValueType i = 0; i < m_Size; i++ )
-      {
-      std::cout << m_Permutation[i].m_Value << " " << m_Permutation[i].m_Priority
-                << " " << m_Permutation[i].m_Index << ";";
-      std::cout << std::endl;
-      }
+    delete[] m_Permutation;
+    m_Size = it.m_Size;
+    m_Permutation = new NodeOfPermutation[m_Size];
+    m_Generator = it.m_Generator;
+    return *this;
   }
-#endif
 
-  void SetPriority(SizeValueType i, SizeValueType priority)
+  void
+  SetPriority(SizeValueType i, SizeValueType priority)
   {
-    if ( i > m_Size )
-      {
+    if (i > m_Size)
+    {
       std::ostringstream ostrm;
       ostrm << "Error: RandomPermuation does not have " << i << " elements" << std::endl;
       throw std::runtime_error(ostrm.str());
-      }
+    }
     else
-      {
+    {
       m_Permutation[i].m_Priority = priority;
-      }
+    }
   }
 
-  void Shuffle()
+  void
+  Shuffle()
   {
-    for ( SizeValueType i = 0; i < m_Size; i++ )
-      {
-      m_Permutation[i].m_Value = m_Generator->GetVariateWithClosedRange (1.0);
+    for (SizeValueType i = 0; i < m_Size; i++)
+    {
+      m_Permutation[i].m_Value = m_Generator->GetVariateWithClosedRange(1.0);
       m_Permutation[i].m_Index = i;
-      }
+    }
     std::sort(m_Permutation, m_Permutation + m_Size);
   }
 
-  SizeValueType operator[](SizeValueType i)
-  {
-    return m_Permutation[i].m_Index;
-  }
+  SizeValueType operator[](SizeValueType i) { return m_Permutation[i].m_Index; }
 
-  ~RandomPermutation()
-  {
-    delete[] m_Permutation;
-  }
+  ~RandomPermutation() { delete[] m_Permutation; }
 
   /** Reinitialize the seed of the random number generator */
-  void ReinitializeSeed()
+  void
+  ReinitializeSeed()
   {
     m_Generator->Initialize();
   }
 
-  void ReinitializeSeed(unsigned int seed)
+  void
+  ReinitializeSeed(unsigned int seed)
   {
-    m_Generator->SetSeed (seed);
+    m_Generator->SetSeed(seed);
   }
 };
 
@@ -218,44 +206,40 @@ public:
  *
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Iterators/ImageRandomNonRepeatingConstIteratorWithIndex,Randomly select pixels from a region of an image without replacement}
- * \wikiexample{Utilities/RandomPermutation,Permute a sequence of indices}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/RandomSelectPixelFromRegionWithoutReplacee,Random Select Pixel From Region Without
+ * Replacing} \sphinxexample{Core/Common/PermuteSequenceOfIndices,Permute Sequence Of Indices} \endsphinx
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageRandomNonRepeatingConstIteratorWithIndex:public ImageConstIteratorWithIndex< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageRandomNonRepeatingConstIteratorWithIndex : public ImageConstIteratorWithIndex<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRandomNonRepeatingConstIteratorWithIndex Self;
-  typedef ImageConstIteratorWithIndex< TImage >         Superclass;
+  /** Standard class type aliases. */
+  using Self = ImageRandomNonRepeatingConstIteratorWithIndex;
+  using Superclass = ImageConstIteratorWithIndex<TImage>;
 
   /** Inherit types from the superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
-  typedef typename Superclass::IndexValueType        IndexValueType;
-  typedef typename Superclass::OffsetValueType       OffsetValueType;
-  typedef typename Superclass::SizeValueType         SizeValueType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
+  using IndexValueType = typename Superclass::IndexValueType;
+  using OffsetValueType = typename Superclass::OffsetValueType;
+  using SizeValueType = typename Superclass::SizeValueType;
 
   /** Default constructor. Needed since we provide a cast constructor. */
   ImageRandomNonRepeatingConstIteratorWithIndex();
-  ~ImageRandomNonRepeatingConstIteratorWithIndex()
-  {
-    delete m_Permutation;
-  }
+  ~ImageRandomNonRepeatingConstIteratorWithIndex() override { delete m_Permutation; }
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageRandomNonRepeatingConstIteratorWithIndex(const ImageType *ptr, const RegionType & region);
+  ImageRandomNonRepeatingConstIteratorWithIndex(const ImageType * ptr, const RegionType & region);
 
   /** Constructor that can be used to cast from an ImageIterator to an
    * ImageRandomNonRepeatingConstIteratorWithIndex. Many routines return an ImageIterator but for a
@@ -263,58 +247,65 @@ public:
    * provide overloaded APIs that return different types of Iterators, itk
    * returns ImageIterators and uses constructors to cast from an
    * ImageIterator to a ImageRandomNonRepeatingConstIteratorWithIndex. */
-  ImageRandomNonRepeatingConstIteratorWithIndex(const ImageConstIteratorWithIndex< TImage > & it)
+  ImageRandomNonRepeatingConstIteratorWithIndex(const ImageConstIteratorWithIndex<TImage> & it)
   {
-    this->ImageConstIteratorWithIndex< TImage >::operator=(it);
+    this->ImageConstIteratorWithIndex<TImage>::operator=(it);
 
-    m_Permutation = ITK_NULLPTR;
+    m_Permutation = nullptr;
   }
 
   /** operator= is provided to deep copy m_Permutation. */
-  Self & operator=(const Self & it);
+  Self &
+  operator=(const Self & it);
 
   /** Move an iterator to the beginning of the region. */
-  void GoToBegin(void)
+  void
+  GoToBegin()
   {
     m_NumberOfSamplesDone = 0L;
     this->UpdatePosition();
   }
 
   /** Move an iterator to one position past the End of the region. */
-  void GoToEnd(void)
+  void
+  GoToEnd()
   {
     m_NumberOfSamplesDone = m_NumberOfSamplesRequested;
     this->UpdatePosition();
   }
 
   /** Is the iterator at the beginning of the region? */
-  bool IsAtBegin(void) const
+  bool
+  IsAtBegin() const
   {
-    return ( m_NumberOfSamplesDone == 0L );
+    return (m_NumberOfSamplesDone == 0L);
   }
 
   /** Is the iterator at the end of the region? */
-  bool IsAtEnd(void) const
+  bool
+  IsAtEnd() const
   {
-    return ( m_NumberOfSamplesDone >= m_NumberOfSamplesRequested );
+    return (m_NumberOfSamplesDone >= m_NumberOfSamplesRequested);
   }
 
   /** The moving image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Image with priorities */
-  typedef itk::Image< SizeValueType, itkGetStaticConstMacro(ImageDimension) > PriorityImageType;
+  using PriorityImageType = itk::Image<SizeValueType, Self::ImageDimension>;
 
   /** Set the priority image.  The priority image controls the order
       of the random selection.  Pixels of the same priority will be
       ordered randomly, but pixels of lower priority value will be
       selected first.
    */
-  void SetPriorityImage(const PriorityImageType *priorityImage);
+  void
+  SetPriorityImage(const PriorityImageType * priorityImage);
 
   /** Increment (prefix) the selected dimension.
    * No bounds checking is performed. \sa GetIndex \sa operator-- */
-  Self & operator++()
+  Self &
+  operator++()
   {
     m_NumberOfSamplesDone++;
     this->UpdatePosition();
@@ -323,7 +314,8 @@ public:
 
   /** Decrement (prefix) the selected dimension.
    * No bounds checking is performed. \sa GetIndex \sa operator++ */
-  Self & operator--()
+  Self &
+  operator--()
   {
     m_NumberOfSamplesDone--;
     this->UpdatePosition();
@@ -331,29 +323,34 @@ public:
   }
 
   /** Set/Get number of random samples to get from the image region */
-  void SetNumberOfSamples(SizeValueType number);
+  void
+  SetNumberOfSamples(SizeValueType number);
 
-  SizeValueType GetNumberOfSamples() const;
+  SizeValueType
+  GetNumberOfSamples() const;
 
   /** Reinitialize the seed of the random number generator  */
-  void ReinitializeSeed();
+  void
+  ReinitializeSeed();
 
   /** Reinitialize the seed of the random number generator with
    *  a specific value */
-  void ReinitializeSeed(int);
+  void
+  ReinitializeSeed(int);
 
 private:
-  void UpdatePosition();
+  void
+  UpdatePosition();
 
-  SizeValueType      m_NumberOfSamplesRequested;
-  SizeValueType      m_NumberOfSamplesDone;
-  SizeValueType      m_NumberOfPixelsInRegion;
-  RandomPermutation *m_Permutation;
+  SizeValueType       m_NumberOfSamplesRequested;
+  SizeValueType       m_NumberOfSamplesDone;
+  SizeValueType       m_NumberOfPixelsInRegion;
+  RandomPermutation * m_Permutation;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRandomNonRepeatingConstIteratorWithIndex.hxx"
+#  include "itkImageRandomNonRepeatingConstIteratorWithIndex.hxx"
 #endif
 
 #endif

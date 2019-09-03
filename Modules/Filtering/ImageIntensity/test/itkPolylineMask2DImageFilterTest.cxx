@@ -20,58 +20,60 @@
 #include "itkPolyLineParametricPath.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkTestingMacros.h"
 
-int itkPolylineMask2DImageFilterTest(int argc, char * argv [] )
+int
+itkPolylineMask2DImageFilterTest(int argc, char * argv[])
 {
 
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Error: missing arguments" << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << " inputFilename outputFilename " << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << " inputFilename outputFilename " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Declare the types of the images
-  const unsigned int Dimension = 2;
-  typedef unsigned char PixelType;
+  constexpr unsigned int Dimension = 2;
+  using PixelType = unsigned char;
 
-  typedef itk::Image<PixelType, Dimension>        InputImageType;
-  typedef itk::Image<PixelType, Dimension>        OutputImageType;
-  typedef itk::PolyLineParametricPath<Dimension>  InputPolylineType;
+  using InputImageType = itk::Image<PixelType, Dimension>;
+  using OutputImageType = itk::Image<PixelType, Dimension>;
+  using InputPolylineType = itk::PolyLineParametricPath<Dimension>;
 
   // Read input image
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
   ReaderType::Pointer reader = ReaderType::New();
 
   std::cout << "Input filename = " << argv[1] << std::endl;
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "Caught an unexpected exception. " << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  InputImageType::ConstPointer inputImage    = reader->GetOutput();
+  InputImageType::ConstPointer inputImage = reader->GetOutput();
 
   // Create polyline
-  InputPolylineType::Pointer inputPolyline   = InputPolylineType::New();
+  InputPolylineType::Pointer inputPolyline = InputPolylineType::New();
 
   // We expect as input an image of 256 x 256 pixels with spacing 1,1.
 
   // Initialize the polyline
-  typedef InputPolylineType::VertexType VertexType;
+  using VertexType = InputPolylineType::VertexType;
 
   // Add vertices to the polyline
   VertexType v0;
-  v0[0] =  64.0;
+  v0[0] = 64.0;
   v0[1] = 128.0;
   inputPolyline->AddVertex(v0);
 
@@ -87,44 +89,42 @@ int itkPolylineMask2DImageFilterTest(int argc, char * argv [] )
 
   VertexType v3;
   v3[0] = 128.0;
-  v3[1] =  64.0;
+  v3[1] = 64.0;
   inputPolyline->AddVertex(v3);
 
 
   // Declare the type for the Mask image filter
-  typedef itk::PolylineMask2DImageFilter<
-                           InputImageType, InputPolylineType,
-                           OutputImageType  >     InputFilterType;
+  using InputFilterType = itk::PolylineMask2DImageFilter<InputImageType, InputPolylineType, OutputImageType>;
 
 
   // Create a mask  Filter
   InputFilterType::Pointer filter = InputFilterType::New();
 
   // Connect the input image
-  filter->SetInput1    ( inputImage );
+  filter->SetInput1(inputImage);
 
   // Connect the Polyline
-  filter->SetInput2    ( inputPolyline );
+  filter->SetInput2(inputPolyline);
 
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   WriterType::Pointer writer = WriterType::New();
 
   std::cout << "Output filename = " << argv[2] << std::endl;
 
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(argv[2]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "Caught an unexpected exception. " << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::cout << "Output image has been saved" << std::endl;
   std::cout << std::endl;
@@ -137,15 +137,14 @@ int itkPolylineMask2DImageFilterTest(int argc, char * argv [] )
   inputPolyline->AddVertex(ve);
 
   try
-    {
+  {
     filter->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "Caught an expected exception. " << std::endl;
     std::cout << err << std::endl;
     return EXIT_SUCCESS;
-    }
+  }
   return EXIT_FAILURE;
-
 }

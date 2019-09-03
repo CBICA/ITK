@@ -28,11 +28,13 @@ namespace itk
 class DOMTestObjectDOMReader : public DOMReader<DOMTestObject>
 {
 public:
-  /** Standard class typedefs. */
-  typedef DOMTestObjectDOMReader      Self;
-  typedef DOMReader<DOMTestObject>    Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DOMTestObjectDOMReader);
+
+  /** Standard class type aliases. */
+  using Self = DOMTestObjectDOMReader;
+  using Superclass = DOMReader<DOMTestObject>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -41,54 +43,52 @@ public:
   itkTypeMacro(DOMTestObjectDOMReader, DOMReader);
 
 protected:
-  DOMTestObjectDOMReader() {}
+  DOMTestObjectDOMReader() = default;
 
   /**
    * This function is called automatically when update functions are performed.
    * It should fill the contents of the output object by pulling information from the intermediate DOM object.
    */
-  virtual void GenerateData( const DOMNodeType* inputdom, const void* ) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DOMTestObjectDOMReader);
+  void
+  GenerateData(const DOMNodeType * inputdom, const void *) override;
 };
 
 inline void
-DOMTestObjectDOMReader::GenerateData( const DOMNodeType* inputdom, const void* )
+DOMTestObjectDOMReader::GenerateData(const DOMNodeType * inputdom, const void *)
 {
-  OutputType* output = this->GetOutput();
-  if ( output == ITK_NULLPTR )
-    {
+  OutputType * output = this->GetOutput();
+  if (output == nullptr)
+  {
     OutputType::Pointer object = OutputType::New();
-    output = (OutputType*)object;
-    this->SetOutput( output );
-    }
+    output = (OutputType *)object;
+    this->SetOutput(output);
+  }
 
-  FancyString s;
+  FancyString   s;
   std::ifstream ifs;
 
-  if ( inputdom->GetName() != "DOMTestObject" )
-    {
-    itkExceptionMacro( "tag name DOMTestObject is expected" );
-    }
+  if (inputdom->GetName() != "DOMTestObject")
+  {
+    itkExceptionMacro("tag name DOMTestObject is expected");
+  }
 
   // read child foo
-  const DOMNodeType* foo = inputdom->GetChild( "foo" );
-  if ( foo == ITK_NULLPTR )
-    {
-    itkExceptionMacro( "child foo not found" );
-    }
+  const DOMNodeType * foo = inputdom->GetChild("foo");
+  if (foo == nullptr)
+  {
+    itkExceptionMacro("child foo not found");
+  }
   s = foo->GetAttribute("fname");
-  output->SetFooFileName( s );
+  output->SetFooFileName(s);
   // read the foo value from file
-  ifs.open( s.ToString().c_str() );
-  if ( !ifs.is_open() )
-    {
-    itkExceptionMacro( "cannot read foo file" );
-    }
+  ifs.open(s.ToString().c_str());
+  if (!ifs.is_open())
+  {
+    itkExceptionMacro("cannot read foo file");
+  }
   std::string fooValue;
   ifs >> fooValue;
-  output->SetFooValue( fooValue );
+  output->SetFooValue(fooValue);
   ifs.close();
 }
 

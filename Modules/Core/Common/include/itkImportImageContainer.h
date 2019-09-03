@@ -41,19 +41,21 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TElementIdentifier, typename TElement >
-class ITK_TEMPLATE_EXPORT ImportImageContainer:public Object
+template <typename TElementIdentifier, typename TElement>
+class ITK_TEMPLATE_EXPORT ImportImageContainer : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImportImageContainer       Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImportImageContainer);
+
+  /** Standard class type aliases. */
+  using Self = ImportImageContainer;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Save the template parameters. */
-  typedef TElementIdentifier ElementIdentifier;
-  typedef TElement           Element;
+  using ElementIdentifier = TElementIdentifier;
+  using Element = TElement;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,7 +64,11 @@ public:
   itkTypeMacro(ImportImageContainer, Object);
 
   /** Get the pointer from which the image data is imported. */
-  TElement * GetImportPointer() { return m_ImportPointer; }
+  TElement *
+  GetImportPointer()
+  {
+    return m_ImportPointer;
+  }
 
   /** Set the pointer from which the image data is imported.  "num" is
    * the number of pixels in the block of memory. If
@@ -70,29 +76,36 @@ public:
    * the responsibility of freeing the memory for this image data.  If
    * "LetContainerManageMemory" is true, then this class will free the
    * memory when this object is destroyed. */
-  void SetImportPointer(TElement *ptr, TElementIdentifier num,
-                        bool LetContainerManageMemory = false);
+  void
+  SetImportPointer(TElement * ptr, TElementIdentifier num, bool LetContainerManageMemory = false);
 
   /** Index operator. This version can be an lvalue. */
-  TElement & operator[](const ElementIdentifier id)
-  { return m_ImportPointer[id]; }
+  TElement & operator[](const ElementIdentifier id) { return m_ImportPointer[id]; }
 
   /** Index operator. This version can only be an rvalue */
-  const TElement & operator[](const ElementIdentifier id) const
-  { return m_ImportPointer[id]; }
+  const TElement & operator[](const ElementIdentifier id) const { return m_ImportPointer[id]; }
 
   /** Return a pointer to the beginning of the buffer.  This is used by
    * the image iterator class. */
-  TElement * GetBufferPointer()
-  { return m_ImportPointer; }
+  TElement *
+  GetBufferPointer()
+  {
+    return m_ImportPointer;
+  }
 
   /** Get the capacity of the container. */
-  ElementIdentifier Capacity(void) const
-  { return m_Capacity; }
+  ElementIdentifier
+  Capacity() const
+  {
+    return m_Capacity;
+  }
 
   /** Get the number of elements currently stored in the container. */
-  ElementIdentifier Size(void) const
-  { return m_Size; }
+  ElementIdentifier
+  Size() const
+  {
+    return m_Size;
+  }
 
   /** Tell the container to allocate enough memory to allow at least
    * as many elements as the size given to be stored.  If new memory
@@ -109,7 +122,8 @@ public:
    * to initialize each element.  POD date types initialize to zero.
    *
    * \sa SetImportPointer() */
-  void Reserve(ElementIdentifier num, const bool UseDefaultConstructor = false);
+  void
+  Reserve(ElementIdentifier num, const bool UseDefaultConstructor = false);
 
   /** Tell the container to try to minimize its memory usage for
    * storage of the current number of elements.  If new memory is
@@ -117,10 +131,12 @@ public:
    * The previous buffer is deleted if the original pointer was in
    * using "LetContainerManageMemory"=true.  The new buffer's memory
    * management will be handled by the container from that point on. */
-  void Squeeze();
+  void
+  Squeeze();
 
   /** Tell the container to release any of its allocated memory. */
-  void Initialize();
+  void
+  Initialize();
 
   /** These methods allow to define whether upon destruction of this class
    *  the memory buffer should be released or not.  Setting it to true
@@ -137,21 +153,24 @@ public:
 
 protected:
   ImportImageContainer();
-  virtual ~ImportImageContainer() ITK_OVERRIDE;
+  ~ImportImageContainer() override;
 
   /** PrintSelf routine. Normally this is a protected internal method. It is
    * made public here so that Image can call this method.  Users should not
    * call this method but should call Print() instead. */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Allocates elements of the array.  If UseDefaultConstructor is true, then
    * the default constructor is used to initialize each element.  POD date types
    * initialize to zero.
    */
-  virtual TElement * AllocateElements(ElementIdentifier size, bool UseDefaultConstructor = false) const;
+  virtual TElement *
+  AllocateElements(ElementIdentifier size, bool UseDefaultConstructor = false) const;
 
-  virtual void DeallocateManagedMemory();
+  virtual void
+  DeallocateManagedMemory();
 
   /* Set the m_Size member that represents the number of elements
    * currently stored in the container. Use this function with great
@@ -173,11 +192,13 @@ protected:
    * since it only changes the m_ImportPointer member but not the m_Size
    * and m_Capacity members. It should typically be used only to override
    * AllocateElements and DeallocateManagedMemory. */
-  void SetImportPointer(TElement *ptr){ m_ImportPointer = ptr; }
+  void
+  SetImportPointer(TElement * ptr)
+  {
+    m_ImportPointer = ptr;
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImportImageContainer);
-
   TElement *         m_ImportPointer;
   TElementIdentifier m_Size;
   TElementIdentifier m_Capacity;
@@ -186,7 +207,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImportImageContainer.hxx"
+#  include "itkImportImageContainer.hxx"
 #endif
 
 #endif

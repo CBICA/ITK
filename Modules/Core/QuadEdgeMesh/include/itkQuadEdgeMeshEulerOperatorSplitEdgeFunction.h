@@ -31,69 +31,65 @@ namespace itk
  * \ingroup QEMeshModifierFunctions
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh, typename TQEType >
-class QuadEdgeMeshEulerOperatorSplitEdgeFunction:
-  public QuadEdgeMeshFunctionBase< TMesh, TQEType * >
+template <typename TMesh, typename TQEType>
+class QuadEdgeMeshEulerOperatorSplitEdgeFunction : public QuadEdgeMeshFunctionBase<TMesh, TQEType *>
 {
 public:
-  /** Standard class typedefs. */
-  typedef QuadEdgeMeshEulerOperatorSplitEdgeFunction   Self;
-  typedef QuadEdgeMeshFunctionBase< TMesh, TQEType * > Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshEulerOperatorSplitEdgeFunction);
+
+  /** Standard class type aliases. */
+  using Self = QuadEdgeMeshEulerOperatorSplitEdgeFunction;
+  using Superclass = QuadEdgeMeshFunctionBase<TMesh, TQEType *>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkNewMacro(Self);
   /** Run-time type information (and related methods). */
   itkTypeMacro(QuadEdgeMeshEulerOperatorSplitEdgeFunction, QuadEdgeMeshFunctionBase);
 
   /** Type of QuadEdge with which to apply slicing. */
-  typedef TQEType QEType;
+  using QEType = TQEType;
 
-  typedef typename Superclass::MeshType      MeshType;
-  typedef typename Superclass::OutputType    OutputType;
-  typedef typename MeshType::PointIdentifier PointIdentifier;
+  using MeshType = typename Superclass::MeshType;
+  using OutputType = typename Superclass::OutputType;
+  using PointIdentifier = typename MeshType::PointIdentifier;
 
-  typedef QuadEdgeMeshEulerOperatorSplitVertexFunction< MeshType, QEType > SplitVertex;
+  using SplitVertex = QuadEdgeMeshEulerOperatorSplitVertexFunction<MeshType, QEType>;
 
   /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(QEType *e)
+  virtual OutputType
+  Evaluate(QEType * e)
   {
-    if ( !e )
-      {
+    if (!e)
+    {
       itkDebugMacro("Input is not an edge.");
-      return ( (QEType *)ITK_NULLPTR );
-      }
+      return ((QEType *)nullptr);
+    }
 
-    if ( !this->m_Mesh )
-      {
+    if (!this->m_Mesh)
+    {
       itkDebugMacro("No mesh present.");
-      return ( (QEType *)ITK_NULLPTR );
-      }
+      return ((QEType *)nullptr);
+    }
 
     m_SplitVertex->SetInput(this->m_Mesh);
-    return ( m_SplitVertex->Evaluate( e->GetLprev(), e->GetSym() ) );
+    return (m_SplitVertex->Evaluate(e->GetLprev(), e->GetSym()));
   }
 
-  const PointIdentifier GetNewPointID()
+  const PointIdentifier
+  GetNewPointID()
   {
-    return ( m_SplitVertex->GetNewPointID() );
+    return (m_SplitVertex->GetNewPointID());
   }
 
 protected:
-  QuadEdgeMeshEulerOperatorSplitEdgeFunction()
-  {
-    m_SplitVertex = SplitVertex::New();
-  }
+  QuadEdgeMeshEulerOperatorSplitEdgeFunction() { m_SplitVertex = SplitVertex::New(); }
 
-  ~QuadEdgeMeshEulerOperatorSplitEdgeFunction() ITK_OVERRIDE {}
+  ~QuadEdgeMeshEulerOperatorSplitEdgeFunction() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshEulerOperatorSplitEdgeFunction);
-
   typename SplitVertex::Pointer m_SplitVertex;
 };
-} // namespace itk
+} // end namespace itk
 
-#endif
-
-// eof - itkQuadEdgeMeshEulerOperatorSplitEdgeFunction.h
+#endif // itkQuadEdgeMeshEulerOperatorSplitEdgeFunction.h

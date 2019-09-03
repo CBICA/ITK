@@ -47,60 +47,52 @@ namespace itk
  * \ingroup MathematicalMorphologyImageFilters
  * \ingroup ITKMathematicalMorphology
  *
- * \wiki
- * \wikiexample{ImageProcessing/ValuedRegionalMinimaImageFilter,ValuedRegionalMinimaImageFilter}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/MathematicalMorphology/ValuedRegionalMinimalImage,Valued Regional Minimal Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ValuedRegionalMinimaImageFilter:
-  public
-  ValuedRegionalExtremaImageFilter< TInputImage, TOutputImage,
-                                    std::less< typename TInputImage::PixelType >,
-                                    std::less< typename TOutputImage::PixelType >
-                                    >
+template <typename TInputImage, typename TOutputImage>
+class ValuedRegionalMinimaImageFilter
+  : public ValuedRegionalExtremaImageFilter<TInputImage,
+                                            TOutputImage,
+                                            std::less<typename TInputImage::PixelType>,
+                                            std::less<typename TOutputImage::PixelType>>
 {
 public:
-  typedef ValuedRegionalMinimaImageFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ValuedRegionalMinimaImageFilter);
 
-  typedef ValuedRegionalExtremaImageFilter< TInputImage, TOutputImage,
-                                            std::less< typename TInputImage::PixelType >,
-                                            std::less< typename TOutputImage::PixelType >  > Superclass;
+  using Self = ValuedRegionalMinimaImageFilter;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Superclass = ValuedRegionalExtremaImageFilter<TInputImage,
+                                                      TOutputImage,
+                                                      std::less<typename TInputImage::PixelType>,
+                                                      std::less<typename TOutputImage::PixelType>>;
 
-  typedef TInputImage                        InputImageType;
-  typedef typename InputImageType::PixelType InputImagePixelType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using InputImageType = TInputImage;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ValuedRegionalMinimaImageFilter,
-               ValuedRegionalExtremaImageFilter);
+  itkTypeMacro(ValuedRegionalMinimaImageFilter, ValuedRegionalExtremaImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputPixelTypeComparable,
-                   ( Concept::LessThanComparable< InputImagePixelType > ) );
-  itkConceptMacro( InputHasPixelTraitsCheck,
-                   ( Concept::HasPixelTraits< InputImagePixelType > ) );
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputImagePixelType > ) );
+  itkConceptMacro(InputPixelTypeComparable, (Concept::LessThanComparable<InputImagePixelType>));
+  itkConceptMacro(InputHasPixelTraitsCheck, (Concept::HasPixelTraits<InputImagePixelType>));
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
-  ValuedRegionalMinimaImageFilter()
-  {
-    this->SetMarkerValue( NumericTraits< typename TOutputImage::PixelType >::max() );
-  }
+  ValuedRegionalMinimaImageFilter() { this->SetMarkerValue(NumericTraits<typename TOutputImage::PixelType>::max()); }
 
-  virtual ~ValuedRegionalMinimaImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ValuedRegionalMinimaImageFilter);
-};                                               // end
-                                                 // ValuedRegionalMinimaImageFilter
-} //end namespace itk
+  ~ValuedRegionalMinimaImageFilter() override = default;
+}; // end
+   // ValuedRegionalMinimaImageFilter
+} // end namespace itk
 #endif

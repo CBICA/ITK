@@ -65,44 +65,44 @@ namespace fem
  * which does the concrete work on finding the solution. See FEMRobustSolver for
  * details.
  *
- * \code
- *
- *  const unsigned int ParametricDimension = 3;
- *  const unsigned int DataDimension = 3;
- *
- *  typedef int                                           PixelType;
- *  typedef itk::Image<PixelType, ParametricDimension>    InputImageType;
- *  typedef float                                         RealType;
- *  typedef itk::Vector<RealType, DataDimension>          VectorType;
- *  typedef itk::Matrix<RealType, DataDimension,
- *  DataDimension>                                        MatrixType;
- *  typedef itk::Image<VectorType, ParametricDimension>   VectorImageType;
- *  typedef itk::PointSet <VectorType,
- *  ParametricDimension>                                  PointSetType;
- *
- *  typedef itk::PointSet <MatrixType,
- *   ParametricDimension>                                  TensorPointSetType;
- *
- *  typedef itk::PointSet <RealType, ParametricDimension> ConfidencePointSetType;
- *
- *
- *  typedef itk::Mesh< VectorType, ParametricDimension >  MeshType;
- *
- *  typedef itk::FEMScatteredDataPointSetToImageFilter
- *  <PointSetType, MeshType, VectorImageType,
- *  ConfidencePointSetType, TensorPointSetType>           FilterType;
- *
- *  FilterType::Pointer filter = FilterType::New();
- *
- *  filter->SetInput(displacementPointSet);
- *  filter->SetConfidencePointSet(confidencePointSet); //optional
- *  filter->SetTensorPointSet(tensorPointSet); //optional
- *  filter->SetMesh(aITKMesh);
- *  filter->Update();
- *
- *  DeformationField::Pointer = filter->GetOutput();
- *
- * \endcode
+   \code
+
+    const unsigned int ParametricDimension = 3;
+    const unsigned int DataDimension = 3;
+
+    using PixelType = int;
+    using InputImageType = itk::Image<PixelType, ParametricDimension>;
+    using RealType = float;
+    using VectorType = itk::Vector<RealType, DataDimension>;
+    using MatrixType = itk::Matrix<RealType, DataDimension,
+    DataDimension>;
+    using VectorImageType = itk::Image<VectorType, ParametricDimension>;
+    using PointSetType = itk::PointSet <VectorType,
+    ParametricDimension>;
+
+    using TensorPointSetType = itk::PointSet <MatrixType,
+     ParametricDimension>;
+
+    using ConfidencePointSetType = itk::PointSet <RealType, ParametricDimension>;
+
+
+    using MeshType = itk::Mesh< VectorType, ParametricDimension >;
+
+    using FilterType = itk::FEMScatteredDataPointSetToImageFilter
+    <PointSetType, MeshType, VectorImageType,
+    ConfidencePointSetType, TensorPointSetType>;
+
+    FilterType::Pointer filter = FilterType::New();
+
+    filter->SetInput(displacementPointSet);
+    filter->SetConfidencePointSet(confidencePointSet); //optional
+    filter->SetTensorPointSet(tensorPointSet); //optional
+    filter->SetMesh(aITKMesh);
+    filter->Update();
+
+    DeformationField::Pointer = filter->GetOutput();
+
+   \endcode
  *
  * \author Yixun Liu
  *
@@ -123,99 +123,105 @@ namespace fem
  * \ingroup ITKFEM
  */
 
-template<typename TInputPointSet, typename TInputMesh, typename TOutputImage, typename TInputConfidencePointSet, typename TInputTensorPointSet>
-class ITK_TEMPLATE_EXPORT FEMScatteredDataPointSetToImageFilter:
-  public PointSetToImageFilter< TInputPointSet, TOutputImage >
+template <typename TInputPointSet,
+          typename TInputMesh,
+          typename TOutputImage,
+          typename TInputConfidencePointSet,
+          typename TInputTensorPointSet>
+class ITK_TEMPLATE_EXPORT FEMScatteredDataPointSetToImageFilter
+  : public PointSetToImageFilter<TInputPointSet, TOutputImage>
 {
 public:
-  typedef FEMScatteredDataPointSetToImageFilter                 Self;
-  typedef PointSetToImageFilter<TInputPointSet, TOutputImage>   Superclass;
-  typedef SmartPointer<Self>                                    Pointer;
-  typedef SmartPointer<const Self>                              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FEMScatteredDataPointSetToImageFilter);
+
+  using Self = FEMScatteredDataPointSetToImageFilter;
+  using Superclass = PointSetToImageFilter<TInputPointSet, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Extract dimension from the output image. */
-  itkStaticConstMacro( ImageDimension, unsigned int, TOutputImage::ImageDimension );
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
-  /** Displacement point set typedef support */
-  typedef TInputPointSet                                              PointSetType;
-  typedef typename PointSetType::PointType                            PointType;
-  typedef typename PointSetType::PointsContainer                      PointsContainer;
-  typedef typename PointsContainer::ConstIterator                     PointsIterator;
-  typedef typename PointSetType::PixelType                            PointDataType;
-  typedef typename PointSetType::PointDataContainer                   PointDataContainerType;
-  typedef typename PointDataContainerType::ConstIterator              PointDataIterator;
+  /** Displacement point set type alias support */
+  using PointSetType = TInputPointSet;
+  using PointType = typename PointSetType::PointType;
+  using PointsContainer = typename PointSetType::PointsContainer;
+  using PointsIterator = typename PointsContainer::ConstIterator;
+  using PointDataType = typename PointSetType::PixelType;
+  using PointDataContainerType = typename PointSetType::PointDataContainer;
+  using PointDataIterator = typename PointDataContainerType::ConstIterator;
 
-  /** Confidence point set typedef support */
-  typedef TInputConfidencePointSet                                            ConfidencePointSetType;
-  typedef typename ConfidencePointSetType::PointsContainer::ConstIterator     ConfidencePointsIterator;
-  typedef typename ConfidencePointSetType::PixelType                          ConfidencePointDataType;
-  typedef typename ConfidencePointSetType::PointDataContainer                 ConfidencePointDataContainerType;
+  /** Confidence point set type alias support */
+  using ConfidencePointSetType = TInputConfidencePointSet;
+  using ConfidencePointsIterator = typename ConfidencePointSetType::PointsContainer::ConstIterator;
+  using ConfidencePointDataType = typename ConfidencePointSetType::PixelType;
+  using ConfidencePointDataContainerType = typename ConfidencePointSetType::PointDataContainer;
 
-  /** Tensor point set typedef support */
-  typedef TInputTensorPointSet                                                TensorPointSetType;
-  typedef typename TensorPointSetType::PointsContainer::ConstIterator         TensorPointsIterator;
-  typedef typename TensorPointSetType::PixelType                              TensorPointDataType;
-  typedef typename TensorPointSetType::PointDataContainer                     TensorPointDataContainerType;
-  typedef typename TensorPointDataContainerType::Iterator                     TensorPointDataIterator;
+  /** Tensor point set type alias support */
+  using TensorPointSetType = TInputTensorPointSet;
+  using TensorPointsIterator = typename TensorPointSetType::PointsContainer::ConstIterator;
+  using TensorPointDataType = typename TensorPointSetType::PixelType;
+  using TensorPointDataContainerType = typename TensorPointSetType::PointDataContainer;
+  using TensorPointDataIterator = typename TensorPointDataContainerType::Iterator;
 
-  /** Mesh typedef support */
-  typedef TInputMesh                              MeshType;
-  typedef typename MeshType::CellType             CellType;
-  typedef typename CellType::CellAutoPointer      CellAutoPointer;
-  typedef typename MeshType::CellsContainer       CellsContainer;
-  typedef typename CellsContainer::ConstIterator  CellIterator;
+  /** Mesh type alias support */
+  using MeshType = TInputMesh;
+  using CellType = typename MeshType::CellType;
+  using CellAutoPointer = typename CellType::CellAutoPointer;
+  using CellsContainer = typename MeshType::CellsContainer;
+  using CellIterator = typename CellsContainer::ConstIterator;
 
-  typedef TriangleCell<CellType>                  TriangleType;
-  typedef TetrahedronCell<CellType>               TetrahedronType;
-  typedef QuadrilateralCell<CellType>             QuadrilateralType;
-  typedef HexahedronCell<CellType>                HexahedronType;
-  typedef typename CellType::PointIdIterator      PointIdIterator;
+  using TriangleType = TriangleCell<CellType>;
+  using TetrahedronType = TetrahedronCell<CellType>;
+  using QuadrilateralType = QuadrilateralCell<CellType>;
+  using HexahedronType = HexahedronCell<CellType>;
+  using PointIdIterator = typename CellType::PointIdIterator;
 
-  /** Image typedef support */
-  typedef TOutputImage                                        ImageType;
-  typedef typename ImageType::PixelType                       PixelType;
-  typedef typename ImageType::RegionType                      RegionType;
-  typedef typename ImageType::SizeType                        SizeType;
-  typedef typename ImageType::IndexType                       IndexType;
-  typedef typename ImageType::SpacingType                     SpacingType;
-  typedef ContinuousIndex<SpacePrecisionType, ImageDimension> ContinuousIndexType;
+  /** Image type alias support */
+  using ImageType = TOutputImage;
+  using PixelType = typename ImageType::PixelType;
+  using RegionType = typename ImageType::RegionType;
+  using SizeType = typename ImageType::SizeType;
+  using IndexType = typename ImageType::IndexType;
+  using SpacingType = typename ImageType::SpacingType;
+  using ContinuousIndexType = ContinuousIndex<SpacePrecisionType, ImageDimension>;
 
-  typedef ImageToRectilinearFEMObjectFilter<ImageType> ImageToRectilinearFEMObjectFilterType;
+  using ImageToRectilinearFEMObjectFilterType = ImageToRectilinearFEMObjectFilter<ImageType>;
 
-  /** FEMObject typedef support */
-  typedef FEMObject<ImageDimension>                 FEMObjectType;
+  /** FEMObject type alias support */
+  using FEMObjectType = FEMObject<ImageDimension>;
 
-  /** FEM solver typedef support */
-  typedef RobustSolver<ImageDimension>              FEMSolverType;
+  /** FEM solver type alias support */
+  using FEMSolverType = RobustSolver<ImageDimension>;
 
-  /** FEM element typedef support */
-  typedef Element3DC0LinearTetrahedronStrain        FEMTetrahedronType;
-  typedef Element3DC0LinearHexahedronStrain         FEMHexahedronType;
-  typedef Element2DC0LinearTriangularStrain         FEM2DTriangleType;
-  typedef Element2DC0LinearQuadrilateralStrain      FEM2DQuadrilateralType;
+  /** FEM element type alias support */
+  using FEMTetrahedronType = Element3DC0LinearTetrahedronStrain;
+  using FEMHexahedronType = Element3DC0LinearHexahedronStrain;
+  using FEM2DTriangleType = Element2DC0LinearTriangularStrain;
+  using FEM2DQuadrilateralType = Element2DC0LinearQuadrilateralStrain;
 
-  /** FEM node typedef support */
-  typedef Element::Node                             NodeType;
+  /** FEM node type alias support */
+  using NodeType = Element::Node;
 
-  /** FEM Load typedef support */
-  typedef LoadNoisyLandmark                         LoadType;
+  /** FEM Load type alias support */
+  using LoadType = LoadNoisyLandmark;
 
-  /** FEM material typedef support */
-  typedef MaterialLinearElasticity                  MaterialType;
-  typedef MaterialType::Pointer                     MaterialPointerType;
+  /** FEM material type alias support */
+  using MaterialType = MaterialLinearElasticity;
+  using MaterialPointerType = MaterialType::Pointer;
 
-  /** FEM element typedef support */
-  typedef Element::VectorType                       FEMVectorType;
-  typedef Element::MatrixType                       FEMMatrixType;
+  /** FEM element type alias support */
+  using FEMVectorType = Element::VectorType;
+  using FEMMatrixType = Element::MatrixType;
 
-  /** FEM container typedef support */
-  typedef typename FEMObjectType::LoadContainerType        LoadContainerType;
-  typedef typename FEMObjectType::NodeContainerType        NodeContainerType;
-  typedef typename FEMObjectType::ElementContainerType     ElementContainerType;
-  typedef typename FEMObjectType::MaterialContainerType    MaterialContainerType;
+  /** FEM container type alias support */
+  using LoadContainerType = typename FEMObjectType::LoadContainerType;
+  using NodeContainerType = typename FEMObjectType::NodeContainerType;
+  using ElementContainerType = typename FEMObjectType::ElementContainerType;
+  using MaterialContainerType = typename FEMObjectType::MaterialContainerType;
 
   /** Helper functions */
   itkSetConstObjectMacro(ConfidencePointSet, ConfidencePointSetType);
@@ -233,52 +239,60 @@ public:
   itkSetMacro(PixelsPerElement, ContinuousIndexType);
 
   /** Set/Get the spacing of the rectilinear element */
-  void SetElementSpacing(const SpacingType & elementSpacing);
+  void
+  SetElementSpacing(const SpacingType & elementSpacing);
   itkGetConstReferenceMacro(SpacingPerElement, SpacingType);
 
   /** Get the number of element in each dimension of the generated mesh */
   itkGetConstReferenceMacro(NumberOfElements, SizeType);
 
 protected:
-
   FEMScatteredDataPointSetToImageFilter();
-  virtual ~FEMScatteredDataPointSetToImageFilter() ITK_OVERRIDE;
+  ~FEMScatteredDataPointSetToImageFilter() override;
 
   /** Generate 2D/3D rectilinear mesh */
-  void GenerateRectilinearMesh();
+  void
+  GenerateRectilinearMesh();
 
   /** Generate a 2D quadrilateral mesh */
-  void Generate2DQuadrilateralMesh();
+  void
+  Generate2DQuadrilateralMesh();
 
   /** generate 3D hexahedral mesh */
-  void Generate3DHexahedralMesh();
+  void
+  Generate3DHexahedralMesh();
 
   /** Initialize FEMObject from a mesh and feature points */
-  void InitializeFEMObject(FEMObjectType * femObject);
+  void
+  InitializeFEMObject(FEMObjectType * femObject);
 
   /** Initialize Materials */
-  void InitializeMaterials(FEMObjectType * femObject);
+  void
+  InitializeMaterials(FEMObjectType * femObject);
 
   /** Initialize Nodes */
-  void InitializeNodes(FEMObjectType * femObject);
+  void
+  InitializeNodes(FEMObjectType * femObject);
 
   /** Initialize Elements */
-  void InitializeElements(FEMObjectType * femObject);
+  void
+  InitializeElements(FEMObjectType * femObject);
 
   /** Initialize Loads */
-  void InitializeLoads(FEMObjectType * femObject);
+  void
+  InitializeLoads(FEMObjectType * femObject);
 
   /** Run the solver and call ProduceDeformationField to produce deformation field */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void ProduceDeformationField();
+  void
+  ProduceDeformationField();
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(FEMScatteredDataPointSetToImageFilter);
-
   typename FEMObjectType::Pointer      m_FEMObject;
   typename FEMSolverType::Pointer      m_FEMSolver;
   typename FEMSolverType::ConstPointer m_FEMDeformedObject;
@@ -288,19 +302,19 @@ private:
   typename TensorPointSetType::ConstPointer     m_TensorPointSet;
 
   /** Rectilinear mesh */
-  SizeType                 m_NumberOfElements;
-  ContinuousIndexType      m_PixelsPerElement;
-  SpacingType              m_SpacingPerElement;
+  SizeType            m_NumberOfElements;
+  ContinuousIndexType m_PixelsPerElement;
+  SpacingType         m_SpacingPerElement;
 
   /** Material */
   MaterialPointerType m_Material;
 };
 
-}// end namespace fem
-}// end namespace itk
+} // end namespace fem
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFEMScatteredDataPointSetToImageFilter.hxx"
+#  include "itkFEMScatteredDataPointSetToImageFilter.hxx"
 #endif
 
-#endif
+#endif // itkFEMScatteredDataPointSetToImageFilter_h

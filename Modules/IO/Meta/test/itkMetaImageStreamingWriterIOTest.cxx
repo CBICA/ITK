@@ -20,36 +20,38 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkMetaImageIO.h"
+#include "itkTestingMacros.h"
 
-int itkMetaImageStreamingWriterIOTest(int argc, char*  argv[])
+int
+itkMetaImageStreamingWriterIOTest(int argc, char * argv[])
 {
-  if( argc < 3)
-    {
-    std::cerr << "Usage: " <<  argv[0] << " input output" << std::endl;
+  if (argc < 3)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv) << " input output" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // We remove the output file
-  itksys::SystemTools::RemoveFile( argv[2]);
+  itksys::SystemTools::RemoveFile(argv[2]);
 
-  typedef unsigned char           PixelType;
-  typedef itk::Image<PixelType,3> ImageType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, 3>;
 
   itk::MetaImageIO::Pointer metaImageIO = itk::MetaImageIO::New();
 
-  typedef itk::ImageFileReader<ImageType>   ReaderType;
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetImageIO(metaImageIO);
-  reader->SetFileName( argv[1]);
+  reader->SetFileName(argv[1]);
   reader->SetUseStreaming(true);
   metaImageIO->SetUseStreamedReading(true);
 
   ImageType::RegionType region;
-  ImageType::SizeType size;
-  ImageType::SizeType fullsize;
-  ImageType::IndexType index;
+  ImageType::SizeType   size;
+  ImageType::SizeType   fullsize;
+  ImageType::IndexType  index;
 
   unsigned int numberOfPieces = 10;
 
@@ -64,34 +66,34 @@ int itkMetaImageStreamingWriterIOTest(int argc, char*  argv[])
   size[2] = 0;
 
   if (numberOfPieces > fullsize[2])
-    {
+  {
     numberOfPieces = fullsize[2];
-    }
+  }
   unsigned int zsize = fullsize[2] / numberOfPieces;
 
   // Setup the writer
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2]);
+  writer->SetFileName(argv[2]);
 
-  for( unsigned int i = 0; i < numberOfPieces; i++ )
-    {
-    std::cout << "Reading piece " << i+1 << " of " << numberOfPieces << std::endl;
+  for (unsigned int i = 0; i < numberOfPieces; i++)
+  {
+    std::cout << "Reading piece " << i + 1 << " of " << numberOfPieces << std::endl;
 
     index[2] += size[2];
 
     // At the end we need to adjust the size to make sure
     // we are reading everything
-    if(i == numberOfPieces-1)
-      {
+    if (i == numberOfPieces - 1)
+    {
       size[2] = fullsize[2] - index[2];
-      }
+    }
     else
-      {
+    {
       size[2] = zsize;
-      }
+    }
 
-    region.SetIndex( index );
-    region.SetSize( size );
+    region.SetIndex(index);
+    region.SetSize(size);
 
     reader->GetOutput()->SetRequestedRegion(region);
 
@@ -99,46 +101,46 @@ int itkMetaImageStreamingWriterIOTest(int argc, char*  argv[])
     std::cout << region << std::endl;
 
     try
-      {
+    {
       reader->Update();
-      }
-    catch (itk::ExceptionObject &ex)
-      {
+    }
+    catch (itk::ExceptionObject & ex)
+    {
       std::cout << "ERROR : " << ex << std::endl;
       return EXIT_FAILURE;
-      }
+    }
 
     // Write the image
-    itk::ImageIORegion  ioregion(3);
+    itk::ImageIORegion ioregion(3);
 
     itk::ImageIORegion::IndexType index2;
-    index2.push_back( index[0] );
-    index2.push_back( index[1] );
-    index2.push_back( index[2] );
+    index2.push_back(index[0]);
+    index2.push_back(index[1]);
+    index2.push_back(index[2]);
 
     itk::ImageIORegion::SizeType size2;
 
-    size2.push_back( size[0] );
-    size2.push_back( size[1] );
-    size2.push_back( size[2] );
+    size2.push_back(size[0]);
+    size2.push_back(size[1]);
+    size2.push_back(size[2]);
 
     ioregion.SetIndex(index2);
     ioregion.SetSize(size2);
 
-    writer->SetIORegion( ioregion );
-    writer->SetInput( reader->GetOutput() );
+    writer->SetIORegion(ioregion);
+    writer->SetInput(reader->GetOutput());
 
     try
-      {
+    {
       writer->Update();
-      }
-    catch( itk::ExceptionObject & err )
-      {
+    }
+    catch (itk::ExceptionObject & err)
+    {
       std::cerr << "ExceptionObject caught !" << std::endl;
       std::cerr << err << std::endl;
       return EXIT_FAILURE;
-      }
-    } // end for pieces
+    }
+  } // end for pieces
 
 
   return EXIT_SUCCESS;

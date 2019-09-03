@@ -34,48 +34,45 @@ namespace itk
  * \ingroup ITKSpatialObjects
  */
 
-template< unsigned int TPointDimension = 3 >
-class ITK_TEMPLATE_EXPORT SurfaceSpatialObjectPoint:
-  public SpatialObjectPoint< TPointDimension >
+template <unsigned int TPointDimension = 3>
+class ITK_TEMPLATE_EXPORT SurfaceSpatialObjectPoint : public SpatialObjectPoint<TPointDimension>
 {
 public:
+  using Self = SurfaceSpatialObjectPoint;
+  using Superclass = SpatialObjectPoint<TPointDimension>;
+  using PointType = Point<double, TPointDimension>;
 
-  typedef SurfaceSpatialObjectPoint                  Self;
-  typedef SpatialObjectPoint< TPointDimension >      Superclass;
-  typedef Point< double, TPointDimension >           PointType;
-  typedef CovariantVector< double, TPointDimension > VectorType;
+  using CovariantVectorType = CovariantVector<double, TPointDimension>;
 
   /** Constructor */
   SurfaceSpatialObjectPoint();
 
   /** Destructor */
-  virtual ~SurfaceSpatialObjectPoint() ITK_OVERRIDE;
+  ~SurfaceSpatialObjectPoint() override = default;
 
   /** Get Normal */
-  const VectorType & GetNormal() const;
+  const CovariantVectorType &
+  GetNormalInObjectSpace() const;
 
   /** Set Normal */
-  void SetNormal(const VectorType & normal);
-
-  void SetNormal(const double normalx, const double normaly);
-
-  void SetNormal(const double normalx, const double normaly,
-                 const double normalz);
+  void
+  SetNormalInObjectSpace(const CovariantVectorType & normal);
 
   /** Copy one SurfaceSpatialObjectPoint to another */
-  Self & operator=(const SurfaceSpatialObjectPoint & rhs);
+  Self &
+  operator=(const SurfaceSpatialObjectPoint & rhs);
 
 protected:
-
-  VectorType m_Normal;
+  CovariantVectorType m_NormalInObjectSpace;
 
   /** Method to print the object. */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSurfaceSpatialObjectPoint.hxx"
+#  include "itkSurfaceSpatialObjectPoint.hxx"
 #endif
 
 #endif // itkSurfaceSpatialObjectPoint_h

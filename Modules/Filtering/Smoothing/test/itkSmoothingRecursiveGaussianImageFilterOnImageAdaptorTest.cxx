@@ -17,36 +17,37 @@
  *=========================================================================*/
 
 #include "itkSmoothingRecursiveGaussianImageFilter.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
 #include "itkRGBPixel.h"
 #include "itkRGBToLuminanceImageAdaptor.h"
 
-int itkSmoothingRecursiveGaussianImageFilterOnImageAdaptorTest(int, char* [] )
+int
+itkSmoothingRecursiveGaussianImageFilterOnImageAdaptorTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int myDimension = 3;
+  constexpr unsigned int myDimension = 3;
 
-  typedef itk::RGBPixel<float> RGBPixelType;
+  using RGBPixelType = itk::RGBPixel<float>;
 
   // Declare the types of the images
-  typedef itk::Image<RGBPixelType, myDimension>      myImageType;
+  using myImageType = itk::Image<RGBPixelType, myDimension>;
 
-  typedef itk::Image<float, myDimension>      FloatImageType;
+  using FloatImageType = itk::Image<float, myDimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<myDimension>             myIndexType;
+  using myIndexType = itk::Index<myDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<myDimension>              mySizeType;
+  using mySizeType = itk::Size<myDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<myDimension>        myRegionType;
+  using myRegionType = itk::ImageRegion<myDimension>;
 
-  const unsigned int numberOfComponents = 3;
+  constexpr unsigned int numberOfComponents = 3;
 
   // Create the image
-  myImageType::Pointer inputImage  = myImageType::New();
+  myImageType::Pointer inputImage = myImageType::New();
 
 
   // Define their size, and start index
@@ -59,28 +60,28 @@ int itkSmoothingRecursiveGaussianImageFilterOnImageAdaptorTest(int, char* [] )
   start.Fill(0);
 
   myRegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImage->SetLargestPossibleRegion( region );
-  inputImage->SetBufferedRegion( region );
-  inputImage->SetRequestedRegion( region );
-  inputImage->SetNumberOfComponentsPerPixel( numberOfComponents );
+  inputImage->SetLargestPossibleRegion(region);
+  inputImage->SetBufferedRegion(region);
+  inputImage->SetRequestedRegion(region);
+  inputImage->SetNumberOfComponentsPerPixel(numberOfComponents);
   inputImage->Allocate();
 
   // Declare Iterator type for the input image
-  typedef itk::ImageRegionIteratorWithIndex<myImageType>  myIteratorType;
+  using myIteratorType = itk::ImageRegionIteratorWithIndex<myImageType>;
 
   // Create one iterator for the Input Image A (this is a light object)
-  myIteratorType it( inputImage, inputImage->GetRequestedRegion() );
+  myIteratorType it(inputImage, inputImage->GetRequestedRegion());
 
   // Initialize the content of Image A
-  while( !it.IsAtEnd() )
-    {
-    myImageType::PixelType p( numberOfComponents );
-    p.Fill( 0.0 );
-    it.Set( p );
+  while (!it.IsAtEnd())
+  {
+    myImageType::PixelType p(numberOfComponents);
+    p.Fill(0.0);
+    it.Set(p);
     ++it;
   }
 
@@ -93,52 +94,52 @@ int itkSmoothingRecursiveGaussianImageFilterOnImageAdaptorTest(int, char* [] )
   start[2] = 2;
 
   // Create one iterator for an internal region
-  region.SetSize( size );
-  region.SetIndex( start );
-  myIteratorType itb( inputImage, region );
+  region.SetSize(size);
+  region.SetIndex(start);
+  myIteratorType itb(inputImage, region);
 
   // Initialize the content the internal region
-  while( !itb.IsAtEnd() )
+  while (!itb.IsAtEnd())
   {
-    myImageType::PixelType p = itb.Get( );
-    p.Fill( 100 );
-    itb.Set( p );
+    myImageType::PixelType p = itb.Get();
+    p.Fill(100);
+    itb.Set(p);
     ++itb;
   }
 
   // Create Image adaptor on the RGB Image
-  typedef itk::RGBToLuminanceImageAdaptor< myImageType, float > myAdaptorType;
+  using myAdaptorType = itk::RGBToLuminanceImageAdaptor<myImageType, float>;
   myAdaptorType::Pointer adaptor = myAdaptorType::New();
-  adaptor->SetImage( inputImage );
+  adaptor->SetImage(inputImage);
 
 
   // Declare the type for the
-  typedef itk::SmoothingRecursiveGaussianImageFilter< myAdaptorType, FloatImageType >  myFilterType;
+  using myFilterType = itk::SmoothingRecursiveGaussianImageFilter<myAdaptorType, FloatImageType>;
 
-  typedef myFilterType::OutputImageType myGradientImageType;
+  using myGradientImageType = myFilterType::OutputImageType;
 
 
   // Create a  Filter
-  myFilterType::Pointer filter = myFilterType::New();
-  FilterWatcher watchit(filter);
+  myFilterType::Pointer    filter = myFilterType::New();
+  itk::SimpleFilterWatcher watchit(filter);
 
   // Connect the input images
-  filter->SetInput( adaptor );
+  filter->SetInput(adaptor);
 
   // Select the value of Sigma
-  filter->SetSigma( 2.5 );
+  filter->SetSigma(2.5);
 
 
   // Execute the filter
   try
-    {
+  {
     filter->Update();
-    }
-  catch(itk::ExceptionObject &err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     (&err)->Print(std::cerr);
     return EXIT_FAILURE;
-    }
+  }
 
 
   // Get the Smart Pointer to the Filter Output
@@ -148,17 +149,15 @@ int itkSmoothingRecursiveGaussianImageFilterOnImageAdaptorTest(int, char* [] )
   myGradientImageType::Pointer outputImage = filter->GetOutput();
 
   // Declare Iterator type for the output image
-  typedef itk::ImageRegionIteratorWithIndex<
-                                 myGradientImageType>  myOutputIteratorType;
+  using myOutputIteratorType = itk::ImageRegionIteratorWithIndex<myGradientImageType>;
 
   // Create an iterator for going through the output image
-  myOutputIteratorType itg( outputImage,
-                            outputImage->GetRequestedRegion() );
+  myOutputIteratorType itg(outputImage, outputImage->GetRequestedRegion());
 
   //  Print the content of the result image
   std::cout << " Result " << std::endl;
   itg.GoToBegin();
-  while( !itg.IsAtEnd() )
+  while (!itg.IsAtEnd())
   {
     std::cout << itg.Get() << std::endl;
     ++itg;
@@ -167,5 +166,4 @@ int itkSmoothingRecursiveGaussianImageFilterOnImageAdaptorTest(int, char* [] )
   // All objects should be automatically destroyed at this point
   std::cout << std::endl << "Test PASSED ! " << std::endl;
   return EXIT_SUCCESS;
-
 }

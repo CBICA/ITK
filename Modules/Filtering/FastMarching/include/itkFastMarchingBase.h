@@ -97,108 +97,112 @@ namespace itk
  * \sa FastMarchingStoppingCriterionBase
  *
  * \ingroup ITKFastMarching
-*/
-template< typename TInput, typename TOutput >
+ */
+template <typename TInput, typename TOutput>
 class ITK_TEMPLATE_EXPORT FastMarchingBase : public FastMarchingTraits<TInput, TOutput>::SuperclassType
-  {
+{
 public:
-  typedef FastMarchingTraits<TInput, TOutput>   Traits;
-  typedef typename Traits::SuperclassType       SuperclassType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingBase);
 
-  typedef FastMarchingBase            Self;
-  typedef SuperclassType              Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  using Traits = FastMarchingTraits<TInput, TOutput>;
+  using SuperclassType = typename Traits::SuperclassType;
+
+  using Self = FastMarchingBase;
+  using Superclass = typename FastMarchingTraits<TInput, TOutput>::SuperclassType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(FastMarchingBase, FastMarchingTraits);
 
   /** Input Domain related definitions */
-  typedef typename Traits::InputDomainType        InputDomainType;
-  typedef typename Traits::InputDomainPointer     InputDomainPointer;
-  typedef typename Traits::InputPixelType         InputPixelType;
+  using InputDomainType = typename Traits::InputDomainType;
+  using InputDomainPointer = typename Traits::InputDomainPointer;
+  using InputPixelType = typename Traits::InputPixelType;
 
   /** Output Domain related definitions */
-  typedef typename Traits::OutputDomainType       OutputDomainType;
-  typedef typename Traits::OutputDomainPointer    OutputDomainPointer;
-  typedef typename Traits::OutputPixelType        OutputPixelType;
+  using OutputDomainType = typename Traits::OutputDomainType;
+  using OutputDomainPointer = typename Traits::OutputDomainPointer;
+  using OutputPixelType = typename Traits::OutputPixelType;
 
   /** NodeType type of node */
-  typedef typename Traits::NodeType                 NodeType;
+  using NodeType = typename Traits::NodeType;
 
   /** NodePairType pair of node and corresponding value */
-  typedef typename Traits::NodePairType             NodePairType;
-  typedef typename Traits::NodePairContainerType    NodePairContainerType;
-  typedef typename Traits::NodePairContainerPointer NodePairContainerPointer;
-  typedef typename Traits::NodePairContainerConstIterator
-    NodePairContainerConstIterator;
+  using NodePairType = typename Traits::NodePairType;
+  using NodePairContainerType = typename Traits::NodePairContainerType;
+  using NodePairContainerPointer = typename Traits::NodePairContainerPointer;
+  using NodePairContainerConstIterator = typename Traits::NodePairContainerConstIterator;
 
-  typedef typename Traits::LabelType                LabelType;
+  using LabelType = typename Traits::LabelType;
 
   /** StoppingCriterionType stopping criterion */
-  typedef FastMarchingStoppingCriterionBase< TInput, TOutput > StoppingCriterionType;
-  typedef typename StoppingCriterionType::Pointer              StoppingCriterionPointer;
+  using StoppingCriterionType = FastMarchingStoppingCriterionBase<TInput, TOutput>;
+  using StoppingCriterionPointer = typename StoppingCriterionType::Pointer;
 
   /*
-  typedef long ElementIdentifier;
+  using ElementIdentifier = long;
 
-  typedef MinPriorityQueueElementWrapper< NodeType,
+  using PriorityQueueElementType = MinPriorityQueueElementWrapper< NodeType,
     OutputPixelType,
-    ElementIdentifier > PriorityQueueElementType;
+    ElementIdentifier >;
 
-  typedef PriorityQueueContainer< PriorityQueueElementType,
-    PriorityQueueElementType,
-    OutputPixelType,
-    ElementIdentifier > PriorityQueueType;
-  typedef typename PriorityQueueType::Pointer PriorityQueuePointer;
+  using PriorityQueueType = PriorityQueueContainer< PriorityQueueElementType,
+    PriorityQueueElementType, OutputPixelType, ElementIdentifier >;
+  using PriorityQueuePointer = typename PriorityQueueType::Pointer;
   */
 
   /** \enum TopologyCheckType */
-  enum TopologyCheckType {
+  enum TopologyCheckType
+  {
     /** \c Nothing */
     Nothing = 0,
     /** \c NoHandles */
     NoHandles,
     /** \c Strict */
-    Strict };
+    Strict
+  };
 
   /** Set/Get the TopologyCheckType macro indicating whether the user
   wants to check topology (and which one). */
-  itkSetMacro( TopologyCheck, TopologyCheckType );
-  itkGetConstReferenceMacro( TopologyCheck, TopologyCheckType );
+  itkSetMacro(TopologyCheck, TopologyCheckType);
+  itkGetConstReferenceMacro(TopologyCheck, TopologyCheckType);
 
   /** Set/Get TrialPoints */
-  itkSetObjectMacro( TrialPoints, NodePairContainerType );
-  itkGetModifiableObjectMacro(TrialPoints, NodePairContainerType );
+  itkSetObjectMacro(TrialPoints, NodePairContainerType);
+  itkGetModifiableObjectMacro(TrialPoints, NodePairContainerType);
 
   /** Set/Get AlivePoints */
-  itkSetObjectMacro( AlivePoints, NodePairContainerType );
-  itkGetModifiableObjectMacro(AlivePoints, NodePairContainerType );
+  itkSetObjectMacro(AlivePoints, NodePairContainerType);
+  itkGetModifiableObjectMacro(AlivePoints, NodePairContainerType);
 
   /** Set/Get ProcessedPoints */
-  itkSetObjectMacro( ProcessedPoints, NodePairContainerType );
-  itkGetModifiableObjectMacro(ProcessedPoints, NodePairContainerType );
+  itkSetObjectMacro(ProcessedPoints, NodePairContainerType);
+  itkGetModifiableObjectMacro(ProcessedPoints, NodePairContainerType);
 
   /** Set/Get ForbiddenPoints */
-  itkSetObjectMacro( ForbiddenPoints, NodePairContainerType );
-  itkGetModifiableObjectMacro(ForbiddenPoints, NodePairContainerType );
+  itkSetObjectMacro(ForbiddenPoints, NodePairContainerType);
+  itkGetModifiableObjectMacro(ForbiddenPoints, NodePairContainerType);
 
   /** \brief Set/Get the Stopping Criterion */
-  itkSetObjectMacro( StoppingCriterion, StoppingCriterionType );
-  itkGetModifiableObjectMacro(StoppingCriterion, StoppingCriterionType );
+  itkSetObjectMacro(StoppingCriterion, StoppingCriterionType);
+  itkGetModifiableObjectMacro(StoppingCriterion, StoppingCriterionType);
 
   /** \brief Set/Get SpeedConstant */
-  itkGetMacro( SpeedConstant, double );
-  itkSetMacro( SpeedConstant, double );
+  itkGetMacro(SpeedConstant, double);
+  itkSetMacro(SpeedConstant, double);
 
   /** \brief Set/Get NormalizationFactor */
-  itkGetMacro( NormalizationFactor, double );
-  itkSetMacro( NormalizationFactor, double );
+  itkGetMacro(NormalizationFactor, double);
+  itkSetMacro(NormalizationFactor, double);
 
   /** \brief Get the value reached by the front when it stops propagating */
-  itkGetMacro( TargetReachedValue, OutputPixelType );
+  itkGetMacro(TargetReachedValue, OutputPixelType);
 
   /** Set the Collect Points flag. Instrument the algorithm to collect
-  * a container of all nodes which it has visited. Useful for
-  * creating Narrowbands for level set algorithms that supports
-  * narrow banding. */
+   * a container of all nodes which it has visited. Useful for
+   * creating Narrowbands for level set algorithms that supports
+   * narrow banding. */
   itkSetMacro(CollectPoints, bool);
 
   /** Get the Collect Points flag. */
@@ -206,12 +210,11 @@ public:
   itkBooleanMacro(CollectPoints);
 
 protected:
-
   /** \brief Constructor */
   FastMarchingBase();
 
   /** \brief Destructor */
-  virtual ~FastMarchingBase() ITK_OVERRIDE;
+  ~FastMarchingBase() override = default;
 
   StoppingCriterionPointer m_StoppingCriterion;
 
@@ -223,91 +226,88 @@ protected:
   OutputPixelType m_LargeValue;
   OutputPixelType m_TopologyValue;
 
-  NodePairContainerPointer  m_TrialPoints;
-  NodePairContainerPointer  m_AlivePoints;
-  NodePairContainerPointer  m_ProcessedPoints;
-  NodePairContainerPointer  m_ForbiddenPoints;
+  NodePairContainerPointer m_TrialPoints;
+  NodePairContainerPointer m_AlivePoints;
+  NodePairContainerPointer m_ProcessedPoints;
+  NodePairContainerPointer m_ForbiddenPoints;
 
   bool m_CollectPoints;
 
-  //PriorityQueuePointer m_Heap;
-  typedef std::vector< NodePairType >   HeapContainerType;
-  typedef std::greater< NodePairType >  NodeComparerType;
+  // PriorityQueuePointer m_Heap;
+  using HeapContainerType = std::vector<NodePairType>;
+  using NodeComparerType = std::greater<NodePairType>;
 
-  typedef std::priority_queue<
-    NodePairType,
-    HeapContainerType,
-    NodeComparerType >
-    PriorityQueueType;
+  using PriorityQueueType = std::priority_queue<NodePairType, HeapContainerType, NodeComparerType>;
 
   PriorityQueueType m_Heap;
 
   TopologyCheckType m_TopologyCheck;
 
   /** \brief Get the total number of nodes in the domain */
-  virtual IdentifierType GetTotalNumberOfNodes() const = 0;
+  virtual IdentifierType
+  GetTotalNumberOfNodes() const = 0;
 
   /** \brief Get the output value (front value) for a given node */
-  virtual const OutputPixelType GetOutputValue( OutputDomainType* oDomain,
-                                         const NodeType& iNode ) const = 0;
+  virtual const OutputPixelType
+  GetOutputValue(OutputDomainType * oDomain, const NodeType & iNode) const = 0;
 
   /** \brief Set the output value (front value) for a given node */
-  virtual void SetOutputValue( OutputDomainType* oDomain,
-                              const NodeType& iNode,
-                              const OutputPixelType& iValue ) = 0;
+  virtual void
+  SetOutputValue(OutputDomainType * oDomain, const NodeType & iNode, const OutputPixelType & iValue) = 0;
 
   /** \brief Get the LabelType Value for a given node
     \param[in] iNode
     \return its label value  */
   virtual unsigned char
-  GetLabelValueForGivenNode( const NodeType& iNode ) const = 0;
+  GetLabelValueForGivenNode(const NodeType & iNode) const = 0;
 
   /** \brief Set the Label Value for a given node
     \param[in] iNode
     \param[in] iLabel */
-  virtual void SetLabelValueForGivenNode( const NodeType& iNode,
-                                         const LabelType& iLabel ) = 0;
+  virtual void
+  SetLabelValueForGivenNode(const NodeType & iNode, const LabelType & iLabel) = 0;
 
   /** \brief Update neighbors to a given node
     \param[in] oDomain
     \param[in] iNode
   */
-  virtual void UpdateNeighbors( OutputDomainType* oDomain,
-                               const NodeType& iNode ) = 0;
+  virtual void
+  UpdateNeighbors(OutputDomainType * oDomain, const NodeType & iNode) = 0;
 
   /** \brief Update value for a given node
     \param[in] oDomain
     \param[in] iNode
     */
-  virtual void UpdateValue( OutputDomainType* oDomain,
-                           const NodeType& iNode ) = 0;
+  virtual void
+  UpdateValue(OutputDomainType * oDomain, const NodeType & iNode) = 0;
 
   /** \brief Check if the current node violate topological criterion.
     \param[in] oDomain
     \param[in] iNode
    */
-  virtual bool CheckTopology( OutputDomainType* oDomain,
-                             const NodeType& iNode ) = 0;
+  virtual bool
+  CheckTopology(OutputDomainType * oDomain, const NodeType & iNode) = 0;
 
   /** \brief   */
-  void Initialize( OutputDomainType* oDomain );
+  void
+  Initialize(OutputDomainType * oDomain);
 
   /**    */
-  virtual void InitializeOutput( OutputDomainType* oDomain ) = 0;
+  virtual void
+  InitializeOutput(OutputDomainType * oDomain) = 0;
 
   /**    */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** \brief PrintSelf method  */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingBase);
-  };
-}
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+};
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFastMarchingBase.hxx"
+#  include "itkFastMarchingBase.hxx"
 #endif
 
 #endif

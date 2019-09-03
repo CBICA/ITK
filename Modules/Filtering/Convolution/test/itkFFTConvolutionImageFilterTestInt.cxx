@@ -22,82 +22,83 @@
 #include "itkSimpleFilterWatcher.h"
 #include "itkTestingMacros.h"
 
-int itkFFTConvolutionImageFilterTestInt(int argc, char * argv[])
+int
+itkFFTConvolutionImageFilterTestInt(int argc, char * argv[])
 {
 
-  if ( argc < 4 )
-    {
-    std::cout << "Usage: " << argv[0]
-      << " inputImage kernelImage outputImage [normalizeImage] [outputRegionMode]" << std::endl;
+  if (argc < 4)
+  {
+    std::cout << "Usage: " << argv[0] << " inputImage kernelImage outputImage [normalizeImage] [outputRegionMode]"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const int ImageDimension = 2;
+  constexpr int ImageDimension = 2;
 
-  typedef unsigned char                          PixelType;
-  typedef itk::Image<PixelType, ImageDimension>  ImageType;
-  typedef itk::ImageFileReader<ImageType>        ReaderType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, ImageDimension>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
   ReaderType::Pointer reader1 = ReaderType::New();
-  reader1->SetFileName( argv[1] );
+  reader1->SetFileName(argv[1]);
 
-  TRY_EXPECT_NO_EXCEPTION( reader1->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(reader1->Update());
 
   ReaderType::Pointer reader2 = ReaderType::New();
-  reader2->SetFileName( argv[2] );
+  reader2->SetFileName(argv[2]);
 
-  TRY_EXPECT_NO_EXCEPTION( reader2->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(reader2->Update());
 
-  typedef itk::FFTConvolutionImageFilter<ImageType> ConvolutionFilterType;
+  using ConvolutionFilterType = itk::FFTConvolutionImageFilter<ImageType>;
   ConvolutionFilterType::Pointer convolver = ConvolutionFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( convolver, FFTConvolutionImageFilter, ConvolutionImageFilterBase );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(convolver, FFTConvolutionImageFilter, ConvolutionImageFilterBase);
 
-  convolver->SetInput( reader1->GetOutput() );
-  convolver->SetKernelImage( reader2->GetOutput() );
+  convolver->SetInput(reader1->GetOutput());
+  convolver->SetKernelImage(reader2->GetOutput());
 
   ConvolutionFilterType::SizeValueType sizeGreatestPrimeFactor = 2;
-  convolver->SetSizeGreatestPrimeFactor( sizeGreatestPrimeFactor );
-  TEST_SET_GET_VALUE( sizeGreatestPrimeFactor, convolver->GetSizeGreatestPrimeFactor() );
+  convolver->SetSizeGreatestPrimeFactor(sizeGreatestPrimeFactor);
+  ITK_TEST_SET_GET_VALUE(sizeGreatestPrimeFactor, convolver->GetSizeGreatestPrimeFactor());
 
   itk::SimpleFilterWatcher watcher(convolver, "filter");
 
-  if ( argc >= 5 )
-    {
-    convolver->SetNormalize( static_cast<bool>( atoi( argv[4] ) ) );
-    }
+  if (argc >= 5)
+  {
+    convolver->SetNormalize(static_cast<bool>(std::stoi(argv[4])));
+  }
 
-  if ( argc >= 6 )
+  if (argc >= 6)
+  {
+    std::string outputRegionMode(argv[5]);
+    if (outputRegionMode == "SAME")
     {
-    std::string outputRegionMode( argv[5] );
-    if ( outputRegionMode == "SAME" )
-      {
       convolver->SetOutputRegionModeToSame();
-      TEST_SET_GET_VALUE( ConvolutionFilterType::SAME, convolver->GetOutputRegionMode() );
+      ITK_TEST_SET_GET_VALUE(itk::ConvolutionImageFilterOutputRegionType::SAME, convolver->GetOutputRegionMode());
       std::cout << "OutputRegionMode set to SAME." << std::endl;
-      }
-    else if ( outputRegionMode == "VALID" )
-      {
+    }
+    else if (outputRegionMode == "VALID")
+    {
       convolver->SetOutputRegionModeToValid();
-      TEST_SET_GET_VALUE( ConvolutionFilterType::VALID, convolver->GetOutputRegionMode() );
+      ITK_TEST_SET_GET_VALUE(itk::ConvolutionImageFilterOutputRegionType::VALID, convolver->GetOutputRegionMode());
       std::cout << "OutputRegionMode set to VALID." << std::endl;
-      }
+    }
     else
-      {
+    {
       std::cerr << "Invalid OutputRegionMode '" << outputRegionMode << "'." << std::endl;
       std::cerr << "Valid values are SAME or VALID." << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
-  TRY_EXPECT_NO_EXCEPTION( convolver->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(convolver->Update());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[3] );
-  writer->SetInput( convolver->GetOutput() );
+  writer->SetFileName(argv[3]);
+  writer->SetInput(convolver->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

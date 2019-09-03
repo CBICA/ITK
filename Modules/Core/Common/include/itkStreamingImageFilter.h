@@ -40,15 +40,17 @@ namespace itk
  * \ingroup DataProcessing
  * \ingroup ITKCommon
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT StreamingImageFilter:public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT StreamingImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef StreamingImageFilter                            Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StreamingImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = StreamingImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -56,27 +58,25 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(StreamingImageFilter, ImageToImageFilter);
 
-  /** Some typedefs for the input and output. */
-  typedef TInputImage                         InputImageType;
-  typedef typename InputImageType::Pointer    InputImagePointer;
-  typedef typename InputImageType::RegionType InputImageRegionType;
-  typedef typename InputImageType::PixelType  InputImagePixelType;
+  /** Some type alias for the input and output. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
-  typedef TOutputImage                           OutputImageType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
-  typedef typename Superclass::DataObjectPointer DataObjectPointer;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using DataObjectPointer = typename Superclass::DataObjectPointer;
 
   /** Dimension of input image. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      OutputImageType::ImageDimension);
+  static constexpr unsigned int InputImageDimension = InputImageType::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = OutputImageType::ImageDimension;
 
   /** SmartPointer to a region splitting object */
-  typedef ImageRegionSplitterBase        SplitterType;
-  typedef typename SplitterType::Pointer RegionSplitterPointer;
+  using SplitterType = ImageRegionSplitterBase;
+  using RegionSplitterPointer = typename SplitterType::Pointer;
 
   /** Set the number of pieces to divide the input.  The upstream pipeline
    * will be executed this many times. */
@@ -95,38 +95,37 @@ public:
    * or ThreadedGenerateData() method.  Instead, all the work is done
    * in UpdateOutputData() since it must update a little, execute a little,
    * update some more, execute some more, etc. */
-  virtual void UpdateOutputData(DataObject *output) ITK_OVERRIDE;
+  void
+  UpdateOutputData(DataObject * output) override;
 
   /** Override PropagateRequestedRegion from ProcessObject
    *  Since inside UpdateOutputData we iterate over streaming pieces
    *  we don't need to proapage up the pipeline
    */
-  virtual void PropagateRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  PropagateRequestedRegion(DataObject * output) override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputImagePixelType, OutputImagePixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputImagePixelType, OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
   StreamingImageFilter();
-  ~StreamingImageFilter() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~StreamingImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(StreamingImageFilter);
-
   unsigned int          m_NumberOfStreamDivisions;
   RegionSplitterPointer m_RegionSplitter;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkStreamingImageFilter.hxx"
+#  include "itkStreamingImageFilter.hxx"
 #endif
 
 #endif

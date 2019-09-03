@@ -25,74 +25,75 @@
 
 #include "itkTestingMacros.h"
 
-int itkShapeRelabelLabelMapFilterTest1(int argc, char * argv[])
+int
+itkShapeRelabelLabelMapFilterTest1(int argc, char * argv[])
 {
 
-  if( argc != 5)
-    {
+  if (argc != 5)
+  {
     std::cerr << "usage: " << argv[0] << " input output";
     std::cerr << "background reverseOrdering attribute" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 2;
+  constexpr unsigned int dim = 2;
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, dim > ImageType;
+  using ImageType = itk::Image<PixelType, dim>;
 
-  typedef itk::ShapeLabelObject< PixelType, dim >           ShapeLabelObjectType;
-  typedef itk::LabelMap< ShapeLabelObjectType >             LabelMapType;
+  using ShapeLabelObjectType = itk::ShapeLabelObject<PixelType, dim>;
+  using LabelMapType = itk::LabelMap<ShapeLabelObjectType>;
 
-  //Reading Image File
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  // Reading Image File
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  //Converting LabelImage to ShapeLabelMap
-  typedef itk::LabelImageToShapeLabelMapFilter< ImageType, LabelMapType> I2LType;
+  // Converting LabelImage to ShapeLabelMap
+  using I2LType = itk::LabelImageToShapeLabelMapFilter<ImageType, LabelMapType>;
   I2LType::Pointer i2l = I2LType::New();
-  i2l->SetInput( reader->GetOutput() );
+  i2l->SetInput(reader->GetOutput());
 
-  typedef itk::ShapeRelabelLabelMapFilter< LabelMapType > RelabelType;
+  using RelabelType = itk::ShapeRelabelLabelMapFilter<LabelMapType>;
   RelabelType::Pointer relabel = RelabelType::New();
 
-  //testing get and set macros for ReverseOrdering
-  bool reverseOrdering = atoi( argv[3] );
-  relabel->SetReverseOrdering( reverseOrdering );
-  TEST_SET_GET_VALUE( reverseOrdering , relabel->GetReverseOrdering() );
+  // testing get and set macros for ReverseOrdering
+  bool reverseOrdering = std::stoi(argv[3]);
+  relabel->SetReverseOrdering(reverseOrdering);
+  ITK_TEST_SET_GET_VALUE(reverseOrdering, relabel->GetReverseOrdering());
 
-  //testing boolean macro for ReverseOrdering
+  // testing boolean macro for ReverseOrdering
   relabel->ReverseOrderingOff();
-  TEST_SET_GET_VALUE( false, relabel->GetReverseOrdering() );
+  ITK_TEST_SET_GET_VALUE(false, relabel->GetReverseOrdering());
 
   relabel->ReverseOrderingOn();
-  TEST_SET_GET_VALUE( true, relabel->GetReverseOrdering() );
+  ITK_TEST_SET_GET_VALUE(true, relabel->GetReverseOrdering());
 
-  //testing get and set macros for Attribute
-  unsigned int attribute = atoi( argv[4] );
-  relabel->SetAttribute( attribute );
-  TEST_SET_GET_VALUE( attribute, relabel->GetAttribute() );
+  // testing get and set macros for Attribute
+  unsigned int attribute = std::stoi(argv[4]);
+  relabel->SetAttribute(attribute);
+  ITK_TEST_SET_GET_VALUE(attribute, relabel->GetAttribute());
 
-  std::string attributeName  = ShapeLabelObjectType::GetNameFromAttribute( attribute );
-  relabel->SetAttribute( attributeName );
+  std::string attributeName = ShapeLabelObjectType::GetNameFromAttribute(attribute);
+  relabel->SetAttribute(attributeName);
 
-  relabel->SetInput( i2l->GetOutput() );
+  relabel->SetInput(i2l->GetOutput());
 
   itk::SimpleFilterWatcher watcher(relabel, "filter");
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> L2ImageType;
+  using L2ImageType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
   L2ImageType::Pointer l2i = L2ImageType::New();
-  l2i->SetInput( relabel->GetOutput() );
+  l2i->SetInput(relabel->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( l2i->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(l2i->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

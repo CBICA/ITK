@@ -51,16 +51,17 @@ namespace Statistics
  * \sa ImageToListSampleAdaptor
  * \ingroup ITKStatistics
  */
-template< typename TImage, typename TMaskImage = TImage >
-class ITK_TEMPLATE_EXPORT ImageToListSampleFilter:
-  public ProcessObject
+template <typename TImage, typename TMaskImage = TImage>
+class ITK_TEMPLATE_EXPORT ImageToListSampleFilter : public ProcessObject
 {
 public:
-  /** Standard class typedefs */
-  typedef ImageToListSampleFilter    Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToListSampleFilter);
+
+  /** Standard class type aliases */
+  using Self = ImageToListSampleFilter;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToListSampleFilter, ProcessObject);
@@ -68,41 +69,46 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** Image typedefs */
-  typedef TImage                           ImageType;
-  typedef typename ImageType::Pointer      ImagePointer;
-  typedef typename ImageType::ConstPointer ImageConstPointer;
-  typedef typename ImageType::PixelType    PixelType;
-  typedef typename MeasurementVectorPixelTraits<
-    PixelType >::MeasurementVectorType MeasurementVectorType;
+  /** Image type alias */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using MeasurementVectorType = typename MeasurementVectorPixelTraits<PixelType>::MeasurementVectorType;
 
-  /** Mask Image typedefs */
-  typedef TMaskImage                           MaskImageType;
-  typedef typename MaskImageType::Pointer      MaskImagePointer;
-  typedef typename MaskImageType::ConstPointer MaskImageConstPointer;
-  typedef typename MaskImageType::PixelType    MaskPixelType;
+  /** Mask Image type alias */
+  using MaskImageType = TMaskImage;
+  using MaskImagePointer = typename MaskImageType::Pointer;
+  using MaskImageConstPointer = typename MaskImageType::ConstPointer;
+  using MaskPixelType = typename MaskImageType::PixelType;
 
   /** Type of the output list sample */
-  typedef ListSample< MeasurementVectorType > ListSampleType;
+  using ListSampleType = ListSample<MeasurementVectorType>;
 
   /** return the number of components of the input image */
-  unsigned int GetMeasurementVectorSize() const;
+  unsigned int
+  GetMeasurementVectorSize() const;
 
   /** Method to set/get the image */
   using Superclass::SetInput;
-  void SetInput(const ImageType *image);
+  void
+  SetInput(const ImageType * image);
 
-  const ImageType * GetInput() const;
+  const ImageType *
+  GetInput() const;
 
   /** Method to set/get the mask */
-  void SetMaskImage(const MaskImageType *image);
+  void
+  SetMaskImage(const MaskImageType * image);
 
-  const MaskImageType * GetMaskImage() const;
+  const MaskImageType *
+  GetMaskImage() const;
 
   /** Method to get the list sample, the generated output. Note that this does
    * not invoke Update(). You should have called update on this class to get
    * any meaningful output. */
-  const ListSampleType * GetOutput() const;
+  const ListSampleType *
+  GetOutput() const;
 
   /** Set the pixel value treated as on in the mask. If a mask has been
    * specified, only pixels with this value will be added to the list sample, if
@@ -113,34 +119,37 @@ public:
 
 protected:
   ImageToListSampleFilter();
-  virtual ~ImageToListSampleFilter() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageToListSampleFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Standard itk::ProcessObject subclass method. */
-  typedef DataObject::Pointer                           DataObjectPointer;
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointer = DataObject::Pointer;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
 
   /** This method causes the filter to generate its output. */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** This method ensures that a mask image if specified has requested regions
    * that at least contain the input image's buffered region. */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToListSampleFilter);
-
   MaskPixelType m_MaskValue;
-};  // end of class ImageToListSampleFilter
+}; // end of class ImageToListSampleFilter
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToListSampleFilter.hxx"
+#  include "itkImageToListSampleFilter.hxx"
 #endif
 
 #endif

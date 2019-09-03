@@ -24,57 +24,58 @@ namespace itk
 {
 /**
  * \class BackwardDifferenceOperator
+ *
  * \brief Operator whose inner product with a neighborhood returns
  * a "half" derivative at the center of the neighborhood.
  *
  * BackwardDifferenceOperator uses backward differences
- * i.e. F(x) - F(x-1) to calculate a "half" derivative useful, among
+ * i.e. \f$ F(x) - F(x-1) \f$ to calculate a "half" derivative useful, among
  * other things, in solving differential equations. It is a directional
  * NeighborhoodOperator that should be applied to a Neighborhood using the
  * inner product.
  *
  * \ingroup Operators
- *
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Operators/BackwardDifferenceOperator,Create a backward difference kernel}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateABackwardDifferenceOperator,Create A Backward Difference Operator}
+ * \endsphinx
  */
-template< typename TPixel, unsigned int TDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT BackwardDifferenceOperator:
-  public NeighborhoodOperator< TPixel, TDimension, TAllocator >
+template <typename TPixel, unsigned int TDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT BackwardDifferenceOperator : public NeighborhoodOperator<TPixel, TDimension, TAllocator>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BackwardDifferenceOperator                             Self;
-  typedef NeighborhoodOperator< TPixel, TDimension, TAllocator > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BackwardDifferenceOperator);
+
+  /** Standard class type aliases. */
+  using Self = BackwardDifferenceOperator;
+  using Superclass = NeighborhoodOperator<TPixel, TDimension, TAllocator>;
 
   /** From Superclass */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** Constructor. */
-  BackwardDifferenceOperator() {}
+  BackwardDifferenceOperator() = default;
 
 protected:
   /** Necessary to work around a compiler bug in VC++. */
-  typedef typename Superclass::CoefficientVector CoefficientVector;
+  using CoefficientVector = typename Superclass::CoefficientVector;
 
   /** Calculates operator coefficients. */
-  CoefficientVector GenerateCoefficients();
+  CoefficientVector
+  GenerateCoefficients() override;
 
   /** Arranges coefficients spatially in the memory buffer. */
-  void Fill(const CoefficientVector & coeff)
-  { this->FillCenteredDirectional(coeff); }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BackwardDifferenceOperator);
+  void
+  Fill(const CoefficientVector & coeff) override
+  {
+    this->FillCenteredDirectional(coeff);
+  }
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBackwardDifferenceOperator.hxx"
+#  include "itkBackwardDifferenceOperator.hxx"
 #endif
 
 #endif

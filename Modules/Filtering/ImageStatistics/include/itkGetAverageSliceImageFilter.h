@@ -44,15 +44,17 @@ namespace itk
  * \ingroup   IntensityImageFilters     SingleThreaded
  * \ingroup ITKImageStatistics
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT GetAverageSliceImageFilter:public AccumulateImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT GetAverageSliceImageFilter : public AccumulateImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GetAverageSliceImageFilter                         Self;
-  typedef AccumulateImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                               Pointer;
-  typedef SmartPointer< const Self >                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GetAverageSliceImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GetAverageSliceImageFilter;
+  using Superclass = AccumulateImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,18 +68,17 @@ public:
 
 protected:
   GetAverageSliceImageFilter();
-  virtual ~GetAverageSliceImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GetAverageSliceImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GetAverageSliceImageFilter);
-
   unsigned int m_AveragedOutDimension;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGetAverageSliceImageFilter.hxx"
+#  include "itkGetAverageSliceImageFilter.hxx"
 #endif
 
 #endif

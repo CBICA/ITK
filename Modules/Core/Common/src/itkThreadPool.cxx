@@ -19,271 +19,168 @@
 
 #include "itkThreadPool.h"
 #include "itksys/SystemTools.hxx"
+#include "itkThreadSupport.h"
+#include "itkNumericTraits.h"
+#include "itkMultiThreaderBase.h"
+#include "itkSingleton.h"
 
 #include <algorithm>
 
+
 namespace itk
 {
-SimpleFastMutexLock ThreadPool::m_Mutex;
 
-ThreadPool::Pointer ThreadPool::m_ThreadPoolInstance;
+struct ThreadPoolGlobals
+{
+  ThreadPoolGlobals() = default;
+  // To lock on the internal variables.
+  std::mutex          m_Mutex;
+  ThreadPool::Pointer m_ThreadPoolInstance;
+#if defined(_WIN32) && defined(ITKCommon_EXPORTS)
+  // ThreadPool's destructor is called during DllMain's DLL_PROCESS_DETACH.
+  // Because ITKCommon-5.X.dll is usually being detached due to process termination,
+  // lpvReserved is non-NULL meaning that "all threads in the process
+  // except the current thread either have exited already or have been
+  // explicitly terminated by a call to the ExitProcess function".
+  // Therefore we must not wait for the condition_variable.
+  bool m_WaitForThreads = false;
+#else // In a static library, we have to wait.
+  bool m_WaitForThreads = true;
+#endif
+};
+
+itkGetGlobalSimpleMacro(ThreadPool, ThreadPoolGlobals, PimplGlobals);
 
 ThreadPool::Pointer
-ThreadPool
-::New()
+ThreadPool ::New()
 {
   return Self::GetInstance();
 }
 
 
 ThreadPool::Pointer
-ThreadPool
-::GetInstance()
+ThreadPool ::GetInstance()
 {
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
-  if( m_ThreadPoolInstance.IsNull() )
+  // This is called once, on-demand to ensure that m_PimplGlobals is
+  // initialized.
+  itkInitGlobalsMacro(PimplGlobals);
+
+  if (m_PimplGlobals->m_ThreadPoolInstance.IsNull())
+  {
+    std::unique_lock<std::mutex> mutexHolder(m_PimplGlobals->m_Mutex);
+    // After we have the lock, double check the initialization
+    // flag to ensure it hasn't been changed by another thread.
+    if (m_PimplGlobals->m_ThreadPoolInstance.IsNull())
     {
-    m_ThreadPoolInstance  = ObjectFactory< Self >::Create();
-    if ( m_ThreadPoolInstance.IsNull() )
+      m_PimplGlobals->m_ThreadPoolInstance = ObjectFactory<Self>::Create();
+      if (m_PimplGlobals->m_ThreadPoolInstance.IsNull())
       {
-      new ThreadPool(); //constructor sets m_ThreadPoolInstance
+        new ThreadPool(); // constructor sets m_PimplGlobals->m_ThreadPoolInstance
       }
     }
-  return m_ThreadPoolInstance;
+  }
+  return m_PimplGlobals->m_ThreadPoolInstance;
 }
 
-ThreadPool
-::ThreadPool() :
-  m_ExceptionOccurred(false)
+bool
+ThreadPool ::GetDoNotWaitForThreads()
 {
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
-  m_ThreadPoolInstance = this; //threads need this
-  m_ThreadPoolInstance->UnRegister(); // Remove extra reference
-  PlatformCreate(m_ThreadsSemaphore);
-}
-
-ThreadIdType
-ThreadPool
-::GetGlobalDefaultNumberOfThreads()
-{
-  ThreadIdType threadCount = 0;
-  /* The ITK_NUMBER_OF_THREADS_ENV_LIST contains is an
-   * environmental variable that holds a ':' separated
-   * list of environmental variables that whould be
-   * queried in order for setting the m_GlobalMaximumNumberOfThreads.
-   *
-   * This is intended to be a mechanism suitable to easy
-   * runtime modification to ease using the proper number
-   * of threads for load balancing batch processing
-   * systems where the number of threads
-   * authorized for use may be less than the number
-   * of physical processors on the computer.
-   *
-   * This list contains the Sun|Oracle Grid Engine
-   * environmental variable "NSLOTS" by default
-   */
-  std::vector<std::string> ITK_NUMBER_OF_THREADS_ENV_LIST;
-  std::string       itkNumberOfThreadsEvnListString = "";
-  if( itksys::SystemTools::GetEnv("ITK_NUMBER_OF_THREADS_ENV_LIST",
-                                  itkNumberOfThreadsEvnListString) )
-    {
-    // NOTE: We always put "ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS" at the end
-    // unconditionally.
-    itkNumberOfThreadsEvnListString += ":ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS";
-    }
-  else
-    {
-    itkNumberOfThreadsEvnListString = "NSLOTS:ITK_GLOBAL_DEFAULT_NUMBER_OF_THREADS";
-    }
-    {
-    std::stringstream numberOfThreadsEnvListStream(itkNumberOfThreadsEvnListString);
-    std::string       item;
-    while( std::getline(numberOfThreadsEnvListStream, item, ':') )
-      {
-      if( item.size() > 0 ) // Do not add empty items.
-        {
-        ITK_NUMBER_OF_THREADS_ENV_LIST.push_back(item);
-        }
-      }
-    }
-  // first, check for environment variable
-  std::string itkGlobalDefaultNumberOfThreadsEnv = "0";
-  for( std::vector<std::string>::const_iterator lit = ITK_NUMBER_OF_THREADS_ENV_LIST.begin();
-       lit != ITK_NUMBER_OF_THREADS_ENV_LIST.end();
-       ++lit )
-    {
-    if( itksys::SystemTools::GetEnv(lit->c_str(), itkGlobalDefaultNumberOfThreadsEnv) )
-      {
-      threadCount = static_cast<ThreadIdType>( atoi( itkGlobalDefaultNumberOfThreadsEnv.c_str() ) );
-      }
-    }
-
-  // otherwise, set number of threads based on system information
-  if( threadCount <= 0 )
-    {
-    threadCount = GetGlobalDefaultNumberOfThreadsByPlatform();
-    }
-
-  // limit the number of threads to m_GlobalMaximumNumberOfThreads
-  threadCount  = std::min( threadCount, ThreadIdType(ITK_MAX_THREADS) );
-
-  // verify that the default number of threads is larger than zero
-  threadCount  = std::max( threadCount, NumericTraits<ThreadIdType>::OneValue() );
-
-  return threadCount;
+  itkInitGlobalsMacro(PimplGlobals);
+  return !m_PimplGlobals->m_WaitForThreads;
 }
 
 void
-ThreadPool
-::AddThreads(ThreadIdType count)
+ThreadPool ::SetDoNotWaitForThreads(bool doNotWaitForThreads)
 {
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
+  itkInitGlobalsMacro(PimplGlobals);
+  m_PimplGlobals->m_WaitForThreads = !doNotWaitForThreads;
+}
+
+ThreadPool ::ThreadPool()
+{
+  m_PimplGlobals->m_ThreadPoolInstance = this;        // threads need this
+  m_PimplGlobals->m_ThreadPoolInstance->UnRegister(); // Remove extra reference
+  ThreadIdType threadCount = MultiThreaderBase::GetGlobalDefaultNumberOfThreads();
+  m_Threads.reserve(threadCount);
+  for (unsigned int i = 0; i < threadCount; ++i)
+  {
+    m_Threads.emplace_back(&ThreadPool::ThreadExecute);
+  }
+}
+
+void
+ThreadPool ::AddThreads(ThreadIdType count)
+{
+  std::unique_lock<std::mutex> mutexHolder(m_PimplGlobals->m_Mutex);
   m_Threads.reserve(m_Threads.size() + count);
-  for( unsigned int i = 0; i < count; ++i )
-    {
-    AddThread();
-    }
+  for (unsigned int i = 0; i < count; ++i)
+  {
+    m_Threads.emplace_back(&ThreadPool::ThreadExecute);
+  }
 }
 
-void
-ThreadPool
-::DeleteThreads()
+std::mutex &
+ThreadPool ::GetMutex()
 {
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
-  for (size_t i = 0; i < m_Threads.size(); i++)
-    {
-    if (!PlatformClose(m_Threads[i]))
-      {
-      m_ExceptionOccurred = true;
-      }
-    }
+  return m_PimplGlobals->m_Mutex;
 }
 
 int
-ThreadPool
-::GetNumberOfCurrentlyIdleThreads() const
+ThreadPool ::GetNumberOfCurrentlyIdleThreads() const
 {
-  MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
-  if ( m_Threads.empty() ) //not yet initialized
-    {
-    const_cast<ThreadPool *>(this)->AddThreads(ThreadPool::GetGlobalDefaultNumberOfThreads());
-    }
+  std::unique_lock<std::mutex> mutexHolder(m_PimplGlobals->m_Mutex);
   return int(m_Threads.size()) - int(m_WorkQueue.size()); // lousy approximation
 }
 
-ITK_THREAD_RETURN_TYPE
-noOperation(void *)
-{
-  return ITK_THREAD_RETURN_VALUE;
-}
-
-ThreadPool
-::~ThreadPool()
-{
-  bool waitForThreads = true;
-#if defined(WIN32) && defined(ITKCommon_EXPORTS)
-  //this destructor is called during DllMain's DLL_PROCESS_DETACH.
-  //Because ITKCommon-4.X.dll is usually being detached due to process termination,
-  //lpvReserved is non-NULL meaning that "all threads in the process
-  //except the current thread either have exited already or have been
-  //explicitly terminated by a call to the ExitProcess function".
-  if ( !m_Threads.empty() ) //thread pool was used
-    {
-    DWORD dwWaitResult = WaitForSingleObject(m_Threads[0], 1);
-    if (dwWaitResult == WAIT_OBJECT_0) //thread has finished
-      {
-      waitForThreads = false;
-      }
-    }
-#endif
-
-  if (waitForThreads) //add dummy jobs for clean thread exit
-    {
-    std::vector<Semaphore> jobSem(m_Threads.size());
-    for (ThreadIdType i = 0; i < m_Threads.size(); i++)
-      {
-      ThreadJob dummy;
-      dummy.m_ThreadFunction = &noOperation;
-      dummy.m_Semaphore = &jobSem[i];
-      dummy.m_UserData = ITK_NULLPTR; //makes dummy jobs easier to spot while debugging
-      AddWork(dummy);
-      }
-
-    for (ThreadIdType i = 0; i < m_Threads.size(); i++)
-      {
-      WaitForJob(jobSem[i]);
-      }
-    }
-
-  DeleteThreads();
-  PlatformDelete(m_ThreadsSemaphore);
-}
-
-void
-ThreadPool
-::WaitForJob(Semaphore& jobSemaphore)
-{
-  PlatformWait(jobSemaphore);
-  PlatformDelete(jobSemaphore);
-}
-
-void
-ThreadPool
-::AddWork(const ThreadJob& threadJob)
+ThreadPool ::~ThreadPool()
 {
   {
-    MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
-    if ( m_Threads.empty() ) //first job
-      {
-      AddThreads(ThreadPool::GetGlobalDefaultNumberOfThreads());
-      }
-    m_WorkQueue.push_back(threadJob);
+    std::unique_lock<std::mutex> mutexHolder(m_PimplGlobals->m_Mutex);
+
+    this->m_Stopping = true;
   }
 
-  PlatformCreate(*threadJob.m_Semaphore);
-  PlatformSignal(m_ThreadsSemaphore);
+  if (m_PimplGlobals->m_WaitForThreads && !m_Threads.empty())
+  {
+    m_Condition.notify_all();
+  }
+
+  // Even if the threads have already been terminated,
+  // we should join() the std::thread variables.
+  // Otherwise some sanity check in debug mode complains.
+  for (ThreadIdType i = 0; i < m_Threads.size(); i++)
+  {
+    m_Threads[i].join();
+  }
 }
 
 
-ITK_THREAD_RETURN_TYPE
-ThreadPool
-::ThreadExecute(void *)
+void
+ThreadPool ::ThreadExecute()
 {
-  //plain pointer does not increase reference count
-  ThreadPool* threadPool = m_ThreadPoolInstance.GetPointer();
-  try
+  // plain pointer does not increase reference count
+  ThreadPool * threadPool = m_PimplGlobals->m_ThreadPoolInstance.GetPointer();
+
+  while (true)
+  {
+    std::function<void()> task;
+
     {
-    while (true)
+      std::unique_lock<std::mutex> mutexHolder(m_PimplGlobals->m_Mutex);
+      threadPool->m_Condition.wait(mutexHolder,
+                                   [threadPool] { return threadPool->m_Stopping || !threadPool->m_WorkQueue.empty(); });
+      if (threadPool->m_Stopping && threadPool->m_WorkQueue.empty())
       {
-      threadPool->PlatformWait(threadPool->m_ThreadsSemaphore);
-
-      ThreadJob job;
-      {
-      MutexLockHolder<SimpleFastMutexLock> mutexHolder(m_Mutex);
-      if (threadPool->m_WorkQueue.empty()) //another thread stole work meant for me
-        {
-        itkGenericExceptionMacro(<< "Work queue is empty!");
-        }
-      job = threadPool->m_WorkQueue.front();
-      threadPool->m_WorkQueue.pop_front();
-      } //releases the lock
-
-      if (job.m_ThreadFunction == &noOperation)
-        {
-        PlatformSignal(*job.m_Semaphore);
-        break; //exit infinite while loop
-        }
-      job.m_ThreadFunction(job.m_UserData); //execute the job, lock has been released
-      PlatformSignal(*job.m_Semaphore);
+        return;
       }
+      task = std::move(threadPool->m_WorkQueue.front());
+      threadPool->m_WorkQueue.pop_front();
     }
-  catch (ExceptionObject& exc)
-    {
-    std::cerr << exc << std::endl;
-    threadPool->m_ExceptionOccurred = true;
-    throw;
-    }
-  return ITK_THREAD_RETURN_VALUE;
+
+    task(); // execute the task
+  }
 }
 
-}
+ThreadPoolGlobals * ThreadPool::m_PimplGlobals;
+
+} // namespace itk

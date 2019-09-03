@@ -51,15 +51,16 @@
 #include "itkImage.h"
 
 
-int main( int argc, char ** argv )
+int
+main(int argc, char ** argv)
 {
   // Verify the number of parameters in the command line
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Usage: " << std::endl;
     std::cerr << argv[0] << " inputImageFile  outputVectorImageFile " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //  Software Guide : BeginLatex
@@ -75,18 +76,17 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef float                 ComponentType;
-  const   unsigned int          Dimension = 2;
+  using ComponentType = float;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::CovariantVector< ComponentType,
-                                    Dimension  >      InputPixelType;
+  using InputPixelType = itk::CovariantVector<ComponentType, Dimension>;
 
-  typedef float                                       MagnitudePixelType;
-  typedef unsigned short                              OutputPixelType;
+  using MagnitudePixelType = float;
+  using OutputPixelType = unsigned short;
 
-  typedef itk::Image< InputPixelType,      Dimension >    InputImageType;
-  typedef itk::Image< MagnitudePixelType,  Dimension >    MagnitudeImageType;
-  typedef itk::Image< OutputPixelType,     Dimension >    OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using MagnitudeImageType = itk::Image<MagnitudePixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
 
@@ -98,8 +98,8 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::ImageFileReader< InputImageType  >  ReaderType;
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   // Software Guide : EndCodeSnippet
 
 
@@ -116,9 +116,8 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::VectorMagnitudeImageFilter<
-                                          InputImageType,
-                                          MagnitudeImageType    > FilterType;
+  using FilterType =
+    itk::VectorMagnitudeImageFilter<InputImageType, MagnitudeImageType>;
 
   FilterType::Pointer filter = FilterType::New();
   // Software Guide : EndCodeSnippet
@@ -135,11 +134,10 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   //  Software Guide : BeginCodeSnippet
-  typedef itk::RescaleIntensityImageFilter<
-                                  MagnitudeImageType,
-                                  OutputImageType >      RescaleFilterType;
+  using RescaleFilterType =
+    itk::RescaleIntensityImageFilter<MagnitudeImageType, OutputImageType>;
 
-  RescaleFilterType::Pointer  rescaler = RescaleFilterType::New();
+  RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
   //  Software Guide : EndCodeSnippet
 
 
@@ -157,8 +155,8 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   //  Software Guide : BeginCodeSnippet
-  rescaler->SetOutputMinimum( itk::NumericTraits< OutputPixelType >::min() );
-  rescaler->SetOutputMaximum( itk::NumericTraits< OutputPixelType >::max() );
+  rescaler->SetOutputMinimum(itk::NumericTraits<OutputPixelType>::min());
+  rescaler->SetOutputMaximum(itk::NumericTraits<OutputPixelType>::max());
   //  Software Guide : EndCodeSnippet
 
 
@@ -182,7 +180,7 @@ int main( int argc, char ** argv )
 
   // Here we recover the file names from the command line arguments
   //
-  const char * inputFilename  = argv[1];
+  const char * inputFilename = argv[1];
   const char * outputFilename = argv[2];
 
 
@@ -199,8 +197,8 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  reader->SetFileName( inputFilename  );
-  writer->SetFileName( outputFilename );
+  reader->SetFileName(inputFilename);
+  writer->SetFileName(outputFilename);
   // Software Guide : EndCodeSnippet
 
 
@@ -212,9 +210,9 @@ int main( int argc, char ** argv )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  filter->SetInput( reader->GetOutput() );
-  rescaler->SetInput( filter->GetOutput() );
-  writer->SetInput( rescaler->GetOutput() );
+  filter->SetInput(reader->GetOutput());
+  rescaler->SetInput(filter->GetOutput());
+  writer->SetInput(rescaler->GetOutput());
   // Software Guide : EndCodeSnippet
 
 
@@ -228,15 +226,15 @@ int main( int argc, char ** argv )
 
   // Software Guide : BeginCodeSnippet
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

@@ -1,23 +1,40 @@
 #include <iostream>
 #include <iomanip>
 #include <complex>
-#include <vcl_compiler.h>
 #include <vnl/vnl_rational.h>
-#include <vnl/vnl_rational_traits.h>
-#ifdef NEED_COMPLEX_RATIONAL
-# include <vnl/vnl_complex.h>
-#endif
 #include <testlib/testlib_test.h>
 #include <vnl/vnl_math.h>
 #include <vnl/vnl_matrix_fixed.h>
+#include <vnl/vnl_rational_traits.h>
 #include <vnl/vnl_det.h>
-#include <vxl_config.h> // for VXL_INT_64_IS_LONG
 
 inline vnl_rational vnl_sqrt(vnl_rational x) { return vnl_rational(std::sqrt(double(x))); }
 
 static void test_operators()
 {
   vnl_rational a(-5L), b(7,-1), c, d(3,7), e(2,0);
+  vnl_rational z_default;
+  TEST("==", z_default==0L, true);
+
+  vnl_rational z_int(static_cast<int>(0));
+  TEST("==", z_int==0L, true);
+  vnl_rational z_uint(static_cast<unsigned int>(0) );
+  TEST("==", z_uint==0L, true);
+
+  vnl_rational z_short(static_cast<int>(0));
+  TEST("==", z_short==0L, true);
+  vnl_rational z_ushort(static_cast<unsigned int>(0) );
+  TEST("==", z_ushort==0L, true);
+
+  vnl_rational z_long(static_cast<long>(0));
+  TEST("==", z_long==0L, true);
+  vnl_rational z_ulong(static_cast<unsigned long>(0));
+  TEST("==", z_ulong==0L, true);
+#if 0
+  vnl_rational z_mixed(static_cast<short>(0), static_cast<unsigned int>(1) );
+  TEST("==", z_mixed==0L, true);
+#endif
+
   TEST("==", a==-5L, true);
   TEST("==", 5L==-a, true);
   TEST("==", b==-7, true);
@@ -125,7 +142,7 @@ static void test_frac()
   TEST_NEAR("large division with overflow", p, double(r) / double(s), 1e-12);
 }
 
-#if VXL_INT_64_IS_LONG
+#if VXL_INT_64_IS_LONG || VXL_INT_64_IS_LONGLONG
 static void test_long_64()
 {
   long l1 = 1234321234321L, l2 = 2*l1, l3 = 123456787654321L, l4 = l3+1;
@@ -166,7 +183,7 @@ static void test_approx()
   d = vnl_rational(-1.23456);
   TEST("construct from double", d, vnl_rational(-123456,100000));
   vnl_rational pi = vnl_rational(vnl_math::pi);
-  double pi_a = double(pi);
+  auto pi_a = double(pi);
   TEST("pi", pi_a-vnl_math::pi < 1e-18 && vnl_math::pi-pi_a < 1e-18, true);
   std::cout << "Best rational approximation of pi: " << pi << " = "
            << pi_a << '\n'
@@ -214,29 +231,6 @@ static void test_zero_one()
   TEST("one", u, 1L);
 }
 
-#ifdef NEED_COMPLEX_RATIONAL // see vnl_complex.h
-static void test_complex()
-{
-  std::complex<vnl_rational> c(0L,1L);
-  vnl_rational cc(-1L);
-  TEST("complex square", c*c, cc);
-  TEST("complex abs", vnl_math::abs(c), 1);
-  TEST("complex sqr mag", vnl_math::squared_magnitude(c), 1);
-  TEST("complex vnl_math::isfinite", vnl_math::isfinite(c), true);
-  TEST("complex vnl_math::isnan", vnl_math::isnan(c), false);
-}
-
-static void test_complex_zero_one()
-{
-  std::complex<vnl_rational> n = vnl_numeric_traits<std::complex<vnl_rational> >::zero;
-  std::cout << "zero = " << n << '\n';
-  TEST("zero", n, std::complex<vnl_rational>(0L,0L));
-  std::complex<vnl_rational> u = vnl_numeric_traits<std::complex<vnl_rational> >::one;
-  std::cout << "one  = " << u << '\n';
-  TEST("one", u, std::complex<vnl_rational>(1L,0L));
-}
-#endif // NEED_COMPLEX_RATIONAL
-
 void test_rational()
 {
   test_operators();
@@ -246,10 +240,7 @@ void test_rational()
   test_determinant();
   test_sqrt();
   test_zero_one();
-#ifdef NEED_COMPLEX_RATIONAL // see vnl_complex.h
-  test_complex();
-  test_complex_zero_one();
-#endif
+
 #if VXL_INT_64_IS_LONG
   test_long_64();
 #endif

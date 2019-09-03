@@ -36,66 +36,67 @@ namespace itk
  * \ingroup ITKImageFilterBase
  */
 
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT BoxImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT BoxImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BoxImageFilter                                  Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BoxImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BoxImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BoxImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(BoxImageFilter, ImageToImageFilter);
 
-  /** Image related typedefs. */
-  typedef TInputImage                      InputImageType;
-  typedef typename TInputImage::RegionType RegionType;
-  typedef typename TInputImage::SizeType   SizeType;
-  typedef typename TInputImage::IndexType  IndexType;
-  typedef typename TInputImage::OffsetType OffsetType;
+  /** Image related type alias. */
+  using InputImageType = TInputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using OffsetType = typename TInputImage::OffsetType;
 
-  typedef typename TInputImage::PixelType InputPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
 
-  typedef TOutputImage                     OutputImageType;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
   /** n-dimensional Kernel radius. */
-  typedef typename TInputImage::SizeType      RadiusType;
-  typedef typename TInputImage::SizeValueType RadiusValueType;
+  using RadiusType = typename TInputImage::SizeType;
+  using RadiusValueType = typename TInputImage::SizeValueType;
 
-  virtual void SetRadius(const RadiusType & radius);
+  virtual void
+  SetRadius(const RadiusType & radius);
 
-  virtual void SetRadius(const RadiusValueType & radius);
+  virtual void
+  SetRadius(const RadiusValueType & radius);
 
   itkGetConstReferenceMacro(Radius, RadiusType);
 
 protected:
   BoxImageFilter();
-  ~BoxImageFilter() ITK_OVERRIDE {}
+  ~BoxImageFilter() override = default;
 
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BoxImageFilter);
-
   RadiusType m_Radius;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBoxImageFilter.hxx"
+#  include "itkBoxImageFilter.hxx"
 #endif
 
 #endif

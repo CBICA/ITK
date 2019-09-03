@@ -45,8 +45,8 @@ class METAIO_EXPORT DTITubePnt
 {
 public:
 
-  typedef METAIO_STL::pair<METAIO_STL::string,float>  FieldType;
-  typedef METAIO_STL::vector<FieldType>        FieldListType;
+  typedef std::pair<std::string,float>  FieldType;
+  typedef std::vector<FieldType>        FieldListType;
 
   DTITubePnt(int dim);
 
@@ -69,7 +69,7 @@ public:
 
 
 class METAIO_EXPORT MetaDTITube : public MetaObject
-  {
+{
 
   /////
   //
@@ -78,8 +78,8 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
   ////
   public:
 
-   typedef METAIO_STL::list<DTITubePnt*> PointListType;
-   typedef METAIO_STL::pair<METAIO_STL::string,unsigned int> PositionType;
+   typedef std::list<DTITubePnt*> PointListType;
+   typedef std::pair<std::string,unsigned int> PositionType;
 
    ////
     //
@@ -94,15 +94,15 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
 
     MetaDTITube(unsigned int dim);
 
-    ~MetaDTITube(void) MET_OVERRIDE;
+    ~MetaDTITube(void) override;
 
-    void PrintInfo(void) const MET_OVERRIDE;
+    void PrintInfo(void) const override;
 
-    void CopyInfo(const MetaObject * _object) MET_OVERRIDE;
+    void CopyInfo(const MetaObject * _object) override;
 
     //    NPoints(...)
     //       Required Field
-    //       Number of points wich compose the DTITube
+    //       Number of points which compose the DTITube
     void  NPoints(int npnt);
     int   NPoints(void) const;
 
@@ -125,7 +125,7 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
     void  ParentPoint(int parentpoint);
     int   ParentPoint(void) const;
 
-    void  Clear(void) MET_OVERRIDE;
+    void  Clear(void) override;
 
     PointListType &  GetPoints(void) {return m_PointList;}
     const PointListType &  GetPoints(void) const {return m_PointList;}
@@ -142,15 +142,15 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
 
     bool  m_ElementByteOrderMSB;
 
-    void  M_Destroy(void) MET_OVERRIDE;
+    void  M_Destroy(void) override;
 
-    void  M_SetupReadFields(void) MET_OVERRIDE;
+    void  M_SetupReadFields(void) override;
 
-    void  M_SetupWriteFields(void) MET_OVERRIDE;
+    void  M_SetupWriteFields(void) override;
 
-    bool  M_Read(void) MET_OVERRIDE;
+    bool  M_Read(void) override;
 
-    bool  M_Write(void) MET_OVERRIDE;
+    bool  M_Write(void) override;
 
     int m_ParentPoint;  // "ParentPoint = "     -1
 
@@ -158,14 +158,14 @@ class METAIO_EXPORT MetaDTITube : public MetaObject
 
     int m_NPoints;      // "NPoints = "         0
 
-    METAIO_STL::string m_PointDim; // "PointDim = "       "x y z r"
+    std::string m_PointDim; // "PointDim = "       "x y z r"
 
     PointListType m_PointList;
     MET_ValueEnumType m_ElementType;
-    METAIO_STL::vector<PositionType> m_Positions;
+    std::vector<PositionType> m_Positions;
 
     int GetPosition(const char*) const;
-  };
+};
 
 #if (METAIO_USE_NAMESPACE)
 };

@@ -41,57 +41,55 @@ namespace itk
  *
  * \ingroup ITKDeconvolution
  */
-template< typename TSuperclass >
+template <typename TSuperclass>
 class ITK_TEMPLATE_EXPORT ProjectedIterativeDeconvolutionImageFilter : public TSuperclass
 {
 public:
-  /** Standard typedefs. */
-  typedef ProjectedIterativeDeconvolutionImageFilter Self;
-  typedef TSuperclass                                Superclass;
-  typedef SmartPointer< Self >                       Pointer;
-  typedef SmartPointer< const Self >                 ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ProjectedIterativeDeconvolutionImageFilter);
 
-  /** Other useful typedefs. */
-  typedef typename Superclass::InputImageType        InputImageType;
-  typedef typename Superclass::KernelImageType       KernelImageType;
-  typedef typename Superclass::OutputImageType       OutputImageType;
+  /** Standard type alias. */
+  using Self = ProjectedIterativeDeconvolutionImageFilter;
+  using Superclass = TSuperclass;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Other useful type alias. */
+  using InputImageType = typename Superclass::InputImageType;
+  using KernelImageType = typename Superclass::KernelImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
 
   /** Internal types used by the FFT filters. */
-  typedef typename Superclass::InternalImageType               InternalImageType;
-  typedef typename Superclass::InternalImagePointerType        InternalImagePointerType;
-  typedef typename Superclass::InternalComplexType             InternalComplexType;
-  typedef typename Superclass::InternalComplexImageType        InternalComplexImageType;
-  typedef typename Superclass::InternalComplexImagePointerType InternalComplexImagePointerType;
+  using InternalImageType = typename Superclass::InternalImageType;
+  using InternalImagePointerType = typename Superclass::InternalImagePointerType;
+  using InternalComplexType = typename Superclass::InternalComplexType;
+  using InternalComplexImageType = typename Superclass::InternalComplexImageType;
+  using InternalComplexImagePointerType = typename Superclass::InternalComplexImagePointerType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ProjectedIterativeDeconvolutionImageFilter,
-               IterativeDeconvolutionImageFilter);
+  itkTypeMacro(ProjectedIterativeDeconvolutionImageFilter, IterativeDeconvolutionImageFilter);
 
 protected:
   ProjectedIterativeDeconvolutionImageFilter();
-  virtual ~ProjectedIterativeDeconvolutionImageFilter() ITK_OVERRIDE;
+  ~ProjectedIterativeDeconvolutionImageFilter() override;
 
-  virtual void Initialize(ProgressAccumulator * progress,
-                          float progressWeight,
-                          float iterationProgressWeight) ITK_OVERRIDE;
+  void
+  Initialize(ProgressAccumulator * progress, float progressWeight, float iterationProgressWeight) override;
 
-  virtual void Iteration(ProgressAccumulator * progress,
-                         float iterationProgressWeight) ITK_OVERRIDE;
+  void
+  Iteration(ProgressAccumulator * progress, float iterationProgressWeight) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ProjectedIterativeDeconvolutionImageFilter);
-
-  typedef ThresholdImageFilter< InternalImageType > ProjectionFilterType;
+  using ProjectionFilterType = ThresholdImageFilter<InternalImageType>;
 
   typename ProjectionFilterType::Pointer m_ProjectionFilter;
 };
-} // end namespace ITK
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkProjectedIterativeDeconvolutionImageFilter.hxx"
+#  include "itkProjectedIterativeDeconvolutionImageFilter.hxx"
 #endif
 
 #endif

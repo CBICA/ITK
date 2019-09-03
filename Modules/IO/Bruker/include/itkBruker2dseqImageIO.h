@@ -78,11 +78,13 @@ namespace itk
 class ITKIOBruker_EXPORT Bruker2dseqImageIO : public ImageIOBase
 {
 public:
-  /* Standard class typedefs. */
-  typedef Bruker2dseqImageIO          Self;
-  typedef ImageIOBase                 Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(Bruker2dseqImageIO);
+
+  /* Standard class type aliases. */
+  using Self = Bruker2dseqImageIO;
+  using Superclass = ImageIOBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a SmartPointer. */
   itkNewMacro(Self);
@@ -92,46 +94,52 @@ public:
 
   /** Determine if the necessary files exist to read the specified 2dseq file.
    * Returns true if all required files exist. */
-  virtual bool CanReadFile(const char *FileNameToRead) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char * FileNameToRead) override;
 
   /** Set the spacing and dimension information for the set filename. */
-  virtual void ReadImageInformation() ITK_OVERRIDE;
+  void
+  ReadImageInformation() override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read(void *buffer) ITK_OVERRIDE;
+  void
+  Read(void * buffer) override;
 
   /** Writing files has not been implemented for Bruker 2dseq.
    * This function will always return false. */
-  virtual bool CanWriteFile( const char *itkNotUsed(FileNameToWrite) ) ITK_OVERRIDE
-    {
+  bool
+  CanWriteFile(const char * itkNotUsed(FileNameToWrite)) override
+  {
     return false;
-    }
+  }
 
   /** Not implemented. */
-  virtual void WriteImageInformation() ITK_OVERRIDE
-    {
+  void
+  WriteImageInformation() override
+  {
     return;
-    }
+  }
 
   /** Not implemented - does nothing */
-  virtual void Write( const void *itkNotUsed(buffer) ) ITK_OVERRIDE
-    {
+  void
+  Write(const void * itkNotUsed(buffer)) override
+  {
     return;
-    }
+  }
 
 protected:
   Bruker2dseqImageIO();
-  ~Bruker2dseqImageIO() ITK_OVERRIDE;
+  ~Bruker2dseqImageIO() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(Bruker2dseqImageIO);
+  void
+  SwapBytesIfNecessary(void * buffer, SizeValueType numberOfPixels);
 
-  void SwapBytesIfNecessary(void *buffer, SizeValueType numberOfPixels);
-
-  ImageIOBase::IOComponentType  m_OnDiskComponentType;
-  ImageIOBase::ByteOrder        m_MachineByteOrder;
+  ImageIOBase::IOComponentType m_OnDiskComponentType{ UCHAR };
+  ImageIOBase::ByteOrder       m_MachineByteOrder;
 };
 
 } // end namespace itk

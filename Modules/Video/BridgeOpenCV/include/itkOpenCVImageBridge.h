@@ -27,13 +27,13 @@
 #include "opencv2/core/version.hpp"
 #if !defined(CV_VERSION_EPOCH)
 // OpenCV 3.x
-#include "opencv2/core.hpp"
-#include "opencv2/imgproc/types_c.h" // CV_RGB2BGR, CV_BGR2GRAY, ...
-#include "opencv2/imgproc/imgproc_c.h" // cvCvtColor
+#  include "opencv2/core.hpp"
+#  include "opencv2/imgproc/types_c.h"   // CV_RGB2BGR, CV_BGR2GRAY, ...
+#  include "opencv2/imgproc/imgproc_c.h" // cvCvtColor
 #else
 // OpenCV 2.4.x
-#include "cv.h"
-#include "highgui.h"
+#  include "cv.h"
+#  include "highgui.h"
 #endif
 
 namespace itk
@@ -57,82 +57,84 @@ namespace itk
 class OpenCVImageBridge
 {
 public:
-
-  /** ITK stype typedefs */
-  typedef OpenCVImageBridge Self;
-
-  /** IplImage* -> itk::Image */
-  template<typename TOutputImageType>
-  static typename TOutputImageType::Pointer IplImageToITKImage(const IplImage* in);
-
-  /** cv::Mat -> itk::Image */
-  template<typename TOutputImageType>
-  static typename TOutputImageType::Pointer CVMatToITKImage(const cv::Mat & in);
-
-  /** itk::Image -> IplImage* */
-  template<typename TInputImageType>
-  static IplImage* ITKImageToIplImage(const TInputImageType* in, bool force3Channels = false);
-
-  /** itk::Image -> cv::Mat */
-  template<typename TInputImageType>
-  static cv::Mat ITKImageToCVMat(const TInputImageType* in, bool force3Channels = false);
-
-private:
   ITK_DISALLOW_COPY_AND_ASSIGN(OpenCVImageBridge);
 
+  /** ITK stype type alias */
+  using Self = OpenCVImageBridge;
+
+  /** IplImage* -> itk::Image */
+  template <typename TOutputImageType>
+  static typename TOutputImageType::Pointer
+  IplImageToITKImage(const IplImage * in);
+
+  /** cv::Mat -> itk::Image */
+  template <typename TOutputImageType>
+  static typename TOutputImageType::Pointer
+  CVMatToITKImage(const cv::Mat & in);
+
+  /** itk::Image -> IplImage* */
+  template <typename TInputImageType>
+  static IplImage *
+  ITKImageToIplImage(const TInputImageType * in, bool force3Channels = false);
+
+  /** itk::Image -> cv::Mat */
+  template <typename TInputImageType>
+  static cv::Mat
+  ITKImageToCVMat(const TInputImageType * in, bool force3Channels = false);
+
+private:
   /** Steps involved in this method are:
     1) Handle converting between colorspaces
     2) Allocate the output image
     3) Create a copy of the current IplImage's buffer without any padding
     (slow but necessary)
     4) Copy the buffer and convert the pixels if necessary */
-  template< typename TOutputImageType, typename TPixel >
-  static void ITKConvertIplImageBuffer( const IplImage* in,
-                                        TOutputImageType* out,
-                                        int iDepth )
+  template <typename TOutputImageType, typename TPixel>
+  static void
+  ITKConvertIplImageBuffer(const IplImage * in, TOutputImageType * out, int iDepth)
   {
     // Typedefs
-    typedef TOutputImageType                            ImageType;
-    typedef typename ImageType::PixelType               OutputPixelType;
-    typedef DefaultConvertPixelTraits<OutputPixelType>  ConvertPixelTraits;
+    using ImageType = TOutputImageType;
+    using OutputPixelType = typename ImageType::PixelType;
+    using ConvertPixelTraits = DefaultConvertPixelTraits<OutputPixelType>;
 
     unsigned int inChannels = in->nChannels;
     unsigned int outChannels = itk::NumericTraits<OutputPixelType>::MeasurementVectorType::Dimension;
 
     // We only change current if it no longer points at in, so this is safe
-    IplImage* current = const_cast<IplImage*>(in);
+    IplImage * current = const_cast<IplImage *>(in);
 
     bool isVectorImage(strcmp(out->GetNameOfClass(), "VectorImage") == 0);
 
     bool freeCurrent = false;
     if (inChannels == 3 && outChannels == 1)
-      {
+    {
       current = cvCreateImage(cvSize(in->width, in->height), iDepth, 1);
       cvCvtColor(in, current, CV_BGR2GRAY);
       freeCurrent = true;
-      }
+    }
     else if (inChannels == 1 && outChannels == 3)
-      {
+    {
       current = cvCreateImage(cvSize(in->width, in->height), iDepth, 3);
       cvCvtColor(in, current, CV_GRAY2RGB);
       freeCurrent = true;
-      }
+    }
     else if (inChannels == 3 && outChannels == 3)
-      {
+    {
       current = cvCreateImage(cvSize(in->width, in->height), iDepth, 3);
       cvCvtColor(in, current, CV_BGR2RGB);
       freeCurrent = true;
-      }
+    }
     else if (inChannels != 1 || outChannels != 1)
-      {
-      itkGenericExceptionMacro("Conversion from " << inChannels << " channels to "
-                               << outChannels << " channels is not supported");
-      }
-    typename ImageType::RegionType region;
-    typename ImageType::RegionType::SizeType size;
+    {
+      itkGenericExceptionMacro("Conversion from " << inChannels << " channels to " << outChannels
+                                                  << " channels is not supported");
+    }
+    typename ImageType::RegionType            region;
+    typename ImageType::RegionType::SizeType  size;
     typename ImageType::RegionType::IndexType start;
-    typename ImageType::SpacingType spacing;
-    size.Fill( 1 );
+    typename ImageType::SpacingType           spacing;
+    size.Fill(1);
     size[0] = current->width;
     size[1] = current->height;
     start.Fill(0);
@@ -142,84 +144,84 @@ private:
     out->SetRegions(region);
     out->SetSpacing(spacing);
     out->Allocate();
-    size_t lineLength = current->width*current->nChannels;
-    void* unpaddedBuffer = reinterpret_cast< void* >(
-      new TPixel[current->height*lineLength]);
+    size_t       lineLength = current->width * current->nChannels;
+    void *       unpaddedBuffer = reinterpret_cast<void *>(new TPixel[current->height * lineLength]);
     unsigned int paddedBufPos = 0;
     unsigned int unpaddedBufPos = 0;
     for (int i = 0; i < current->height; ++i)
-      {
-      memcpy(&(reinterpret_cast<TPixel*>(unpaddedBuffer)[unpaddedBufPos]),
-             reinterpret_cast<TPixel*>(current->imageData + paddedBufPos),
-             lineLength*sizeof(TPixel) );
+    {
+      memcpy(&(reinterpret_cast<TPixel *>(unpaddedBuffer)[unpaddedBufPos]),
+             reinterpret_cast<TPixel *>(current->imageData + paddedBufPos),
+             lineLength * sizeof(TPixel));
       paddedBufPos += current->widthStep;
       unpaddedBufPos += lineLength;
-      }
+    }
     if (isVectorImage)
-      {
-      ConvertPixelBuffer<TPixel, OutputPixelType, ConvertPixelTraits>
-        ::ConvertVectorImage(static_cast< TPixel* >(unpaddedBuffer),
-                             current->nChannels,
-                             out->GetPixelContainer()->GetBufferPointer(),
-                             out->GetPixelContainer()->Size());
-      }
+    {
+      ConvertPixelBuffer<TPixel, OutputPixelType, ConvertPixelTraits>::ConvertVectorImage(
+        static_cast<TPixel *>(unpaddedBuffer),
+        current->nChannels,
+        out->GetPixelContainer()->GetBufferPointer(),
+        out->GetPixelContainer()->Size());
+    }
     else
-      {
-      ConvertPixelBuffer<TPixel, OutputPixelType, ConvertPixelTraits>
-        ::Convert(static_cast< TPixel* >(unpaddedBuffer),
-                  current->nChannels,
-                  out->GetPixelContainer()->GetBufferPointer(),
-                  out->GetPixelContainer()->Size());
-      }
-    delete[] reinterpret_cast<TPixel*>(unpaddedBuffer);
+    {
+      ConvertPixelBuffer<TPixel, OutputPixelType, ConvertPixelTraits>::Convert(
+        static_cast<TPixel *>(unpaddedBuffer),
+        current->nChannels,
+        out->GetPixelContainer()->GetBufferPointer(),
+        out->GetPixelContainer()->Size());
+    }
+    delete[] reinterpret_cast<TPixel *>(unpaddedBuffer);
     if (freeCurrent)
-      {
+    {
       cvReleaseImage(&current);
-      }
+    }
   }
 
-  template< typename TPixel, unsigned int VDimension >
+  template <typename TPixel, unsigned int VDimension>
   struct HandleRGBPixel
   {
-    static void Padding( const Image< TPixel, VDimension >* itkNotUsed( in ),
-                         IplImage* itkNotUsed( out ) )
+    static void
+    Padding(const Image<TPixel, VDimension> * itkNotUsed(in), IplImage * itkNotUsed(out))
     {}
   };
 
-  template< typename TValue, unsigned int VDimension >
-  struct HandleRGBPixel< RGBPixel< TValue >, VDimension >
+  template <typename TValue, unsigned int VDimension>
+  struct HandleRGBPixel<RGBPixel<TValue>, VDimension>
   {
-    typedef TValue                          ValueType;
-    typedef RGBPixel< ValueType >           PixelType;
-    typedef Image< PixelType, VDimension >  ImageType;
+    using ValueType = TValue;
+    using PixelType = RGBPixel<ValueType>;
+    using ImageType = Image<PixelType, VDimension>;
 
-    static void Padding( const ImageType* in, IplImage* out )
+    static void
+    Padding(const ImageType * in, IplImage * out)
     {
-      typename ImageType::IndexType pixelIndex = {{0,0}};
+      typename ImageType::IndexType pixelIndex = { { 0, 0 } };
 
-      for( int r=0;r < out->height; r++ )
+      for (int r = 0; r < out->height; r++)
+      {
+        ValueType * ptr = reinterpret_cast<ValueType *>(out->imageData + r * out->widthStep);
+        for (int c = 0; c < out->width; c++)
         {
-        ValueType* ptr = reinterpret_cast< ValueType* >( out->imageData + r * out->widthStep );
-        for( int c=0;c < out->width; c++ )
-          {
           pixelIndex[0] = c;
           pixelIndex[1] = r;
-          typename ImageType::PixelType  pixel = in->GetPixel(pixelIndex);
+          typename ImageType::PixelType pixel = in->GetPixel(pixelIndex);
 
-          for( unsigned int i=0; i< 3; i++ )
-            {
+          for (unsigned int i = 0; i < 3; i++)
+          {
             *ptr++ = pixel[i];
-            }
           }
         }
+      }
     }
   };
-};  // end class OpenCVImageBridge
+}; // end class OpenCVImageBridge
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkOpenCVImageBridge.hxx"
+#  include "itkOpenCVImageBridge.hxx"
 #endif
 
 #endif

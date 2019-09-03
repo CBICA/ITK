@@ -21,40 +21,41 @@
 #include "itkImageFileWriter.h"
 #include "itkTestingMacros.h"
 
-int itkMatrixIndexSelectionImageFilterTest( int argc, char* argv[] )
+int
+itkMatrixIndexSelectionImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 1 )
-    {
+  if (argc < 1)
+  {
     std::cerr << "Missing Parameters " << std::endl;
-    std::cerr << "Usage: " << argv[0];
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv);
     std::cerr << " outputImage" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Define the dimension of the images
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
   // Declare the pixel types of the images
-  typedef itk::Matrix< unsigned short, Dimension, Dimension > PixelType;
-  typedef unsigned char                                       OutputPixelType;
+  using PixelType = itk::Matrix<unsigned short, Dimension, Dimension>;
+  using OutputPixelType = unsigned char;
 
   // Declare the types of the images
-  typedef itk::Image< PixelType, Dimension >       InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using InputImageType = itk::Image<PixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
   // Create a matrix image
-  InputImageType::Pointer image = InputImageType::New();
+  InputImageType::Pointer    image = InputImageType::New();
   InputImageType::RegionType region;
 
   InputImageType::SizeType size;
-  size.Fill( 100 );
+  size.Fill(100);
 
   InputImageType::IndexType index;
-  index.Fill( 0 );
+  index.Fill(0);
 
-  region.SetSize( size );
-  region.SetIndex( index );
-  image->SetRegions( region );
+  region.SetSize(size);
+  region.SetIndex(index);
+  image->SetRegions(region);
   image->Allocate();
 
   size = region.GetSize();
@@ -68,83 +69,79 @@ int itkMatrixIndexSelectionImageFilterTest( int argc, char* argv[] )
   // Populate upper half of image
   index[0] = 0;
   index[1] = 0;
-  region.SetSize( size );
-  region.SetIndex( index );
+  region.SetSize(size);
+  region.SetIndex(index);
   {
-  PixelType pixel;
-  pixel[0][0] = 128;
-  pixel[0][1] = 192;
-  pixel[1][0] =   0;
-  pixel[1][1] =  64;
+    PixelType pixel;
+    pixel[0][0] = 128;
+    pixel[0][1] = 192;
+    pixel[1][0] = 0;
+    pixel[1][1] = 64;
 
-  itk::ImageRegionIterator< InputImageType > it( image, region );
-  it.GoToBegin();
-  while( !it.IsAtEnd() )
+    itk::ImageRegionIterator<InputImageType> it(image, region);
+    it.GoToBegin();
+    while (!it.IsAtEnd())
     {
-    it.Set( pixel );
-    ++it;
+      it.Set(pixel);
+      ++it;
     }
   }
 
   // Populate lower half of image
   index[0] = 0;
   index[1] = height / 2;
-  region.SetSize( size );
-  region.SetIndex( index );
+  region.SetSize(size);
+  region.SetIndex(index);
   {
-  PixelType pixel;
-  pixel[0][0] =  64;
-  pixel[0][1] =  16;
-  pixel[1][0] = 255;
-  pixel[1][1] = 192;
+    PixelType pixel;
+    pixel[0][0] = 64;
+    pixel[0][1] = 16;
+    pixel[1][0] = 255;
+    pixel[1][1] = 192;
 
-  itk::ImageRegionIterator< InputImageType > it( image, region );
-  it.GoToBegin();
-  while( !it.IsAtEnd() )
+    itk::ImageRegionIterator<InputImageType> it(image, region);
+    it.GoToBegin();
+    while (!it.IsAtEnd())
     {
-    it.Set( pixel );
-    ++it;
+      it.Set(pixel);
+      ++it;
     }
   }
 
-  typedef itk::MatrixIndexSelectionImageFilter< InputImageType, OutputImageType >
-    SelectionFilterType;
+  using SelectionFilterType = itk::MatrixIndexSelectionImageFilter<InputImageType, OutputImageType>;
 
   SelectionFilterType::Pointer filter = SelectionFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, MatrixIndexSelectionImageFilter,
-    UnaryFunctorImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, MatrixIndexSelectionImageFilter, UnaryFunctorImageFilter);
 
-  filter->SetInput( image );
+  filter->SetInput(image);
 
   unsigned int indexA = 0;
   unsigned int indexB = 1;
-  filter->SetIndices( indexA, indexB );
+  filter->SetIndices(indexA, indexB);
 
   unsigned int testIndexA;
   unsigned int testIndexB;
-  filter->GetIndices( testIndexA, testIndexB );
+  filter->GetIndices(testIndexA, testIndexB);
 
-  if( indexA != testIndexA || indexB != testIndexB )
-    {
+  if (indexA != testIndexA || indexB != testIndexB)
+  {
     std::cerr << "Error " << std::endl;
-    std::cerr << " Expected indices: ("
-      << indexA << ", "<< indexB << ")" << std::endl;
+    std::cerr << " Expected indices: (" << indexA << ", " << indexB << ")" << std::endl;
     std::cerr << " differ from ";
-    std::cerr << " obtained indices: ("
-      << testIndexA << ", "<< testIndexB << ")" << std::endl;
+    std::cerr << " obtained indices: (" << testIndexA << ", " << testIndexB << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  filter->SetFunctor( filter->GetFunctor() );
+  filter->SetFunctor(filter->GetFunctor());
 
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetFileName( argv[1] );
-  writer->SetInput( filter->GetOutput() );
+  writer->SetFileName(argv[1]);
+  writer->SetInput(filter->GetOutput());
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

@@ -45,20 +45,21 @@ namespace itk
  * \sa MirrorPadImageFilter, ConstantPadImageFilter
  * \ingroup ITKImageGrid
  *
- * \wiki
- * \wikiexample{Images/WrapPadImageFilter,Pad an image by wrapping}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageGrid/PadImageByWrapping,Pad Image By Wrapping}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT WrapPadImageFilter:
-  public PadImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT WrapPadImageFilter : public PadImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef WrapPadImageFilter                          Self;
-  typedef PadImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(WrapPadImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = WrapPadImageFilter;
+  using Superclass = PadImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,50 +67,46 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(WrapPadImageFilter, PadImageFilter);
 
-  typedef typename Superclass::InputImageType         InputImageType;
-  typedef typename Superclass::OutputImageType        OutputImageType;
-  typedef typename Superclass::InputImagePointer      InputImagePointer;
-  typedef typename Superclass::OutputImagePointer     OutputImagePointer;
-  typedef typename Superclass::InputImageConstPointer InputImageConstPointer;
+  using InputImageType = typename Superclass::InputImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using InputImageConstPointer = typename Superclass::InputImageConstPointer;
 
   /** Typedef to describe the output image region type. */
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename Superclass::InputImageRegionType  InputImageRegionType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using InputImageRegionType = typename Superclass::InputImageRegionType;
 
   /** Typedef to describe the type of pixel. */
-  typedef typename Superclass::OutputImagePixelType OutputImagePixelType;
-  typedef typename Superclass::InputImagePixelType  InputImagePixelType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
+  using InputImagePixelType = typename Superclass::InputImagePixelType;
 
   /** Typedef to describe the output and input image index and size types. */
-  typedef typename Superclass::OutputImageIndexType OutputImageIndexType;
-  typedef typename Superclass::InputImageIndexType  InputImageIndexType;
-  typedef typename Superclass::OutputImageSizeType  OutputImageSizeType;
-  typedef typename Superclass::InputImageSizeType   InputImageSizeType;
+  using OutputImageIndexType = typename Superclass::OutputImageIndexType;
+  using InputImageIndexType = typename Superclass::InputImageIndexType;
+  using OutputImageSizeType = typename Superclass::OutputImageSizeType;
+  using InputImageSizeType = typename Superclass::InputImageSizeType;
 
   /** ImageDimension enumeration. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputImagePixelType, OutputImagePixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputImagePixelType, OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
   WrapPadImageFilter();
-  ~WrapPadImageFilter() ITK_OVERRIDE {}
+  ~WrapPadImageFilter() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(WrapPadImageFilter);
-
-  PeriodicBoundaryCondition< TInputImage, TOutputImage > m_InternalBoundaryCondition;
+  PeriodicBoundaryCondition<TInputImage, TOutputImage> m_InternalBoundaryCondition;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkWrapPadImageFilter.hxx"
+#  include "itkWrapPadImageFilter.hxx"
 #endif
 
 #endif

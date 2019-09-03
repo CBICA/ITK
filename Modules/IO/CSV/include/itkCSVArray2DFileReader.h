@@ -59,7 +59,7 @@ namespace itk
  * Below is an example of how this class can be used to read and parse the data
  * from an input file:
  *
- * typedef itk::CSVArray2DFileReader<double> ReaderType;
+ * using ReaderType = itk::CSVArray2DFileReader<double>;
  * ReaderType::Pointer reader = ReaderType::New();
  *
  * std::string filename = "NameOfFile.csv";
@@ -75,14 +75,16 @@ namespace itk
  * \ingroup ITKIOCSV
  */
 template <typename TData>
-class ITK_TEMPLATE_EXPORT CSVArray2DFileReader:public CSVFileReaderBase
+class ITK_TEMPLATE_EXPORT CSVArray2DFileReader : public CSVFileReaderBase
 {
 public:
-  /** Standard class typedefs */
-  typedef CSVArray2DFileReader      Self;
-  typedef CSVFileReaderBase         Superclass;
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CSVArray2DFileReader);
+
+  /** Standard class type aliases */
+  using Self = CSVArray2DFileReader;
+  using Superclass = CSVFileReaderBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -91,49 +93,49 @@ public:
   itkTypeMacro(CSVArray2DFileReader, CSVFileReaderBase);
 
   /** DataFrame Object types */
-  typedef typename itk::CSVArray2DDataObject<TData>    Array2DDataObjectType;
-  typedef typename Array2DDataObjectType::Pointer      Array2DDataObjectPointer;
+  using Array2DDataObjectType = typename itk::CSVArray2DDataObject<TData>;
+  using Array2DDataObjectPointer = typename Array2DDataObjectType::Pointer;
 
   /** The value type of the dataset. */
-  typedef TData ValueType;
+  using ValueType = TData;
 
   /** This method can be used to get the data frame object once the data from
-  * the file has been parsed. */
+   * the file has been parsed. */
   itkGetModifiableObjectMacro(Array2DDataObject, Array2DDataObjectType);
 
   /** Parses the data from the file. Gets all the fields and parses row and
-  * column headers, if any, into std::vectors of strings and parses the numeric
-  * data into an Array2D object. The vectors and the Array2D object are part of
-  * the Array2DDataFrameobject. */
-  virtual void Parse() ITK_OVERRIDE;
+   * column headers, if any, into std::vectors of strings and parses the numeric
+   * data into an Array2D object. The vectors and the Array2D object are part of
+   * the Array2DDataFrameobject. */
+  void
+  Parse() override;
 
   /** Aliased to the Parse() method to be consistent with the rest of the
    * pipeline. */
-  virtual void Update();
+  virtual void
+  Update();
 
   /** Aliased to the GetDataFrameObject() method to be consistent with the
    *  rest of the pipeline */
-  virtual Array2DDataObjectPointer GetOutput();
+  virtual Array2DDataObjectPointer
+  GetOutput();
 
 protected:
-
   CSVArray2DFileReader();
-  virtual ~CSVArray2DFileReader () ITK_OVERRIDE {}
+  ~CSVArray2DFileReader() override = default;
 
   /** Print the reader. */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
-  Array2DDataObjectPointer   m_Array2DDataObject;
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(CSVArray2DFileReader);
+  Array2DDataObjectPointer m_Array2DDataObject;
 };
 
-} //end namespace itk
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCSVArray2DFileReader.hxx"
+#  include "itkCSVArray2DFileReader.hxx"
 #endif
 
 #endif

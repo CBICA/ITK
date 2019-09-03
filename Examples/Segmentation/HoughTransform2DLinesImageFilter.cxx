@@ -40,19 +40,21 @@
 #include "itkDiscreteGaussianImageFilter.h"
 #include "itkCastImageFilter.h"
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Missing Parameters " << std::endl;
     std::cerr << "Usage: " << argv[0] << std::endl;
     std::cerr << " inputImage " << std::endl;
     std::cerr << " outputImage" << std::endl;
     std::cerr << " numberOfLines " << std::endl;
     std::cerr << " variance of the accumulator blurring (default = 5) " << std::endl;
-    std::cerr << " radius of the disk to remove from the accumulator (default = 10) "<< std::endl;
+    std::cerr << " radius of the disk to remove from the accumulator (default = 10) "
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //  Software Guide : BeginLatex
   //
@@ -63,12 +65,12 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef   unsigned char   PixelType;
-  typedef   float           AccumulatorPixelType;
-  const     unsigned int    Dimension = 2;
+  using PixelType = unsigned char;
+  using AccumulatorPixelType = float;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::Image< PixelType, Dimension >            ImageType;
-  typedef itk::Image< AccumulatorPixelType, Dimension > AccumulatorImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using AccumulatorImageType = itk::Image<AccumulatorPixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -78,20 +80,20 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef  itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
+  }
+  catch (itk::ExceptionObject & excep)
+  {
     std::cerr << "Exception caught !" << std::endl;
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   ImageType::Pointer localImage = reader->GetOutput();
   // Software Guide : EndCodeSnippet
 
@@ -105,15 +107,14 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::CastImageFilter< ImageType, AccumulatorImageType >
-    CastingFilterType;
+  using CastingFilterType = itk::CastImageFilter<ImageType, AccumulatorImageType>;
   CastingFilterType::Pointer caster = CastingFilterType::New();
 
   std::cout << "Applying gradient magnitude filter" << std::endl;
 
-  typedef itk::GradientMagnitudeImageFilter<AccumulatorImageType,
-               AccumulatorImageType > GradientFilterType;
-  GradientFilterType::Pointer gradFilter =  GradientFilterType::New();
+  using GradientFilterType =
+    itk::GradientMagnitudeImageFilter<AccumulatorImageType, AccumulatorImageType>;
+  GradientFilterType::Pointer gradFilter = GradientFilterType::New();
 
   caster->SetInput(localImage);
   gradFilter->SetInput(caster->GetOutput());
@@ -131,14 +132,14 @@ int main( int argc, char *argv[] )
 
   // Software Guide : BeginCodeSnippet
   std::cout << "Thresholding" << std::endl;
-  typedef itk::ThresholdImageFilter<AccumulatorImageType> ThresholdFilterType;
+  using ThresholdFilterType = itk::ThresholdImageFilter<AccumulatorImageType>;
   ThresholdFilterType::Pointer threshFilter = ThresholdFilterType::New();
 
-  threshFilter->SetInput( gradFilter->GetOutput());
+  threshFilter->SetInput(gradFilter->GetOutput());
   threshFilter->SetOutsideValue(0);
   unsigned char threshBelow = 0;
   unsigned char threshAbove = 255;
-  threshFilter->ThresholdOutside(threshBelow,threshAbove);
+  threshFilter->ThresholdOutside(threshBelow, threshAbove);
   threshFilter->Update();
   // Software Guide : EndCodeSnippet
 
@@ -150,11 +151,10 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
   // Software Guide : BeginCodeSnippet
   std::cout << "Computing Hough Map" << std::endl;
-  typedef itk::HoughTransform2DLinesImageFilter<AccumulatorPixelType,
-                              AccumulatorPixelType>  HoughTransformFilterType;
+  using HoughTransformFilterType =
+    itk::HoughTransform2DLinesImageFilter<AccumulatorPixelType, AccumulatorPixelType>;
 
-  HoughTransformFilterType::Pointer houghFilter
-                                            = HoughTransformFilterType::New();
+  HoughTransformFilterType::Pointer houghFilter = HoughTransformFilterType::New();
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -172,17 +172,17 @@ int main( int argc, char *argv[] )
 
   // Software Guide : BeginCodeSnippet
   houghFilter->SetInput(threshFilter->GetOutput());
-  houghFilter->SetNumberOfLines(atoi(argv[3]));
+  houghFilter->SetNumberOfLines(std::stoi(argv[3]));
 
-  if(argc > 4 )
-    {
-    houghFilter->SetVariance(atof(argv[4]));
-    }
+  if (argc > 4)
+  {
+    houghFilter->SetVariance(std::stod(argv[4]));
+  }
 
-  if(argc > 5 )
-    {
-    houghFilter->SetDiscRadius(atof(argv[5]));
-    }
+  if (argc > 5)
+  {
+    houghFilter->SetDiscRadius(std::stod(argv[5]));
+  }
   houghFilter->Update();
   AccumulatorImageType::Pointer localAccumulator = houghFilter->GetOutput();
   // Software Guide : EndCodeSnippet
@@ -208,10 +208,10 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef  unsigned char                            OutputPixelType;
-  typedef  itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using OutputPixelType = unsigned char;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
-  OutputImageType::Pointer  localOutputImage = OutputImageType::New();
+  OutputImageType::Pointer localOutputImage = OutputImageType::New();
 
   OutputImageType::RegionType region(localImage->GetLargestPossibleRegion());
   localOutputImage->SetRegions(region);
@@ -227,10 +227,10 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef HoughTransformFilterType::LinesListType::const_iterator LineIterator;
+  using LineIterator = HoughTransformFilterType::LinesListType::const_iterator;
   LineIterator itLines = lines.begin();
-  while( itLines != lines.end() )
-    {
+  while (itLines != lines.end())
+  {
     // Software Guide : EndCodeSnippet
 
     //  Software Guide : BeginLatex
@@ -242,20 +242,20 @@ int main( int argc, char *argv[] )
     //  Software Guide : EndLatex
 
     // Software Guide : BeginCodeSnippet
-    typedef HoughTransformFilterType::LineType::PointListType  PointListType;
+    using LinePointListType = HoughTransformFilterType::LineType::LinePointListType;
 
-    PointListType                   pointsList = (*itLines)->GetPoints();
-    PointListType::const_iterator   itPoints = pointsList.begin();
+    LinePointListType                 pointsList = (*itLines)->GetPoints();
+    LinePointListType::const_iterator itPoints = pointsList.begin();
 
     double u[2];
-    u[0] = (*itPoints).GetPosition()[0];
-    u[1] = (*itPoints).GetPosition()[1];
+    u[0] = (*itPoints).GetPositionInObjectSpace()[0];
+    u[1] = (*itPoints).GetPositionInObjectSpace()[1];
     itPoints++;
     double v[2];
-    v[0] = u[0]-(*itPoints).GetPosition()[0];
-    v[1] = u[1]-(*itPoints).GetPosition()[1];
+    v[0] = u[0] - (*itPoints).GetPositionInObjectSpace()[0];
+    v[1] = u[1] - (*itPoints).GetPositionInObjectSpace()[1];
 
-    double norm = std::sqrt(v[0]*v[0]+v[1]*v[1]);
+    double norm = std::sqrt(v[0] * v[0] + v[1] * v[1]);
     v[0] /= norm;
     v[1] /= norm;
     // Software Guide : EndCodeSnippet
@@ -268,24 +268,24 @@ int main( int argc, char *argv[] )
 
     // Software Guide : BeginCodeSnippet
     ImageType::IndexType localIndex;
-    itk::Size<2> size = localOutputImage->GetLargestPossibleRegion().GetSize();
-    float diag = std::sqrt((float)( size[0]*size[0] + size[1]*size[1] ));
+    itk::Size<2>         size = localOutputImage->GetLargestPossibleRegion().GetSize();
+    float diag = std::sqrt((float)(size[0] * size[0] + size[1] * size[1]));
 
-    for(int i=static_cast<int>(-diag); i<static_cast<int>(diag); i++)
-      {
-      localIndex[0]=(long int)(u[0]+i*v[0]);
-      localIndex[1]=(long int)(u[1]+i*v[1]);
+    for (auto i = static_cast<int>(-diag); i < static_cast<int>(diag); i++)
+    {
+      localIndex[0] = (long int)(u[0] + i * v[0]);
+      localIndex[1] = (long int)(u[1] + i * v[1]);
 
       OutputImageType::RegionType outputRegion =
-                          localOutputImage->GetLargestPossibleRegion();
+        localOutputImage->GetLargestPossibleRegion();
 
-      if( outputRegion.IsInside( localIndex ) )
-        {
-        localOutputImage->SetPixel( localIndex, 255 );
-        }
+      if (outputRegion.IsInside(localIndex))
+      {
+        localOutputImage->SetPixel(localIndex, 255);
       }
-    itLines++;
     }
+    itLines++;
+  }
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -295,21 +295,21 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef  itk::ImageFileWriter<  OutputImageType  > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( localOutputImage );
+  writer->SetFileName(argv[2]);
+  writer->SetInput(localOutputImage);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
+  }
+  catch (itk::ExceptionObject & excep)
+  {
     std::cerr << "Exception caught !" << std::endl;
     std::cerr << excep << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

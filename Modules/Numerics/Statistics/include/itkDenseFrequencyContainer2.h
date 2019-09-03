@@ -39,15 +39,16 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-class ITKStatistics_EXPORT DenseFrequencyContainer2:
-  public Object
+class ITKStatistics_EXPORT DenseFrequencyContainer2 : public Object
 {
 public:
-  /** Standard class typedefs */
-  typedef DenseFrequencyContainer2   Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DenseFrequencyContainer2);
+
+  /** Standard class type aliases */
+  using Self = DenseFrequencyContainer2;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(DenseFrequencyContainer2, Object);
@@ -56,66 +57,69 @@ public:
   itkNewMacro(Self);
 
   /** InstanceIdenfitifer type alias */
-  typedef MeasurementVectorTraits::InstanceIdentifier InstanceIdentifier;
+  using InstanceIdentifier = MeasurementVectorTraits::InstanceIdentifier;
 
   /** Absoluate Frequency type alias */
-  typedef MeasurementVectorTraits::AbsoluteFrequencyType AbsoluteFrequencyType;
+  using AbsoluteFrequencyType = MeasurementVectorTraits::AbsoluteFrequencyType;
 
   /** Absolute Total frequency type */
-  typedef MeasurementVectorTraits::TotalAbsoluteFrequencyType TotalAbsoluteFrequencyType;
+  using TotalAbsoluteFrequencyType = MeasurementVectorTraits::TotalAbsoluteFrequencyType;
 
   /** Relative Frequency type alias */
-  typedef MeasurementVectorTraits::RelativeFrequencyType RelativeFrequencyType;
+  using RelativeFrequencyType = MeasurementVectorTraits::RelativeFrequencyType;
 
   /** Relative Total frequency type */
-  typedef MeasurementVectorTraits::TotalRelativeFrequencyType TotalRelativeFrequencyType;
+  using TotalRelativeFrequencyType = MeasurementVectorTraits::TotalRelativeFrequencyType;
 
-  /** Internal storage class typedefs */
-  typedef ValarrayImageContainer< InstanceIdentifier, AbsoluteFrequencyType >
-  FrequencyContainerType;
+  /** Internal storage class type alias */
+  using FrequencyContainerType = ValarrayImageContainer<InstanceIdentifier, AbsoluteFrequencyType>;
 
-  typedef FrequencyContainerType::Pointer FrequencyContainerPointer;
+  using FrequencyContainerPointer = FrequencyContainerType::Pointer;
 
   /** Calls the Initialize method of superclass to generate the offset table
    * and prepare the frequency container */
-  void Initialize(SizeValueType length);
+  void
+  Initialize(SizeValueType length);
 
   /** Calls the SetToZero method of superclass to initialize all the bins to Zero.
    *  This should be done before starting to call the IncreaseFrequency method. */
-  void SetToZero();
+  void
+  SetToZero();
 
   /** Sets the frequency of histogram using instance identifier. It returns
    * false when the Id is out of bounds. */
-  bool SetFrequency(const InstanceIdentifier id, const AbsoluteFrequencyType value);
+  bool
+  SetFrequency(const InstanceIdentifier id, const AbsoluteFrequencyType value);
 
   /** Increases the frequency of a bin specified by the InstanceIdentifier by
    * one.  This function is convinient to create a histogram. It returns false
    * when the bin id is out of bounds. */
-  bool IncreaseFrequency(const InstanceIdentifier id,
-                         const AbsoluteFrequencyType value);
+  bool
+  IncreaseFrequency(const InstanceIdentifier id, const AbsoluteFrequencyType value);
 
   /** Method to get the frequency of a bin from the histogram. It returns zero
    * when the Id is out of bounds. */
-  AbsoluteFrequencyType GetFrequency(const InstanceIdentifier id) const;
+  AbsoluteFrequencyType
+  GetFrequency(const InstanceIdentifier id) const;
 
   /** Gets the sum of the frequencies */
-  TotalAbsoluteFrequencyType GetTotalFrequency()
+  TotalAbsoluteFrequencyType
+  GetTotalFrequency()
   {
     return m_TotalFrequency;
   }
 
 protected:
   DenseFrequencyContainer2();
-  virtual ~DenseFrequencyContainer2() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DenseFrequencyContainer2() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DenseFrequencyContainer2);
-
   /** Internal storage */
   FrequencyContainerPointer  m_FrequencyContainer;
   TotalAbsoluteFrequencyType m_TotalFrequency;
-};  // end of class
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 

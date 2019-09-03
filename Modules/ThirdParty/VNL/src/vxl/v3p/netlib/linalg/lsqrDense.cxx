@@ -17,16 +17,15 @@
  *=========================================================================*/
 
 #include "lsqrDense.h"
+#include "vcl_compiler_detection.h"
 
 lsqrDense::lsqrDense()
 {
-  this->A = 0;
+  this->A = nullptr;
 }
 
 
-lsqrDense::~lsqrDense()
-{
-}
+lsqrDense::~lsqrDense() = default;
 
 
 void

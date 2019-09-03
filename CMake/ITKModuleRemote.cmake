@@ -45,6 +45,31 @@ endfunction()
 # Helper to perform a git update.  Checks the current Git revision against the
 # desired revision and only performs a fetch and checkout if needed.
 function(_git_update git_executable git_repository git_tag module_dir)
+  # Verify that remote url are the same
+  execute_process(
+    COMMAND "${git_executable}" config --get remote.origin.url
+    WORKING_DIRECTORY "${module_dir}"
+    RESULT_VARIABLE error_code
+    OUTPUT_VARIABLE remote_origin_url
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if ( NOT "${remote_origin_url}" STREQUAL "${git_repository}")
+    message(WARNING "Remote URL changed from ${git_repository} to ${remote_origin_url}")
+    execute_process(
+      COMMAND "${git_executable}" remote rename origin old_origin
+      WORKING_DIRECTORY "${module_dir}"
+      RESULT_VARIABLE error_code
+      OUTPUT_VARIABLE ignored
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    execute_process(
+      COMMAND "${git_executable}" remote add origin "${git_repository}"
+      WORKING_DIRECTORY "${module_dir}"
+      RESULT_VARIABLE error_code
+      OUTPUT_VARIABLE ignored
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  endif()
   execute_process(
     COMMAND "${git_executable}" rev-parse --verify "${git_tag}"
     WORKING_DIRECTORY "${module_dir}"
@@ -124,6 +149,12 @@ endfunction()
 # The following options are currently supported:
 #    [GIT_REPOSITORY url]        # URL of git repo
 #    [GIT_TAG tag]               # Git branch name, commit id or tag
+#
+# An CMake variable REMOTE_GIT_TAG_${_name} can be set
+# in to override the value in the remote module configuration file.
+# The intent of the REMOTE_GIT_TAG_${_name} variable override is to
+# facilitate testing of remote module branch behaviors without
+# requiring changes to the ITK code base.
 function(itk_fetch_module _name _description)
   option(Module_${_name} "${_description}" OFF)
   mark_as_advanced(Module_${_name})
@@ -138,6 +169,7 @@ function(itk_fetch_module _name _description)
     itk_download_attempt_check(Module_${_name})
     include(CMakeParseArguments)
     cmake_parse_arguments(_fetch_options "" "GIT_REPOSITORY;GIT_TAG" "" ${ARGN})
+    find_package(Git)
     if(NOT GIT_EXECUTABLE)
       message(FATAL_ERROR "error: could not find git for clone of ${_name}")
     endif()
@@ -150,9 +182,21 @@ function(itk_fetch_module _name _description)
     if("${_version}" VERSION_LESS 1.6.6)
       message(FATAL_ERROR "Git version 1.6.6 or later is required.")
     endif()
+
+    set(REMOTE_GIT_TAG "${_fetch_options_GIT_TAG}")
+
+    if( DEFINED REMOTE_GIT_TAG_${_name} AND NOT "${REMOTE_GIT_TAG_${_name}}" STREQUAL "${_fetch_options_GIT_TAG}")
+      set(REMOTE_GIT_TAG "${REMOTE_GIT_TAG_${_name}}")
+      message(STATUS "NOTE: Using override 'REMOTE_GIT_TAG_${_name}=${REMOTE_GIT_TAG}'\n"
+                     "      instead of value 'GIT_TAG=${_fetch_options_GIT_TAG}'\n"
+                     "      specified in file ${ITK_SOURCE_DIR}/Modules/Remote/${_name}.remote.cmake'")
+    endif()
+    set(REMOTE_GIT_TAG_${_name} "${REMOTE_GIT_TAG}" CACHE STRING "Override default GIT_TAG value for remote module ${_name}")
+    mark_as_advanced(REMOTE_GIT_TAG_${_name})
+
     _fetch_with_git("${GIT_EXECUTABLE}"
       "${_fetch_options_GIT_REPOSITORY}"
-      "${_fetch_options_GIT_TAG}"
+      "${REMOTE_GIT_TAG}"
       "${ITK_SOURCE_DIR}/Modules/Remote/${_name}"
       )
   endif()

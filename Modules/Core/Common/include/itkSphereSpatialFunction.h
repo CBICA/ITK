@@ -31,16 +31,17 @@ namespace itk
  * \ingroup SpatialFunctions
  * \ingroup ITKCommon
  */
-template< unsigned int VImageDimension = 3, typename TInput = Point< double, VImageDimension > >
-class ITK_TEMPLATE_EXPORT SphereSpatialFunction:
-  public InteriorExteriorSpatialFunction< VImageDimension, TInput >
+template <unsigned int VImageDimension = 3, typename TInput = Point<double, VImageDimension>>
+class ITK_TEMPLATE_EXPORT SphereSpatialFunction : public InteriorExteriorSpatialFunction<VImageDimension, TInput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SphereSpatialFunction< VImageDimension, TInput >           Self;
-  typedef InteriorExteriorSpatialFunction< VImageDimension, TInput > Superclass;
-  typedef SmartPointer< Self >                                       Pointer;
-  typedef SmartPointer< const Self >                                 ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SphereSpatialFunction);
+
+  /** Standard class type aliases. */
+  using Self = SphereSpatialFunction<VImageDimension, TInput>;
+  using Superclass = InteriorExteriorSpatialFunction<VImageDimension, TInput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -49,13 +50,14 @@ public:
   itkTypeMacro(SphereSpatialFunction, InteriorExteriorSpatialFunction);
 
   /** Input type for the function. */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Evaluates the function at a given position */
-  OutputType Evaluate(const InputType & position) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & position) const override;
 
   /** Get and set the center of the sphere. */
   itkGetConstMacro(Center, InputType);
@@ -67,12 +69,11 @@ public:
 
 protected:
   SphereSpatialFunction();
-  virtual ~SphereSpatialFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SphereSpatialFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SphereSpatialFunction);
-
   /** The center of the sphere (of the same type as Input). */
   InputType m_Center;
 
@@ -82,7 +83,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSphereSpatialFunction.hxx"
+#  include "itkSphereSpatialFunction.hxx"
 #endif
 
 #endif

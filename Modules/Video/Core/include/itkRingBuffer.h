@@ -35,25 +35,26 @@ namespace itk
  * \ingroup ITKVideoCore
  */
 
-template< typename TElement >
+template <typename TElement>
 class ITK_TEMPLATE_EXPORT RingBuffer : public Object
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(RingBuffer);
 
   /**-TYPEDEFS---------------------------------------------------------------*/
 
-  /** Standard class typedefs */
-  typedef RingBuffer                    Self;
-  typedef Object                        Superclass;
-  typedef SmartPointer< Self >          Pointer;
-  typedef SmartPointer< const Self >    ConstPointer;
+  /** Standard class type aliases */
+  using Self = RingBuffer;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Contained type */
-  typedef TElement                      ElementType;
-  typedef typename ElementType::Pointer ElementPointer;
+  using ElementType = TElement;
+  using ElementPointer = typename ElementType::Pointer;
 
-  typedef ::itk::SizeValueType          SizeValueType;
-  typedef ::itk::OffsetValueType        OffsetValueType;
+  using SizeValueType = ::itk::SizeValueType;
+  using OffsetValueType = ::itk::OffsetValueType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -64,59 +65,66 @@ public:
   /** Set the number of buffers
    * WARNING: If the size is set smaller than the current buffer size, the tail
    * of the buffer will be chopped off */
-  void SetNumberOfBuffers(SizeValueType sz);
+  void
+  SetNumberOfBuffers(SizeValueType sz);
 
   /** Get the buffer size */
-  SizeValueType GetNumberOfBuffers();
+  SizeValueType
+  GetNumberOfBuffers();
 
   /** Move the Head pointer along the ring using the given offset */
-  void MoveHead(OffsetValueType offset);
+  void
+  MoveHead(OffsetValueType offset);
 
   /** Convenience methods for moving Head +/- 1 */
-  void MoveHeadForward();
-  void MoveHeadBackward();
+  void
+  MoveHeadForward();
+  void
+  MoveHeadBackward();
 
   /** Report whether or not the indicated buffer is full */
-  bool BufferIsFull(OffsetValueType offset);
+  bool
+  BufferIsFull(OffsetValueType offset);
 
   /** Report the current position of Head (mostly used for testing) */
-  SizeValueType GetHeadIndex() {
+  SizeValueType
+  GetHeadIndex()
+  {
     return this->m_HeadIndex;
   }
 
   /** Access the data from the indicated buffer */
-  typename ElementType::Pointer GetBufferContents(OffsetValueType offset);
+  typename ElementType::Pointer
+  GetBufferContents(OffsetValueType offset);
 
   /** Set the buffer contents of a buffer */
-  void SetBufferContents(OffsetValueType offset, ElementPointer element);
+  void
+  SetBufferContents(OffsetValueType offset, ElementPointer element);
 
 protected:
-
   /**-PROTECTED METHODS------------------------------------------------------*/
   RingBuffer();
-  virtual ~RingBuffer() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream &os, Indent indent) const ITK_OVERRIDE;
+  ~RingBuffer() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Get the proper buffer index from an offset */
-  OffsetValueType GetOffsetBufferIndex(OffsetValueType offset);
+  OffsetValueType
+  GetOffsetBufferIndex(OffsetValueType offset);
 
   /**-PROTECTED MEMBERS------------------------------------------------------*/
 
   /** Pointer to the current active buffer */
-  SizeValueType               m_HeadIndex;
+  SizeValueType m_HeadIndex{ 0 };
 
   /** Vector of pointers to elements */
   std::vector<ElementPointer> m_PointerVector;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RingBuffer);
-
-};  // end RingBuffer class
+}; // end RingBuffer class
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRingBuffer.hxx"
+#  include "itkRingBuffer.hxx"
 #endif
 
 #endif

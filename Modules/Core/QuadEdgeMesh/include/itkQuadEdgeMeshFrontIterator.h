@@ -21,54 +21,41 @@
 #include "itkMapContainer.h"
 
 // -------------------------------------------------------------------------
-#define itkQEDefineFrontIteratorMethodsMacro(MeshTypeArg)                       \
-  /* Dual definition placed before others because of .NET that cannot */        \
-  /* cope with definition of FrontIterator (that further hides the    */        \
-  /* definition of the template).                                      */        \
-  typedef typename MeshTypeArg::QEDual   QEDualType;                            \
-  typedef typename MeshTypeArg::QEPrimal QEPrimalType;                          \
-  typedef QuadEdgeMeshFrontIterator< MeshTypeArg,                               \
-                                     QEDualType > FrontDualIterator;            \
-  typedef QuadEdgeMeshConstFrontIterator< MeshTypeArg,                          \
-                                          QEDualType >                          \
-  ConstFrontDualIterator;                                                       \
-  typedef QuadEdgeMeshFrontIterator< MeshTypeArg,                               \
-                                     QEPrimalType >   FrontIterator;            \
-  typedef QuadEdgeMeshConstFrontIterator< MeshTypeArg,                          \
-                                          QEPrimalType >                        \
-  ConstFrontIterator;                                                           \
-                                                                                \
-  virtual FrontIterator BeginFront(QEPrimalType * seed = (QEPrimalType *)0)     \
-    {                                                                           \
-    return ( FrontIterator(this, true, seed) );                                 \
-    }                                                                           \
-                                                                                \
-  virtual ConstFrontIterator BeginFront(QEPrimalType * seed) const              \
-        { return ( ConstFrontIterator(this, true, seed) ); }                    \
-                                                                                \
-  virtual FrontIterator EndFront()                                              \
-    {                                                                           \
-    return ( FrontIterator(this, false) );                                      \
-    }                                                                           \
-                                                                                \
-  virtual ConstFrontIterator EndFront() const                                   \
-        { return ( ConstFrontIterator(this, false) ); }                         \
-                                                                                \
-  virtual FrontDualIterator BeginDualFront(QEDualType * seed = (QEDualType *)0) \
-    {                                                                           \
-    return ( FrontDualIterator(this, true, seed) );                             \
-    }                                                                           \
-                                                                                \
-  virtual ConstFrontDualIterator BeginDualFront(QEDualType * seed) const        \
-        { return ( ConstFrontDualIterator(this, true, seed) ); }                \
-                                                                                \
-  virtual FrontDualIterator EndDualFront()                                      \
-    {                                                                           \
-    return ( FrontDualIterator(this, false) );                                  \
-    }                                                                           \
-                                                                                \
-  virtual ConstFrontDualIterator EndDualFront() const                           \
-        { return ( ConstFrontDualIterator(this, false) ); }
+#define itkQEDefineFrontIteratorMethodsMacro(MeshTypeArg)                                                              \
+  /* Dual definition placed before others because of .NET that cannot */                                               \
+  /* cope with definition of FrontIterator (that further hides the    */                                               \
+  /* definition of the template).                                     */                                               \
+  using QEDualType = typename MeshTypeArg::QEDual;                                                                     \
+  using QEPrimalType = typename MeshTypeArg::QEPrimal;                                                                 \
+  using FrontDualIterator = QuadEdgeMeshFrontIterator<MeshTypeArg, QEDualType>;                                        \
+  using ConstFrontDualIterator = QuadEdgeMeshConstFrontIterator<MeshTypeArg, QEDualType>;                              \
+  using FrontIterator = QuadEdgeMeshFrontIterator<MeshTypeArg, QEPrimalType>;                                          \
+  using ConstFrontIterator = QuadEdgeMeshConstFrontIterator<MeshTypeArg, QEPrimalType>;                                \
+                                                                                                                       \
+  virtual FrontIterator BeginFront(QEPrimalType * seed = (QEPrimalType *)0)                                            \
+  {                                                                                                                    \
+    return (FrontIterator(this, true, seed));                                                                          \
+  }                                                                                                                    \
+                                                                                                                       \
+  virtual ConstFrontIterator BeginFront(QEPrimalType * seed) const { return (ConstFrontIterator(this, true, seed)); }  \
+                                                                                                                       \
+  virtual FrontIterator EndFront() { return (FrontIterator(this, false)); }                                            \
+                                                                                                                       \
+  virtual ConstFrontIterator EndFront() const { return (ConstFrontIterator(this, false)); }                            \
+                                                                                                                       \
+  virtual FrontDualIterator BeginDualFront(QEDualType * seed = (QEDualType *)0)                                        \
+  {                                                                                                                    \
+    return (FrontDualIterator(this, true, seed));                                                                      \
+  }                                                                                                                    \
+                                                                                                                       \
+  virtual ConstFrontDualIterator BeginDualFront(QEDualType * seed) const                                               \
+  {                                                                                                                    \
+    return (ConstFrontDualIterator(this, true, seed));                                                                 \
+  }                                                                                                                    \
+                                                                                                                       \
+  virtual FrontDualIterator EndDualFront() { return (FrontDualIterator(this, false)); }                                \
+                                                                                                                       \
+  virtual ConstFrontDualIterator EndDualFront() const { return (ConstFrontDualIterator(this, false)); }
 
 namespace itk
 {
@@ -85,22 +72,22 @@ namespace itk
  * distance tree computation or other Djikstra like algorithms.
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh, typename TQE >
+template <typename TMesh, typename TQE>
 class ITK_TEMPLATE_EXPORT QuadEdgeMeshFrontBaseIterator
 {
 public:
-  // Hierarchy typedefs & values.
-  typedef QuadEdgeMeshFrontBaseIterator Self;
+  // Hierarchy type alias & values.
+  using Self = QuadEdgeMeshFrontBaseIterator;
 
   // Template types
-  typedef TMesh MeshType;
-  typedef TQE   QEType;
+  using MeshType = TMesh;
+  using QEType = TQE;
 
 protected:
   // Mesh types
-  typedef typename MeshType::CoordRepType CoordRepType;
+  using CoordRepType = typename MeshType::CoordRepType;
   // QE types
-  typedef typename QEType::OriginRefType QEOriginType;
+  using QEOriginType = typename QEType::OriginRefType;
 
   /**
    * \class FrontAtom
@@ -113,21 +100,36 @@ protected:
    */
   class FrontAtom
   {
-public:
-    FrontAtom(QEType *e = (QEType *)0, const CoordRepType c = 0):
-      m_Edge(e), m_Cost(c)
+  public:
+    FrontAtom(QEType * e = (QEType *)0, const CoordRepType c = 0)
+      : m_Edge(e)
+      , m_Cost(c)
     {}
-    virtual ~FrontAtom() {}
-    FrontAtom & operator=(const FrontAtom & r)
-    { m_Edge = r.m_Edge; m_Cost = r.m_Cost; return *this; }
-    bool operator==(const FrontAtom & r) const
-    { return ( m_Edge == r.m_Edge ); }
-    bool operator!=(const FrontAtom & r) const
-    { return ( m_Edge != r.m_Edge ); }
-    bool operator<(const FrontAtom & r) const
-    { return ( m_Cost < r.m_Cost ); }
+    virtual ~FrontAtom() = default;
+    FrontAtom &
+    operator=(const FrontAtom & r)
+    {
+      m_Edge = r.m_Edge;
+      m_Cost = r.m_Cost;
+      return *this;
+    }
+    bool
+    operator==(const FrontAtom & r) const
+    {
+      return (m_Edge == r.m_Edge);
+    }
+    bool
+    operator!=(const FrontAtom & r) const
+    {
+      return (m_Edge != r.m_Edge);
+    }
+    bool
+    operator<(const FrontAtom & r) const
+    {
+      return (m_Cost < r.m_Cost);
+    }
 
-public:
+  public:
     QEType *     m_Edge;
     CoordRepType m_Cost;
   };
@@ -135,80 +137,100 @@ public:
   /** The active front is simply a list of edges that can be sorted on
    *  the sort attribute FrontAtom
    */
-  typedef std::list< FrontAtom >       FrontType;
-  typedef typename FrontType::iterator FrontTypeIterator;
-  typedef FrontType *                  FrontTypePointer;
+  using FrontType = std::list<FrontAtom>;
+  using FrontTypeIterator = typename FrontType::iterator;
+  using FrontTypePointer = FrontType *;
 
   /** Whether an Origin (i.e. a vertex or a face since we either deal with
    *  primal or dual edges) was already visited.
    */
-  typedef MapContainer< QEOriginType, bool >       IsVisitedContainerType;
-  typedef typename IsVisitedContainerType::Pointer IsVisitedPointerType;
+  using IsVisitedContainerType = MapContainer<QEOriginType, bool>;
+  using IsVisitedPointerType = typename IsVisitedContainerType::Pointer;
 
 public:
   /** Object creation methods. */
-  QuadEdgeMeshFrontBaseIterator(MeshType *mesh  = (MeshType *)0,
-                                bool start = true,
-                                QEType *seed  = (QEType *)0);
+  QuadEdgeMeshFrontBaseIterator(MeshType * mesh = (MeshType *)nullptr,
+                                bool       start = true,
+                                QEType *   seed = (QEType *)nullptr);
   virtual ~QuadEdgeMeshFrontBaseIterator();
 
-  Self & operator=(const Self & r)
+  Self &
+  operator=(const Self & r)
   {
-    if(this != &r)
-      {
-      m_Mesh  = r.m_Mesh;
+    if (this != &r)
+    {
+      m_Mesh = r.m_Mesh;
       m_Start = r.m_Start;
-      m_Seed  = r.m_Seed;
+      m_Seed = r.m_Seed;
       m_Front = r.m_Front;
       m_IsPointVisited = r.m_IsPointVisited;
       m_CurrentEdge = r.m_CurrentEdge;
-      }
-    return ( *this );
+    }
+    return (*this);
   }
 
   // Iteration methods.
-  bool operator==(Self & r)
+  bool
+  operator==(Self & r)
   {
-    return ( m_Start == r.m_Start );
+    return (m_Start == r.m_Start);
   }
 
-  bool operator==(const Self & r) const
+  bool
+  operator==(const Self & r) const
   {
-    return ( m_Start == r.m_Start );
+    return (m_Start == r.m_Start);
   }
 
-  bool operator!=(Self & r)
+  bool
+  operator!=(Self & r)
   {
-    return ( !( this->operator==(r) ) );
+    return (!(this->operator==(r)));
   }
 
-  bool operator!=(const Self & r) const
+  bool
+  operator!=(const Self & r) const
   {
-    return ( !( this->operator==(r) ) );
+    return (!(this->operator==(r)));
   }
 
-  Self & operator++();
+  Self &
+  operator++();
 
-  Self & operator++(int) { return ( this->operator++() ); }
+  Self &
+  operator++(int)
+  {
+    return (this->operator++());
+  }
 
-  MeshType * GetMesh() const { return this->m_Mesh; }
+  MeshType *
+  GetMesh() const
+  {
+    return this->m_Mesh;
+  }
 
 protected:
   /** Find a default seed by taking any edge (with proper type) in
    *  the current mesh.
    */
-  QEType * FindDefaultSeed();
+  QEType *
+  FindDefaultSeed();
 
   /** The default cost associated to an edge is simply 1. This corresponds
    *  to the "topological metric" i.e. all edges have unit length.
    */
-  virtual CoordRepType GetCost(QEType *edge){ (void)edge; return ( 1 ); }
+  virtual CoordRepType
+  GetCost(QEType * edge)
+  {
+    (void)edge;
+    return (1);
+  }
 
 protected:
   /** Mesh on which we propagate the front */
-  MeshType *m_Mesh;
+  MeshType * m_Mesh;
   /** Initial seed of the front */
-  QEType *m_Seed;
+  QEType * m_Seed;
   /** Whether the iterator is active */
   bool m_Start;
   /** The active front */
@@ -216,7 +238,7 @@ protected:
   /** The already visited points */
   IsVisitedPointerType m_IsPointVisited;
   /** The current edge at this stage of iteration */
-  QEType *m_CurrentEdge;
+  QEType * m_CurrentEdge;
 };
 
 /**
@@ -225,25 +247,27 @@ protected:
  * \brief Non const quad edge front iterator.
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh, typename TQE >
-class ITK_TEMPLATE_EXPORT QuadEdgeMeshFrontIterator:
-  public QuadEdgeMeshFrontBaseIterator< TMesh, TQE  >
+template <typename TMesh, typename TQE>
+class ITK_TEMPLATE_EXPORT QuadEdgeMeshFrontIterator : public QuadEdgeMeshFrontBaseIterator<TMesh, TQE>
 {
 public:
-  /** Hierarchy typedefs and values. */
-  typedef QuadEdgeMeshFrontIterator                   Self;
-  typedef QuadEdgeMeshFrontBaseIterator< TMesh, TQE > Superclass;
-  typedef typename Superclass::MeshType               MeshType;
-  typedef typename Superclass::QEType                 QEType;
+  /** Hierarchy type alias and values. */
+  using Self = QuadEdgeMeshFrontIterator;
+  using Superclass = QuadEdgeMeshFrontBaseIterator<TMesh, TQE>;
+  using MeshType = typename Superclass::MeshType;
+  using QEType = typename Superclass::QEType;
 
 public:
   /** Object creation methods. */
-  QuadEdgeMeshFrontIterator(MeshType *mesh = (MeshType *)0,
-                            bool start = true,
-                            QEType *seed  = (QEType *)0):
-    Superclass(mesh, start, seed) {}
-  virtual ~QuadEdgeMeshFrontIterator() {}
-  QEType * Value() { return ( this->m_CurrentEdge ); }
+  QuadEdgeMeshFrontIterator(MeshType * mesh = (MeshType *)0, bool start = true, QEType * seed = (QEType *)nullptr)
+    : Superclass(mesh, start, seed)
+  {}
+  ~QuadEdgeMeshFrontIterator() override = default;
+  QEType *
+  Value()
+  {
+    return (this->m_CurrentEdge);
+  }
 };
 
 /**
@@ -252,23 +276,22 @@ public:
  * \brief Const quad edge mesh front iterator.
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh, typename TQE = typename TMesh::QEType >
-class ITK_TEMPLATE_EXPORT QuadEdgeMeshConstFrontIterator:
-  public QuadEdgeMeshFrontBaseIterator< TMesh, TQE >
+template <typename TMesh, typename TQE = typename TMesh::QEType>
+class ITK_TEMPLATE_EXPORT QuadEdgeMeshConstFrontIterator : public QuadEdgeMeshFrontBaseIterator<TMesh, TQE>
 {
 public:
-  /** Hierarchy typedefs & values. */
-  typedef QuadEdgeMeshConstFrontIterator                Self;
-  typedef QuadEdgeMeshFrontBaseIterator< TMesh, TQE >   Superclass;
-  typedef typename Superclass::QEType                   QEType;
-  typedef typename Superclass::MeshType                 MeshType;
-  typedef QuadEdgeMeshFrontIterator< MeshType, QEType > NoConstType;
+  /** Hierarchy type alias & values. */
+  using Self = QuadEdgeMeshConstFrontIterator;
+  using Superclass = QuadEdgeMeshFrontBaseIterator<TMesh, TQE>;
+  using QEType = typename Superclass::QEType;
+  using MeshType = typename Superclass::MeshType;
+  using NoConstType = QuadEdgeMeshFrontIterator<MeshType, QEType>;
 
 public:
   /** Object creation methods. */
-  QuadEdgeMeshConstFrontIterator(const MeshType *mesh = (MeshType *)0,
-                                 bool start = true,
-                                 QEType *seed  = (QEType *)0)
+  QuadEdgeMeshConstFrontIterator(const MeshType * mesh = (MeshType *)0,
+                                 bool             start = true,
+                                 QEType *         seed = (QEType *)nullptr)
   {
     (void)mesh;
     (void)start;
@@ -276,16 +299,21 @@ public:
   }
 
   /** \todo do we need here a    : Superclass( mesh, start, seed ) { } */
-  virtual ~QuadEdgeMeshConstFrontIterator() {}
-  Self & operator=(const NoConstType & r)
+  ~QuadEdgeMeshConstFrontIterator() override = default;
+  Self &
+  operator=(const NoConstType & r)
   {
-    this->m_Mesh  = r.GetMesh();
-    return ( *this );
+    this->m_Mesh = r.GetMesh();
+    return (*this);
   }
 
-  const QEType * Value() const { return ( this->m_CurrentEdge ); }
+  const QEType *
+  Value() const
+  {
+    return (this->m_CurrentEdge);
+  }
 };
-}
+} // namespace itk
 
 #include "itkQuadEdgeMeshFrontIterator.hxx"
 

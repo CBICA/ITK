@@ -16,15 +16,15 @@
  *
  *=========================================================================*/
 /*=========================================================================
-*
-*  Portions of this file are subject to the VTK Toolkit Version 3 copyright.
-*
-*  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-*
-*  For complete copyright, license and disclaimer of warranty information
-*  please refer to the NOTICE file at the top of the ITK source tree.
-*
-*=========================================================================*/
+ *
+ *  Portions of this file are subject to the VTK Toolkit Version 3 copyright.
+ *
+ *  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+ *
+ *  For complete copyright, license and disclaimer of warranty information
+ *  please refer to the NOTICE file at the top of the ITK source tree.
+ *
+ *=========================================================================*/
 
 #ifndef itkLabelImageGaussianInterpolateImageFunction_hxx
 #define itkLabelImageGaussianInterpolateImageFunction_hxx
@@ -34,87 +34,66 @@
 namespace itk
 {
 
-template<typename TInputImage, typename TCoordRep, typename TPixelCompare>
-LabelImageGaussianInterpolateImageFunction<TInputImage, TCoordRep, TPixelCompare>
-::LabelImageGaussianInterpolateImageFunction()
-{
-}
-
-template<typename TInputImage, typename TCoordRep, typename TPixelCompare>
-typename LabelImageGaussianInterpolateImageFunction<TInputImage, TCoordRep, TPixelCompare>
-::OutputType
-LabelImageGaussianInterpolateImageFunction<TInputImage, TCoordRep, TPixelCompare>
-::EvaluateAtContinuousIndex( const ContinuousIndexType & cindex, OutputType * itkNotUsed( grad )  ) const
+template <typename TInputImage, typename TCoordRep, typename TPixelCompare>
+typename LabelImageGaussianInterpolateImageFunction<TInputImage, TCoordRep, TPixelCompare>::OutputType
+LabelImageGaussianInterpolateImageFunction<TInputImage, TCoordRep, TPixelCompare>::EvaluateAtContinuousIndex(
+  const ContinuousIndexType & cindex,
+  OutputType *                itkNotUsed(grad)) const
 {
   vnl_vector<RealType> erfArray[ImageDimension];
   vnl_vector<RealType> gerfArray[ImageDimension];
 
+  typename Superclass::RegionType region = this->ComputeInterpolationRegion(cindex);
+
   // Compute the ERF difference arrays
-  for( unsigned int d = 0; d < ImageDimension; d++ )
-    {
-    const bool evaluateGradient = false;
-    this->ComputeErrorFunctionArray( d, cindex[d], erfArray[d],
-      gerfArray[d], evaluateGradient );
-    }
+  for (unsigned int d = 0; d < ImageDimension; d++)
+  {
+    this->ComputeErrorFunctionArray(region, d, cindex[d], erfArray[d], gerfArray[d], false);
+  }
 
-  // Loop over the voxels in the region identified
-  ImageRegion<ImageDimension> region;
-  for( unsigned int d = 0; d < ImageDimension; d++ )
-    {
-    const int boundingBoxSize = static_cast<int>(
-      this->GetBoundingBoxEnd()[d] - this->GetBoundingBoxStart()[d] + 0.5 );
-    const int begin = std::max( 0, static_cast<int>( std::floor( cindex[d] -
-      this->GetBoundingBoxStart()[d] - this->GetCutOffDistance()[d] ) ) );
-    const int end = std::min( boundingBoxSize, static_cast<int>( std::ceil(
-      cindex[d] - this->GetBoundingBoxStart()[d] + this->GetCutOffDistance()[d] ) ) );
-    region.SetIndex( d, begin );
-    region.SetSize( d, end - begin );
-    }
-
-  RealType wmax = 0.0;
+  RealType   wmax = 0.0;
   OutputType Vmax = NumericTraits<OutputType>::ZeroValue();
 
   // Create a map object to store weights for each label encountered
   // inside the search region. This is not as efficient as having a
   // linear list of labels, but probably not a huge deal compared to
   // having to evaluate the erf function
-  typedef std::map<OutputType, RealType, TPixelCompare> WeightMapType;
-  typedef typename std::map<OutputType, RealType, TPixelCompare>::iterator WeightMapIteratorType;
+  using WeightMapType = std::map<OutputType, RealType, TPixelCompare>;
   WeightMapType weightMap;
 
-  ImageRegionConstIteratorWithIndex<InputImageType> It( this->GetInputImage(), region );
-  for( It.GoToBegin(); !It.IsAtEnd(); ++It )
+  ImageRegionConstIteratorWithIndex<InputImageType> It(this->GetInputImage(), region);
+  for (It.GoToBegin(); !It.IsAtEnd(); ++It)
+  {
+    unsigned int j = It.GetIndex()[0] - region.GetIndex()[0];
+    RealType     w = erfArray[0][j];
+    for (unsigned int d = 1; d < ImageDimension; d++)
     {
-    unsigned int j = It.GetIndex()[0];
-    RealType w = erfArray[0][j];
-    for( unsigned int d = 1; d < ImageDimension; d++)
-      {
-      j = It.GetIndex()[d];
+      j = It.GetIndex()[d] - region.GetIndex()[d];
       w *= erfArray[d][j];
-      }
+    }
 
     const OutputType V = It.Get();
-    WeightMapIteratorType it = weightMap.find( V );
-    RealType wtest = 0.0;
+    auto             it = weightMap.find(V);
+    RealType         wtest = 0.0;
 
-    if( it != weightMap.end() )
-      {
+    if (it != weightMap.end())
+    {
       it->second += w;
       wtest = it->second;
-      }
+    }
     else
-      {
-      weightMap.insert( std::make_pair( V, w ) );
+    {
+      weightMap.insert(std::make_pair(V, w));
       wtest = w;
-      }
+    }
 
     // Keep track of the max value
-    if( wtest > wmax )
-      {
+    if (wtest > wmax)
+    {
       wmax = wtest;
       Vmax = V;
-      }
     }
+  }
   return Vmax;
 }
 

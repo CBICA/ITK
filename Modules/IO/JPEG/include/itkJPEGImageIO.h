@@ -28,17 +28,22 @@ namespace itk
  *
  * \brief ImageIO object for reading and writing JPEG images
  *
+ * Compression is supported with only the default compressor. The
+ * compression level option is supported in the range 0-100.
+ *
  * \ingroup IOFilters
  *
  * \ingroup ITKIOJPEG
  */
-class ITKIOJPEG_EXPORT JPEGImageIO:public ImageIOBase
+class ITKIOJPEG_EXPORT JPEGImageIO : public ImageIOBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef JPEGImageIO          Self;
-  typedef ImageIOBase          Superclass;
-  typedef SmartPointer< Self > Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(JPEGImageIO);
+
+  /** Standard class type aliases. */
+  using Self = JPEGImageIO;
+  using Superclass = ImageIOBase;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -47,8 +52,16 @@ public:
   itkTypeMacro(JPEGImageIO, ImageIOBase);
 
   /** Set/Get the level of quality for the output images. */
-  itkSetMacro(Quality, int);
-  itkGetConstMacro(Quality, int);
+  virtual void
+  SetQuality(int _JPEGQuality)
+  {
+    this->SetCompressionLevel(_JPEGQuality);
+  }
+  virtual int
+  GetQuality() const
+  {
+    return this->GetCompressionLevel();
+  }
 
   /**  */
   itkSetMacro(Progressive, bool);
@@ -58,46 +71,49 @@ public:
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanReadFile(const char *) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char *) override;
 
   /** Set the spacing and diemention information for the set filename. */
-  virtual void ReadImageInformation() ITK_OVERRIDE;
+  void
+  ReadImageInformation() override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read(void *buffer) ITK_OVERRIDE;
+  void
+  Read(void * buffer) override;
 
   /** Reads 3D data from multiple files assuming one slice per file. */
-  virtual void ReadVolume(void *buffer);
+  virtual void
+  ReadVolume(void * buffer);
 
   /*-------- This part of the interfaces deals with writing data. ----- */
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanWriteFile(const char *) ITK_OVERRIDE;
+  bool
+  CanWriteFile(const char *) override;
 
   /** Writes the spacing and dimensions of the image.
    * Assumes SetFileName has been called with a valid file name. */
-  virtual void WriteImageInformation() ITK_OVERRIDE;
+  void
+  WriteImageInformation() override;
 
   /** Writes the data to disk from the memory buffer provided. Make sure
    * that the IORegion has been set properly. */
-  virtual void Write(const void *buffer) ITK_OVERRIDE;
+  void
+  Write(const void * buffer) override;
 
 protected:
   JPEGImageIO();
-  ~JPEGImageIO() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~JPEGImageIO() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void WriteSlice(std::string & fileName, const void *buffer);
+  void
+  WriteSlice(std::string & fileName, const void * buffer);
 
-  /** Determines the quality of compression for written files.
-   *  default = 95 */
-  int m_Quality;
   /** Default = true*/
   bool m_Progressive;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(JPEGImageIO);
 };
 } // end namespace itk
 

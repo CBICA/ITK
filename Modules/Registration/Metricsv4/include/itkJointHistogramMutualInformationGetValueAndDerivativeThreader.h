@@ -30,101 +30,101 @@ namespace itk
  *
  * \ingroup ITKMetricsv4
  */
-template < typename TDomainPartitioner, typename TImageToImageMetric, typename TJointHistogramMetric >
+template <typename TDomainPartitioner, typename TImageToImageMetric, typename TJointHistogramMetric>
 class ITK_TEMPLATE_EXPORT JointHistogramMutualInformationGetValueAndDerivativeThreader
-  : public ImageToImageMetricv4GetValueAndDerivativeThreader< TDomainPartitioner, TImageToImageMetric >
+  : public ImageToImageMetricv4GetValueAndDerivativeThreader<TDomainPartitioner, TImageToImageMetric>
 {
 public:
-  /** Standard class typedefs. */
-  typedef JointHistogramMutualInformationGetValueAndDerivativeThreader Self;
-  typedef ImageToImageMetricv4GetValueAndDerivativeThreader< TDomainPartitioner, TImageToImageMetric >
-                                                                       Superclass;
-  typedef SmartPointer< Self >                                         Pointer;
-  typedef SmartPointer< const Self >                                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(JointHistogramMutualInformationGetValueAndDerivativeThreader);
 
-  itkTypeMacro( JointHistogramMutualInformationGetValueAndDerivativeThreader, ImageToImageMetricv4GetValueAndDerivativeThreader );
+  /** Standard class type aliases. */
+  using Self = JointHistogramMutualInformationGetValueAndDerivativeThreader;
+  using Superclass = ImageToImageMetricv4GetValueAndDerivativeThreader<TDomainPartitioner, TImageToImageMetric>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkNewMacro( Self );
+  itkTypeMacro(JointHistogramMutualInformationGetValueAndDerivativeThreader,
+               ImageToImageMetricv4GetValueAndDerivativeThreader);
 
-  typedef typename Superclass::DomainType    DomainType;
-  typedef typename Superclass::AssociateType AssociateType;
+  itkNewMacro(Self);
 
-  typedef typename Superclass::VirtualPointType        VirtualPointType;
-  typedef typename Superclass::VirtualIndexType        VirtualIndexType;
-  typedef typename Superclass::FixedImagePointType     FixedImagePointType;
-  typedef typename Superclass::FixedImagePixelType     FixedImagePixelType;
-  typedef typename Superclass::FixedImageGradientType  FixedImageGradientType;
-  typedef typename Superclass::MovingImagePointType    MovingImagePointType;
-  typedef typename Superclass::MovingImagePixelType    MovingImagePixelType;
-  typedef typename Superclass::MovingImageGradientType MovingImageGradientType;
-  typedef typename Superclass::MeasureType             MeasureType;
-  typedef typename Superclass::DerivativeType          DerivativeType;
-  typedef typename Superclass::DerivativeValueType     DerivativeValueType;
-  typedef typename Superclass::JacobianType            JacobianType;
+  using DomainType = typename Superclass::DomainType;
+  using AssociateType = typename Superclass::AssociateType;
 
-  typedef TJointHistogramMetric                                             JointHistogramMetricType;
-  typedef typename JointHistogramMetricType::InternalComputationValueType   InternalComputationValueType;
-  typedef typename JointHistogramMetricType::JointPDFInterpolatorType       JointPDFInterpolatorType;
-  typedef typename JointHistogramMetricType::MarginalPDFInterpolatorType    MarginalPDFInterpolatorType;
-  typedef typename JointHistogramMetricType::JointPDFInterpolatorPointer    JointPDFInterpolatorPointer;
-  typedef typename JointHistogramMetricType::MarginalPDFInterpolatorPointer MarginalPDFInterpolatorPointer;
-  typedef typename JointHistogramMetricType::NumberOfParametersType         NumberOfParametersType;
-  typedef typename JointHistogramMetricType::JointPDFType                   JointPDFType;
-  typedef typename JointHistogramMetricType::MarginalPDFType                MarginalPDFType;
-  typedef typename MarginalPDFType::PointType                               MarginalPDFPointType;
-  typedef typename JointPDFType::PointType                                  JointPDFPointType;
-  typedef typename JointHistogramMetricType::JointPDFValueType              JointPDFValueType;
+  using VirtualPointType = typename Superclass::VirtualPointType;
+  using VirtualIndexType = typename Superclass::VirtualIndexType;
+  using FixedImagePointType = typename Superclass::FixedImagePointType;
+  using FixedImagePixelType = typename Superclass::FixedImagePixelType;
+  using FixedImageGradientType = typename Superclass::FixedImageGradientType;
+  using MovingImagePointType = typename Superclass::MovingImagePointType;
+  using MovingImagePixelType = typename Superclass::MovingImagePixelType;
+  using MovingImageGradientType = typename Superclass::MovingImageGradientType;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using DerivativeValueType = typename Superclass::DerivativeValueType;
+  using JacobianType = typename Superclass::JacobianType;
+
+  using JointHistogramMetricType = TJointHistogramMetric;
+  using InternalComputationValueType = typename JointHistogramMetricType::InternalComputationValueType;
+  using JointPDFInterpolatorType = typename JointHistogramMetricType::JointPDFInterpolatorType;
+  using MarginalPDFInterpolatorType = typename JointHistogramMetricType::MarginalPDFInterpolatorType;
+  using JointPDFInterpolatorPointer = typename JointHistogramMetricType::JointPDFInterpolatorPointer;
+  using MarginalPDFInterpolatorPointer = typename JointHistogramMetricType::MarginalPDFInterpolatorPointer;
+  using NumberOfParametersType = typename JointHistogramMetricType::NumberOfParametersType;
+  using JointPDFType = typename JointHistogramMetricType::JointPDFType;
+  using MarginalPDFType = typename JointHistogramMetricType::MarginalPDFType;
+  using MarginalPDFPointType = typename MarginalPDFType::PointType;
+  using JointPDFPointType = typename JointPDFType::PointType;
+  using JointPDFValueType = typename JointHistogramMetricType::JointPDFValueType;
 
 protected:
   JointHistogramMutualInformationGetValueAndDerivativeThreader();
-  virtual ~JointHistogramMutualInformationGetValueAndDerivativeThreader() ITK_OVERRIDE;
+  ~JointHistogramMutualInformationGetValueAndDerivativeThreader() override;
 
-  typedef Image< SizeValueType, 2 > JointHistogramType;
+  using JointHistogramType = Image<SizeValueType, 2>;
 
-  virtual void BeforeThreadedExecution() ITK_OVERRIDE;
+  void
+  BeforeThreadedExecution() override;
 
-  virtual void AfterThreadedExecution() ITK_OVERRIDE;
+  void
+  AfterThreadedExecution() override;
 
-  virtual bool ProcessPoint(
-        const VirtualIndexType &          virtualIndex,
-        const VirtualPointType &          virtualPoint,
-        const FixedImagePointType &       mappedFixedPoint,
-        const FixedImagePixelType &       mappedFixedPixelValue,
-        const FixedImageGradientType &    mappedFixedImageGradient,
-        const MovingImagePointType &      mappedMovingPoint,
-        const MovingImagePixelType &      mappedMovingPixelValue,
-        const MovingImageGradientType &   mappedMovingImageGradient,
-        MeasureType &                     metricValueReturn,
-        DerivativeType &                  localDerivativeReturn,
-        const ThreadIdType                threadId ) const ITK_OVERRIDE;
+  bool
+  ProcessPoint(const VirtualIndexType &        virtualIndex,
+               const VirtualPointType &        virtualPoint,
+               const FixedImagePointType &     mappedFixedPoint,
+               const FixedImagePixelType &     mappedFixedPixelValue,
+               const FixedImageGradientType &  mappedFixedImageGradient,
+               const MovingImagePointType &    mappedMovingPoint,
+               const MovingImagePixelType &    mappedMovingPixelValue,
+               const MovingImageGradientType & mappedMovingImageGradient,
+               MeasureType &                   metricValueReturn,
+               DerivativeType &                localDerivativeReturn,
+               const ThreadIdType              threadId) const override;
 
-  inline InternalComputationValueType ComputeFixedImageMarginalPDFDerivative(
-                                        const MarginalPDFPointType & margPDFpoint,
-                                        const ThreadIdType threadId ) const;
+  inline InternalComputationValueType
+  ComputeFixedImageMarginalPDFDerivative(const MarginalPDFPointType & margPDFpoint, const ThreadIdType threadId) const;
 
-  inline InternalComputationValueType ComputeMovingImageMarginalPDFDerivative(
-                                        const MarginalPDFPointType & margPDFpoint,
-                                        const ThreadIdType threadId ) const;
+  inline InternalComputationValueType
+  ComputeMovingImageMarginalPDFDerivative(const MarginalPDFPointType & margPDFpoint, const ThreadIdType threadId) const;
 
-  inline InternalComputationValueType ComputeJointPDFDerivative(
-                                          const JointPDFPointType & jointPDFpoint,
-                                          const ThreadIdType threadId,
-                                          const SizeValueType ind ) const;
+  inline InternalComputationValueType
+  ComputeJointPDFDerivative(const JointPDFPointType & jointPDFpoint,
+                            const ThreadIdType        threadId,
+                            const SizeValueType       ind) const;
   struct JointHistogramMIPerThreadStruct
-    {
-    JointPDFInterpolatorPointer          JointPDFInterpolator;
-    MarginalPDFInterpolatorPointer       FixedImageMarginalPDFInterpolator;
-    MarginalPDFInterpolatorPointer       MovingImageMarginalPDFInterpolator;
-    };
-  itkPadStruct( ITK_CACHE_LINE_ALIGNMENT, JointHistogramMIPerThreadStruct,
-                                            PaddedJointHistogramMIPerThreadStruct);
-  itkAlignedTypedef( ITK_CACHE_LINE_ALIGNMENT, PaddedJointHistogramMIPerThreadStruct,
-                                               AlignedJointHistogramMIPerThreadStruct );
+  {
+    JointPDFInterpolatorPointer    JointPDFInterpolator;
+    MarginalPDFInterpolatorPointer FixedImageMarginalPDFInterpolator;
+    MarginalPDFInterpolatorPointer MovingImageMarginalPDFInterpolator;
+  };
+  itkPadStruct(ITK_CACHE_LINE_ALIGNMENT, JointHistogramMIPerThreadStruct, PaddedJointHistogramMIPerThreadStruct);
+  itkAlignedTypedef(ITK_CACHE_LINE_ALIGNMENT,
+                    PaddedJointHistogramMIPerThreadStruct,
+                    AlignedJointHistogramMIPerThreadStruct);
   AlignedJointHistogramMIPerThreadStruct * m_JointHistogramMIPerThreadVariables;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(JointHistogramMutualInformationGetValueAndDerivativeThreader);
-
   /** Internal pointer to the metric object in use by this threader.
    *  This will avoid costly dynamic casting in tight loops. */
   TJointHistogramMetric * m_JointAssociate;

@@ -19,12 +19,14 @@
 #define itkFixedArray_h
 
 #include "itkMacro.h"
+#include <algorithm>
+#include <array>
 
 namespace itk
 {
 
 /** \class FixedArray
- *  \brief Simulate a standard C array with copy semnatics.
+ *  \brief Simulate a standard C array with copy semantics.
  *
  * Simulates a standard C array, except that copy semantics are used instead
  * of reference semantics.  Also, arrays of different sizes cannot be
@@ -42,31 +44,31 @@ namespace itk
  * \ingroup DataRepresentation
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Utilities/FixedArray,C-style array}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateAFixedArray,Create A Fixed Array}
+ * \endsphinx
  */
-template< typename TValue, unsigned int VLength = 3 >
+template <typename TValue, unsigned int VLength = 3>
 class ITK_TEMPLATE_EXPORT FixedArray
 {
 public:
   /** Length constant */
-  itkStaticConstMacro(Length, unsigned int, VLength);
+  static constexpr unsigned int Length = VLength;
 
   /** Dimension constant */
-  itkStaticConstMacro(Dimension, unsigned int, VLength);
+  static constexpr unsigned int Dimension = VLength;
 
   /** The element type stored at each location in the FixedArray. */
-  typedef TValue ValueType;
+  using ValueType = TValue;
 
   /** A type representing the C-array version of this FixedArray. */
-  typedef ValueType CArray[VLength];
+  using CArray = ValueType[VLength];
 
   /** An iterator through the array. */
-  typedef ValueType *Iterator;
+  using Iterator = ValueType *;
 
   /** A const iterator through the array. */
-  typedef const ValueType *ConstIterator;
+  using ConstIterator = const ValueType *;
 
   class ConstReverseIterator;
 
@@ -77,15 +79,41 @@ public:
   class ReverseIterator
   {
   public:
-    explicit ReverseIterator(Iterator i):m_Iterator(i) {}
-    Iterator operator++()        { return --m_Iterator; }
-    Iterator operator++(int)     { return m_Iterator--; }
-    Iterator operator--()        { return ++m_Iterator; }
-    Iterator operator--(int)     { return m_Iterator++; }
-    Iterator operator->() const { return ( m_Iterator - 1 ); }
-    ValueType & operator*() const { return *( m_Iterator - 1 ); }
-    bool operator!=(const ReverseIterator & rit) const { return m_Iterator != rit.m_Iterator; }
-    bool operator==(const ReverseIterator & rit) const { return m_Iterator == rit.m_Iterator; }
+    explicit ReverseIterator(Iterator i)
+      : m_Iterator(i)
+    {}
+    ReverseIterator
+    operator++()
+    {
+      return ReverseIterator(--m_Iterator);
+    }
+    ReverseIterator
+    operator++(int)
+    {
+      return ReverseIterator(m_Iterator--);
+    }
+    ReverseIterator
+    operator--()
+    {
+      return ReverseIterator(++m_Iterator);
+    }
+    ReverseIterator
+    operator--(int)
+    {
+      return ReverseIterator(m_Iterator++);
+    }
+    Iterator    operator->() const { return (m_Iterator - 1); }
+    ValueType & operator*() const { return *(m_Iterator - 1); }
+    bool
+    operator!=(const ReverseIterator & rit) const
+    {
+      return m_Iterator != rit.m_Iterator;
+    }
+    bool
+    operator==(const ReverseIterator & rit) const
+    {
+      return m_Iterator == rit.m_Iterator;
+    }
 
   private:
     Iterator m_Iterator;
@@ -99,182 +127,326 @@ public:
   class ConstReverseIterator
   {
   public:
-    explicit ConstReverseIterator(ConstIterator i):m_Iterator(i) {}
+    explicit ConstReverseIterator(ConstIterator i)
+      : m_Iterator(i)
+    {}
     ConstReverseIterator(const ReverseIterator & rit) { m_Iterator = rit.m_Iterator; }
-    ConstIterator operator++()         { return --m_Iterator; }
-    ConstIterator operator++(int)      { return m_Iterator--; }
-    ConstIterator operator--()         { return ++m_Iterator; }
-    ConstIterator operator--(int)      { return m_Iterator++; }
-    ConstIterator operator->() const { return ( m_Iterator - 1 ); }
-    const ValueType & operator*() const { return *( m_Iterator - 1 ); }
-    bool operator!=(const ConstReverseIterator & rit) const { return m_Iterator != rit.m_Iterator; }
-    bool operator==(const ConstReverseIterator & rit) const { return m_Iterator == rit.m_Iterator; }
+    ConstReverseIterator
+    operator++()
+    {
+      return ConstReverseIterator(--m_Iterator);
+    }
+    ConstReverseIterator
+    operator++(int)
+    {
+      return ConstReverseIterator(m_Iterator--);
+    }
+    ConstReverseIterator
+    operator--()
+    {
+      return ConstReverseIterator(++m_Iterator);
+    }
+    ConstReverseIterator
+    operator--(int)
+    {
+      return ConstReverseIterator(m_Iterator++);
+    }
+    ConstIterator     operator->() const { return (m_Iterator - 1); }
+    const ValueType & operator*() const { return *(m_Iterator - 1); }
+    bool
+    operator!=(const ConstReverseIterator & rit) const
+    {
+      return m_Iterator != rit.m_Iterator;
+    }
+    bool
+    operator==(const ConstReverseIterator & rit) const
+    {
+      return m_Iterator == rit.m_Iterator;
+    }
 
   private:
     ConstIterator m_Iterator;
   };
 
   /** A pointer to the ValueType. */
-  typedef ValueType *pointer;
+  using pointer = ValueType *;
 
   /** A const pointer to the ValueType. */
-  typedef const ValueType *const_pointer;
+  using const_pointer = const ValueType *;
 
   /** A reference to the ValueType. */
-  typedef ValueType & reference;
+  using reference = ValueType &;
 
   /** A const reference to the ValueType. */
-  typedef const ValueType & const_reference;
+  using const_reference = const ValueType &;
 
-  typedef unsigned int SizeType;
+  /** The return type of the non-const overloads of begin() and end(). */
+  using iterator = ValueType *;
+
+  /** The return type of cbegin() and cend(), and the const overloads of begin() and end(). */
+  using const_iterator = const ValueType *;
+
+  using reverse_iterator = std::reverse_iterator<iterator>;
+
+  using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+
+  using SizeType = unsigned int;
 
 public:
   /** Constructors */
-  FixedArray();
-  FixedArray(const ValueType r[VLength]);
-  FixedArray(const ValueType & r);
+  FixedArray() = default;
+  FixedArray(const FixedArray &) = default;
+  FixedArray &
+  operator=(const FixedArray &) = default;
+  FixedArray(FixedArray &&) = default;
+  FixedArray &
+  operator=(FixedArray &&) = default;
+  ~FixedArray() = default;
 
-  /** Constructor to initialize a fixed array from another of any data type */
-  template< typename TFixedArrayValueType >
-  FixedArray(const FixedArray< TFixedArrayValueType, VLength > & r)
+  /** Conversion constructors */
+  FixedArray(const ValueType r[VLength]);
+  FixedArray(const ValueType &);
+
+  /** Explicit constructor for std::array. */
+  explicit FixedArray(const std::array<ValueType, VLength> & stdArray)
   {
-    typename FixedArray< TFixedArrayValueType, VLength >::ConstIterator input = r.Begin();
-    Iterator i = this->Begin();
-    while ( i != this->End() )
-      {
-      *i++ = static_cast< TValue >( *input++ );
-      }
+    std::copy_n(stdArray.cbegin(), VLength, m_InternalArray);
   }
 
-  template< typename TScalarValue >
-  FixedArray(const TScalarValue *r)
-    {
-      std::copy(r, r + this->Size(), this->GetDataPointer());
-    }
+  /** Constructor to initialize a fixed array from another of any data type */
+  template <typename TFixedArrayValueType>
+  FixedArray(const FixedArray<TFixedArrayValueType, VLength> & r)
+  {
+    auto input = r.cbegin();
 
-  /** This destructor is not virtual for performance reasons. However, this
-   * means that subclasses cannot allocate memory.
-   *
-   * The destructor is PURPOSELY NOT DEFINED, in order to prevent inefficient
-   * byte alignment of arrays of this object.
-   *
-   * ~FixedArray();
-   *
-   * For a full discussion, see
-   * https://www.itk.org/mailman/private/insight-developers/2008-June/010480.html
-   *
-   */
+    for (auto & element : m_InternalArray)
+    {
+      element = static_cast<TValue>(*input++);
+    }
+  }
+
+  template <typename TScalarValue>
+  FixedArray(const TScalarValue * r)
+  {
+    std::copy_n(r, VLength, m_InternalArray);
+  }
 
   /** Operator= defined for a variety of types. */
-  template< typename TFixedArrayValueType >
-  FixedArray & operator=(const FixedArray< TFixedArrayValueType, VLength > & r)
+  template <typename TFixedArrayValueType>
+  FixedArray &
+  operator=(const FixedArray<TFixedArrayValueType, VLength> & r)
   {
-    if ( (const void *)r.Begin() != (const void *)m_InternalArray )
-      {
-      typename FixedArray< TFixedArrayValueType, VLength >::ConstIterator input = r.Begin();
-      Iterator i = this->Begin();
-      while ( i != this->End() )
-        {
-        *i++ = static_cast< TValue >( *input++ );
-        }
-      }
+    auto input = r.cbegin();
+
+    for (auto & element : m_InternalArray)
+    {
+      element = static_cast<TValue>(*input++);
+    }
     return *this;
   }
 
-  FixedArray & operator=(const ValueType r[VLength]);
+  FixedArray &
+  operator=(const ValueType r[VLength]);
 
   /** Operators == and != are used to compare whether two arrays are equal.
    * Note that arrays are equal when the number of components (size) is the
    * same, and each component value is equal. */
-  bool operator==(const FixedArray & r) const;
+  bool
+  operator==(const FixedArray & r) const;
 
-  bool operator!=(const FixedArray & r) const
-  { return !operator==(r); }
+  bool
+  operator!=(const FixedArray & r) const
+  {
+    return !operator==(r);
+  }
 
   /** Allow the FixedArray to be indexed normally.  No bounds checking is done.
    * The separate versions are a work-around for an integer conversion bug in
    * Visual C++. */
-  reference operator[](short index)                { return m_InternalArray[index]; }
+  reference       operator[](short index) { return m_InternalArray[index]; }
   const_reference operator[](short index) const { return m_InternalArray[index]; }
-  reference operator[](unsigned short index)       { return m_InternalArray[index]; }
+  reference       operator[](unsigned short index) { return m_InternalArray[index]; }
   const_reference operator[](unsigned short index) const { return m_InternalArray[index]; }
-  reference operator[](int index)                  { return m_InternalArray[index]; }
+  reference       operator[](int index) { return m_InternalArray[index]; }
   const_reference operator[](int index) const { return m_InternalArray[index]; }
 // false positive warnings with GCC
-#if defined( __GNUC__ )
-#if ( __GNUC__ == 4 ) && ( __GNUC_MINOR__ == 9 ) || ( __GNUC__ >= 7 )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
+#if defined(__GNUC__)
+#  if (__GNUC__ == 4) && (__GNUC_MINOR__ == 9) || (__GNUC__ >= 7)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Warray-bounds"
+#  endif
 #endif
-#endif
-  reference operator[](unsigned int index)         { return m_InternalArray[index]; }
+  reference       operator[](unsigned int index) { return m_InternalArray[index]; }
   const_reference operator[](unsigned int index) const { return m_InternalArray[index]; }
-#if defined( __GNUC__ )
-#if ( __GNUC__ == 4 ) && ( __GNUC_MINOR__ == 9 ) || ( __GNUC__ >= 7 )
-#pragma GCC diagnostic pop
+#if defined(__GNUC__)
+#  if (__GNUC__ == 4) && (__GNUC_MINOR__ == 9) || (__GNUC__ >= 7)
+#    pragma GCC diagnostic pop
+#  endif
 #endif
-#endif
-  reference operator[](long index)                 { return m_InternalArray[index]; }
+  reference       operator[](long index) { return m_InternalArray[index]; }
   const_reference operator[](long index) const { return m_InternalArray[index]; }
-  reference operator[](unsigned long index)        { return m_InternalArray[index]; }
+  reference       operator[](unsigned long index) { return m_InternalArray[index]; }
   const_reference operator[](unsigned long index) const { return m_InternalArray[index]; }
-  reference operator[](long long index)                 { return m_InternalArray[index]; }
+  reference       operator[](long long index) { return m_InternalArray[index]; }
   const_reference operator[](long long index) const { return m_InternalArray[index]; }
-  reference operator[](unsigned long long index)        { return m_InternalArray[index]; }
+  reference       operator[](unsigned long long index) { return m_InternalArray[index]; }
   const_reference operator[](unsigned long long index) const { return m_InternalArray[index]; }
 
   /** Set/Get element methods are more convenient in wrapping languages */
-  void SetElement(unsigned short index, const_reference value)
-  { m_InternalArray[index] = value; }
-  const_reference GetElement(unsigned short index) const { return m_InternalArray[index]; }
-
-  /** Return a pointer to the data. */
-  ValueType * GetDataPointer()
+  void
+  SetElement(unsigned int index, const_reference value)
   {
-    return m_InternalArray; \
+    m_InternalArray[index] = value;
+  }
+  const_reference
+  GetElement(unsigned int index) const
+  {
+    return m_InternalArray[index];
   }
 
-  const ValueType * GetDataPointer() const
+  /** Return a pointer to the data. */
+  ValueType *
+  GetDataPointer()
   {
-    return m_InternalArray; \
+    return m_InternalArray;
+  }
+
+  const ValueType *
+  GetDataPointer() const
+  {
+    return m_InternalArray;
   }
 
   /** Get various iterators to the array. */
-  Iterator      Begin();
+  Iterator
+  Begin();
 
-  ConstIterator Begin() const;
+  ConstIterator
+  Begin() const;
 
-  Iterator      End();
+  Iterator
+  End();
 
-  ConstIterator End() const;
+  ConstIterator
+  End() const;
 
-  ReverseIterator      rBegin();
+  itkLegacyMacro(ReverseIterator rBegin());
 
-  ConstReverseIterator rBegin() const;
+  itkLegacyMacro(ConstReverseIterator rBegin() const);
 
-  ReverseIterator      rEnd();
+  itkLegacyMacro(ReverseIterator rEnd());
 
-  ConstReverseIterator rEnd() const;
+  itkLegacyMacro(ConstReverseIterator rEnd() const);
 
-  SizeType      Size() const;
+  const_iterator
+  cbegin() const noexcept
+  {
+    return m_InternalArray;
+  }
 
-  void Fill(const ValueType &);
+  iterator
+  begin() noexcept
+  {
+    return m_InternalArray;
+  }
+
+  const_iterator
+  begin() const noexcept
+  {
+    return this->cbegin();
+  }
+
+  const_iterator
+  cend() const noexcept
+  {
+    return m_InternalArray + VLength;
+  }
+
+  iterator
+  end() noexcept
+  {
+    return m_InternalArray + VLength;
+  }
+
+  const_iterator
+  end() const noexcept
+  {
+    return this->cend();
+  }
+
+  reverse_iterator
+  rbegin()
+  {
+    return reverse_iterator{ this->end() };
+  }
+
+  const_reverse_iterator
+  crbegin() const
+  {
+    return const_reverse_iterator{ this->cend() };
+  }
+
+  const_reverse_iterator
+  rbegin() const
+  {
+    return this->crbegin();
+  }
+
+  reverse_iterator
+  rend()
+  {
+    return reverse_iterator{ this->begin() };
+  }
+
+  const_reverse_iterator
+  crend() const
+  {
+    return const_reverse_iterator{ this->cbegin() };
+  }
+
+  const_reverse_iterator
+  rend() const
+  {
+    return this->crend();
+  }
+
+  SizeType
+  Size() const;
+
+  void
+  Fill(const ValueType &);
+
+  void
+  swap(FixedArray & other)
+  {
+    std::swap(m_InternalArray, other.m_InternalArray);
+  }
 
 private:
   /** Internal C array representation. */
   CArray m_InternalArray;
 
 public:
-
-  static FixedArray Filled(const ValueType &);
+  static FixedArray
+  Filled(const ValueType &);
 };
 
-template< typename TValue, unsigned int VLength >
-std::ostream & operator<<(std::ostream & os, const FixedArray< TValue, VLength > & arr);
+template <typename TValue, unsigned int VLength>
+std::ostream &
+operator<<(std::ostream & os, const FixedArray<TValue, VLength> & arr);
+
+
+template <typename TValue, unsigned int VLength>
+inline void
+swap(FixedArray<TValue, VLength> & a, FixedArray<TValue, VLength> & b)
+{
+  a.swap(b);
+}
+
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFixedArray.hxx"
+#  include "itkFixedArray.hxx"
 #endif
 
 #include "itkNumericTraitsFixedArrayPixel.h"

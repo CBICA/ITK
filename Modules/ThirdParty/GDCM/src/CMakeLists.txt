@@ -1,14 +1,18 @@
 if(CMAKE_COMPILER_IS_GNUCC)
-  ITK_CHECK_C_COMPILER_FLAG("-fno-ipa-cp-clone" _HAS_fno-ipa-cp-clone)
+  check_c_compiler_flag("-fno-ipa-cp-clone" _HAS_fno-ipa-cp-clone)
   if(_HAS_fno-ipa-cp-clone)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-ipa-cp-clone")
   endif()
 endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
-  ITK_CHECK_CXX_COMPILER_FLAG("-fno-ipa-cp-clone" _HAS_fno-ipa-cp-clone)
+  check_cxx_compiler_flag("-fno-ipa-cp-clone" _HAS_fno-ipa-cp-clone)
   if(_HAS_fno-ipa-cp-clone)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-ipa-cp-clone")
   endif()
+endif()
+if(CMAKE_LINKER MATCHES "link.exe$")
+  # Suppress undefined public symbols warning
+  set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /IGNORE:4221")
 endif()
 
 
@@ -56,7 +60,6 @@ set(GDCM_ALWAYS_TRACE_MACRO OFF CACHE INTERNAL "")
 set(GDCMV2_0_COMPATIBILITY ON CACHE INTERNAL "")
 set(GDCM_WRITE_ODD_LENGTH OFF CACHE INTERNAL "Do not change")
 set(GDCM_DEBUG_POSTFIX "" CACHE INTERNAL "")
-set(GDCM_USE_COREFOUNDATION_LIBRARY OFF CACHE INTERNAL "")
 
 # GDCM uses these to refer to executable and library locations
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
@@ -75,8 +78,7 @@ foreach(lib
     gdcmjpeg12
     gdcmjpeg16
     gdcmjpeg8
-    gdcmopenjpeg
-    itkgdcmopenjp2
+    gdcmopenjp2
     gdcmsocketxx
     gdcmuuid
     )
@@ -84,3 +86,13 @@ foreach(lib
     itk_module_target(${lib} NO_INSTALL)
   endif()
 endforeach()
+
+unset(BUILD_CODEC CACHE)
+unset(BUILD_DOC CACHE)
+unset(BUILD_JAVA CACHE)
+unset(BUILD_JP3D CACHE)
+unset(BUILD_JPIP CACHE)
+unset(BUILD_JPWL CACHE)
+unset(BUILD_MJ2 CACHE)
+unset(BUILD_PKGCONFIG_FILES CACHE)
+unset(BUILD_VIEWER CACHE)

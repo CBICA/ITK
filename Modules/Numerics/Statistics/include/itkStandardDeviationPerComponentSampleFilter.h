@@ -45,76 +45,85 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-template< typename TSample >
-class ITK_TEMPLATE_EXPORT StandardDeviationPerComponentSampleFilter:
-  public ProcessObject
+template <typename TSample>
+class ITK_TEMPLATE_EXPORT StandardDeviationPerComponentSampleFilter : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef StandardDeviationPerComponentSampleFilter Self;
-  typedef ProcessObject                             Superclass;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
-  typedef TSample                                   SampleType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StandardDeviationPerComponentSampleFilter);
+
+  /** Standard class type aliases. */
+  using Self = StandardDeviationPerComponentSampleFilter;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using SampleType = TSample;
 
   /** Standard Macros */
   itkTypeMacro(StandardDeviationPerComponentSampleFilter, ProcessObject);
   itkNewMacro(Self);
 
   /** Length of a measurement vector */
-  typedef typename TSample::MeasurementVectorSizeType MeasurementVectorSizeType;
+  using MeasurementVectorSizeType = typename TSample::MeasurementVectorSizeType;
 
   /** Measurement vector type */
-  typedef typename TSample::MeasurementVectorType                   MeasurementVectorType;
-  typedef typename NumericTraits< MeasurementVectorType >::RealType MeasurementVectorRealType;
+  using MeasurementVectorType = typename TSample::MeasurementVectorType;
+  using MeasurementVectorRealType = typename NumericTraits<MeasurementVectorType>::RealType;
 
   /** Method to set/get the sample */
   using Superclass::SetInput;
-  void SetInput(const SampleType *sample);
+  void
+  SetInput(const SampleType * sample);
 
-  const SampleType *  GetInput() const;
+  const SampleType *
+  GetInput() const;
 
   /** MeasurementVector is not a DataObject, we need to decorate it to push it down
    * a ProcessObject's pipeline */
-  typedef  SimpleDataObjectDecorator< MeasurementVectorRealType > MeasurementVectorRealDecoratedType;
+  using MeasurementVectorRealDecoratedType = SimpleDataObjectDecorator<MeasurementVectorRealType>;
 
-  typedef MeasurementVectorRealDecoratedType OutputType;
+  using OutputType = MeasurementVectorRealDecoratedType;
 
   /** Return the standard deviation vector */
-  const MeasurementVectorRealType GetStandardDeviationPerComponent() const;
+  const MeasurementVectorRealType
+  GetStandardDeviationPerComponent() const;
 
-  const MeasurementVectorRealDecoratedType * GetStandardDeviationPerComponentOutput() const;
+  const MeasurementVectorRealDecoratedType *
+  GetStandardDeviationPerComponentOutput() const;
 
   /** Return the mean vector */
-  const MeasurementVectorRealType GetMeanPerComponent() const;
+  const MeasurementVectorRealType
+  GetMeanPerComponent() const;
 
-  const MeasurementVectorRealDecoratedType * GetMeanPerComponentOutput() const;
+  const MeasurementVectorRealDecoratedType *
+  GetMeanPerComponentOutput() const;
 
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(StandardDeviationPerComponentSampleFilter);
-
   StandardDeviationPerComponentSampleFilter();
-  virtual ~StandardDeviationPerComponentSampleFilter() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~StandardDeviationPerComponentSampleFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** DataObject pointer */
-  typedef DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = DataObject::Pointer;
 
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  MeasurementVectorSizeType GetMeasurementVectorSize() const;
+  MeasurementVectorSizeType
+  GetMeasurementVectorSize() const;
 
 private:
-};  // end of class
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkStandardDeviationPerComponentSampleFilter.hxx"
+#  include "itkStandardDeviationPerComponentSampleFilter.hxx"
 #endif
 
 #endif

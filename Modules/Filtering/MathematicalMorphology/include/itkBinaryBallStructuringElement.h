@@ -53,75 +53,74 @@ namespace itk
  * \ingroup ImageIterators
  * \ingroup ITKMathematicalMorphology
  *
- * \wiki
- * \wikiexample{Morphology/BinaryBallStructuringElement,An elliptical structuring element}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/MathematicalMorphology/CreateABinaryBallStructuringElement,Create A Binary Ball Structuring
+ * Element} \endsphinx
  */
 
-template< typename TPixel, unsigned int VDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT BinaryBallStructuringElement:
-  public Neighborhood< TPixel, VDimension, TAllocator >
+template <typename TPixel, unsigned int VDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT BinaryBallStructuringElement : public Neighborhood<TPixel, VDimension, TAllocator>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryBallStructuringElement                   Self;
-  typedef Neighborhood< TPixel, VDimension, TAllocator > Superclass;
+  /** Standard class type aliases. */
+  using Self = BinaryBallStructuringElement;
+  using Superclass = Neighborhood<TPixel, VDimension, TAllocator>;
 
   /** External support for allocator type. */
-  typedef TAllocator AllocatorType;
+  using AllocatorType = TAllocator;
 
   /** External support for dimensionality. */
-  itkStaticConstMacro(NeighborhoodDimension, unsigned int, VDimension);
+  static constexpr unsigned int NeighborhoodDimension = VDimension;
 
   /** External support for pixel type. */
-  typedef TPixel PixelType;
+  using PixelType = TPixel;
 
-  /** Iterator typedef support. Note the naming is intentional, i.e.,
-  * AllocatorType::iterator and AllocatorType::const_iterator, because the
-  * allocator may be a vnl object or other type, which uses this form. */
-  typedef typename AllocatorType::iterator       Iterator;
-  typedef typename AllocatorType::const_iterator ConstIterator;
+  /** Iterator type alias support Note the naming is intentional, i.e.,
+   * AllocatorType::iterator and AllocatorType::const_iterator, because the
+   * allocator may be a vnl object or other type, which uses this form. */
+  using Iterator = typename AllocatorType::iterator;
+  using ConstIterator = typename AllocatorType::const_iterator;
 
-  /** Size and value typedef support. */
-  typedef typename Superclass::SizeType      SizeType;
-  typedef typename Superclass::SizeValueType SizeValueType;
+  /** Size and value type alias support */
+  using SizeType = typename Superclass::SizeType;
+  using SizeValueType = typename Superclass::SizeValueType;
 
-  /** Radius typedef support. */
-  typedef typename Superclass::RadiusType RadiusType;
+  /** Radius type alias support */
+  using RadiusType = typename Superclass::RadiusType;
 
-  /** External slice iterator type typedef support. */
-  typedef SliceIterator< TPixel, Self > SliceIteratorType;
+  /** External slice iterator type type alias support */
+  using SliceIteratorType = SliceIterator<TPixel, Self>;
 
   /** Default constructor. */
-  BinaryBallStructuringElement() {}
+  BinaryBallStructuringElement() = default;
 
   /** Default destructor. */
-  virtual ~BinaryBallStructuringElement() {}
+  ~BinaryBallStructuringElement() override = default;
 
   /** Copy constructor. */
-  BinaryBallStructuringElement(const Self & other):
-    Neighborhood< TPixel, VDimension, TAllocator >(other)
+  BinaryBallStructuringElement(const Self & other)
+    : Neighborhood<TPixel, VDimension, TAllocator>(other)
   {}
 
   /** Assignment operator. */
-  Self & operator=(const Self & other)
+  Self &
+  operator=(const Self & other)
   {
     Superclass::operator=(other);
     return *this;
   }
 
   /** Build the structuring element */
-  void CreateStructuringElement();
+  void
+  CreateStructuringElement();
 
 protected:
-
 private:
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryBallStructuringElement.hxx"
+#  include "itkBinaryBallStructuringElement.hxx"
 #endif
 
 #endif

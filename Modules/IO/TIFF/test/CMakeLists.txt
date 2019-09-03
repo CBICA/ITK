@@ -123,7 +123,7 @@ itk_add_test(NAME itkTIFFImageIOFloatTest
       COMMAND ITKIOTIFFTestDriver
       --compare DATA{Baseline/itkTIFFImageIORGBATestBaseline.tif}
               ${ITK_TEST_OUTPUT_DIR}/itkTIFFImageIORGBATest.tif
-    itkTIFFImageIOTest DATA{Input/RGBAHead.tif} ${ITK_TEST_OUTPUT_DIR}/itkTIFFImageIORGBATest.tif 3 2)
+    itkTIFFImageIOTest DATA{Input/RGBAHead.tif} ${ITK_TEST_OUTPUT_DIR}/itkTIFFImageIORGBATest.tif 3 5)
 
 itk_add_test(NAME itkTIFFImageIOOrientation1
       COMMAND ITKIOTIFFTestDriver
@@ -155,6 +155,11 @@ itk_add_test(NAME itkTIFFImageIOPlannarConfig2
       --compare-MD5 ${ITK_TEST_OUTPUT_DIR}/itkTIFFImageIOPlannarConfig2.tif
               91975481ba66709c8f3ccb538af5cd2a
     itkTIFFImageIOTest DATA{Input/ps-separated.tif} ${ITK_TEST_OUTPUT_DIR}/itkTIFFImageIOPlannarConfig2.tif 2 1)
+itk_add_test(NAME itkTIFFImageIOTestUShortPlanarConfig2
+      COMMAND ITKIOTIFFTestDriver
+    --compare DATA{${ITK_DATA_ROOT}/Baseline/IO/ShortPlanarTestImage.tiff}
+              ${ITK_TEST_OUTPUT_DIR}/ShortPlanarTestImage.tiff
+    itkTIFFImageIOTest DATA{${ITK_DATA_ROOT}/Input/ShortPlanarTestImage.tiff} ${ITK_TEST_OUTPUT_DIR}/ShortPlanarTestImage.tiff 2 5)
 
 itk_add_test(NAME itkTIFFImageIOInfoTest1
       COMMAND ITKIOTIFFTestDriver
@@ -166,12 +171,17 @@ itk_add_test(NAME itkTIFFImageIOInfoTest2
       itkTIFFImageIOInfoTest DATA{Input/ps-separated.tif})
 set_tests_properties( itkTIFFImageIOInfoTest2
     PROPERTIES PASS_REGULAR_EXPRESSION "2014:09:24 14:16:01")
+itk_add_test(NAME itkTIFFImageIOInfoTest3
+      COMMAND ITKIOTIFFTestDriver
+      itkTIFFImageIOInfoTest DATA{Input/3d_spacing.tif})
+set_tests_properties( itkTIFFImageIOInfoTest3
+    PROPERTIES PASS_REGULAR_EXPRESSION "17 19 1")
 
 
 ######################
 # Test Compression
 
-set (Compression "NoCompression;LZW;JPEG;PackBits")
+set (Compression "NoCompression;LZW;JPEG;PackBits;Deflate")
 set (CompressionFiles "cthead1;RGBTestImageJPEG")
 foreach(f ${CompressionFiles})
   foreach(c ${Compression})
@@ -225,8 +235,11 @@ if( "${ITK_COMPUTER_MEMORY_SIZE}" GREATER 5 )
                        RESOURCE_LOCK MEMORY_SIZE
                       )
   set_property(TEST itkLargeTIFFImageWriteReadTest1 APPEND PROPERTY LABELS RUNS_LONG)
+  set_property(TEST itkLargeTIFFImageWriteReadTest1 APPEND PROPERTY RUN_SERIAL True)
   set_property(TEST itkLargeTIFFImageWriteReadTest2 APPEND PROPERTY LABELS RUNS_LONG)
+  set_property(TEST itkLargeTIFFImageWriteReadTest2 APPEND PROPERTY RUN_SERIAL True)
   set_property(TEST itkLargeTIFFImageWriteReadTest3 APPEND PROPERTY LABELS RUNS_LONG)
+  set_property(TEST itkLargeTIFFImageWriteReadTest3 APPEND PROPERTY RUN_SERIAL True)
 endif()
 
 

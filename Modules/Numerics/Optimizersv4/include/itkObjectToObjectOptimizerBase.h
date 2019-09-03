@@ -78,87 +78,92 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-template< typename TInternalComputationValueType = double>
+template <typename TInternalComputationValueType = double>
 class ITK_TEMPLATE_EXPORT ObjectToObjectOptimizerBaseTemplate : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef ObjectToObjectOptimizerBaseTemplate         Self;
-  typedef Object                                      Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ObjectToObjectOptimizerBaseTemplate);
+
+  /** Standard class type aliases. */
+  using Self = ObjectToObjectOptimizerBaseTemplate;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ObjectToObjectOptimizerBaseTemplate, Object);
 
   /**  Scale type. */
-  typedef OptimizerParameters< TInternalComputationValueType >                      ScalesType;
-  typedef OptimizerParameterScalesEstimatorTemplate<TInternalComputationValueType>  ScalesEstimatorType;
+  using ScalesType = OptimizerParameters<TInternalComputationValueType>;
+  using ScalesEstimatorType = OptimizerParameterScalesEstimatorTemplate<TInternalComputationValueType>;
 
   /**  Parameters type. */
-  typedef OptimizerParameters< TInternalComputationValueType >          ParametersType;
+  using ParametersType = OptimizerParameters<TInternalComputationValueType>;
 
   /** Metric function type */
-  typedef ObjectToObjectMetricBaseTemplate< TInternalComputationValueType >  MetricType;
-  typedef typename MetricType::Pointer                                      MetricTypePointer;
+  using MetricType = ObjectToObjectMetricBaseTemplate<TInternalComputationValueType>;
+  using MetricTypePointer = typename MetricType::Pointer;
 
   /** Derivative type */
-  typedef typename MetricType::DerivativeType                DerivativeType;
+  using DerivativeType = typename MetricType::DerivativeType;
 
   /** Number of parameters type */
-  typedef typename MetricType::NumberOfParametersType        NumberOfParametersType;
+  using NumberOfParametersType = typename MetricType::NumberOfParametersType;
 
   /** Measure type */
-  typedef typename MetricType::MeasureType                   MeasureType;
+  using MeasureType = typename MetricType::MeasureType;
 
   /** Stop condition return string type */
-  typedef std::string         StopConditionReturnStringType;
+  using StopConditionReturnStringType = std::string;
 
   /** Stop condition internal string type */
-  typedef std::ostringstream  StopConditionDescriptionType;
+  using StopConditionDescriptionType = std::ostringstream;
 
   /** Accessors for Metric */
-  itkSetObjectMacro( Metric, MetricType );
-  itkGetModifiableObjectMacro(Metric, MetricType );
+  itkSetObjectMacro(Metric, MetricType);
+  itkGetModifiableObjectMacro(Metric, MetricType);
 
   /** Accessor for metric value. Returns the value
    *  stored in m_CurrentMetricValue from the most recent
    *  call to evaluate the metric. */
-  itkGetConstReferenceMacro( CurrentMetricValue, MeasureType );
+  itkGetConstReferenceMacro(CurrentMetricValue, MeasureType);
 
   /** Deprecated accessor for currently stored metric value for use
    *  by classes that support both v4 and v3 optimizers.
    *
    *  \sa GetCurrentMetricValue()
    */
-  virtual const MeasureType & GetValue() const;
+  virtual const MeasureType &
+  GetValue() const;
 
   /** Set current parameters scaling. */
-  //itkSetMacro( Scales, ScalesType );
-  virtual void SetScales(const ScalesType & scales)
+  // itkSetMacro( Scales, ScalesType );
+  virtual void
+  SetScales(const ScalesType & scales)
   {
-  this->m_Scales = scales;
+    this->m_Scales = scales;
   }
 
   /** Get current parameters scaling. */
-  itkGetConstReferenceMacro( Scales, ScalesType );
+  itkGetConstReferenceMacro(Scales, ScalesType);
 
   /** Get whether scales are identity. Cannot be set */
-  itkGetConstReferenceMacro( ScalesAreIdentity, bool );
+  itkGetConstReferenceMacro(ScalesAreIdentity, bool);
 
   /** Set current parameters weights. */
-  itkSetMacro( Weights, ScalesType );
+  itkSetMacro(Weights, ScalesType);
 
   /** Get current parameters weights. This will return an
    * empty array when weights have not been set by user. */
-  itkGetConstReferenceMacro( Weights, ScalesType );
+  itkGetConstReferenceMacro(Weights, ScalesType);
 
   /** Get whether weights are identity. Cannot be set */
-  itkGetConstReferenceMacro( WeightsAreIdentity, bool );
+  itkGetConstReferenceMacro(WeightsAreIdentity, bool);
 
   /** Get whether the scales have been set. Returns
    *  true if <tt> m_Scales.Size() > 0 </tt> */
-  bool GetScalesInitialized() const;
+  bool
+  GetScalesInitialized() const;
 
   /** Set the scales estimator.
    *
@@ -180,13 +185,22 @@ public:
   itkGetConstReferenceMacro(DoEstimateScales, bool);
   itkBooleanMacro(DoEstimateScales);
 
-  /** Set the number of threads to use when threading.
-   * The default is the global default number of threads
-   * returned from itkMultiThreader. */
-  virtual void SetNumberOfThreads( ThreadIdType number );
+  /** Set the number of work units to use when threading.
+   * The default is the global default number of work units
+   * decided in the constructor of the MultiThreader. */
+  virtual void
+  SetNumberOfWorkUnits(ThreadIdType number);
 
-  /** Get the number of threads set to be used. */
-  itkGetConstReferenceMacro( NumberOfThreads, ThreadIdType );
+#if !defined(ITK_LEGACY_REMOVE)
+  /** Set the number of work units to use when threading.
+   *
+   * NOTE: deprecated. Use SetNumberOfWorkUnits() */
+  itkLegacyMacro(virtual void SetNumberOfThreads(ThreadIdType number)) { return this->SetNumberOfWorkUnits(number); }
+  itkLegacyMacro(virtual const ThreadIdType & GetNumberOfThreads() const) { return this->m_NumberOfWorkUnits; }
+#endif // !ITK_LEGACY_REMOVE
+
+  /** Get the number of work units set to be used. */
+  itkGetConstReferenceMacro(NumberOfWorkUnits, ThreadIdType);
 
   /** Return current number of iterations. */
   itkGetConstMacro(CurrentIteration, SizeValueType);
@@ -200,7 +214,8 @@ public:
   /** Get a reference to the current position of the optimization.
    * This returns the parameters from the assigned metric, since the optimizer
    * itself does not store a position. */
-  virtual const ParametersType & GetCurrentPosition() const;
+  virtual const ParametersType &
+  GetCurrentPosition() const;
 
   /** Run the optimization.
    * \param doOnlyInitialization This is false by default. It should only be
@@ -209,67 +224,60 @@ public:
    * itkMultiGradientOptimizerv4 needs to do this.
    * \note Derived classes must override and call this superclass method, then
    * perform any additional initialization before performing optimization. */
-  virtual void StartOptimization( bool doOnlyInitialization = false );
+  virtual void
+  StartOptimization(bool doOnlyInitialization = false);
 
   /** Stop condition return string type */
-  virtual const StopConditionReturnStringType GetStopConditionDescription() const = 0;
+  virtual const StopConditionReturnStringType
+  GetStopConditionDescription() const = 0;
 
 protected:
-
   /** Default constructor */
   ObjectToObjectOptimizerBaseTemplate();
-  virtual ~ObjectToObjectOptimizerBaseTemplate() ITK_OVERRIDE;
+  ~ObjectToObjectOptimizerBaseTemplate() override;
 
-  MetricTypePointer             m_Metric;
-  ThreadIdType                  m_NumberOfThreads;
-  SizeValueType                 m_CurrentIteration;
-  SizeValueType                 m_NumberOfIterations;
+  MetricTypePointer m_Metric;
+  ThreadIdType      m_NumberOfWorkUnits;
+  SizeValueType     m_CurrentIteration;
+  SizeValueType     m_NumberOfIterations;
 
   /** Metric measure value at a given iteration, as most recently evaluated. */
-  MeasureType                   m_CurrentMetricValue;
+  MeasureType m_CurrentMetricValue;
 
   /** Scales. Size is expected to be == metric->GetNumberOfLocalParameters().
    * See the main documentation for more details. */
-  ScalesType                    m_Scales;
+  ScalesType m_Scales;
 
   /** Parameter weights. These are applied to local parameters, at the same time
    * as scales. See main documentation.
    * If not set by user, the array remains empty and treated as identity to simplify
    * the reuse of an optimizer with transforms with different numbers of parameters. */
-  ScalesType                    m_Weights;
+  ScalesType m_Weights;
 
   /** Flag to avoid unnecessary arithmetic when scales are identity. */
-  bool                          m_ScalesAreIdentity;
+  bool m_ScalesAreIdentity;
 
   /** Scales estimator. Optionally provided by user. */
   typename ScalesEstimatorType::Pointer m_ScalesEstimator;
 
   /** Flag to avoid unnecessary arithmetic when weights are identity. */
-  bool                          m_WeightsAreIdentity;
+  bool m_WeightsAreIdentity;
 
   /** Flag to control use of the ScalesEstimator (if set) for
    * automatic scale estimation during StartOptimization()
    */
-  bool                          m_DoEstimateScales;
+  bool m_DoEstimateScales;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ObjectToObjectOptimizerBaseTemplate);
-
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 
 /** This helps to meet backward compatibility */
-typedef ObjectToObjectOptimizerBaseTemplate<double> ObjectToObjectOptimizerBase;
+using ObjectToObjectOptimizerBase = ObjectToObjectOptimizerBaseTemplate<double>;
 
 } // end namespace itk
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "itkObjectToObjectOptimizerBase.hxx"
 #endif
-
-#endif
-
 
 /** Explicit instantiations */
 #ifndef ITK_TEMPLATE_EXPLICIT_ObjectToObjectOptimizerBaseTemplate
@@ -281,30 +289,27 @@ typedef ObjectToObjectOptimizerBaseTemplate<double> ObjectToObjectOptimizerBase;
 //            need to be considered. This code *MUST* be *OUTSIDE* the header
 //            guards.
 //
-#  if defined( ITKOptimizersv4_EXPORTS )
+#if defined(ITKOptimizersv4_EXPORTS)
 //   We are building this library
-#    define ITKOptimizersv4_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
-#  else
+#  define ITKOptimizersv4_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
+#else
 //   We are using this library
-#    define ITKOptimizersv4_EXPORT_EXPLICIT ITKOptimizersv4_EXPORT
-#  endif
+#  define ITKOptimizersv4_EXPORT_EXPLICIT ITKOptimizersv4_EXPORT
+#endif
 namespace itk
 {
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
 
+#if defined(_MSC_VER)
+#  pragma warning(disable : 4661) // no suitable definition provided for explicit template instantiation request
+#endif
 extern template class ITKOptimizersv4_EXPORT_EXPLICIT ObjectToObjectOptimizerBaseTemplate<double>;
 extern template class ITKOptimizersv4_EXPORT_EXPLICIT ObjectToObjectOptimizerBaseTemplate<float>;
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+ITK_GCC_PRAGMA_DIAG_POP()
 
 } // end namespace itk
-#  undef ITKOptimizersv4_EXPORT_EXPLICIT
+#undef ITKOptimizersv4_EXPORT_EXPLICIT
 #endif

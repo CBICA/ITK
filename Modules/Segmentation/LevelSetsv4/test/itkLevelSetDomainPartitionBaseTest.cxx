@@ -22,48 +22,51 @@
 namespace itk
 {
 
-template < typename TDomain >
-class LevelSetDomainPartitionBaseHelper
-  : public LevelSetDomainPartitionBase< TDomain >
+template <typename TDomain>
+class LevelSetDomainPartitionBaseHelper : public LevelSetDomainPartitionBase<TDomain>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LevelSetDomainPartitionBaseHelper      Self;
-  typedef LevelSetDomainPartitionBase< TDomain > Superclass;
-  typedef SmartPointer<Self>                     Pointer;
-  typedef SmartPointer<const Self>               ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LevelSetDomainPartitionBaseHelper;
+  using Superclass = LevelSetDomainPartitionBase<TDomain>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro( LevelSetDomainPartitionBaseHelper, LevelSetDomainPartitionBase );
+  itkTypeMacro(LevelSetDomainPartitionBaseHelper, LevelSetDomainPartitionBase);
 
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
 protected:
-  void AllocateListDomain() ITK_OVERRIDE {}
-  void PopulateListDomain() ITK_OVERRIDE {}
+  void
+  AllocateListDomain() override
+  {}
+  void
+  PopulateListDomain() override
+  {}
 };
 
-}
+} // namespace itk
 
 
-int itkLevelSetDomainPartitionBaseTest( int, char* [] )
+int
+itkLevelSetDomainPartitionBaseTest(int, char *[])
 {
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
-  typedef itk::Image< double, Dimension >         ImageType;
+  using ImageType = itk::Image<double, Dimension>;
 
-  typedef itk::LevelSetDomainPartitionBaseHelper< ImageType >
-    DomainPartitionBaseHelperType;
+  using DomainPartitionBaseHelperType = itk::LevelSetDomainPartitionBaseHelper<ImageType>;
 
   itk::IdentifierType count = 2;
 
   DomainPartitionBaseHelperType::Pointer function = DomainPartitionBaseHelperType::New();
-  function->SetNumberOfLevelSetFunctions( count );
+  function->SetNumberOfLevelSetFunctions(count);
 
-  if( function->GetNumberOfLevelSetFunctions() != count )
-    {
+  if (function->GetNumberOfLevelSetFunctions() != count)
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

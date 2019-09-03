@@ -1,40 +1,52 @@
-#include <stdio.h>
-#include <ctype.h>
+#include <iostream>
+#include <cstdlib>
+
 #include <metaBlob.h>
 
 int main(int, char * [])
 {
 
-  METAIO_STREAM::cout << "Creating test file ..." << METAIO_STREAM::endl;
+  std::cout << "Testing default constructor ..." <<  std::endl;
+  MetaBlob blob1;
+
+  std::cout << "Creating test file ..." << std::endl;
   MetaBlob blob(3);
   blob.ID(0);
   BlobPnt* pnt;
 
-  METAIO_STREAM::cout << "Allocating points..." << METAIO_STREAM::endl;
+  std::cout << "Allocating points..." << std::endl;
   unsigned int i;
   for(i=0;i<10;i++)
   {
     pnt = new BlobPnt(3);
-    pnt->m_X[0]=(float)0.2;pnt->m_X[1]=i;pnt->m_X[2]=i;
+    pnt->m_X[0]=(float)0.2;
+    pnt->m_X[1]=i;
+    pnt->m_X[2]=i;
     blob.GetPoints().push_back(pnt);
   }
 
-  METAIO_STREAM::cout << "Writing test file ..." << METAIO_STREAM::endl;
+  std::cout << "Writing test file ..." << std::endl;
 
   blob.BinaryData(true);
   blob.ElementType(MET_FLOAT);
   blob.Write("myCNC.meta");
 
-  METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
+  std::cout << "  done" << std::endl;
 
-  METAIO_STREAM::cout << "Reading test file ..." << METAIO_STREAM::endl;
+  std::cout << "Reading test file ..." << std::endl;
+  MetaBlob blobRead("myCNC.meta"); // coverage
   blob.Read("myCNC.meta");
+  MetaBlob blobCopy(&blob);
 
-  METAIO_STREAM::cout << "  done" << METAIO_STREAM::endl;
+  std::cout << "NPoints = " << blobCopy.NPoints() << std::endl;
+  std::cout << "PointDim = " << blobCopy.PointDim() << std::endl;
+  std::cout << "ElementType = " << blobCopy.ElementType() << std::endl;
+
+  std::cout << "  done" << std::endl;
 
   blob.PrintInfo();
 
-  METAIO_STREAM::cout << "Accessing pointlist..." << METAIO_STREAM::endl;
+  std::cout << "Accessing pointlist..." << std::endl;
 
   MetaBlob::PointListType plist =  blob.GetPoints();
   MetaBlob::PointListType::const_iterator it = plist.begin();
@@ -43,13 +55,13 @@ int main(int, char * [])
   {
     for(unsigned int d = 0; d < 3; d++)
     {
-      METAIO_STREAM::cout << (*it)->m_X[d] << " ";
+      std::cout << (*it)->m_X[d] << " ";
     }
 
-    METAIO_STREAM::cout << METAIO_STREAM::endl;
+    std::cout << std::endl;
     ++it;
   }
 
-  METAIO_STREAM::cout << "done" << METAIO_STREAM::endl;
-  return 1;
+  std::cout << "done" << std::endl;
+  return EXIT_SUCCESS;
 }

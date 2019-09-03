@@ -1,14 +1,10 @@
 %module pyBasePython
 
-%begin %{
-// To address Python 2.7 hypot bug, https://bugs.python.org/issue11566
-#include "PatchedPython27pyconfig.h"
-%}
-
 %include <exception.i>
 %include <typemaps.i>
 
 %include <std_string.i>
+%include <std_pair.i>
 %include <std_vector.i>
 %include <std_map.i>
 %include <std_list.i>
@@ -119,19 +115,10 @@ str = str
                 };
         }
 
-        // a GetPointer() method for backward compatibility with older wrapitk
-        %extend class_name {
-                public:
-                class_name * GetPointer() {
-                  std::cerr << "WrapITK warning: GetPointer() is now deprecated for 'class_name'." << std::endl;
-                  return self;
-                };
-        }
-
   // some changes in the New() method
   %rename(__New_orig__) class_name::New;
   %extend class_name {
-    %pythoncode {
+    %pythoncode %{
       def New(*args, **kargs):
           """New() -> class_name
 
@@ -158,24 +145,17 @@ str = str
           itkTemplate.New(obj, *args, **kargs)
           return obj
       New = staticmethod(New)
-    }
+    %}
   }
-  %pythoncode {
+  %pythoncode %{
     def class_name##_New():
       return class_name.New()
-  }
+  %}
 %enddef
 
-// convert the only known SmartPointerForwardReference to a raw pointer
-%typemap(out) itk::SmartPointerForwardReference< itk::ProcessObject > {
-  itk::ProcessObject * ptr = $1;
-  $result = SWIG_NewPointerObj((void *) ptr, $descriptor(itkProcessObject *), 1);
-  if (ptr) {
-        ptr->Register();
-  }
-}
 
 %extend itkMetaDataDictionary {
+    %ignore Find;
     std::string __str__() {
         std::ostringstream msg;
         self->Print( msg );
@@ -319,7 +299,7 @@ str = str
 %define DECL_PYTHON_PROCESSOBJECT_CLASS(swig_name)
 
     %extend itkProcessObject {
-        %pythoncode {
+        %pythoncode %{
             def __len__(self):
                 """Returns the number of outputs of that object.
                 """
@@ -339,19 +319,61 @@ str = str
                     return itk.down_cast(self.GetOutput(item))
 
             def __call__(self, *args, **kargs):
-                """Change the inputs and attributes of the object and update it.
+                """Deprecated procedural interface function.
+
+                Use snake case function instead. This function is now
+                merely a wrapper around the snake case function.
+
+                Create a process object, update with the inputs and
+                attributes, and return the result.
 
                 The syntax is the same as the one used in New().
                 UpdateLargestPossibleRegion() is ran once the input are changed, and
-                the current object is returned, to make is easier to get one of the
-                outputs. Something like 'filter(newInput, Threshold=10)[0]' would
-                return the first output of the filter up to date.
+                the current output, or tuple of outputs, if there is more than
+                one, is returned. Something like 'filter(input_image, threshold=10)[0]' would
+                return the first up-to-date output of a filter with multiple
+                outputs.
                 """
-                import itk
-                itk.set_inputs( self, args, kargs )
+                import itkHelpers
+                import warnings
+
+                name = self.GetNameOfClass()
+                snake = itkHelpers.camel_to_snake_case(name)
+
+                warnings.warn("WrapITK warning: itk.%s() is deprecated for procedural"
+                " interface. Use snake case function itk.%s() instead."
+                % (name, snake), DeprecationWarning)
+
+                filt = self.New(*args, **kargs)
+                return filt.__internal_call__()
+
+
+            def __internal_call__(self):
+                """Create a process object, update with the inputs and
+                attributes, and return the result.
+
+                The syntax is the same as the one used in New().
+                UpdateLargestPossibleRegion() is ran once the input are changed, and
+                the current output, or tuple of outputs, if there is more than
+                one, is returned. Something like 'filter(input_image, threshold=10)[0]' would
+                return the first up-to-date output of a filter with multiple
+                outputs.
+                """
                 self.UpdateLargestPossibleRegion()
-                return self
-            }
+                try:
+                    if self.GetNumberOfIndexedOutputs() == 0:
+                        result = None
+                    elif self.GetNumberOfIndexedOutputs() == 1:
+                        result = self.GetOutput()
+                    else:
+                        result = tuple([self.GetOutput(idx) for idx in range(self.GetNumberOfIndexedOutputs())])
+                    return result
+                except AttributeError as e:
+                    # In theory, filters should declare that they don't return any output
+                    # and therefore the `GetOutput()` method should not be called. However,
+                    # there is no garranty that this is always the case.
+                    print("This filter cannot be called functionally. Use Object call instead.")
+            %}
     }
 
 %enddef
@@ -362,6 +384,7 @@ str = str
     #include "itkContinuousIndexSwigInterface.h"
     %}
 
+    %rename(__SetDirection_orig__) swig_name::SetDirection;
     %extend swig_name {
         itkIndex##template_params TransformPhysicalPointToIndex( itkPointD##template_params & point ) {
             itkIndex##template_params idx;
@@ -387,6 +410,24 @@ str = str
             return point;
         }
 
+        %pythoncode %{
+            def SetDirection(self, direction):
+                import itkHelpers
+                if itkHelpers.is_arraylike(direction):
+                    import itk
+                    import numpy as np
+
+                    array = np.asarray(direction).astype(np.float64)
+                    dimension = self.GetImageDimension()
+                    for dim in array.shape:
+                        if dim != dimension:
+                            raise ValueError('Array does not have the expected shape')
+                    matrix = itk.matrix_from_array(array)
+                    self.__SetDirection_orig__(matrix)
+                else:
+                    self.__SetDirection_orig__(direction)
+            %}
+
         // TODO: also add that method. But with which types?
         //  template<class TCoordRep>
         //  void TransformLocalVectorToPhysicalVector(
@@ -396,6 +437,35 @@ str = str
 
 %enddef
 
+%define DECL_PYTHON_IMAGE_CLASS(swig_name)
+  %extend swig_name {
+      %pythoncode {
+          def __array__(self, dtype=None):
+              import itk
+              import numpy as np
+              array = itk.array_view_from_image(self)
+              return np.asarray(array, dtype=dtype)
+      }
+  }
+%enddef
+
+
+%define DECL_PYTHON_ITK_MATRIX(class_name)
+  %rename(__GetVnlMatrix_orig__) class_name::GetVnlMatrix;
+  %extend class_name {
+        %pythoncode %{
+            def GetVnlMatrix(self):
+                vnl_reference = self.__GetVnlMatrix_orig__()
+                vnl_copy = type(vnl_reference)(vnl_reference)
+                return vnl_copy
+            %}
+        }
+
+  %pythoncode %{
+    def class_name##_New():
+      return class_name.New()
+  %}
+%enddef
 
 %define DECL_PYTHON_STD_COMPLEX_CLASS(swig_name)
 
@@ -410,6 +480,19 @@ str = str
 }
 
 %enddef
+
+%define DECL_PYTHON_OUTPUT_RETURN_BY_VALUE_CLASS(swig_name, function_name)
+    %rename(__##function_name##_orig__) swig_name::function_name;
+    %extend swig_name {
+        %pythoncode {
+            def function_name(self):
+                var = self.__##function_name##_orig__()
+                var_copy = type(var)(var)
+                return var_copy
+        }
+    }
+%enddef
+
 
 %define DECL_PYTHON_VEC_TYPEMAP(swig_name, type, dim)
 
@@ -721,14 +804,61 @@ str = str
 
 %enddef
 
-// some code from stl
 
-%template(vectorstring)   std::vector< std::string >;
-%template(liststring)     std::list< std::string >;
+%define DECL_PYTHON_STD_VEC_RAW_TO_SMARTPTR_TYPEMAP(swig_name, swig_name_ptr)
+
+   %typemap(in) std::vector< swig_name_ptr >::value_type const & (swig_name_ptr smart_ptr) {
+      swig_name * img;
+      if( SWIG_ConvertPtr($input,(void **)(&img),$descriptor(swig_name *), 0) == 0 )
+        {
+        smart_ptr = img;
+        $1 = &smart_ptr;
+        }
+      else
+        {
+        PyErr_SetString(PyExc_TypeError, "Expecting argument of type " #swig_name ".");
+        SWIG_fail;
+        }
+    }
+
+    %typemap(in) std::vector<swig_name_ptr> (std::vector< swig_name_ptr> vec_smartptr,
+                                             std::vector< swig_name_ptr> *vec_smartptr_ptr) {
+        if ((SWIG_ConvertPtr($input,(void **)(&vec_smartptr_ptr),$descriptor(std::vector<swig_name_ptr> *), 0)) == -1) {
+            PyErr_Clear();
+            if (PySequence_Check($input)) {
+                for (Py_ssize_t i =0; i < PyObject_Length($input); i++) {
+                    PyObject *o = PySequence_GetItem($input,i);
+                    swig_name * raw_ptr;
+                    if(SWIG_ConvertPtr(o,(void **)(&raw_ptr),$descriptor(swig_name *), 0) == 0) {
+                        vec_smartptr.push_back(raw_ptr);
+                    } else {
+                        PyErr_SetString(PyExc_ValueError,"Expecting a sequence of raw pointers (" #swig_name ")." );
+                        SWIG_fail;
+                    }
+                }
+                $1 = vec_smartptr;
+            }
+            else {
+                PyErr_SetString(PyExc_ValueError,"Expecting a sequence of raw pointers (" #swig_name ") or a std::vector of SmartPointers (" #swig_name_ptr ").");
+                SWIG_fail;
+            }
+        } else if( vec_smartptr_ptr != NULL ) {
+            $1 = *vec_smartptr_ptr;
+        } else {
+            PyErr_SetString(PyExc_ValueError, "Value can't be None");
+            SWIG_fail;
+        }
+    }
+%enddef
+
+
+// some code from stl
 
 %template(mapULD)         std::map< unsigned long, double >;
 %template(mapBB)          std::map< bool, bool >;
+%template(mapII)          std::map< int, int >;
 %template(mapUCUC)        std::map< unsigned char, unsigned char >;
+%template(mapUIUI)        std::map< unsigned int, unsigned int >;
 %template(mapUSUS)        std::map< unsigned short, unsigned short >;
 %template(mapULUL)        std::map< unsigned long, unsigned long >;
 %template(mapSCSC)        std::map< signed char, signed char >;
@@ -737,12 +867,19 @@ str = str
 %template(mapFF)          std::map< float, float >;
 %template(mapDD)          std::map< double, double >;
 
+%template(pairI)          std::pair< int, int >;
+%template(pairUI)         std::pair< unsigned int, unsigned int >;
+
 %template(vectorB)        std::vector< bool >;
 %template(vectorvectorB)  std::vector< std::vector< bool > >;
+%template(vectorI)        std::vector< int >;
+%template(vectorvectorI)  std::vector< std::vector< int > >;
 %template(vectorUC)       std::vector< unsigned char >;
 %template(vectorvectorUC) std::vector< std::vector< unsigned char > >;
 %template(vectorUS)       std::vector< unsigned short >;
 %template(vectorvectorUS) std::vector< std::vector< unsigned short > >;
+%template(vectorUI)       std::vector< unsigned int >;
+%template(vectorvectorUI) std::vector< std::vector< unsigned int > >;
 %template(vectorUL)       std::vector< unsigned long >;
 %template(vectorvectorUL) std::vector< std::vector< unsigned long > >;
 %template(vectorSC)       std::vector< signed char >;
@@ -755,20 +892,26 @@ str = str
 %template(vectorvectorF)  std::vector< std::vector< float > >;
 %template(vectorD)        std::vector< double >;
 %template(vectorvectorD)  std::vector< std::vector< double > >;
+%template(vectorstring)   std::vector< std::string >;
 
 %template(listB)          std::list< bool >;
+%template(listI)          std::list< int >;
 %template(listUC)         std::list< unsigned char >;
 %template(listUS)         std::list< unsigned short >;
+%template(listUI)         std::list< unsigned int >;
 %template(listUL)         std::list< unsigned long >;
 %template(listSC)         std::list< signed char >;
 %template(listSS)         std::list< signed short >;
 %template(listSL)         std::list< signed long >;
 %template(listF)          std::list< float >;
 %template(listD)          std::list< double >;
+%template(liststring)     std::list< std::string >;
 
 %template(setB)          std::set< bool, std::less< bool > >;
+%template(setI)          std::set< int, std::less< int > >;
 %template(setUC)         std::set< unsigned char, std::less< unsigned char > >;
 %template(setUS)         std::set< unsigned short, std::less< unsigned short > >;
+%template(setUI)         std::set< unsigned int, std::less< unsigned int > >;
 %template(setUL)         std::set< unsigned long, std::less< unsigned long > >;
 %template(setULL)        std::set< unsigned long long, std::less< unsigned long long > >;
 %template(setSC)         std::set< signed char, std::less< signed char > >;

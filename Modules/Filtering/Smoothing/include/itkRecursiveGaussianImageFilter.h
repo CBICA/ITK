@@ -19,9 +19,22 @@
 #define itkRecursiveGaussianImageFilter_h
 
 #include "itkRecursiveSeparableImageFilter.h"
+#include "ITKSmoothingExport.h"
 
 namespace itk
 {
+/**\class EnumGaussianOrderType
+ * \ingroup ITKSmoothing
+ * Enum type that indicates if the filter applies the equivalent operation
+   of convolving with a gaussian, first derivative of a gaussian or the
+   second derivative of a gaussian.  */
+enum class EnumGaussianOrderType : uint8_t
+{
+  ZeroOrder,
+  FirstOrder,
+  SecondOrder
+};
+
 /** \class RecursiveGaussianImageFilter
  * \brief Base class for computing IIR convolution with an approximation of a  Gaussian kernel.
  *
@@ -54,23 +67,24 @@ namespace itk
  * \see DiscreteGaussianImageFilter
  * \ingroup ITKSmoothing
  *
- * \wiki
- * \wikiexample{EdgesAndGradients/RecursiveGaussianImageFilter,Find higher derivatives of an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/Smoothing/FindHigherDerivativesOfImage,Find Higher Derivatives Of Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT RecursiveGaussianImageFilter:
-  public RecursiveSeparableImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT RecursiveGaussianImageFilter : public RecursiveSeparableImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RecursiveGaussianImageFilter                               Self;
-  typedef RecursiveSeparableImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                       Pointer;
-  typedef SmartPointer< const Self >                                 ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RecursiveGaussianImageFilter);
 
-  typedef typename Superclass::RealType       RealType;
-  typedef typename Superclass::ScalarRealType ScalarRealType;
+  /** Standard class type aliases. */
+  using Self = RecursiveGaussianImageFilter;
+  using Superclass = RecursiveSeparableImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using RealType = typename Superclass::RealType;
+  using ScalarRealType = typename Superclass::ScalarRealType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -85,13 +99,18 @@ public:
   itkGetConstMacro(Sigma, ScalarRealType);
   itkSetMacro(Sigma, ScalarRealType);
 
-  /** Enum type that indicates if the filter applies the equivalent operation
-      of convolving with a gaussian, first derivative of a gaussian or the
-      second derivative of a gaussian.  */
-  typedef  enum { ZeroOrder, FirstOrder, SecondOrder } OrderEnumType;
+  /** Enables backwards compatibility for enum values */
+  using OrderEnumType = EnumGaussianOrderType;
+#if !defined(ITK_LEGACY_REMOVE)
+  // We need to expose the enum values at the class level
+  // for backwards compatibility
+  static constexpr OrderEnumType ZeroOrder = OrderEnumType::ZeroOrder;
+  static constexpr OrderEnumType FirstOrder = OrderEnumType::FirstOrder;
+  static constexpr OrderEnumType SecondOrder = OrderEnumType::SecondOrder;
+#endif
 
   /** Type of the output image */
-  typedef TOutputImage OutputImageType;
+  using OutputImageType = TOutputImage;
 
   /** Set/Get the flag for normalizing the gaussian over scale-space.
 
@@ -145,48 +164,70 @@ public:
   itkGetConstMacro(Order, OrderEnumType);
 
   /** Explicitly set a zeroth order derivative. */
-  void SetZeroOrder();
+  void
+  SetZeroOrder();
 
   /** Explicitly set a first order derivative. */
-  void SetFirstOrder();
+  void
+  SetFirstOrder();
 
   /** Explicitly set a second order derivative. */
-  void SetSecondOrder();
+  void
+  SetSecondOrder();
 
 protected:
   RecursiveGaussianImageFilter();
-  virtual ~RecursiveGaussianImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~RecursiveGaussianImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Set up the coefficients of the filter to approximate a specific kernel.
    * Here it is used to approximate a Gaussian or one of its
    * derivatives. Parameter is the spacing along the dimension to
    * filter. */
-  virtual void SetUp(ScalarRealType spacing) ITK_OVERRIDE;
+  void
+  SetUp(ScalarRealType spacing) override;
 
   /* See superclass for doxygen. This method adds the additional check
    * that sigma is greater than zero. */
-  virtual void VerifyPreconditions() ITK_OVERRIDE;
+  void
+  VerifyPreconditions() ITKv5_CONST override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RecursiveGaussianImageFilter);
-
   /** Compute the N coefficients in the recursive filter. */
-  void ComputeNCoefficients(ScalarRealType sigmad,
-                            ScalarRealType A1, ScalarRealType B1, ScalarRealType W1, ScalarRealType L1,
-                            ScalarRealType A2, ScalarRealType B2, ScalarRealType W2, ScalarRealType L2,
-                            ScalarRealType & N0, ScalarRealType & N1,
-                            ScalarRealType & N2, ScalarRealType & N3,
-                            ScalarRealType & SN, ScalarRealType & DN, ScalarRealType & EN);
+  void
+  ComputeNCoefficients(ScalarRealType   sigmad,
+                       ScalarRealType   A1,
+                       ScalarRealType   B1,
+                       ScalarRealType   W1,
+                       ScalarRealType   L1,
+                       ScalarRealType   A2,
+                       ScalarRealType   B2,
+                       ScalarRealType   W2,
+                       ScalarRealType   L2,
+                       ScalarRealType & N0,
+                       ScalarRealType & N1,
+                       ScalarRealType & N2,
+                       ScalarRealType & N3,
+                       ScalarRealType & SN,
+                       ScalarRealType & DN,
+                       ScalarRealType & EN);
 
   /** Compute the D coefficients in the recursive filter. */
-  void ComputeDCoefficients(ScalarRealType sigmad,
-                            ScalarRealType W1, ScalarRealType L1, ScalarRealType W2, ScalarRealType L2,
-                            ScalarRealType & SD, ScalarRealType & DD, ScalarRealType & ED);
+  void
+  ComputeDCoefficients(ScalarRealType   sigmad,
+                       ScalarRealType   W1,
+                       ScalarRealType   L1,
+                       ScalarRealType   W2,
+                       ScalarRealType   L2,
+                       ScalarRealType & SD,
+                       ScalarRealType & DD,
+                       ScalarRealType & ED);
 
   /** Compute the M coefficients and the boundary coefficients in the
    * recursive filter. */
-  void ComputeRemainingCoefficients(bool symmetric);
+  void
+  ComputeRemainingCoefficients(bool symmetric);
 
   /** Sigma of the gaussian kernel. */
   ScalarRealType m_Sigma;
@@ -196,10 +237,15 @@ private:
 
   OrderEnumType m_Order;
 };
+
+/** Define how to print enumerations */
+extern ITKSmoothing_EXPORT std::ostream &
+                           operator<<(std::ostream & out, const EnumGaussianOrderType value);
+
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRecursiveGaussianImageFilter.hxx"
+#  include "itkRecursiveGaussianImageFilter.hxx"
 #endif
 
 #endif

@@ -40,19 +40,20 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = float >
-class ITK_TEMPLATE_EXPORT SumOfSquaresImageFunction:
-  public ImageFunction< TInputImage, typename NumericTraits< typename TInputImage::PixelType >::RealType,
-                        TCoordRep >
+template <typename TInputImage, typename TCoordRep = float>
+class ITK_TEMPLATE_EXPORT SumOfSquaresImageFunction
+  : public ImageFunction<TInputImage, typename NumericTraits<typename TInputImage::PixelType>::RealType, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SumOfSquaresImageFunction Self;
-  typedef ImageFunction< TInputImage, typename NumericTraits< typename TInputImage::PixelType >::RealType,
-                         TCoordRep >                     Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SumOfSquaresImageFunction);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = SumOfSquaresImageFunction;
+  using Superclass =
+    ImageFunction<TInputImage, typename NumericTraits<typename TInputImage::PixelType>::RealType, TCoordRep>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SumOfSquaresImageFunction, ImageFunction);
@@ -60,34 +61,34 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** InputImageType typedef support. */
-  typedef TInputImage InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = TInputImage;
 
   /** OutputType typdef support. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
   /** Dimension of the underlying image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
   /** Datatype used for the variance */
-  typedef typename NumericTraits< typename InputImageType::PixelType >::RealType
-  RealType;
+  using RealType = typename NumericTraits<typename InputImageType::PixelType>::RealType;
 
   /** Evalulate the function at specified index */
-  virtual RealType EvaluateAtIndex(const IndexType & index) const ITK_OVERRIDE;
+  RealType
+  EvaluateAtIndex(const IndexType & index) const override;
 
   /** Evaluate the function at non-integer positions */
-  virtual RealType Evaluate(const PointType & point) const ITK_OVERRIDE
+  RealType
+  Evaluate(const PointType & point) const override
   {
     IndexType index;
 
@@ -95,8 +96,8 @@ public:
     return this->EvaluateAtIndex(index);
   }
 
-  virtual RealType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & cindex) const ITK_OVERRIDE
+  RealType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & cindex) const override
   {
     IndexType index;
 
@@ -108,35 +109,35 @@ public:
       statistics are evaluated */
   itkGetConstReferenceMacro(NeighborhoodRadius, unsigned int);
 
-  void SetNeighborhoodRadius(unsigned int radius)
+  void
+  SetNeighborhoodRadius(unsigned int radius)
   {
     m_NeighborhoodRadius = radius;
 
     m_NeighborhoodSize = 1;
     long twoRPlus1 = 2 * m_NeighborhoodRadius + 1;
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
+    for (unsigned int i = 0; i < ImageDimension; i++)
+    {
       m_NeighborhoodSize *= twoRPlus1;
-      }
+    }
   }
 
   itkGetConstReferenceMacro(NeighborhoodSize, unsigned int);
 
 protected:
   SumOfSquaresImageFunction();
-  ~SumOfSquaresImageFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SumOfSquaresImageFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SumOfSquaresImageFunction);
-
   unsigned int m_NeighborhoodRadius;
   unsigned int m_NeighborhoodSize;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSumOfSquaresImageFunction.hxx"
+#  include "itkSumOfSquaresImageFunction.hxx"
 #endif
 
 #endif

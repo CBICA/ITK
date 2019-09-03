@@ -22,38 +22,39 @@
 #include "itkTestingMacros.h"
 
 
-int itkGridForwardWarpImageFilterTest( int argc, char* argv[] )
+int
+itkGridForwardWarpImageFilterTest(int argc, char * argv[])
 {
 
-  if( argc != 2 )
-    {
+  if (argc != 2)
+  {
     std::cerr << "Missing parameters." << std::endl;
     std::cerr << "Usage: " << argv[0] << " outputImage" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Define the dimension of the images
-  const unsigned int ImageDimension = 3;
+  constexpr unsigned int ImageDimension = 3;
 
-  typedef itk::Vector< double, ImageDimension >   DeformationPixelType;
-  typedef unsigned char                           OutputPixelType;
+  using DeformationPixelType = itk::Vector<double, ImageDimension>;
+  using OutputPixelType = unsigned char;
 
   // Declare the types of the images
-  typedef itk::Image< DeformationPixelType, ImageDimension >  DisplacementFieldType;
-  typedef itk::Image< OutputPixelType, ImageDimension >       OutputImageType;
+  using DisplacementFieldType = itk::Image<DeformationPixelType, ImageDimension>;
+  using OutputImageType = itk::Image<OutputPixelType, ImageDimension>;
 
   // Declare iterator types apropriated for each image
-  typedef itk::ImageRegionIteratorWithIndex< DisplacementFieldType > DeformationIteratorType;
+  using DeformationIteratorType = itk::ImageRegionIteratorWithIndex<DisplacementFieldType>;
 
 
   // Declare the type of the index to access images
-  typedef itk::Index< ImageDimension >         IndexType;
+  using IndexType = itk::Index<ImageDimension>;
 
   // Declare the type of the size
-  typedef itk::Size< ImageDimension >          SizeType;
+  using SizeType = itk::Size<ImageDimension>;
 
   // Declare the type of the region
-  typedef itk::ImageRegion< ImageDimension >   RegionType;
+  using RegionType = itk::ImageRegion<ImageDimension>;
 
   // Create an input image
   DisplacementFieldType ::Pointer inputDisplacementField = DisplacementFieldType ::New();
@@ -70,67 +71,62 @@ int itkGridForwardWarpImageFilterTest( int argc, char* argv[] )
   start[2] = 0;
 
   RegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize the input image
-  inputDisplacementField->SetLargestPossibleRegion( region );
-  inputDisplacementField->SetBufferedRegion( region );
-  inputDisplacementField->SetRequestedRegion( region );
+  inputDisplacementField->SetLargestPossibleRegion(region);
+  inputDisplacementField->SetBufferedRegion(region);
+  inputDisplacementField->SetRequestedRegion(region);
   inputDisplacementField->Allocate();
 
   // Create one iterator for the input image (this is a light object)
-  DeformationIteratorType it( inputDisplacementField,
-                              inputDisplacementField->GetBufferedRegion() );
+  DeformationIteratorType it(inputDisplacementField, inputDisplacementField->GetBufferedRegion());
 
   // Initialize the content of the input image
   DeformationPixelType vectorValue;
-  vectorValue.Fill( 5.0 ); // FIXME: replace with something more interesting...
+  vectorValue.Fill(5.0); // FIXME: replace with something more interesting...
 
   it.GoToBegin();
-  while( !it.IsAtEnd() )
-    {
-    it.Set( vectorValue );
+  while (!it.IsAtEnd())
+  {
+    it.Set(vectorValue);
     ++it;
-    }
+  }
 
   // Declare the type for the GridForwardWarpImageFilter filter
-  typedef itk::GridForwardWarpImageFilter< DisplacementFieldType,
-    OutputImageType > FilterType;
+  using FilterType = itk::GridForwardWarpImageFilter<DisplacementFieldType, OutputImageType>;
 
 
   // Create the filter instance
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, GridForwardWarpImageFilter,
-    ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, GridForwardWarpImageFilter, ImageToImageFilter);
 
-  FilterType::PixelType backgroundValue =
-    itk::NumericTraits< FilterType::PixelType >::ZeroValue();
-  filter->SetBackgroundValue( backgroundValue );
-  TEST_SET_GET_VALUE( backgroundValue, filter->GetBackgroundValue() );
+  FilterType::PixelType backgroundValue = itk::NumericTraits<FilterType::PixelType>::ZeroValue();
+  filter->SetBackgroundValue(backgroundValue);
+  ITK_TEST_SET_GET_VALUE(backgroundValue, filter->GetBackgroundValue());
 
-  FilterType::PixelType foregroundValue =
-    itk::NumericTraits< FilterType::PixelType >::OneValue();
-  filter->SetForegroundValue( foregroundValue );
-  TEST_SET_GET_VALUE( foregroundValue, filter->GetForegroundValue());
+  FilterType::PixelType foregroundValue = itk::NumericTraits<FilterType::PixelType>::OneValue();
+  filter->SetForegroundValue(foregroundValue);
+  ITK_TEST_SET_GET_VALUE(foregroundValue, filter->GetForegroundValue());
 
 
   // Set the input image
-  filter->SetInput( inputDisplacementField );
+  filter->SetInput(inputDisplacementField);
 
   // Execute the filter
-  TRY_EXPECT_NO_EXCEPTION( filter->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(filter->Update());
 
 
   // Write the result image
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( argv[1] );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(argv[1]);
 
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
 
   std::cout << "Test finished." << std::endl;

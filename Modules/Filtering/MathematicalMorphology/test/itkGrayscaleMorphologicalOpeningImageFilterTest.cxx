@@ -18,59 +18,62 @@
 
 #include "itkGrayscaleMorphologicalOpeningImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkTestingMacros.h"
 
-int itkGrayscaleMorphologicalOpeningImageFilterTest(int argc, char* argv [] )
+int
+itkGrayscaleMorphologicalOpeningImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Missing arguments." << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputImage outputImage " << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << "  inputImage outputImage " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Define the dimension of the images
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
   // Define the pixel type
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
   // Declare the types of the images
-  typedef itk::Image<PixelType, Dimension>  ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
   // Declare the reader and writer
-  typedef itk::ImageFileReader< ImageType > ReaderType;
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
 
   // Declare the type for the structuring element
-  typedef itk::BinaryBallStructuringElement<
-                            PixelType, Dimension> KernelType;
+  using KernelType = itk::BinaryBallStructuringElement<PixelType, Dimension>;
 
   // Declare the type for the morphology Filter
-  typedef itk::GrayscaleMorphologicalOpeningImageFilter<
-                           ImageType, ImageType, KernelType> FilterType;
+  using FilterType = itk::GrayscaleMorphologicalOpeningImageFilter<ImageType, ImageType, KernelType>;
 
   // Create the reader and writer
   ReaderType::Pointer reader = ReaderType::New();
   WriterType::Pointer writer = WriterType::New();
 
-  reader->SetFileName( argv[1] );
-  writer->SetFileName( argv[2] );
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
 
   // Create the filter
   FilterType::Pointer filter = FilterType::New();
-  FilterWatcher watcher(filter, "filter");
+
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, GrayscaleMorphologicalOpeningImageFilter, KernelImageFilter);
+
+  itk::SimpleFilterWatcher watcher(filter, "filter");
 
   // Connect the pipeline
-  filter->SetInput( reader->GetOutput() );
-  writer->SetInput( filter->GetOutput() );
+  filter->SetInput(reader->GetOutput());
+  writer->SetInput(filter->GetOutput());
 
   // Create the structuring element
-  KernelType ball;
+  KernelType           ball;
   KernelType::SizeType ballSize;
   ballSize[0] = 2;
   ballSize[1] = 2;
@@ -78,24 +81,10 @@ int itkGrayscaleMorphologicalOpeningImageFilterTest(int argc, char* argv [] )
   ball.CreateStructuringElement();
 
   // Connect the structuring element
-  filter->SetKernel( ball );
-
-  // Exercise Print()
-  filter->Print( std::cout );
+  filter->SetKernel(ball);
 
   // Execute the filter
-  try
-    {
-    writer->Update();
-    }
-  catch (itk::ExceptionObject& e)
-    {
-    std::cerr << "Exception caught during pipeline Update\n"  << e;
-    return EXIT_FAILURE;
-    }
-
-  // All objects should be automatically destroyed at this point
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
-
 }

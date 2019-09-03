@@ -20,7 +20,6 @@
 #define itkFEMObjectSpatialObject_h
 
 #include "itkFEMObject.h"
-#include "itkExceptionObject.h"
 #include "itkSpatialObject.h"
 
 namespace itk
@@ -38,58 +37,61 @@ namespace itk
  * \ingroup ITKFEM
  */
 
-template < unsigned int TDimension = 3>
-class ITK_TEMPLATE_EXPORT FEMObjectSpatialObject : public SpatialObject< TDimension >
+template <unsigned int TDimension = 3>
+class ITK_TEMPLATE_EXPORT FEMObjectSpatialObject : public SpatialObject<TDimension>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(FEMObjectSpatialObject);
 
-  typedef FEMObjectSpatialObject< TDimension > Self;
-  typedef SpatialObject< TDimension >          Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
+  using Self = FEMObjectSpatialObject<TDimension>;
+  using Superclass = SpatialObject<TDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef itk::fem::FEMObject< TDimension >    FEMObjectType;
-  typedef typename FEMObjectType::Pointer      FEMObjectPointer;
+  using FEMObjectType = itk::fem::FEMObject<TDimension>;
+  using FEMObjectPointer = typename FEMObjectType::Pointer;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( FEMObjectSpatialObject, SpatialObject );
+  itkTypeMacro(FEMObjectSpatialObject, SpatialObject);
 
   /** Set the femobject. */
-  void SetFEMObject( FEMObjectType * femobject );
+  void
+  SetFEMObject(FEMObjectType * femobject);
 
   /** Get a pointer to the femobject currently attached to the object. */
-  FEMObjectType * GetFEMObject( void )
+  FEMObjectType *
+  GetFEMObject()
   {
     return m_FEMObject.GetPointer();
   }
-  const FEMObjectType * GetFEMObject( void ) const
+  const FEMObjectType *
+  GetFEMObject() const
   {
     return m_FEMObject.GetPointer();
   }
 
 
   /** Returns the latest modified time of the object and its component. */
-  ModifiedTimeType GetMTime( void ) const ITK_OVERRIDE;
+  ModifiedTimeType
+  GetMTime() const override;
 
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FEMObjectSpatialObject);
-
   FEMObjectPointer m_FEMObject;
 
   FEMObjectSpatialObject();
-  virtual ~FEMObjectSpatialObject() ITK_OVERRIDE;
+  ~FEMObjectSpatialObject() override;
 
-  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
-
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFEMObjectSpatialObject.hxx"
+#  include "itkFEMObjectSpatialObject.hxx"
 #endif
 
-#endif //itkFEMObjectSpatialObject_h
+#endif // itkFEMObjectSpatialObject_h

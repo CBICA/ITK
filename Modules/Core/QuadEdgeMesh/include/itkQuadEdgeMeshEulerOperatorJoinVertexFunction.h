@@ -53,56 +53,61 @@ namespace itk
  * \ingroup QEMeshModifierFunctions
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh, typename TQEType >
-class ITK_TEMPLATE_EXPORT QuadEdgeMeshEulerOperatorJoinVertexFunction:
-  public QuadEdgeMeshFunctionBase< TMesh, TQEType * >
+template <typename TMesh, typename TQEType>
+class ITK_TEMPLATE_EXPORT QuadEdgeMeshEulerOperatorJoinVertexFunction
+  : public QuadEdgeMeshFunctionBase<TMesh, TQEType *>
 {
 public:
-  /** Standard class typedefs. */
-  typedef QuadEdgeMeshEulerOperatorJoinVertexFunction  Self;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self      >              ConstPointer;
-  typedef QuadEdgeMeshFunctionBase< TMesh, TQEType * > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshEulerOperatorJoinVertexFunction);
+
+  /** Standard class type aliases. */
+  using Self = QuadEdgeMeshEulerOperatorJoinVertexFunction;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = QuadEdgeMeshFunctionBase<TMesh, TQEType *>;
 
   itkNewMacro(Self);
   /** Run-time type information (and related methods). */
   itkTypeMacro(QuadEdgeMeshEulerOperatorJoinVertexFunction, QuadEdgeMeshFunctionBase);
 
   /** Type of QuadEdge with which to apply slicing. */
-  typedef TQEType QEType;
+  using QEType = TQEType;
 
-  typedef typename Superclass::MeshType   MeshType;
-  typedef typename Superclass::OutputType OutputType;
+  using MeshType = typename Superclass::MeshType;
+  using OutputType = typename Superclass::OutputType;
 
-  typedef typename MeshType::PointIdentifier PointIdentifier;
-  typedef typename MeshType::CellIdentifier  CellIdentifier;
-  typedef typename MeshType::FaceRefType     FaceRefType;
+  using PointIdentifier = typename MeshType::PointIdentifier;
+  using CellIdentifier = typename MeshType::CellIdentifier;
+  using FaceRefType = typename MeshType::FaceRefType;
 
   /** Evaluate at the specified input position */
-  virtual OutputType Evaluate(QEType *h);
+  virtual OutputType
+  Evaluate(QEType * h);
 
-  enum EdgeStatusType {
+  enum EdgeStatusType
+  {
     STANDARD_CONFIG = 0,
-    EDGE_NULL,                     //1
-    MESH_NULL,                     //2
-    EDGE_ISOLATED,                 //3
-    TOO_MANY_COMMON_VERTICES,      //4
-    TETRAHEDRON_CONFIG,            //5
-    QUADEDGE_ISOLATED,             //6
-    FACE_ISOLATED,                 //7
-    SAMOSA_CONFIG,                 //8
-    EYE_CONFIG,                    //9
-    EDGE_JOINING_DIFFERENT_BORDERS //10
-    };
+    EDGE_NULL,                     // 1
+    MESH_NULL,                     // 2
+    EDGE_ISOLATED,                 // 3
+    TOO_MANY_COMMON_VERTICES,      // 4
+    TETRAHEDRON_CONFIG,            // 5
+    QUADEDGE_ISOLATED,             // 6
+    FACE_ISOLATED,                 // 7
+    SAMOSA_CONFIG,                 // 8
+    EYE_CONFIG,                    // 9
+    EDGE_JOINING_DIFFERENT_BORDERS // 10
+  };
 
   itkGetConstMacro(OldPointID, PointIdentifier);
   itkGetConstMacro(EdgeStatus, EdgeStatusType);
 
 protected:
   QuadEdgeMeshEulerOperatorJoinVertexFunction();
-  ~QuadEdgeMeshEulerOperatorJoinVertexFunction() ITK_OVERRIDE {}
+  ~QuadEdgeMeshEulerOperatorJoinVertexFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   PointIdentifier m_OldPointID;
 
@@ -114,7 +119,8 @@ protected:
    * \return The number of common vertices in the 0-ring of e->GetOrigin() and
    * e->GetDestination()
    */
-  PointIdentifier CommonVertexNeighboor(QEType *e);
+  PointIdentifier
+  CommonVertexNeighboor(QEType * e);
 
   /**
    * \brief
@@ -122,7 +128,8 @@ protected:
    * \return true if it is a tetrahedron
    * \return false else
    */
-  bool IsTetrahedron(QEType *e);
+  bool
+  IsTetrahedron(QEType * e);
 
   /**
    * \brief
@@ -132,31 +139,32 @@ protected:
    * \return true if the face is isolated
    * \return false else
    */
-  bool IsFaceIsolated(QEType *e, const bool & iWasLeftFace,
-                      std::stack< TQEType * > & oToBeDeleted);
+  bool
+  IsFaceIsolated(QEType * e, const bool & iWasLeftFace, std::stack<TQEType *> & oToBeDeleted);
 
-  bool IsSamosa(QEType *e);
+  bool
+  IsSamosa(QEType * e);
 
-  bool IsEye(QEType *e);
+  bool
+  IsEye(QEType * e);
 
-  bool IsEdgeLinkingTwoDifferentBorders(QEType *e);
+  bool
+  IsEdgeLinkingTwoDifferentBorders(QEType * e);
 
-  EdgeStatusType CheckStatus(QEType *e, std::stack< TQEType * > & oToBeDeleted);
+  EdgeStatusType
+  CheckStatus(QEType * e, std::stack<TQEType *> & oToBeDeleted);
 
-  QEType * Process(QEType *e);
+  QEType *
+  Process(QEType * e);
 
-  QEType * ProcessIsolatedQuadEdge(QEType *e);
+  QEType *
+  ProcessIsolatedQuadEdge(QEType * e);
 
-  QEType * ProcessIsolatedFace(QEType *e, std::stack< QEType * > & EdgesToBeDeleted
-                               );
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshEulerOperatorJoinVertexFunction);
+  QEType *
+  ProcessIsolatedFace(QEType * e, std::stack<QEType *> & EdgesToBeDeleted);
 };
-} // namespace itk
+} // end namespace itk
 
 #include "itkQuadEdgeMeshEulerOperatorJoinVertexFunction.hxx"
 
 #endif
-
-// eof - itkQuadEdgeMeshEulerOperatorJoinVertexFunction.h

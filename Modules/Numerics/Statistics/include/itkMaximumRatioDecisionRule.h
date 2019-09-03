@@ -58,10 +58,12 @@ namespace Statistics
 class ITKStatistics_EXPORT MaximumRatioDecisionRule : public DecisionRule
 {
 public:
-  /** Standard class typedefs */
-  typedef MaximumRatioDecisionRule  Self;
-  typedef DecisionRule              Superclass;
-  typedef SmartPointer< Self >      Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MaximumRatioDecisionRule);
+
+  /** Standard class type aliases */
+  using Self = MaximumRatioDecisionRule;
+  using Superclass = DecisionRule;
+  using Pointer = SmartPointer<Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(MaximumRatioDecisionRule, DecisionRule);
@@ -70,16 +72,16 @@ public:
   itkNewMacro(Self);
 
   /** Types for discriminant values and vectors. */
-  typedef Superclass::MembershipValueType  MembershipValueType;
-  typedef Superclass::MembershipVectorType MembershipVectorType;
+  using MembershipValueType = Superclass::MembershipValueType;
+  using MembershipVectorType = Superclass::MembershipVectorType;
 
   /** Types for class identifiers. */
-  typedef Superclass::ClassIdentifierType ClassIdentifierType;
+  using ClassIdentifierType = Superclass::ClassIdentifierType;
 
   /** Types for priors and values */
-  typedef MembershipValueType                      PriorProbabilityValueType;
-  typedef std::vector< PriorProbabilityValueType > PriorProbabilityVectorType;
-  typedef PriorProbabilityVectorType::size_type    PriorProbabilityVectorSizeType;
+  using PriorProbabilityValueType = MembershipValueType;
+  using PriorProbabilityVectorType = std::vector<PriorProbabilityValueType>;
+  using PriorProbabilityVectorSizeType = PriorProbabilityVectorType::size_type;
 
   /**
    * Evaluate the decision rule \f$p(x|i) p(i) > p(x|j) p(j)\f$. Prior
@@ -88,28 +90,29 @@ public:
    * assumed). Parameter to Evaluate() is the discriminant score in
    * the form of a likelihood \f$p(x|i)\f$.
    */
-  virtual ClassIdentifierType Evaluate(const MembershipVectorType & discriminantScores) const ITK_OVERRIDE;
+  ClassIdentifierType
+  Evaluate(const MembershipVectorType & discriminantScores) const override;
 
   /** Set the prior probabilities used in evaluating
    * \f$p(x|i) p(i) > p(x|j) p(j)\f$. The likelihoods are set using
    * the Evaluate() method. SetPriorProbabilities needs to be called before
    * Evaluate(). If not set, assumes a uniform prior.  */
-  void SetPriorProbabilities(const PriorProbabilityVectorType& p);
+  void
+  SetPriorProbabilities(const PriorProbabilityVectorType & p);
 
   /** Get the prior probabilities. */
   itkGetConstReferenceMacro(PriorProbabilities, PriorProbabilityVectorType);
 
 protected:
   MaximumRatioDecisionRule();
-  virtual ~MaximumRatioDecisionRule() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MaximumRatioDecisionRule() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MaximumRatioDecisionRule);
-
   PriorProbabilityVectorType m_PriorProbabilities;
 
-};  // end of class
-} // end of Statistics namespace
-} // end of ITK namespace
+}; // end of class
+} // namespace Statistics
+} // namespace itk
 #endif

@@ -32,51 +32,59 @@ namespace itk
  *
  * \ingroup RegionGrowingSegmentation
  * \ingroup ITKRegionGrowing
+ * \sphinx
+ * \sphinxexample{Segmentation/RegionGrowing/ConnectedComponentsInImage,Connected Components In Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ConnectedThresholdImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ConnectedThresholdImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ConnectedThresholdImageFilter                   Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ConnectedThresholdImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ConnectedThresholdImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ConnectedThresholdImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(ConnectedThresholdImageFilter, ImageToImageFilter);
 
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
-  typedef typename InputImageType::IndexType    IndexType;
-  typedef typename std::vector<IndexType>       SeedContainerType;
-  typedef typename InputImageType::SizeType     SizeType;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using IndexType = typename InputImageType::IndexType;
+  using SeedContainerType = typename std::vector<IndexType>;
+  using SizeType = typename InputImageType::SizeType;
 
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::Pointer    OutputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename OutputImageType::PixelType  OutputImagePixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Set seed point. */
-  void SetSeed(const IndexType & seed);
+  void
+  SetSeed(const IndexType & seed);
 
-  void AddSeed(const IndexType & seed);
+  void
+  AddSeed(const IndexType & seed);
 
   /** Clear the seed list. */
-  void ClearSeeds();
+  void
+  ClearSeeds();
 
   /** Method to access seed container. */
-  virtual const SeedContainerType &GetSeeds() const;
+  virtual const SeedContainerType &
+  GetSeeds() const;
 
   /** Set/Get value to replace thresholded pixels. Pixels that lie *
    *  within Lower and Upper (inclusive) will be replaced with this
@@ -85,51 +93,50 @@ public:
   itkGetConstMacro(ReplaceValue, OutputImagePixelType);
 
   /** Type of DataObjects to use for scalar inputs */
-  typedef SimpleDataObjectDecorator< InputImagePixelType > InputPixelObjectType;
+  using InputPixelObjectType = SimpleDataObjectDecorator<InputImagePixelType>;
 
   /** Set Upper and Lower Threshold inputs as values */
   virtual void SetUpper(InputImagePixelType);
   virtual void SetLower(InputImagePixelType);
 
   /** Set Threshold inputs that are connected to the pipeline */
-  virtual void SetUpperInput(const InputPixelObjectType *);
-  virtual void SetLowerInput(const InputPixelObjectType *);
+  virtual void
+  SetUpperInput(const InputPixelObjectType *);
+  virtual void
+  SetLowerInput(const InputPixelObjectType *);
 
   /** Get Upper and Lower Threshold inputs as values. */
-  virtual InputImagePixelType GetUpper() const;
-  virtual InputImagePixelType GetLower() const;
+  virtual InputImagePixelType
+  GetUpper() const;
+  virtual InputImagePixelType
+  GetLower() const;
 
   /** Get Threshold inputs that are connected to the pipeline. */
-  virtual InputPixelObjectType * GetUpperInput();
-  virtual InputPixelObjectType * GetLowerInput();
+  virtual InputPixelObjectType *
+  GetUpperInput();
+  virtual InputPixelObjectType *
+  GetLowerInput();
 
   /** Image dimension constants. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputImagePixelType > ) );
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputImagePixelType > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputImagePixelType, OutputImagePixelType > ) );
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( IntConvertibleToInputCheck,
-                   ( Concept::Convertible< int, InputImagePixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< OutputImagePixelType > ) );
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputImagePixelType>));
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputImagePixelType>));
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputImagePixelType, OutputImagePixelType>));
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
+  itkConceptMacro(IntConvertibleToInputCheck, (Concept::Convertible<int, InputImagePixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputImagePixelType>));
   // End concept checking
 #endif
 
   /** Face connectivity is 4 connected in 2D, 6  connected in 3D, 2*n   in ND
    *  Full connectivity is 8 connected in 2D, 26 connected in 3D, 3^n-1 in ND
    *  Default is to use FaceConnectivity. */
-  typedef enum {
+  typedef enum
+  {
     FaceConnectivity,
     FullConnectivity
   } ConnectivityEnumType;
@@ -141,29 +148,30 @@ public:
 
 protected:
   ConnectedThresholdImageFilter();
-  ~ConnectedThresholdImageFilter() ITK_OVERRIDE {}
+  ~ConnectedThresholdImageFilter() override = default;
 
   // Override since the filter needs all the data for the algorithm.
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   // Override since the filter produces the entire dataset.
-  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ConnectedThresholdImageFilter);
+  SeedContainerType m_Seeds;
 
-  SeedContainerType     m_Seeds;
+  OutputImagePixelType m_ReplaceValue;
 
-  OutputImagePixelType  m_ReplaceValue;
-
-  ConnectivityEnumType  m_Connectivity;
+  ConnectivityEnumType m_Connectivity;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConnectedThresholdImageFilter.hxx"
+#  include "itkConnectedThresholdImageFilter.hxx"
 #endif
 
 #endif

@@ -42,17 +42,19 @@ namespace itk
  * \ingroup ImageEnhancement MathematicalMorphologyImageFilters
  * \ingroup ITKBinaryMathematicalMorphology
  */
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT DilateObjectMorphologyImageFilter:
-  public ObjectMorphologyImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT DilateObjectMorphologyImageFilter
+  : public ObjectMorphologyImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef DilateObjectMorphologyImageFilter                                 Self;
-  typedef ObjectMorphologyImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DilateObjectMorphologyImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = DilateObjectMorphologyImageFilter;
+  using Superclass = ObjectMorphologyImageFilter<TInputImage, TOutputImage, TKernel>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method */
   itkNewMacro(Self);
@@ -61,45 +63,42 @@ public:
   itkTypeMacro(DilateObjectMorphologyImageFilter, ObjectMorphologyImageFilter);
 
   /** duplicates from base class to avoid compiler warnings */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** duplicates from base class to avoid compiler warnings */
-  typedef TKernel KernelType;
+  using KernelType = TKernel;
 
   /** duplicates from base class to avoid compiler warnings */
-  typedef typename KernelType::ConstIterator KernelIteratorType;
+  using KernelIteratorType = typename KernelType::ConstIterator;
 
   /** duplicates from base class to avoid compiler warnings */
-  typedef NeighborhoodIterator< TOutputImage > OutputNeighborhoodIteratorType;
+  using OutputNeighborhoodIteratorType = NeighborhoodIterator<TOutputImage>;
 
-  typedef typename Superclass::DefaultBoundaryConditionType
-  DefaultBoundaryConditionType;
+  using DefaultBoundaryConditionType = typename Superclass::DefaultBoundaryConditionType;
 
   /** Type of the pixels in the Kernel. */
-  typedef typename TKernel::PixelType KernelPixelType;
+  using KernelPixelType = typename TKernel::PixelType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( KernelGreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< KernelPixelType > ) );
+  itkConceptMacro(KernelGreaterThanComparableCheck, (Concept::GreaterThanComparable<KernelPixelType>));
   // End concept checking
 #endif
 
 protected:
   DilateObjectMorphologyImageFilter();
-  ~DilateObjectMorphologyImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DilateObjectMorphologyImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Apply the kernel to the neighborhood given.
    *
    * All values in neighborhood covered by the kernel will be set to the
    * object value.  */
-  void Evaluate(OutputNeighborhoodIteratorType & nit,
-                const KernelType & kernel) ITK_OVERRIDE;
+  void
+  Evaluate(OutputNeighborhoodIteratorType & nit, const KernelType & kernel) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DilateObjectMorphologyImageFilter);
-
   // Default boundary condition for dilation filter, defaults to
   // NumericTraits<PixelType>::NonpositiveMin()
   DefaultBoundaryConditionType m_DilateBoundaryCondition;
@@ -107,7 +106,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkDilateObjectMorphologyImageFilter.hxx"
+#  include "itkDilateObjectMorphologyImageFilter.hxx"
 #endif
 
 #endif

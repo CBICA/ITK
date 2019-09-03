@@ -55,16 +55,18 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-template<typename TInternalComputationValueType>
+template <typename TInternalComputationValueType>
 class ITK_TEMPLATE_EXPORT GradientDescentLineSearchOptimizerv4Template
-: public GradientDescentOptimizerv4Template<TInternalComputationValueType>
+  : public GradientDescentOptimizerv4Template<TInternalComputationValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GradientDescentLineSearchOptimizerv4Template                 Self;
-  typedef  GradientDescentOptimizerv4Template<TInternalComputationValueType> Superclass;
-  typedef SmartPointer< Self >                                         Pointer;
-  typedef SmartPointer< const Self >                                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GradientDescentLineSearchOptimizerv4Template);
+
+  /** Standard class type aliases. */
+  using Self = GradientDescentLineSearchOptimizerv4Template;
+  using Superclass = GradientDescentOptimizerv4Template<TInternalComputationValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(GradientDescentLineSearchOptimizerv4Template, Superclass);
@@ -73,23 +75,23 @@ public:
   itkNewMacro(Self);
 
   /** It should be possible to derive the internal computation type from the class object. */
-  typedef TInternalComputationValueType            InternalComputationValueType;
+  using InternalComputationValueType = TInternalComputationValueType;
 
   /** Derivative type */
-  typedef typename Superclass::DerivativeType      DerivativeType;
+  using DerivativeType = typename Superclass::DerivativeType;
 
   /** Metric type over which this class is templated */
-  typedef typename Superclass::MeasureType         MeasureType;
-  typedef typename Superclass::ParametersType      ParametersType;
+  using MeasureType = typename Superclass::MeasureType;
+  using ParametersType = typename Superclass::ParametersType;
 
   /** Type for the convergence checker */
-  typedef itk::Function::WindowConvergenceMonitoringFunction<TInternalComputationValueType> ConvergenceMonitoringType;
+  using ConvergenceMonitoringType = itk::Function::WindowConvergenceMonitoringFunction<TInternalComputationValueType>;
 
   /** The epsilon determines the accuracy of the line search
    *  i.e. the energy alteration that is considered convergent.
    */
-  itkSetMacro( Epsilon , TInternalComputationValueType );
-  itkGetMacro( Epsilon , TInternalComputationValueType );
+  itkSetMacro(Epsilon, TInternalComputationValueType);
+  itkGetMacro(Epsilon, TInternalComputationValueType);
 
   /** The upper and lower limit below determine the range
    *  of values over which the learning rate can be adjusted
@@ -100,27 +102,33 @@ public:
    *     NewParams = OldParams + UpperLimit * gradient
    *  Reasonable values might be 0 and 2.
    */
-  itkSetMacro( LowerLimit , TInternalComputationValueType );
-  itkGetMacro( LowerLimit , TInternalComputationValueType );
-  itkSetMacro( UpperLimit , TInternalComputationValueType );
-  itkGetMacro( UpperLimit , TInternalComputationValueType );
-  itkSetMacro( MaximumLineSearchIterations , unsigned int );
-  itkGetMacro( MaximumLineSearchIterations , unsigned int );
+  itkSetMacro(LowerLimit, TInternalComputationValueType);
+  itkGetMacro(LowerLimit, TInternalComputationValueType);
+  itkSetMacro(UpperLimit, TInternalComputationValueType);
+  itkGetMacro(UpperLimit, TInternalComputationValueType);
+  itkSetMacro(MaximumLineSearchIterations, unsigned int);
+  itkGetMacro(MaximumLineSearchIterations, unsigned int);
 
 protected:
   /** Advance one Step following the gradient direction.
    * Includes transform update. */
-  virtual void AdvanceOneStep(void) ITK_OVERRIDE;
+  void
+  AdvanceOneStep() override;
 
   /** Default constructor */
   GradientDescentLineSearchOptimizerv4Template();
 
   /** Destructor */
-  virtual ~GradientDescentLineSearchOptimizerv4Template() ITK_OVERRIDE;
+  ~GradientDescentLineSearchOptimizerv4Template() override = default;
 
-  virtual void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  TInternalComputationValueType GoldenSectionSearch( TInternalComputationValueType a, TInternalComputationValueType b, TInternalComputationValueType c );
+  TInternalComputationValueType
+  GoldenSectionSearch(TInternalComputationValueType a,
+                      TInternalComputationValueType b,
+                      TInternalComputationValueType c,
+                      TInternalComputationValueType metricb = NumericTraits<TInternalComputationValueType>::max());
 
   TInternalComputationValueType m_LowerLimit;
   TInternalComputationValueType m_UpperLimit;
@@ -129,22 +137,18 @@ protected:
   TInternalComputationValueType m_Epsilon;
 
   /** Controls the maximum recursion depth for the golden section search */
-  unsigned int      m_MaximumLineSearchIterations;
+  unsigned int m_MaximumLineSearchIterations;
   /** Counts the recursion depth for the golden section search */
-  unsigned int      m_LineSearchIterations;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GradientDescentLineSearchOptimizerv4Template);
-
+  unsigned int m_LineSearchIterations;
 };
 
 /** This helps to meet backward compatibility */
-typedef GradientDescentLineSearchOptimizerv4Template<double> GradientDescentLineSearchOptimizerv4;
+using GradientDescentLineSearchOptimizerv4 = GradientDescentLineSearchOptimizerv4Template<double>;
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGradientDescentLineSearchOptimizerv4.hxx"
+#  include "itkGradientDescentLineSearchOptimizerv4.hxx"
 #endif
 
 #endif

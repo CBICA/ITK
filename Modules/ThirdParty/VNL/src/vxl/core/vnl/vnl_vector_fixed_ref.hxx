@@ -8,8 +8,10 @@
 #include <iostream>
 #include <cstdlib>
 #include "vnl_vector_fixed_ref.h"
-#include <vcl_cassert.h>
-#include <vcl_compiler.h>
+#include <cassert>
+#ifdef _MSC_VER
+#  include <vcl_msvc_warnings.h>
+#endif
 #include <vnl/vnl_math.h>  // for vnl_math::isfinite
 
 
@@ -123,7 +125,7 @@ vnl_vector_fixed_ref_const<T,n>::print( std::ostream& s ) const
 // instantiation macros for vnl_vector_fixed_ref<T,unsigned> :
 
 #define VNL_VECTOR_FIXED_REF_INSTANTIATE(T,n) \
-template class VNL_EXPORT vnl_vector_fixed_ref<T, n >; \
-template class VNL_EXPORT vnl_vector_fixed_ref_const<T, n >
+template class vnl_vector_fixed_ref<T, n >; \
+template class vnl_vector_fixed_ref_const<T, n >
 
 #endif // vnl_vector_fixed_ref_hxx_

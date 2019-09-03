@@ -22,133 +22,132 @@
 #include "itkRelabelComponentImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkScalarImageKmeansImageFilterTest(int argc, char* argv [] )
+int
+itkScalarImageKmeansImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 5 )
-    {
+  if (argc < 5)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0];
+    std::cerr << itkNameOfTestExecutableMacro(argv);
     std::cerr << " inputScalarImage outputLabeledImage numberOfClasses mean1 mean2... meanN " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef unsigned char       PixelType;
-  const unsigned int          Dimension = 2;
+  using PixelType = unsigned char;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::Image<PixelType, Dimension > ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Problem encoutered while reading image file : " << argv[1] << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  typedef itk::ScalarImageKmeansImageFilter< ImageType > KMeansFilterType;
+  using KMeansFilterType = itk::ScalarImageKmeansImageFilter<ImageType>;
 
   KMeansFilterType::Pointer kmeansFilter = KMeansFilterType::New();
 
-  kmeansFilter->SetInput( reader->GetOutput() );
+  kmeansFilter->SetInput(reader->GetOutput());
 
-  kmeansFilter->SetUseNonContiguousLabels( argv[3] );
+  kmeansFilter->SetUseNonContiguousLabels(argv[3]);
 
-  const unsigned int numberOfInitialClasses = atoi( argv[4] );
+  const unsigned int numberOfInitialClasses = std::stoi(argv[4]);
 
-  const unsigned int numberOfArgumentsBeforeMeans = 5;
-  if( static_cast<unsigned int>(argc) < numberOfInitialClasses + numberOfArgumentsBeforeMeans )
-    {
+  constexpr unsigned int numberOfArgumentsBeforeMeans = 5;
+  if (static_cast<unsigned int>(argc) < numberOfInitialClasses + numberOfArgumentsBeforeMeans)
+  {
     std::cerr << "Error: " << std::endl;
     std::cerr << numberOfInitialClasses << " classes has been specified ";
     std::cerr << "but no enough means have been provided in the command ";
     std::cerr << "line arguments " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // before we add any mean check that an expection is thrown
-  TRY_EXPECT_EXCEPTION( kmeansFilter->Update() );
+  ITK_TRY_EXPECT_EXCEPTION(kmeansFilter->Update());
 
 
-  for(unsigned k=0; k<numberOfInitialClasses; k++)
-    {
-    kmeansFilter->AddClassWithInitialMean( atof( argv[k+numberOfArgumentsBeforeMeans] ) );
-    }
+  for (unsigned k = 0; k < numberOfInitialClasses; k++)
+  {
+    kmeansFilter->AddClassWithInitialMean(std::stod(argv[k + numberOfArgumentsBeforeMeans]));
+  }
 
 
   try
-    {
+  {
     kmeansFilter->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Problem encoutered while classifying the image " << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   KMeansFilterType::ParametersType estimatedMeans = kmeansFilter->GetFinalMeans();
 
   const unsigned int numberOfClasses = estimatedMeans.Size();
 
-  for ( unsigned int i = 0; i < numberOfClasses; ++i )
-    {
+  for (unsigned int i = 0; i < numberOfClasses; ++i)
+  {
     std::cout << "cluster[" << i << "] ";
     std::cout << "    estimated mean : " << estimatedMeans[i] << std::endl;
-    }
+  }
 
-  typedef KMeansFilterType::OutputImageType  OutputImageType;
+  using OutputImageType = KMeansFilterType::OutputImageType;
 
-  typedef itk::RelabelComponentImageFilter<
-                                OutputImageType,
-                                OutputImageType > RelabelFilterType;
+  using RelabelFilterType = itk::RelabelComponentImageFilter<OutputImageType, OutputImageType>;
 
 
   RelabelFilterType::Pointer relabeler = RelabelFilterType::New();
 
-  relabeler->SetInput( kmeansFilter->GetOutput() );
+  relabeler->SetInput(kmeansFilter->GetOutput());
 
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( relabeler->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(relabeler->GetOutput());
+  writer->SetFileName(argv[2]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Problem encoutered while writing image file : " << argv[2] << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  typedef RelabelFilterType::ObjectSizeInPixelsContainerType  SizesType;
+  using SizesType = RelabelFilterType::ObjectSizeInPixelsContainerType;
 
-  const SizesType &  sizes = relabeler->GetSizeOfObjectsInPixels();
+  const SizesType & sizes = relabeler->GetSizeOfObjectsInPixels();
 
-  SizesType::const_iterator sizeItr = sizes.begin();
-  SizesType::const_iterator sizeEnd = sizes.end();
+  auto sizeItr = sizes.begin();
+  auto sizeEnd = sizes.end();
 
   std::cout << "Number of pixels per class " << std::endl;
   unsigned int kclass = 0;
-  while( sizeItr != sizeEnd )
-    {
+  while (sizeItr != sizeEnd)
+  {
     std::cout << "Class " << kclass << " = " << *sizeItr << std::endl;
     ++kclass;
     ++sizeItr;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

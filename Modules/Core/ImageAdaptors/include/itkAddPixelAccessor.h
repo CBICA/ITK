@@ -35,58 +35,74 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  *
- * \wiki
- * \wikiexample{ImageProcessing/AddPixelAccessor,Add a constant to every pixel without duplicating the image in memory (an accessor)}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/ImageAdaptors/AddConstantToPixelsWithoutDuplicatingImage,Add Constant To Every Pixel Without
+ * Duplicating Memory} \endsphinx
  */
 
-template< typename TPixel >
+template <typename TPixel>
 class AddPixelAccessor
 {
 public:
-  /** Standard class typedefs. */
-  typedef   AddPixelAccessor Self;
+  /** Standard class type aliases. */
+  using Self = AddPixelAccessor;
 
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit */
-  typedef     TPixel ExternalType;
+  using ExternalType = TPixel;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data */
-  typedef     TPixel InternalType;
+  using InternalType = TPixel;
 
   /** Write access to the pixel */
-  inline void Set(InternalType & output, const ExternalType & input) const
-  { output = static_cast< InternalType >( input - m_Value ); }
+  inline void
+  Set(InternalType & output, const ExternalType & input) const
+  {
+    output = static_cast<InternalType>(input - m_Value);
+  }
 
   /** Read access to the pixel */
-  inline ExternalType Get(const InternalType & input) const
-  { return static_cast< ExternalType >( input + m_Value ); }
+  inline ExternalType
+  Get(const InternalType & input) const
+  {
+    return static_cast<ExternalType>(input + m_Value);
+  }
 
   /** Set the value to be added to pixels */
-  void SetValue(const TPixel & newvalue)
-  { m_Value = newvalue; }
+  void
+  SetValue(const TPixel & newvalue)
+  {
+    m_Value = newvalue;
+  }
 
   /** Get the value to be added to pixels */
-  TPixel GetValue() const
-  { return m_Value; }
+  TPixel
+  GetValue() const
+  {
+    return m_Value;
+  }
 
   /** Assignment Operator */
-  Self & operator=(const Self & apa)
+  Self &
+  operator=(const Self & apa)
   {
     this->m_Value = apa.m_Value;
     return *this;
   }
 
   /** Constructors */
-  AddPixelAccessor():m_Value(NumericTraits< TPixel >::ZeroValue()) {}
-  AddPixelAccessor(const Self & apa):m_Value(apa.m_Value) {}
+  AddPixelAccessor()
+    : m_Value(NumericTraits<TPixel>::ZeroValue())
+  {}
+  AddPixelAccessor(const Self & apa)
+    : m_Value(apa.m_Value)
+  {}
 
 private:
-
   TPixel m_Value;
 };
-}  // end namespace Accessor
-}  // end namespace itk
+} // end namespace Accessor
+} // end namespace itk
 
 #endif

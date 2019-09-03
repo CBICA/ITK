@@ -35,15 +35,15 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-class ITKCommon_EXPORT TimeProbesCollectorBase:public ResourceProbesCollectorBase< TimeProbe >
+class ITKCommon_EXPORT TimeProbesCollectorBase : public ResourceProbesCollectorBase<TimeProbe>
 {
 public:
   /** Constructor */
   TimeProbesCollectorBase();
 
   /** destructor */
-  virtual ~TimeProbesCollectorBase();
+  ~TimeProbesCollectorBase() override;
 };
-}
+} // namespace itk
 
-#endif //itkTimeProbesCollectorBase_h
+#endif // itkTimeProbesCollectorBase_h

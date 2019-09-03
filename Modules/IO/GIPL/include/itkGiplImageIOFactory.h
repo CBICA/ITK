@@ -28,19 +28,23 @@ namespace itk
  * \brief Create instances of GiplImageIO objects using an object factory.
  * \ingroup ITKIOGIPL
  */
-class ITKIOGIPL_EXPORT GiplImageIOFactory:public ObjectFactoryBase
+class ITKIOGIPL_EXPORT GiplImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef GiplImageIOFactory         Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GiplImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = GiplImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -49,7 +53,8 @@ public:
   itkTypeMacro(GiplImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     GiplImageIOFactory::Pointer GiplFactory = GiplImageIOFactory::New();
 
@@ -58,10 +63,7 @@ public:
 
 protected:
   GiplImageIOFactory();
-  ~GiplImageIOFactory() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GiplImageIOFactory);
+  ~GiplImageIOFactory() override;
 };
 } // end namespace itk
 

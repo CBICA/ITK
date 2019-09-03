@@ -64,41 +64,40 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageIteratorWithIndex:public ImageConstIteratorWithIndex< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageIteratorWithIndex : public ImageConstIteratorWithIndex<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageIteratorWithIndex Self;
+  /** Standard class type aliases. */
+  using Self = ImageIteratorWithIndex;
 
   /** Dimension of the image that the iterator walks.  This constant is needed so
    * functions that are templated over image iterator type (as opposed to
    * being templated over pixel type and dimension) can have compile time
    * access to the dimension of the image that the iterator walks. */
-  itkStaticConstMacro(ImageIteratorDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageIteratorDimension = TImage::ImageDimension;
 
   /** Define the superclass */
-  typedef ImageConstIteratorWithIndex< TImage > Superclass;
+  using Superclass = ImageConstIteratorWithIndex<TImage>;
 
   /** Inherit types from the superclass */
-  typedef typename Superclass::IndexType             IndexType;
-  typedef typename Superclass::SizeType              SizeType;
-  typedef typename Superclass::OffsetType            OffsetType;
-  typedef typename Superclass::RegionType            RegionType;
-  typedef typename Superclass::ImageType             ImageType;
-  typedef typename Superclass::PixelContainer        PixelContainer;
-  typedef typename Superclass::PixelContainerPointer PixelContainerPointer;
-  typedef typename Superclass::InternalPixelType     InternalPixelType;
-  typedef typename Superclass::PixelType             PixelType;
-  typedef typename Superclass::AccessorType          AccessorType;
+  using IndexType = typename Superclass::IndexType;
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
+  using RegionType = typename Superclass::RegionType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelContainer = typename Superclass::PixelContainer;
+  using PixelContainerPointer = typename Superclass::PixelContainerPointer;
+  using InternalPixelType = typename Superclass::InternalPixelType;
+  using PixelType = typename Superclass::PixelType;
+  using AccessorType = typename Superclass::AccessorType;
 
   /** Default Constructor. Need to provide a default constructor since we
    * provide a copy constructor. */
-  ImageIteratorWithIndex();
+  ImageIteratorWithIndex() = default;
 
   /** Default Destructor */
-  ~ImageIteratorWithIndex() {}
+  ~ImageIteratorWithIndex() override = default;
 
   /** Copy Constructor. The copy constructor is provided to make sure the
    * handle to the image is properly reference counted. */
@@ -106,33 +105,40 @@ public:
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. */
-  ImageIteratorWithIndex(TImage *ptr, const RegionType & region);
+  ImageIteratorWithIndex(TImage * ptr, const RegionType & region);
 
   /** operator= is provided to make sure the handle to the image is properly
    * reference counted. */
-  Self & operator=(const Self & it);
+  Self &
+  operator=(const Self & it);
 
   /** Set the pixel value */
-  void Set(const PixelType & value) const
-  { this->m_PixelAccessor.Set(*( const_cast< InternalPixelType * >( this->m_Position ) ), value); }
+  void
+  Set(const PixelType & value) const
+  {
+    this->m_PixelAccessor.Set(*(const_cast<InternalPixelType *>(this->m_Position)), value);
+  }
 
   /** Return a reference to the pixel.
    * This method will provide the fastest access to pixel
    * data, but it will NOT support ImageAdaptors. */
-  PixelType & Value(void)
-  { return *( const_cast< InternalPixelType * >( this->m_Position ) ); }
+  PixelType &
+  Value()
+  {
+    return *(const_cast<InternalPixelType *>(this->m_Position));
+  }
 
 protected:
-
   /** This constructor is declared protected in order to enforce
     const-correctness */
-  ImageIteratorWithIndex(const ImageConstIteratorWithIndex< TImage > & it);
-  Self & operator=(const ImageConstIteratorWithIndex< TImage > & it);
+  ImageIteratorWithIndex(const ImageConstIteratorWithIndex<TImage> & it);
+  Self &
+  operator=(const ImageConstIteratorWithIndex<TImage> & it);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageIteratorWithIndex.hxx"
+#  include "itkImageIteratorWithIndex.hxx"
 #endif
 
 #endif

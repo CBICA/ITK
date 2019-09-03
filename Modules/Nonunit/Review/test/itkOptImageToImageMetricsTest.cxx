@@ -27,24 +27,23 @@
 
 #include "itkOptImageToImageMetricsTest.h"
 
-int itkOptImageToImageMetricsTest(int , char* argv[])
+int
+itkOptImageToImageMetricsTest(int, char * argv[])
 {
   std::cout << "OPTIMIZED ON" << std::endl;
-  std::cout << "Default number of threads : "
-            << itk::MultiThreader::GetGlobalDefaultNumberOfThreads()
-            << std::endl;
+  std::cout << "Default number of threads : " << itk::MultiThreaderBase::GetGlobalDefaultNumberOfThreads() << std::endl;
 
-  typedef itk::Image< unsigned int > FixedImageType;
-  typedef itk::Image< unsigned int > MovingImageType;
+  using FixedImageType = itk::Image<unsigned int>;
+  using MovingImageType = itk::Image<unsigned int>;
 
-  typedef itk::ImageFileReader< FixedImageType  > FixedImageReaderType;
-  typedef itk::ImageFileReader< MovingImageType > MovingImageReaderType;
+  using FixedImageReaderType = itk::ImageFileReader<FixedImageType>;
+  using MovingImageReaderType = itk::ImageFileReader<MovingImageType>;
 
-  FixedImageReaderType::Pointer  fixedImageReader  = FixedImageReaderType::New();
+  FixedImageReaderType::Pointer  fixedImageReader = FixedImageReaderType::New();
   MovingImageReaderType::Pointer movingImageReader = MovingImageReaderType::New();
 
-  fixedImageReader->SetFileName(  argv[1] );
-  movingImageReader->SetFileName( argv[2] );
+  fixedImageReader->SetFileName(argv[1]);
+  movingImageReader->SetFileName(argv[2]);
 
 
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -55,20 +54,20 @@ int itkOptImageToImageMetricsTest(int , char* argv[])
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
   std::cout << "Now Running tests with : " << std::endl;
-  std::cout << "\t Global Default Number of Threads " << itk::MultiThreader::GetGlobalDefaultNumberOfThreads() << std::endl;
-  std::cout << "\t Global Maximum Number of Threads " << itk::MultiThreader::GetGlobalMaximumNumberOfThreads() << std::endl;
+  std::cout << "\t Global Default Number of Threads " << itk::MultiThreaderBase::GetGlobalDefaultNumberOfThreads()
+            << std::endl;
+  std::cout << "\t Global Maximum Number of Threads " << itk::MultiThreaderBase::GetGlobalMaximumNumberOfThreads()
+            << std::endl;
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
   std::cout << std::endl;
 
 
-  itk::TranslationLinearTest( fixedImageReader.GetPointer(),
-                              movingImageReader.GetPointer() );
+  itk::TranslationLinearTest<FixedImageReaderType, MovingImageReaderType>(fixedImageReader,
+                                                                          movingImageReader.GetPointer());
 
-  itk::RigidLinearTest( fixedImageReader.GetPointer(),
-                        movingImageReader.GetPointer() );
+  itk::RigidLinearTest<FixedImageReaderType, MovingImageReaderType>(fixedImageReader, movingImageReader.GetPointer());
 
-  itk::AffineLinearTest( fixedImageReader.GetPointer(),
-                         movingImageReader.GetPointer() );
+  itk::AffineLinearTest<FixedImageReaderType, MovingImageReaderType>(fixedImageReader, movingImageReader.GetPointer());
 
   std::cout << "OPTIMIZED ON" << std::endl;
 
@@ -78,22 +77,20 @@ int itkOptImageToImageMetricsTest(int , char* argv[])
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
   std::cout << "Now Running tests with : " << std::endl;
-  std::cout << "\t itk::MultiThreader::SetGlobalDefaultNumberOfThreads(1); " << std::endl;
-  std::cout << "\t itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1); " << std::endl;
+  std::cout << "\t itk::MultiThreaderBase::SetGlobalDefaultNumberOfThreads(1); " << std::endl;
+  std::cout << "\t itk::MultiThreaderBase::SetGlobalMaximumNumberOfThreads(1); " << std::endl;
   std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
   std::cout << std::endl;
 
-  itk::MultiThreader::SetGlobalDefaultNumberOfThreads(1);
-  itk::MultiThreader::SetGlobalMaximumNumberOfThreads(1);
+  itk::MultiThreaderBase::SetGlobalDefaultNumberOfThreads(1);
+  itk::MultiThreaderBase::SetGlobalMaximumNumberOfThreads(1);
 
-  itk::TranslationLinearTest( fixedImageReader.GetPointer(),
-                              movingImageReader.GetPointer() );
+  itk::TranslationLinearTest<FixedImageReaderType, MovingImageReaderType>(fixedImageReader,
+                                                                          movingImageReader.GetPointer());
 
-  itk::RigidLinearTest( fixedImageReader.GetPointer(),
-                        movingImageReader.GetPointer() );
+  itk::RigidLinearTest<FixedImageReaderType, MovingImageReaderType>(fixedImageReader, movingImageReader.GetPointer());
 
-  itk::AffineLinearTest( fixedImageReader.GetPointer(),
-                         movingImageReader.GetPointer() );
+  itk::AffineLinearTest<FixedImageReaderType, MovingImageReaderType>(fixedImageReader, movingImageReader.GetPointer());
 
   std::cout << "OPTIMIZED ON" << std::endl;
   return EXIT_SUCCESS;

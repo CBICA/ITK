@@ -21,87 +21,86 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkHistogramToLogProbabilityImageFilter.h"
-int itkHistogramToLogProbabilityImageFilterTest1( int argc, char * argv [] )
+int
+itkHistogramToLogProbabilityImageFilterTest1(int argc, char * argv[])
 {
 
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Missing command line arguments" << std::endl;
     std::cerr << "Usage :  " << argv[0] << " inputScalarImageFileName outputImage" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  const unsigned int                                  Dimension = 2;
-  typedef unsigned char                               PixelComponentType;
-  typedef itk::Image< PixelComponentType, Dimension > ScalarImageType;
-  typedef itk::ImageFileReader< ScalarImageType >     ReaderType;
+  constexpr unsigned int Dimension = 2;
+  using PixelComponentType = unsigned char;
+  using ScalarImageType = itk::Image<PixelComponentType, Dimension>;
+  using ReaderType = itk::ImageFileReader<ScalarImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Problem encoutered while reading image file : " << argv[1] << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  itk::MinimumMaximumImageFilter<ScalarImageType>::Pointer minmaxFilter
-    = itk::MinimumMaximumImageFilter<ScalarImageType>::New();
+  itk::MinimumMaximumImageFilter<ScalarImageType>::Pointer minmaxFilter =
+    itk::MinimumMaximumImageFilter<ScalarImageType>::New();
   minmaxFilter->SetInput(reader->GetOutput());
   minmaxFilter->Update();
   const ScalarImageType::PixelType imageMin = minmaxFilter->GetMinimum();
   const ScalarImageType::PixelType imageMax = minmaxFilter->GetMaximum();
 
 
-  typedef itk::Statistics::ScalarImageToHistogramGenerator<ScalarImageType>
-    HistogramGeneratorType;
-  HistogramGeneratorType::Pointer histogramGenerator
-    = HistogramGeneratorType::New();
+  using HistogramGeneratorType = itk::Statistics::ScalarImageToHistogramGenerator<ScalarImageType>;
+  HistogramGeneratorType::Pointer histogramGenerator = HistogramGeneratorType::New();
   histogramGenerator->SetInput(reader->GetOutput());
 
-  const int NumberOfBins = static_cast<unsigned int>( imageMax - imageMin + 1 );
-  histogramGenerator->SetNumberOfBins( NumberOfBins );
+  const int NumberOfBins = static_cast<unsigned int>(imageMax - imageMin + 1);
+  histogramGenerator->SetNumberOfBins(NumberOfBins);
   histogramGenerator->SetMarginalScale(1.0);
 
-  histogramGenerator->SetHistogramMin( imageMin );
-  histogramGenerator->SetHistogramMax( imageMax );
+  histogramGenerator->SetHistogramMin(imageMin);
+  histogramGenerator->SetHistogramMax(imageMax);
 
   histogramGenerator->Compute();
 
 
-  typedef HistogramGeneratorType::HistogramType  HistogramType;
+  using HistogramType = HistogramGeneratorType::HistogramType;
   const HistogramType * histogram = histogramGenerator->GetOutput();
 
-  typedef itk::HistogramToLogProbabilityImageFilter< HistogramType > HistogramToImageFilterType;
+  using HistogramToImageFilterType = itk::HistogramToLogProbabilityImageFilter<HistogramType>;
 
   HistogramToImageFilterType::Pointer histogramToImageFilter = HistogramToImageFilterType::New();
 
-  histogramToImageFilter->SetInput( histogram );
+  histogramToImageFilter->SetInput(histogram);
 
-  typedef HistogramToImageFilterType::OutputImageType OutputImageType;
+  using OutputImageType = HistogramToImageFilterType::OutputImageType;
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetFileName( argv[2] );
+  writer->SetFileName(argv[2]);
 
-  writer->SetInput( histogramToImageFilter->GetOutput() );
+  writer->SetInput(histogramToImageFilter->GetOutput());
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

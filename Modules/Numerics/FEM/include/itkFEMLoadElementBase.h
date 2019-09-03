@@ -45,11 +45,11 @@ namespace fem
 class ITKFEM_EXPORT LoadElement : public Load
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoadElement              Self;
-  typedef Load                     Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoadElement;
+  using Superclass = Load;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
@@ -59,56 +59,67 @@ public:
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
   /**
    * Float type used in Element and derived classes
    */
-  typedef Element::Float Float;
+  using Float = Element::Float;
 
   /**
    * Type of array of pointers to element objects
    */
-  typedef std::vector<const Element *> ElementPointersVectorType;
+  using ElementPointersVectorType = std::vector<const Element *>;
 
   // FIXME: should clear vector, not zero it
-  LoadElement() : m_Element(0)
+  LoadElement()
+    : m_Element(0)
+  {}
+  void
+  AddNextElement(Element::ConstPointer e)
   {
+    this->AddNextElementInternal(e);
   }
-  void AddNextElement(Element::ConstPointer e)
-    {
-      this->AddNextElementInternal(e.GetPointer());
-    }
-  void AddNextElement(Element::Pointer e)
-    {
-      this->AddNextElementInternal(e.GetPointer());
-    }
+  void
+  AddNextElement(Element::Pointer e)
+  {
+    this->AddNextElementInternal(e);
+  }
 
-  Element::ConstPointer GetElement(int i);
+  Element::ConstPointer
+  GetElement(int i);
 
-  unsigned int GetNumberOfElements();
+  unsigned int
+  GetNumberOfElements();
 
-  ElementPointersVectorType & GetElementArray()
-    {
-      return this->m_Element;
-    }
+  ElementPointersVectorType &
+  GetElementArray()
+  {
+    return this->m_Element;
+  }
 
-  const ElementPointersVectorType & GetElementArray() const
-    {
-      return this->m_Element;
-    }
+  const ElementPointersVectorType &
+  GetElementArray() const
+  {
+    return this->m_Element;
+  }
 
   /** Apply the load to the specified element */
-  virtual void ApplyLoad(Element::ConstPointer , Element::VectorType & ) { /* HACK:  This should probably through an execption if it is not intended to be used. */ }
+  virtual void
+  ApplyLoad(Element::ConstPointer, Element::VectorType &)
+  { /* HACK:  This should probably through an execption if it is not intended to be used. */
+  }
 
 protected:
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
-  void AddNextElementInternal(const Element *e);
-  ElementPointersVectorType m_Element;  /** pointers to element objects on which the
-                                   load acts */
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+  void
+                            AddNextElementInternal(const Element * e);
+  ElementPointersVectorType m_Element; /** pointers to element objects on which the
+                                  load acts */
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMLoadElementBase_h
+#endif // itkFEMLoadElementBase_h

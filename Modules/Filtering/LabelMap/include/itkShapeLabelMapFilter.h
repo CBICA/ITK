@@ -19,6 +19,7 @@
 #define itkShapeLabelMapFilter_h
 
 #include "itkInPlaceLabelMapFilter.h"
+#include "itkLexicographicCompare.h"
 
 namespace itk
 {
@@ -48,39 +49,38 @@ namespace itk
  * \ingroup ITKLabelMap
  */
 
-template< typename TImage, typename TLabelImage =
-            Image< typename TImage::PixelType,  TImage ::ImageDimension > >
-class ITK_TEMPLATE_EXPORT ShapeLabelMapFilter:
-  public
-  InPlaceLabelMapFilter< TImage >
+template <typename TImage, typename TLabelImage = Image<typename TImage::PixelType, TImage ::ImageDimension>>
+class ITK_TEMPLATE_EXPORT ShapeLabelMapFilter : public InPlaceLabelMapFilter<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ShapeLabelMapFilter             Self;
-  typedef InPlaceLabelMapFilter< TImage > Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ShapeLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                               ImageType;
-  typedef typename ImageType::Pointer          ImagePointer;
-  typedef typename ImageType::ConstPointer     ImageConstPointer;
-  typedef typename ImageType::PixelType        PixelType;
-  typedef typename ImageType::IndexType        IndexType;
-  typedef typename ImageType::SizeType         SizeType;
-  typedef typename ImageType::RegionType       RegionType;
-  typedef typename ImageType::OffsetType       OffsetType;
-  typedef typename ImageType::LabelObjectType  LabelObjectType;
-  typedef typename LabelObjectType::MatrixType MatrixType;
-  typedef typename LabelObjectType::VectorType VectorType;
+  /** Standard class type aliases. */
+  using Self = ShapeLabelMapFilter;
+  using Superclass = InPlaceLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TLabelImage                           LabelImageType;
-  typedef typename LabelImageType::Pointer      LabelImagePointer;
-  typedef typename LabelImageType::ConstPointer LabelImageConstPointer;
-  typedef typename LabelImageType::PixelType    LabelPixelType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using SizeType = typename ImageType::SizeType;
+  using RegionType = typename ImageType::RegionType;
+  using OffsetType = typename ImageType::OffsetType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
+  using MatrixType = typename LabelObjectType::MatrixType;
+  using VectorType = typename LabelObjectType::VectorType;
+
+  using LabelImageType = TLabelImage;
+  using LabelImagePointer = typename LabelImageType::Pointer;
+  using LabelImageConstPointer = typename LabelImageType::ConstPointer;
+  using LabelPixelType = typename LabelImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -125,48 +125,58 @@ public:
   itkBooleanMacro(ComputeOrientedBoundingBox);
 
   /** Set the label image */
-  void SetLabelImage(const TLabelImage *input)
+  void
+  SetLabelImage(const TLabelImage * input)
   {
     m_LabelImage = input;
   }
 
 protected:
   ShapeLabelMapFilter();
-  ~ShapeLabelMapFilter() ITK_OVERRIDE {}
+  ~ShapeLabelMapFilter() override = default;
 
-  virtual void ThreadedProcessLabelObject(LabelObjectType *labelObject) ITK_OVERRIDE;
+  void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject) override;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  virtual void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  AfterThreadedGenerateData() override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ShapeLabelMapFilter);
-
   bool                   m_ComputeFeretDiameter;
   bool                   m_ComputePerimeter;
   bool                   m_ComputeOrientedBoundingBox;
   LabelImageConstPointer m_LabelImage;
 
-  void ComputeFeretDiameter(LabelObjectType *labelObject);
-  void ComputePerimeter(LabelObjectType *labelObject);
-  void ComputeOrientedBoundingBox(LabelObjectType *labelObject);
+  void
+  ComputeFeretDiameter(LabelObjectType * labelObject);
+  void
+  ComputePerimeter(LabelObjectType * labelObject);
+  void
+  ComputeOrientedBoundingBox(LabelObjectType * labelObject);
 
-  typedef itk::Offset<2>                                                          Offset2Type;
-  typedef itk::Offset<3>                                                          Offset3Type;
-  typedef itk::Vector<double, 2>                                                  Spacing2Type;
-  typedef itk::Vector<double, 3>                                                  Spacing3Type;
-  typedef std::map<Offset2Type, SizeValueType, Offset2Type::LexicographicCompare> MapIntercept2Type;
-  typedef std::map<Offset3Type, SizeValueType, Offset3Type::LexicographicCompare> MapIntercept3Type;
+  using Offset2Type = itk::Offset<2>;
+  using Offset3Type = itk::Offset<3>;
+  using Spacing2Type = itk::Vector<double, 2>;
+  using Spacing3Type = itk::Vector<double, 3>;
+  using MapIntercept2Type = std::map<Offset2Type, SizeValueType, Functor::LexicographicCompare>;
+  using MapIntercept3Type = std::map<Offset3Type, SizeValueType, Functor::LexicographicCompare>;
 
   // it seems impossible to specialize a method without specializing the whole class, but we
   // can use simple overloading
-  template<typename TMapIntercept, typename TSpacing> double PerimeterFromInterceptCount( TMapIntercept & intercepts, const TSpacing & spacing );
-#if ! defined(ITK_DO_NOT_USE_PERIMETER_SPECIALIZATION)
-  double PerimeterFromInterceptCount( MapIntercept2Type & intercepts, const Spacing2Type spacing );
-  double PerimeterFromInterceptCount( MapIntercept3Type & intercepts, const Spacing3Type spacing );
+  template <typename TMapIntercept, typename TSpacing>
+  double
+  PerimeterFromInterceptCount(TMapIntercept & intercepts, const TSpacing & spacing);
+#if !defined(ITK_DO_NOT_USE_PERIMETER_SPECIALIZATION)
+  double
+  PerimeterFromInterceptCount(MapIntercept2Type & intercepts, const Spacing2Type spacing);
+  double
+  PerimeterFromInterceptCount(MapIntercept3Type & intercepts, const Spacing3Type spacing);
 #endif
 };
 
@@ -174,7 +184,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkShapeLabelMapFilter.hxx"
+#  include "itkShapeLabelMapFilter.hxx"
 #endif
 
 #endif

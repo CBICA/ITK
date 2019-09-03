@@ -46,18 +46,20 @@ namespace itk
  * \ingroup ITKDeconvolution
  *
  */
-template< typename TInputImage, typename TKernelImage = TInputImage, typename TOutputImage = TInputImage, typename TInternalPrecision=double >
-class ITK_TEMPLATE_EXPORT TikhonovDeconvolutionImageFilter :
-  public InverseDeconvolutionImageFilter< TInputImage, TKernelImage, TOutputImage, TInternalPrecision >
+template <typename TInputImage,
+          typename TKernelImage = TInputImage,
+          typename TOutputImage = TInputImage,
+          typename TInternalPrecision = double>
+class ITK_TEMPLATE_EXPORT TikhonovDeconvolutionImageFilter
+  : public InverseDeconvolutionImageFilter<TInputImage, TKernelImage, TOutputImage, TInternalPrecision>
 {
 public:
-  typedef TikhonovDeconvolutionImageFilter                      Self;
-  typedef InverseDeconvolutionImageFilter< TInputImage,
-                                           TKernelImage,
-                                           TOutputImage,
-                                           TInternalPrecision > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TikhonovDeconvolutionImageFilter);
+
+  using Self = TikhonovDeconvolutionImageFilter;
+  using Superclass = InverseDeconvolutionImageFilter<TInputImage, TKernelImage, TOutputImage, TInternalPrecision>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,32 +68,31 @@ public:
   itkTypeMacro(TikhonovDeconvolutionImageFilter, InverseDeconvolutionImageFilter);
 
   /** Dimensionality of input and output data is assumed to be the same. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef TInputImage                           InputImageType;
-  typedef TOutputImage                          OutputImageType;
-  typedef TKernelImage                          KernelImageType;
-  typedef typename Superclass::InputPixelType   InputPixelType;
-  typedef typename Superclass::OutputPixelType  OutputPixelType;
-  typedef typename Superclass::KernelPixelType  KernelPixelType;
-  typedef typename Superclass::InputIndexType   InputIndexType;
-  typedef typename Superclass::OutputIndexType  OutputIndexType;
-  typedef typename Superclass::KernelIndexType  KernelIndexType;
-  typedef typename Superclass::InputSizeType    InputSizeType;
-  typedef typename Superclass::OutputSizeType   OutputSizeType;
-  typedef typename Superclass::KernelSizeType   KernelSizeType;
-  typedef typename Superclass::SizeValueType    SizeValueType;
-  typedef typename Superclass::InputRegionType  InputRegionType;
-  typedef typename Superclass::OutputRegionType OutputRegionType;
-  typedef typename Superclass::KernelRegionType KernelRegionType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using KernelImageType = TKernelImage;
+  using InputPixelType = typename Superclass::InputPixelType;
+  using OutputPixelType = typename Superclass::OutputPixelType;
+  using KernelPixelType = typename Superclass::KernelPixelType;
+  using InputIndexType = typename Superclass::InputIndexType;
+  using OutputIndexType = typename Superclass::OutputIndexType;
+  using KernelIndexType = typename Superclass::KernelIndexType;
+  using InputSizeType = typename Superclass::InputSizeType;
+  using OutputSizeType = typename Superclass::OutputSizeType;
+  using KernelSizeType = typename Superclass::KernelSizeType;
+  using SizeValueType = typename Superclass::SizeValueType;
+  using InputRegionType = typename Superclass::InputRegionType;
+  using OutputRegionType = typename Superclass::OutputRegionType;
+  using KernelRegionType = typename Superclass::KernelRegionType;
 
   /** Internal image types. */
-  typedef typename Superclass::InternalImageType               InternalImageType;
-  typedef typename Superclass::InternalImagePointerType        InternalImagePointerType;
-  typedef typename Superclass::InternalComplexType             InternalComplexType;
-  typedef typename Superclass::InternalComplexImageType        InternalComplexImageType;
-  typedef typename Superclass::InternalComplexImagePointerType InternalComplexImagePointerType;
+  using InternalImageType = typename Superclass::InternalImageType;
+  using InternalImagePointerType = typename Superclass::InternalImagePointerType;
+  using InternalComplexType = typename Superclass::InternalComplexType;
+  using InternalComplexImageType = typename Superclass::InternalComplexImageType;
+  using InternalComplexImagePointerType = typename Superclass::InternalComplexImagePointerType;
 
   /** The regularization factor. Larger values reduce the dominance of
    * noise in the solution, but results in higher approximation error
@@ -102,81 +103,93 @@ public:
 
 protected:
   TikhonovDeconvolutionImageFilter();
-  ~TikhonovDeconvolutionImageFilter() ITK_OVERRIDE {}
+  ~TikhonovDeconvolutionImageFilter() override = default;
 
   /** This filter uses a minipipeline to compute the output. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TikhonovDeconvolutionImageFilter);
-
   double m_RegularizationConstant;
 };
 
 namespace Functor
 {
-template< typename TInput1, typename TInput2, typename TOutput >
+template <typename TInput1, typename TInput2, typename TOutput>
 class ITK_TEMPLATE_EXPORT TikhonovDeconvolutionFunctor
 {
 public:
-  TikhonovDeconvolutionFunctor() {m_RegularizationConstant = 0.0;}
-  ~TikhonovDeconvolutionFunctor() {}
+  TikhonovDeconvolutionFunctor() {}
+  ~TikhonovDeconvolutionFunctor() = default;
+  TikhonovDeconvolutionFunctor(const TikhonovDeconvolutionFunctor & f)
+    : m_RegularizationConstant(f.m_RegularizationConstant)
+    , m_KernelZeroMagnitudeThreshold(f.m_KernelZeroMagnitudeThreshold)
+  {}
 
-  bool operator!=( const TikhonovDeconvolutionFunctor & ) const
+
+  bool
+  operator!=(const TikhonovDeconvolutionFunctor &) const
   {
     return false;
   }
-  bool operator==( const TikhonovDeconvolutionFunctor & other) const
+  bool
+  operator==(const TikhonovDeconvolutionFunctor & other) const
   {
     return !(*this != other);
   }
-  inline TOutput operator()(const TInput1 & I, const TInput2 & H) const
+  inline TOutput
+  operator()(const TInput1 & I, const TInput2 & H) const
   {
-    typename TOutput::value_type normH = std::norm( H );
+    typename TOutput::value_type normH = std::norm(H);
     typename TOutput::value_type denominator = normH + m_RegularizationConstant;
-    TOutput value = NumericTraits< TOutput >::ZeroValue();
-    if ( denominator >= m_KernelZeroMagnitudeThreshold )
-      {
-      value = static_cast< TOutput >( I * ( std::conj( H ) / denominator ) );
-      }
+    TOutput                      value = NumericTraits<TOutput>::ZeroValue();
+    if (denominator >= m_KernelZeroMagnitudeThreshold)
+    {
+      value = static_cast<TOutput>(I * (std::conj(H) / denominator));
+    }
 
     return value;
   }
 
   /** Set/get the regular constant. This needs to be a non-negative
    * real value. */
-  void SetRegularizationConstant(double constant)
+  void
+  SetRegularizationConstant(double constant)
   {
     m_RegularizationConstant = constant;
   }
-  double GetRegularizationConstant() const
+  double
+  GetRegularizationConstant() const
   {
     return m_RegularizationConstant;
   }
 
   /** Set/get the threshold value below which complex magnitudes are considered
    * to be zero. */
-  void SetKernelZeroMagnitudeThreshold(double mu)
+  void
+  SetKernelZeroMagnitudeThreshold(double mu)
   {
     m_KernelZeroMagnitudeThreshold = mu;
   }
-  double GetKernelZeroMagnitudeThreshold() const
+  double
+  GetKernelZeroMagnitudeThreshold() const
   {
     return m_KernelZeroMagnitudeThreshold;
   }
 
 private:
-  double m_RegularizationConstant;
-  double m_KernelZeroMagnitudeThreshold;
+  double m_RegularizationConstant = 0.0;
+  double m_KernelZeroMagnitudeThreshold = 0.0;
 };
-} //namespace Functor
+} // namespace Functor
 
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTikhonovDeconvolutionImageFilter.hxx"
+#  include "itkTikhonovDeconvolutionImageFilter.hxx"
 #endif
 
 #endif

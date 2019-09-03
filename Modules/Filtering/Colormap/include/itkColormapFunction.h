@@ -42,23 +42,24 @@ namespace Function
  *
  * \ingroup ITKColormap
  */
-template< typename TScalar, typename TRGBPixel >
-class ColormapFunction:public Object
+template <typename TScalar, typename TRGBPixel>
+class ColormapFunction : public Object
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ColormapFunction);
 
-  typedef ColormapFunction            Self;
-  typedef Object                      Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  using Self = ColormapFunction;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ColormapFunction, Object);
 
-  typedef TRGBPixel                                      RGBPixelType;
-  typedef typename TRGBPixel::ComponentType              RGBComponentType;
-  typedef TScalar                                        ScalarType;
-  typedef typename NumericTraits< ScalarType >::RealType RealType;
+  using RGBPixelType = TRGBPixel;
+  using RGBComponentType = typename TRGBPixel::ComponentType;
+  using ScalarType = TScalar;
+  using RealType = typename NumericTraits<ScalarType>::RealType;
 
   itkSetMacro(MinimumRGBComponentValue, RGBComponentType);
   itkGetConstMacro(MinimumRGBComponentValue, RGBComponentType);
@@ -72,89 +73,86 @@ public:
   itkSetMacro(MaximumInputValue, ScalarType);
   itkGetConstMacro(MaximumInputValue, ScalarType);
 
-  virtual bool operator!=(const ColormapFunction &) const
-    {
+  virtual bool
+  operator!=(const ColormapFunction &) const
+  {
     return false;
-    }
+  }
 
-  virtual bool operator==(const ColormapFunction & other) const
-    {
-    return !( *this != other );
-    }
+  virtual bool
+  operator==(const ColormapFunction & other) const
+  {
+    return !(*this != other);
+  }
 
-  virtual RGBPixelType operator()(const ScalarType &) const = 0;
+  virtual RGBPixelType
+  operator()(const ScalarType &) const = 0;
 
 protected:
   ColormapFunction()
-    {
-    this->m_MinimumInputValue = NumericTraits< TScalar >::min();
-    this->m_MaximumInputValue = NumericTraits< TScalar >::max();
-    this->m_MinimumRGBComponentValue = NumericTraits< RGBComponentType >::min();
-    this->m_MaximumRGBComponentValue = NumericTraits< RGBComponentType >::max();
-    }
+  {
+    this->m_MinimumInputValue = NumericTraits<TScalar>::min();
+    this->m_MaximumInputValue = NumericTraits<TScalar>::max();
+    this->m_MinimumRGBComponentValue = NumericTraits<RGBComponentType>::min();
+    this->m_MaximumRGBComponentValue = NumericTraits<RGBComponentType>::max();
+  }
 
-  ~ColormapFunction() ITK_OVERRIDE {}
+  ~ColormapFunction() override = default;
 
   /**
    * Map [min, max] input values to [0, 1].
    */
-  RealType RescaleInputValue(ScalarType v) const
-    {
-    RealType maxInputValue =
-      static_cast< RealType >( this->m_MaximumInputValue );
-    RealType minInputValue =
-      static_cast< RealType >( this->m_MinimumInputValue );
+  RealType
+  RescaleInputValue(ScalarType v) const
+  {
+    auto maxInputValue = static_cast<RealType>(this->m_MaximumInputValue);
+    auto minInputValue = static_cast<RealType>(this->m_MinimumInputValue);
 
-    RealType d = static_cast< RealType >( maxInputValue - minInputValue );
-    RealType value = ( static_cast< RealType >( v ) -
-      static_cast< RealType >( minInputValue ) ) / d;
+    auto     d = static_cast<RealType>(maxInputValue - minInputValue);
+    RealType value = (static_cast<RealType>(v) - static_cast<RealType>(minInputValue)) / d;
 
     value = std::max(0.0, value);
     value = std::min(1.0, value);
     return value;
-    }
+  }
 
   /**
    * Map [0, 1] value to [min, max] rgb component values.
    */
-  RGBComponentType RescaleRGBComponentValue(RealType v) const
-    {
-    RealType d = static_cast< RealType >( m_MaximumRGBComponentValue -
-      m_MinimumRGBComponentValue );
-    const RGBComponentType rescaled = static_cast< RGBComponentType >(
-      d * v ) + this->m_MinimumRGBComponentValue;
+  RGBComponentType
+  RescaleRGBComponentValue(RealType v) const
+  {
+    auto                   d = static_cast<RealType>(m_MaximumRGBComponentValue - m_MinimumRGBComponentValue);
+    const RGBComponentType rescaled = static_cast<RGBComponentType>(d * v) + this->m_MinimumRGBComponentValue;
 
     return rescaled;
-    }
+  }
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-    {
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
     Superclass::PrintSelf(os, indent);
 
     os << indent << "Minimum RGB Component Value: "
-       << static_cast< typename NumericTraits< RGBComponentType >::PrintType >(
-      this->GetMinimumRGBComponentValue() ) << std::endl;
+       << static_cast<typename NumericTraits<RGBComponentType>::PrintType>(this->GetMinimumRGBComponentValue())
+       << std::endl;
     os << indent << "Maximum RGB Component Value: "
-       << static_cast< typename NumericTraits< RGBComponentType >::PrintType >(
-      this->GetMaximumRGBComponentValue() ) << std::endl;
+       << static_cast<typename NumericTraits<RGBComponentType>::PrintType>(this->GetMaximumRGBComponentValue())
+       << std::endl;
     os << indent << "Minimum Input Value: "
-       << static_cast< typename NumericTraits< ScalarType >::PrintType >(
-      this->GetMinimumInputValue() ) << std::endl;
+       << static_cast<typename NumericTraits<ScalarType>::PrintType>(this->GetMinimumInputValue()) << std::endl;
     os << indent << "Maximum Input Value: "
-       << static_cast< typename NumericTraits< ScalarType >::PrintType >(
-      this->GetMaximumInputValue() ) << std::endl;
-    }
+       << static_cast<typename NumericTraits<ScalarType>::PrintType>(this->GetMaximumInputValue()) << std::endl;
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ColormapFunction);
-
   ScalarType m_MinimumInputValue;
   ScalarType m_MaximumInputValue;
 
   RGBComponentType m_MinimumRGBComponentValue;
   RGBComponentType m_MaximumRGBComponentValue;
 };
-} // end namespace functor
+} // end namespace Function
 } // end namespace itk
 
 #endif

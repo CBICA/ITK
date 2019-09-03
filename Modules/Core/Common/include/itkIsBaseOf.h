@@ -21,9 +21,11 @@
 #include "itkIsConvertible.h"
 #include "itkIsSame.h"
 
-namespace itk {
+namespace itk
+{
 /// \cond HIDE_META_PROGRAMMING
-namespace mpl {
+namespace mpl
+{
 /** Traits that emulates \c std::is_base_of<>.
  * \tparam TBase base type
  * \tparam TDerived derived type
@@ -36,14 +38,13 @@ namespace mpl {
  */
 template <typename TBase, typename TDerived>
 struct IsBaseOf
-  {
-  static ITK_CONSTEXPR_VAR bool Value
-    =    IsConvertible<const TDerived*, const TBase*>::Value
-    && ! IsSame<const TBase*, const void*>::Value;
-  };
-} // itk::mpl namespace
+{
+  static constexpr bool Value =
+    IsConvertible<const TDerived *, const TBase *>::Value && !IsSame<const TBase *, const void *>::Value;
+};
+} // end namespace mpl
 
 /// \endcond
-} // itk namespace
+} // end namespace itk
 
 #endif // itkIsBaseOf_h

@@ -56,58 +56,72 @@ namespace itk
  * \ingroup IntensityImageFilters  MultiThreaded
  * \ingroup ITKThresholding
  *
- * \wiki
- * \wikiexample{ImageProcessing/BinaryThresholdImageFilter,Threshold an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/Thresholding/ThresholdAnImageUsingBinary,Threshold An Image Using Binary Thresholding}
+ * \endsphinx
  */
 namespace Functor
 {
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class ITK_TEMPLATE_EXPORT BinaryThreshold
 {
 public:
   BinaryThreshold()
   {
-    m_LowerThreshold = NumericTraits< TInput >::NonpositiveMin();
-    m_UpperThreshold = NumericTraits< TInput >::max();
-    m_OutsideValue   = NumericTraits< TOutput >::ZeroValue();
-    m_InsideValue    = NumericTraits< TOutput >::max();
+    m_LowerThreshold = NumericTraits<TInput>::NonpositiveMin();
+    m_UpperThreshold = NumericTraits<TInput>::max();
+    m_OutsideValue = NumericTraits<TOutput>::ZeroValue();
+    m_InsideValue = NumericTraits<TOutput>::max();
   }
 
-  ~BinaryThreshold() {}
+  ~BinaryThreshold() = default;
 
-  void SetLowerThreshold(const TInput & thresh)
-  { m_LowerThreshold = thresh; }
-  void SetUpperThreshold(const TInput & thresh)
-  { m_UpperThreshold = thresh; }
-  void SetInsideValue(const TOutput & value)
-  { m_InsideValue = value; }
-  void SetOutsideValue(const TOutput & value)
-  { m_OutsideValue = value; }
-
-  bool operator!=(const BinaryThreshold & other) const
+  void
+  SetLowerThreshold(const TInput & thresh)
   {
-    if ( m_LowerThreshold != other.m_LowerThreshold
-         || m_UpperThreshold != other.m_UpperThreshold
-         || Math::NotExactlyEquals( m_InsideValue, other.m_InsideValue )
-         || Math::NotExactlyEquals( m_OutsideValue, other.m_OutsideValue ) )
-      {
+    m_LowerThreshold = thresh;
+  }
+  void
+  SetUpperThreshold(const TInput & thresh)
+  {
+    m_UpperThreshold = thresh;
+  }
+  void
+  SetInsideValue(const TOutput & value)
+  {
+    m_InsideValue = value;
+  }
+  void
+  SetOutsideValue(const TOutput & value)
+  {
+    m_OutsideValue = value;
+  }
+
+  bool
+  operator!=(const BinaryThreshold & other) const
+  {
+    if (m_LowerThreshold != other.m_LowerThreshold || m_UpperThreshold != other.m_UpperThreshold ||
+        Math::NotExactlyEquals(m_InsideValue, other.m_InsideValue) ||
+        Math::NotExactlyEquals(m_OutsideValue, other.m_OutsideValue))
+    {
       return true;
-      }
+    }
     return false;
   }
 
-  bool operator==(const BinaryThreshold & other) const
+  bool
+  operator==(const BinaryThreshold & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    if ( m_LowerThreshold <= A && A <= m_UpperThreshold )
-      {
+    if (m_LowerThreshold <= A && A <= m_UpperThreshold)
+    {
       return m_InsideValue;
-      }
+    }
     return m_OutsideValue;
   }
 
@@ -117,26 +131,26 @@ private:
   TOutput m_InsideValue;
   TOutput m_OutsideValue;
 };
-}
+} // namespace Functor
 
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT BinaryThresholdImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::BinaryThreshold<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType > >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT BinaryThresholdImageFilter
+  : public UnaryFunctorImageFilter<
+      TInputImage,
+      TOutputImage,
+      Functor::BinaryThreshold<typename TInputImage::PixelType, typename TOutputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryThresholdImageFilter Self;
-  typedef UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                                   Functor::BinaryThreshold<
-                                     typename TInputImage::PixelType,
-                                     typename TOutputImage::PixelType >
-                                   >                                   Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryThresholdImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BinaryThresholdImageFilter;
+  using Superclass = UnaryFunctorImageFilter<
+    TInputImage,
+    TOutputImage,
+    Functor::BinaryThreshold<typename TInputImage::PixelType, typename TOutputImage::PixelType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -145,11 +159,11 @@ public:
   itkTypeMacro(BinaryThresholdImageFilter, UnaryFunctorImageFilter);
 
   /** Pixel types. */
-  typedef typename TInputImage::PixelType  InputPixelType;
-  typedef typename TOutputImage::PixelType OutputPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
 
   /** Type of DataObjects to use for scalar inputs */
-  typedef SimpleDataObjectDecorator< InputPixelType > InputPixelObjectType;
+  using InputPixelObjectType = SimpleDataObjectDecorator<InputPixelType>;
 
   /** Set the "outside" pixel value. The default value
    * NumericTraits<OutputPixelType>::ZeroValue(). */
@@ -169,59 +183,65 @@ public:
    * is NumericTraits<InputPixelType>::NonpositiveMin(). The default upper
    * threshold is NumericTraits<InputPixelType>::max. An execption is thrown
    * if the lower threshold is greater than the upper threshold. */
-  virtual void SetUpperThreshold(const InputPixelType threshold);
+  virtual void
+  SetUpperThreshold(const InputPixelType threshold);
 
-  virtual void SetUpperThresholdInput(const InputPixelObjectType *);
+  virtual void
+  SetUpperThresholdInput(const InputPixelObjectType *);
 
-  virtual void SetLowerThreshold(const InputPixelType threshold);
+  virtual void
+  SetLowerThreshold(const InputPixelType threshold);
 
-  virtual void SetLowerThresholdInput(const InputPixelObjectType *);
+  virtual void
+  SetLowerThresholdInput(const InputPixelObjectType *);
 
   /** Get the threshold values. */
-  virtual InputPixelType GetUpperThreshold() const;
+  virtual InputPixelType
+  GetUpperThreshold() const;
 
-  virtual InputPixelObjectType * GetUpperThresholdInput();
+  virtual InputPixelObjectType *
+  GetUpperThresholdInput();
 
-  virtual const InputPixelObjectType * GetUpperThresholdInput() const;
+  virtual const InputPixelObjectType *
+  GetUpperThresholdInput() const;
 
-  virtual InputPixelType GetLowerThreshold() const;
+  virtual InputPixelType
+  GetLowerThreshold() const;
 
-  virtual InputPixelObjectType * GetLowerThresholdInput();
+  virtual InputPixelObjectType *
+  GetLowerThresholdInput();
 
-  virtual const InputPixelObjectType * GetLowerThresholdInput() const;
+  virtual const InputPixelObjectType *
+  GetLowerThresholdInput() const;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< OutputPixelType > ) );
-  itkConceptMacro( InputPixelTypeComparable,
-                   ( Concept::Comparable< InputPixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputPixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< OutputPixelType > ) );
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<OutputPixelType>));
+  itkConceptMacro(InputPixelTypeComparable, (Concept::Comparable<InputPixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<InputPixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
   BinaryThresholdImageFilter();
-  virtual ~BinaryThresholdImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryThresholdImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** This method is used to set the state of the filter before
    * multi-threading. */
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryThresholdImageFilter);
-
   OutputPixelType m_InsideValue;
   OutputPixelType m_OutsideValue;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryThresholdImageFilter.hxx"
+#  include "itkBinaryThresholdImageFilter.hxx"
 #endif
 
 #endif

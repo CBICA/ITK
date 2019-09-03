@@ -22,33 +22,32 @@
 #include "itkSubtractImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkComplexToPhaseFilterAndAdaptorTest( int, char* [] )
+int
+itkComplexToPhaseFilterAndAdaptorTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int ImageDimension = 3;
+  constexpr unsigned int ImageDimension = 3;
 
   // Declare the types of the images
-  typedef std::complex< float >              InputPixelType;
-  typedef float                              OutputPixelType;
+  using InputPixelType = std::complex<float>;
+  using OutputPixelType = float;
 
-  typedef itk::Image< InputPixelType, ImageDimension >    InputImageType;
-  typedef itk::Image< OutputPixelType, ImageDimension >   OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, ImageDimension>;
+  using OutputImageType = itk::Image<OutputPixelType, ImageDimension>;
 
   // Declare appropriate Iterator types for each image
-  typedef itk::ImageRegionIteratorWithIndex<
-                                  InputImageType>  InputIteratorType;
-  typedef itk::ImageRegionIteratorWithIndex<
-                                  OutputImageType> OutputIteratorType;
+  using InputIteratorType = itk::ImageRegionIteratorWithIndex<InputImageType>;
+  using OutputIteratorType = itk::ImageRegionIteratorWithIndex<OutputImageType>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<ImageDimension>         IndexType;
+  using IndexType = itk::Index<ImageDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<ImageDimension>          SizeType;
+  using SizeType = itk::Size<ImageDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<ImageDimension>   RegionType;
+  using RegionType = itk::ImageRegion<ImageDimension>;
 
   // Create two images
   InputImageType::Pointer inputImage = InputImageType::New();
@@ -65,38 +64,36 @@ int itkComplexToPhaseFilterAndAdaptorTest( int, char* [] )
   start[2] = 0;
 
   RegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImage->SetLargestPossibleRegion( region );
-  inputImage->SetBufferedRegion( region );
-  inputImage->SetRequestedRegion( region );
+  inputImage->SetLargestPossibleRegion(region);
+  inputImage->SetBufferedRegion(region);
+  inputImage->SetRequestedRegion(region);
   inputImage->Allocate();
   // Create one iterator for the Input Image (this is a light object)
-  InputIteratorType it( inputImage, inputImage->GetBufferedRegion() );
+  InputIteratorType it(inputImage, inputImage->GetBufferedRegion());
 
   // Initialize the content of Image A
-  InputPixelType value( 13, 25 );
+  InputPixelType value(13, 25);
   it.GoToBegin();
-  while( !it.IsAtEnd() )
+  while (!it.IsAtEnd())
   {
-    it.Set( value );
+    it.Set(value);
     ++it;
   }
 
   // Declare the type for the ComplexToPhase filter
-  typedef itk::ComplexToPhaseImageFilter< InputImageType,
-                               OutputImageType  >  FilterType;
+  using FilterType = itk::ComplexToPhaseImageFilter<InputImageType, OutputImageType>;
 
   // Create the filter
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, ComplexToPhaseImageFilter,
-    UnaryFunctorImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, ComplexToPhaseImageFilter, UnaryGeneratorImageFilter);
 
   // Set the input image
-  filter->SetInput( inputImage );
+  filter->SetInput(inputImage);
 
   // Execute the filter
   filter->Update();
@@ -105,31 +102,30 @@ int itkComplexToPhaseFilterAndAdaptorTest( int, char* [] )
   OutputImageType::Pointer outputImage = filter->GetOutput();
 
   // Create an iterator for going through the image output
-  OutputIteratorType ot( outputImage, outputImage->GetRequestedRegion() );
+  OutputIteratorType ot(outputImage, outputImage->GetRequestedRegion());
 
   // Check the content of the result image
   const OutputImageType::PixelType epsilon = 1e-6;
   ot.GoToBegin();
   it.GoToBegin();
-  while( !ot.IsAtEnd() )
-    {
-    const InputImageType::PixelType  input  = it.Get();
+  while (!ot.IsAtEnd())
+  {
+    const InputImageType::PixelType  input = it.Get();
     const OutputImageType::PixelType output = ot.Get();
 
-    double phased = std::atan2( input.imag(), input.real() );
+    double phased = std::atan2(input.imag(), input.real());
 
-    const OutputImageType::PixelType phase =
-       static_cast<OutputImageType::PixelType>( phased );
+    const auto phase = static_cast<OutputImageType::PixelType>(phased);
 
-    if( !itk::Math::FloatAlmostEqual( phase, output, 10, epsilon ) )
-      {
-      std::cerr.precision( static_cast< int >( itk::Math::abs( std::log10( epsilon ) ) ) );
+    if (!itk::Math::FloatAlmostEqual(phase, output, 10, epsilon))
+    {
+      std::cerr.precision(static_cast<int>(itk::Math::abs(std::log10(epsilon))));
       std::cerr << "Error " << std::endl;
       std::cerr << " phase( " << input << ") = " << phase << std::endl;
       std::cerr << " differs from " << output;
       std::cerr << " by more than " << epsilon << std::endl;
       return EXIT_FAILURE;
-      }
+    }
     ++ot;
     ++it;
   }
@@ -138,25 +134,20 @@ int itkComplexToPhaseFilterAndAdaptorTest( int, char* [] )
   // Test the itk::ComplexToPhaseImageAdaptor
   //
 
-  typedef itk::ComplexToPhaseImageAdaptor< InputImageType,
-                          OutputImageType::PixelType > AdaptorType;
+  using AdaptorType = itk::ComplexToPhaseImageAdaptor<InputImageType, OutputImageType::PixelType>;
 
   AdaptorType::Pointer imaginaryAdaptor = AdaptorType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( imaginaryAdaptor, ComplexToPhaseImageAdaptor,
-    ImageAdaptor );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(imaginaryAdaptor, ComplexToPhaseImageAdaptor, ImageAdaptor);
 
-  imaginaryAdaptor->SetImage( inputImage );
+  imaginaryAdaptor->SetImage(inputImage);
 
-  typedef itk::SubtractImageFilter<
-                        OutputImageType,
-                        AdaptorType,
-                        OutputImageType > DiffFilterType;
+  using DiffFilterType = itk::SubtractImageFilter<OutputImageType, AdaptorType, OutputImageType>;
 
   DiffFilterType::Pointer diffFilter = DiffFilterType::New();
 
-  diffFilter->SetInput1( outputImage );
-  diffFilter->SetInput2( imaginaryAdaptor );
+  diffFilter->SetInput1(outputImage);
+  diffFilter->SetInput2(imaginaryAdaptor);
 
   diffFilter->Update();
 
@@ -167,23 +158,23 @@ int itkComplexToPhaseFilterAndAdaptorTest( int, char* [] )
   //
 
   // Create an iterator for going through the image output
-  OutputIteratorType dt( diffImage, diffImage->GetRequestedRegion() );
+  OutputIteratorType dt(diffImage, diffImage->GetRequestedRegion());
 
   dt.GoToBegin();
-  while( !dt.IsAtEnd() )
-    {
+  while (!dt.IsAtEnd())
+  {
     const OutputImageType::PixelType diff = dt.Get();
-    if( std::fabs( diff ) > epsilon )
-      {
-      std::cerr.precision( static_cast< int >( itk::Math::abs( std::log10( epsilon ) ) ) );
+    if (std::fabs(diff) > epsilon)
+    {
+      std::cerr.precision(static_cast<int>(itk::Math::abs(std::log10(epsilon))));
       std::cerr << "Error comparing results with Adaptors" << std::endl;
       std::cerr << " difference = " << diff << std::endl;
       std::cerr << " differs from 0 ";
       std::cerr << " by more than " << epsilon << std::endl;
       return EXIT_FAILURE;
-      }
-    ++dt;
     }
+    ++dt;
+  }
 
   return EXIT_SUCCESS;
 }

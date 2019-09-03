@@ -18,7 +18,7 @@
 #ifndef itkMaskImageFilter_h
 #define itkMaskImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkNumericTraits.h"
 #include "itkVariableLengthVector.h"
 #include "itkMath.h"
@@ -32,82 +32,91 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput, typename TMask, typename TOutput = TInput >
+template <typename TInput, typename TMask, typename TOutput = TInput>
 class MaskInput
 {
 public:
-  typedef typename NumericTraits< TInput >::AccumulateType AccumulatorType;
+  using AccumulatorType = typename NumericTraits<TInput>::AccumulateType;
 
   MaskInput()
   {
-    m_MaskingValue = NumericTraits< TMask >::ZeroValue();
-    InitializeOutsideValue( static_cast<TOutput*>( ITK_NULLPTR ) );
+    m_MaskingValue = NumericTraits<TMask>::ZeroValue();
+    InitializeOutsideValue(static_cast<TOutput *>(nullptr));
   }
-  ~MaskInput() {}
-  bool operator!=(const MaskInput &) const
+  ~MaskInput() = default;
+  bool
+  operator!=(const MaskInput &) const
   {
     return false;
   }
 
-  bool operator==(const MaskInput & other) const
+  bool
+  operator==(const MaskInput & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A, const TMask & B) const
+  inline TOutput
+  operator()(const TInput & A, const TMask & B) const
   {
-    if ( B != m_MaskingValue )
-      {
-      return static_cast< TOutput >( A );
-      }
+    if (B != m_MaskingValue)
+    {
+      return static_cast<TOutput>(A);
+    }
     else
-      {
+    {
       return m_OutsideValue;
-      }
+    }
   }
 
   /** Method to explicitly set the outside value of the mask */
-  void SetOutsideValue(const TOutput & outsideValue)
+  void
+  SetOutsideValue(const TOutput & outsideValue)
   {
     m_OutsideValue = outsideValue;
   }
 
   /** Method to get the outside value of the mask */
-  const TOutput & GetOutsideValue() const
+  const TOutput &
+  GetOutsideValue() const
   {
     return m_OutsideValue;
   }
 
   /** Method to explicitly set the masking value */
-  void SetMaskingValue(const TMask & maskingValue)
+  void
+  SetMaskingValue(const TMask & maskingValue)
   {
     m_MaskingValue = maskingValue;
   }
   /** Method to get the masking value */
-  const TMask & GetMaskingValue() const
+  const TMask &
+  GetMaskingValue() const
   {
     return m_MaskingValue;
   }
 
 private:
-
-  template < typename TPixelType >
-  void InitializeOutsideValue( TPixelType * )
+  template <typename TPixelType>
+  void
+  InitializeOutsideValue(TPixelType *)
   {
-    this->m_OutsideValue = NumericTraits< TPixelType >::ZeroValue();
+    this->m_OutsideValue = NumericTraits<TPixelType>::ZeroValue();
   }
 
-  template < typename TValue >
-  void InitializeOutsideValue( VariableLengthVector<TValue> * )
+  template <typename TValue>
+  void
+  InitializeOutsideValue(VariableLengthVector<TValue> *)
   {
     // set the outside value to be of zero length
-    this->m_OutsideValue = VariableLengthVector< TValue >(0);
+    this->m_OutsideValue = VariableLengthVector<TValue>(0);
   }
 
   TOutput m_OutsideValue;
   TMask   m_MaskingValue;
 };
-}
+} // namespace Functor
+
 /** \class MaskImageFilter
  * \brief Mask an image with a mask.
  *
@@ -119,12 +128,12 @@ private:
  * operator != with zero. This condition is required because internally this
  * filter will perform the operation
  *
- * \code
- *        if pixel_from_mask_image != masking_value
- *             pixel_output_image = pixel_input_image
- *        else
- *             pixel_output_image = outside_value
- * \endcode
+   \code
+          if pixel_from_mask_image != masking_value
+               pixel_output_image = pixel_input_image
+          else
+               pixel_output_image = outside_value
+   \endcode
  *
  * The pixel from the input 1 is cast to the pixel type of the output image.
  *
@@ -137,151 +146,156 @@ private:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/MaskImageFilter,Apply a mask to an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/MaskImage,Mask Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TMaskImage, typename TOutputImage = TInputImage >
-class MaskImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage, TMaskImage, TOutputImage,
-                            Functor::MaskInput<
-                              typename TInputImage::PixelType,
-                              typename TMaskImage::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TMaskImage, typename TOutputImage = TInputImage>
+class MaskImageFilter : public BinaryGeneratorImageFilter<TInputImage, TMaskImage, TOutputImage>
 
 {
 public:
-  /** Standard class typedefs. */
-  typedef MaskImageFilter Self;
-  typedef BinaryFunctorImageFilter< TInputImage, TMaskImage, TOutputImage,
-                                    Functor::MaskInput<
-                                      typename TInputImage::PixelType,
-                                      typename TMaskImage::PixelType,
-                                      typename TOutputImage::PixelType >
-                                    >                                 Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MaskImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MaskImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage, TMaskImage, TOutputImage>;
+
+  using FunctorType = Functor::
+    MaskInput<typename TInputImage::PixelType, typename TMaskImage::PixelType, typename TOutputImage::PixelType>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(MaskImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(MaskImageFilter, BinaryGeneratorImageFilter);
 
   /** Typedefs **/
-  typedef TMaskImage MaskImageType;
+  using MaskImageType = TMaskImage;
 
   /** Set/Get the mask image. Pixels set in the mask image will retain
    *  the original value of the input image while pixels not set in
    *  the mask will be set to the "OutsideValue".
    */
-  void SetMaskImage(const MaskImageType *maskImage)
+  void
+  SetMaskImage(const MaskImageType * maskImage)
   {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast< MaskImageType * >( maskImage ) );
+    this->SetNthInput(1, const_cast<MaskImageType *>(maskImage));
   }
-  const MaskImageType * GetMaskImage()
+  const MaskImageType *
+  GetMaskImage()
   {
-    return static_cast<const MaskImageType*>(this->ProcessObject::GetInput(1));
+    return static_cast<const MaskImageType *>(this->ProcessObject::GetInput(1));
   }
 
   /** Method to explicitly set the outside value of the mask. Defaults to 0 */
-  void SetOutsideValue(const typename TOutputImage::PixelType & outsideValue)
+  void
+  SetOutsideValue(const typename TOutputImage::PixelType & outsideValue)
   {
-    if ( Math::NotExactlyEquals(this->GetOutsideValue(), outsideValue) )
-      {
+    if (Math::NotExactlyEquals(this->GetOutsideValue(), outsideValue))
+    {
       this->Modified();
       this->GetFunctor().SetOutsideValue(outsideValue);
-      }
+    }
   }
 
-  const typename TOutputImage::PixelType & GetOutsideValue() const
+  const typename TOutputImage::PixelType &
+  GetOutsideValue() const
   {
     return this->GetFunctor().GetOutsideValue();
   }
 
   /** Method to explicitly set the masking value of the mask. Defaults to 0 */
-  void SetMaskingValue(const typename TMaskImage::PixelType & maskingValue)
+  void
+  SetMaskingValue(const typename TMaskImage::PixelType & maskingValue)
   {
-    if ( this->GetMaskingValue() != maskingValue )
-      {
+    if (this->GetMaskingValue() != maskingValue)
+    {
       this->Modified();
       this->GetFunctor().SetMaskingValue(maskingValue);
-      }
+    }
   }
 
   /** Method to get the masking value of the mask. */
-  const typename TMaskImage::PixelType & GetMaskingValue() const
+  const typename TMaskImage::PixelType &
+  GetMaskingValue() const
   {
     return this->GetFunctor().GetMaskingValue();
   }
 
-  void BeforeThreadedGenerateData() ITK_OVERRIDE
-  {
-    typedef typename TOutputImage::PixelType PixelType;
-    this->CheckOutsideValue( static_cast<PixelType*>(ITK_NULLPTR) );
-  }
-
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( MaskEqualityComparableCheck,
-                   ( Concept::EqualityComparable< typename TMaskImage::PixelType > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< typename TInputImage::PixelType,
-                                           typename TOutputImage::PixelType > ) );
+  itkConceptMacro(MaskEqualityComparableCheck, (Concept::EqualityComparable<typename TMaskImage::PixelType>));
+  itkConceptMacro(InputConvertibleToOutputCheck,
+                  (Concept::Convertible<typename TInputImage::PixelType, typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  MaskImageFilter() {}
-  virtual ~MaskImageFilter() ITK_OVERRIDE {}
+  MaskImageFilter() = default;
+  ~MaskImageFilter() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     Superclass::PrintSelf(os, indent);
-    os << indent << "OutsideValue: "  << this->GetOutsideValue() << std::endl;
+    os << indent << "OutsideValue: " << this->GetOutsideValue() << std::endl;
+  }
+
+  void
+  BeforeThreadedGenerateData() override
+  {
+    using PixelType = typename TOutputImage::PixelType;
+    this->CheckOutsideValue(static_cast<PixelType *>(nullptr));
+
+    this->SetFunctor(this->GetFunctor());
   }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MaskImageFilter);
+  itkGetConstReferenceMacro(Functor, FunctorType);
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
 
-  template < typename TPixelType >
-  void CheckOutsideValue( const TPixelType * ) {}
+  FunctorType m_Functor;
 
-  template < typename TValue >
-  void CheckOutsideValue( const VariableLengthVector< TValue > * )
+  template <typename TPixelType>
+  void
+  CheckOutsideValue(const TPixelType *)
+  {}
+
+  template <typename TValue>
+  void
+  CheckOutsideValue(const VariableLengthVector<TValue> *)
   {
     // Check to see if the outside value contains only zeros. If so,
     // resize it to have the same number of zeros as the output
     // image. Otherwise, check that the number of components in the
     // outside value is the same as the number of components in the
     // output image. If not, throw an exception.
-    VariableLengthVector< TValue > currentValue =
-      this->GetFunctor().GetOutsideValue();
-    VariableLengthVector< TValue > zeroVector( currentValue.GetSize() );
-    zeroVector.Fill( NumericTraits< TValue >::ZeroValue() );
+    VariableLengthVector<TValue> currentValue = this->GetFunctor().GetOutsideValue();
+    VariableLengthVector<TValue> zeroVector(currentValue.GetSize());
+    zeroVector.Fill(NumericTraits<TValue>::ZeroValue());
 
-    if ( currentValue == zeroVector )
-      {
-      zeroVector.SetSize( this->GetOutput()->GetVectorLength() );
-      zeroVector.Fill( NumericTraits< TValue >::ZeroValue() );
-      this->GetFunctor().SetOutsideValue( zeroVector );
-      }
-    else if ( this->GetFunctor().GetOutsideValue().GetSize() !=
-              this->GetOutput()->GetVectorLength() )
-      {
-      itkExceptionMacro(
-        << "Number of components in OutsideValue: "
-        <<  this->GetFunctor().GetOutsideValue().GetSize()
-        << " is not the same as the "
-        << "number of components in the image: "
-        << this->GetOutput()->GetVectorLength());
-      }
+    if (currentValue == zeroVector)
+    {
+      zeroVector.SetSize(this->GetOutput()->GetVectorLength());
+      zeroVector.Fill(NumericTraits<TValue>::ZeroValue());
+      this->GetFunctor().SetOutsideValue(zeroVector);
+    }
+    else if (this->GetFunctor().GetOutsideValue().GetSize() != this->GetOutput()->GetVectorLength())
+    {
+      itkExceptionMacro(<< "Number of components in OutsideValue: " << this->GetFunctor().GetOutsideValue().GetSize()
+                        << " is not the same as the "
+                        << "number of components in the image: " << this->GetOutput()->GetVectorLength());
+    }
   }
-
 };
 } // end namespace itk
 

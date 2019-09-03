@@ -21,71 +21,73 @@
 
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
+#include "itkTestingMacros.h"
 
-int itkBinaryMorphologicalOpeningImageFilterTest(int argc, char * argv[])
+int
+itkBinaryMorphologicalOpeningImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 6 )
-    {
+  if (argc < 6)
+  {
     std::cerr << "Missing Parameters " << std::endl;
-    std::cerr << "Usage: " << argv[0];
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv);
     std::cerr << " InputImage OutputImage Radius Background Foreground" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const int dim = 2;
+  constexpr int dim = 2;
 
   // Verify that the input and output pixel types can be different
-  typedef unsigned short                      InputPixelType;
-  typedef itk::Image< InputPixelType, dim >   InputImageType;
+  using InputPixelType = unsigned short;
+  using InputImageType = itk::Image<InputPixelType, dim>;
 
-  typedef unsigned char                       OutputPixelType;
-  typedef itk::Image< OutputPixelType, dim >  OutputImageType;
+  using OutputPixelType = unsigned char;
+  using OutputImageType = itk::Image<OutputPixelType, dim>;
 
-  typedef itk::ImageFileReader< InputImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::BinaryBallStructuringElement< InputPixelType, dim > KernelType;
-  KernelType ball;
+  using KernelType = itk::BinaryBallStructuringElement<InputPixelType, dim>;
+  KernelType           ball;
   KernelType::SizeType ballSize;
-  ballSize.Fill( atoi( argv[3] ) );
-  ball.SetRadius( ballSize );
+  ballSize.Fill(std::stoi(argv[3]));
+  ball.SetRadius(ballSize);
   ball.CreateStructuringElement();
 
-  typedef itk::BinaryMorphologicalOpeningImageFilter< InputImageType, OutputImageType, KernelType > FilterType;
+  using FilterType = itk::BinaryMorphologicalOpeningImageFilter<InputImageType, OutputImageType, KernelType>;
   FilterType::Pointer filter = FilterType::New();
-  filter->SetInput( reader->GetOutput() );
-  filter->SetKernel( ball );
-  if( filter->GetBackgroundValue() != 0 )
-    {
+  filter->SetInput(reader->GetOutput());
+  filter->SetKernel(ball);
+  if (filter->GetBackgroundValue() != 0)
+  {
     std::cerr << "Wrong Background default value" << std::endl;
     return EXIT_FAILURE;
-    }
-  filter->SetBackgroundValue( atoi( argv[4] ) );
+  }
+  filter->SetBackgroundValue(std::stoi(argv[4]));
 
-  if( filter->GetForegroundValue() != itk::NumericTraits<InputPixelType>::max() )
-    {
+  if (filter->GetForegroundValue() != itk::NumericTraits<InputPixelType>::max())
+  {
     std::cerr << "Wrong Foreground default value" << std::endl;
     return EXIT_FAILURE;
-    }
-  filter->SetForegroundValue( atoi( argv[5] ) );
+  }
+  filter->SetForegroundValue(std::stoi(argv[5]));
 
   itk::SimpleFilterWatcher watcher(filter, "filter");
 
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(argv[2]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

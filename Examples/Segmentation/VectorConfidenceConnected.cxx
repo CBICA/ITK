@@ -58,17 +58,17 @@
 #include "itkRGBPixel.h"
 
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 7 )
-    {
+  if (argc < 7)
+  {
     std::cerr << "Missing Parameters " << std::endl;
-    std::cerr << "Usage: " << argv[0]
-              << " inputImage  outputImage"
+    std::cerr << "Usage: " << argv[0] << " inputImage  outputImage"
               << " seedX seedY"
               << " multiplier iterations" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //  Software Guide : BeginLatex
@@ -80,27 +80,27 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned char                           PixelComponentType;
-  typedef itk::RGBPixel< PixelComponentType >     InputPixelType;
-  typedef itk::Image< InputPixelType, Dimension > InputImageType;
+  using PixelComponentType = unsigned char;
+  using InputPixelType = itk::RGBPixel<PixelComponentType>;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
   // Software Guide : EndCodeSnippet
 
-  typedef unsigned char                            OutputPixelType;
-  typedef itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using OutputPixelType = unsigned char;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
 
   // We instantiate reader and writer types
   //
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
-  typedef itk::ImageFileWriter< OutputImageType > WriterType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
   WriterType::Pointer writer = WriterType::New();
 
-  reader->SetFileName( argv[1] );
-  writer->SetFileName( argv[2] );
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
 
 
   //  Software Guide : BeginLatex
@@ -111,8 +111,8 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::VectorConfidenceConnectedImageFilter< InputImageType,
-                                   OutputImageType > ConnectedFilterType;
+  using ConnectedFilterType =
+    itk::VectorConfidenceConnectedImageFilter<InputImageType, OutputImageType>;
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -123,8 +123,7 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  ConnectedFilterType::Pointer confidenceConnected
-                                                 = ConnectedFilterType::New();
+  ConnectedFilterType::Pointer confidenceConnected = ConnectedFilterType::New();
   // Software Guide : EndCodeSnippet
 
 
@@ -135,8 +134,8 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  confidenceConnected->SetInput( reader->GetOutput() );
-  writer->SetInput( confidenceConnected->GetOutput() );
+  confidenceConnected->SetInput(reader->GetOutput());
+  writer->SetInput(confidenceConnected->GetOutput());
   // Software Guide : EndCodeSnippet
 
 
@@ -156,10 +155,10 @@ int main( int argc, char *argv[] )
   //
   //  Software Guide : EndLatex
 
-  const double multiplier = atof( argv[5] );
+  const double multiplier = std::stod(argv[5]);
 
   // Software Guide : BeginCodeSnippet
-  confidenceConnected->SetMultiplier( multiplier );
+  confidenceConnected->SetMultiplier(multiplier);
   // Software Guide : EndCodeSnippet
 
 
@@ -180,10 +179,10 @@ int main( int argc, char *argv[] )
   //
   //  Software Guide : EndLatex
 
-  const unsigned int iterations = atoi( argv[6] );
+  const unsigned int iterations = std::stoi(argv[6]);
 
   // Software Guide : BeginCodeSnippet
-  confidenceConnected->SetNumberOfIterations( iterations );
+  confidenceConnected->SetNumberOfIterations(iterations);
   // Software Guide : EndCodeSnippet
 
 
@@ -199,7 +198,7 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  confidenceConnected->SetReplaceValue( 255 );
+  confidenceConnected->SetReplaceValue(255);
   // Software Guide : EndCodeSnippet
 
 
@@ -217,14 +216,14 @@ int main( int argc, char *argv[] )
   //
   //  Software Guide : EndLatex
 
-  InputImageType::IndexType  index;
+  InputImageType::IndexType index;
 
-  index[0] = atoi( argv[3] );
-  index[1] = atoi( argv[4] );
+  index[0] = std::stoi(argv[3]);
+  index[1] = std::stoi(argv[4]);
 
 
   // Software Guide : BeginCodeSnippet
-  confidenceConnected->SetSeed( index );
+  confidenceConnected->SetSeed(index);
   // Software Guide : EndCodeSnippet
 
 
@@ -238,7 +237,7 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  confidenceConnected->SetInitialNeighborhoodRadius( 3 );
+  confidenceConnected->SetInitialNeighborhoodRadius(3);
   // Software Guide : EndCodeSnippet
 
 
@@ -252,14 +251,14 @@ int main( int argc, char *argv[] )
 
   // Software Guide : BeginCodeSnippet
   try
-    {
+  {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
+  }
+  catch (itk::ExceptionObject & excep)
+  {
     std::cerr << "Exception caught !" << std::endl;
     std::cerr << excep << std::endl;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -274,11 +273,11 @@ int main( int argc, char *argv[] )
   //  \begin{tabular}{|l|c|c|c|c|}
   //  \hline
   //  Structure & Seed Index & Multiplier & Iterations & Output Image \\ \hline
-  //  Rectum & $(70,120)$ & 7 & 1 & Second from left in Figure \ref{fig:VectorConfidenceConnectedOutput} \\ \hline
-  //  Rectum & $(23, 93)$ & 7 & 1 & Third  from left in Figure \ref{fig:VectorConfidenceConnectedOutput} \\ \hline
-  //  Vitreo & $(66, 66)$ & 3 & 1 & Fourth from left in Figure \ref{fig:VectorConfidenceConnectedOutput} \\ \hline
-  //  \end{tabular}
-  //  \end{center}
+  //  Rectum & $(70,120)$ & 7 & 1 & Second from left in Figure
+  //  \ref{fig:VectorConfidenceConnectedOutput} \\ \hline Rectum & $(23, 93)$ & 7 & 1 &
+  //  Third  from left in Figure \ref{fig:VectorConfidenceConnectedOutput} \\ \hline
+  //  Vitreo & $(66, 66)$ & 3 & 1 & Fourth from left in Figure
+  //  \ref{fig:VectorConfidenceConnectedOutput} \\ \hline \end{tabular} \end{center}
   //
   // \begin{figure} \center
   // \includegraphics[width=0.24\textwidth]{VisibleWomanEyeSlice}
@@ -306,14 +305,13 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef ConnectedFilterType::MeanVectorType       MeanVectorType;
-  typedef ConnectedFilterType::CovarianceMatrixType CovarianceMatrixType;
+  using MeanVectorType = ConnectedFilterType::MeanVectorType;
+  using CovarianceMatrixType = ConnectedFilterType::CovarianceMatrixType;
 
-  const MeanVectorType & mean = confidenceConnected->GetMean();
-  const CovarianceMatrixType & covariance
-                                       = confidenceConnected->GetCovariance();
+  const MeanVectorType &       mean = confidenceConnected->GetMean();
+  const CovarianceMatrixType & covariance = confidenceConnected->GetCovariance();
 
-  std::cout << "Mean vector = "       << mean       << std::endl;
+  std::cout << "Mean vector = " << mean << std::endl;
   std::cout << "Covariance matrix = " << covariance << std::endl;
   // Software Guide : EndCodeSnippet
 

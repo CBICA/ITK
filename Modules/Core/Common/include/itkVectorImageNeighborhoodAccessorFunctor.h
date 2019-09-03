@@ -35,44 +35,47 @@ namespace itk
  * This work is part of the National Alliance for Medical Image Computing
  * (NAMIC), funded by the National Institutes of Health through the NIH Roadmap
  * for Medical Research, Grant U54 EB005149.
-  * \ingroup ITKCommon
+ * \ingroup ITKCommon
  */
-template< typename TImage >
+template <typename TImage>
 class VectorImageNeighborhoodAccessorFunctor
 {
 public:
-  typedef TImage                                ImageType;
-  typedef typename ImageType::PixelType         PixelType;
-  typedef typename ImageType::InternalPixelType InternalPixelType;
-  typedef unsigned int                          VectorLengthType;
-  typedef typename ImageType::OffsetType        OffsetType;
+  using ImageType = TImage;
+  using PixelType = typename ImageType::PixelType;
+  using InternalPixelType = typename ImageType::InternalPixelType;
+  using VectorLengthType = unsigned int;
+  using OffsetType = typename ImageType::OffsetType;
 
-  typedef Neighborhood< InternalPixelType *,
-                         TImage ::ImageDimension > NeighborhoodType;
+  using NeighborhoodType = Neighborhood<InternalPixelType *, TImage ::ImageDimension>;
 
-  typedef ImageBoundaryCondition< ImageType > const
-  *ImageBoundaryConditionConstPointerType;
+  template <typename TOutput = ImageType>
+  using ImageBoundaryConditionType = ImageBoundaryCondition<ImageType, TOutput>;
 
-  VectorImageNeighborhoodAccessorFunctor(VectorLengthType length):
-    m_VectorLength(length), m_OffsetMultiplier(length - 1), m_Begin(ITK_NULLPTR) {}
-  VectorImageNeighborhoodAccessorFunctor():
-    m_VectorLength(0), m_OffsetMultiplier(0), m_Begin(ITK_NULLPTR) {}
+  VectorImageNeighborhoodAccessorFunctor(VectorLengthType length)
+    : m_VectorLength(length)
+    , m_OffsetMultiplier(length - 1)
+  {}
+  VectorImageNeighborhoodAccessorFunctor() = default;
 
   /** Set the pointer index to the start of the buffer.
    * This must be set by the iterators to the starting location of the buffer.
    * Typically a neighborhood iterator iterating on a neighborhood of an Image,
    * say \c image will set this in its constructor. For instance:
    *
-   * \code
-   * ConstNeighborhoodIterator( radius, image, )
-   *   {
-   *   ...
-   *   m_NeighborhoodAccessorFunctor.SetBegin( image->GetBufferPointer() );
-   *   }
-   * \endcode
+     \code
+     ConstNeighborhoodIterator( radius, image, )
+       {
+       ...
+       m_NeighborhoodAccessorFunctor.SetBegin( image->GetBufferPointer() );
+       }
+     \endcode
    */
-  inline void SetBegin(const InternalPixelType *begin)
-  { this->m_Begin = const_cast< InternalPixelType * >( begin ); }
+  inline void
+  SetBegin(const InternalPixelType * begin)
+  {
+    this->m_Begin = const_cast<InternalPixelType *>(begin);
+  }
 
   /** Method to dereference a pixel pointer. This is used from the
    * ConstNeighborhoodIterator as the equivalent operation to (*it).
@@ -81,35 +84,39 @@ public:
    * VectorImage pixel involves a different operation that simply
    * dereferencing the pointer. Here a PixelType (array of InternalPixelType s)
    * is created on the stack and returned.  */
-  inline PixelType Get(const InternalPixelType *pixelPointer) const
+  inline PixelType
+  Get(const InternalPixelType * pixelPointer) const
   {
-    return PixelType(pixelPointer + ( pixelPointer - m_Begin ) * m_OffsetMultiplier, m_VectorLength);
+    return PixelType(pixelPointer + (pixelPointer - m_Begin) * m_OffsetMultiplier, m_VectorLength);
   }
 
   /** Method to set the pixel value at a certain pixel pointer */
-  inline void Set(InternalPixelType * & pixelPointer, const PixelType & p) const
+  inline void
+  Set(InternalPixelType * const pixelPointer, const PixelType & p) const
   {
-    InternalPixelType *truePixelPointer =
-      pixelPointer + ( pixelPointer - m_Begin ) * m_OffsetMultiplier;
+    InternalPixelType * const truePixelPointer = pixelPointer + (pixelPointer - m_Begin) * m_OffsetMultiplier;
 
-    for ( VectorLengthType i = 0; i < m_VectorLength; i++ )
-      {
+    for (VectorLengthType i = 0; i < m_VectorLength; i++)
+    {
       truePixelPointer[i] = p[i];
-      }
+    }
   }
 
-  inline PixelType BoundaryCondition(
-    const OffsetType & point_index,
-    const OffsetType & boundary_offset,
-    const NeighborhoodType *data,
-    const ImageBoundaryConditionConstPointerType boundaryCondition) const
+
+  template <typename TOutput>
+  inline typename ImageBoundaryConditionType<TOutput>::OutputPixelType
+  BoundaryCondition(const OffsetType &                          point_index,
+                    const OffsetType &                          boundary_offset,
+                    const NeighborhoodType *                    data,
+                    const ImageBoundaryConditionType<TOutput> * boundaryCondition) const
   {
     return boundaryCondition->operator()(point_index, boundary_offset, data, *this);
   }
 
   /** Methods to Set/Get vector length. This should be the length of a block of
    * pixels in the VectorImage. */
-  void SetVectorLength(VectorLengthType length)
+  void
+  SetVectorLength(VectorLengthType length)
   {
     m_VectorLength = length;
     m_OffsetMultiplier = length - 1;
@@ -117,16 +124,17 @@ public:
 
   /** Methods to Set/Get vector length. This should be the length of a block of
    * pixels in the VectorImage. */
-  VectorLengthType GetVectorLength()
+  VectorLengthType
+  GetVectorLength()
   {
     return m_VectorLength;
   }
 
 private:
-  VectorLengthType m_VectorLength;
-  VectorLengthType m_OffsetMultiplier; // m_OffsetMultiplier = m_VectorLength-1
-                                       // (precomputed for speedup).
-  InternalPixelType *m_Begin;          // Begin of the buffer.
+  VectorLengthType m_VectorLength{ 0 };
+  VectorLengthType m_OffsetMultiplier{ 0 }; // m_OffsetMultiplier = m_VectorLength-1
+                                            // (precomputed for speedup).
+  InternalPixelType * m_Begin{ nullptr };   // Begin of the buffer.
 };
 } // end namespace itk
 #endif

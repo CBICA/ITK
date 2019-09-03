@@ -40,20 +40,22 @@ namespace itk
  * \ingroup GeometricTransform
  * \ingroup ITKImageGrid
  *
- * \wiki
- * \wikiexample{ImageProcessing/PasteImageFilter,Paste a part of one image into another image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageGrid/PasteImageIntoAnotherOne,Paste Image Into Another One}
+ * \sphinxexample{Filtering/ImageGrid/RunImageFilterOnRegionOfImage,Run Image Filter On Region Of Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TSourceImage = TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT PasteImageFilter:
-  public InPlaceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TSourceImage = TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT PasteImageFilter : public InPlaceImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef PasteImageFilter                                Self;
-  typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PasteImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = PasteImageFilter;
+  using Superclass = InPlaceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,40 +64,37 @@ public:
   itkTypeMacro(PasteImageFilter, InPlaceImageFilter);
 
   /** Typedefs from Superclass */
-  typedef typename Superclass::InputImagePointer  InputImagePointer;
-  typedef typename Superclass::OutputImagePointer OutputImagePointer;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
 
   /** Typedef to describe the output and input image region types. */
-  typedef TInputImage                          InputImageType;
-  typedef TOutputImage                         OutputImageType;
-  typedef TSourceImage                         SourceImageType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef typename SourceImageType::RegionType SourceImageRegionType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using SourceImageType = TSourceImage;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using SourceImageRegionType = typename SourceImageType::RegionType;
 
-  typedef typename SourceImageType::Pointer      SourceImagePointer;
-  typedef typename SourceImageType::ConstPointer SourceImageConstPointer;
+  using SourceImagePointer = typename SourceImageType::Pointer;
+  using SourceImageConstPointer = typename SourceImageType::ConstPointer;
 
   /** Typedef to describe the type of pixel. */
-  typedef typename OutputImageType::PixelType OutputImagePixelType;
-  typedef typename InputImageType::PixelType  InputImagePixelType;
-  typedef typename SourceImageType::PixelType SourceImagePixelType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using SourceImagePixelType = typename SourceImageType::PixelType;
 
   /** Typedef to describe the output and input image index and size types. */
-  typedef typename OutputImageType::IndexType OutputImageIndexType;
-  typedef typename OutputImageType::SizeType  OutputImageSizeType;
-  typedef typename InputImageType::IndexType  InputImageIndexType;
-  typedef typename InputImageType::SizeType   InputImageSizeType;
-  typedef typename SourceImageType::IndexType SourceImageIndexType;
-  typedef typename SourceImageType::SizeType  SourceImageSizeType;
+  using OutputImageIndexType = typename OutputImageType::IndexType;
+  using OutputImageSizeType = typename OutputImageType::SizeType;
+  using InputImageIndexType = typename InputImageType::IndexType;
+  using InputImageSizeType = typename InputImageType::SizeType;
+  using SourceImageIndexType = typename SourceImageType::IndexType;
+  using SourceImageSizeType = typename SourceImageType::SizeType;
 
   /** ImageDimension enumeration */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      OutputImageType::ImageDimension);
-  itkStaticConstMacro(SourceImageDimension, unsigned int,
-                      SourceImageType::ImageDimension);
+  static constexpr unsigned int InputImageDimension = InputImageType::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = OutputImageType::ImageDimension;
+  static constexpr unsigned int SourceImageDimension = SourceImageType::ImageDimension;
 
   /** Set/Get the destination index (where in the first input the second
    * input will be pasted. */
@@ -109,15 +108,13 @@ public:
 
   /** Set/Get the "destination" image.  This is the image that will be
    * obscured by the paste operation. */
-  void SetDestinationImage(const InputImageType *dest);
-
-  const InputImageType * GetDestinationImage() const;
+  itkSetInputMacro(DestinationImage, InputImageType);
+  itkGetInputMacro(DestinationImage, InputImageType);
 
   /** Set/Get the "source" image.  This is the image that will be
    * pasted over the destination image. */
-  void SetSourceImage(const SourceImageType *src);
-
-  const SourceImageType * GetSourceImage() const;
+  itkSetInputMacro(SourceImage, SourceImageType);
+  itkGetInputMacro(SourceImage, SourceImageType);
 
   /** PasteImageFilter needs to set the input requested regions for its
    * inputs.  The first input's requested region will be set to match
@@ -128,44 +125,46 @@ public:
    * then the first input is copied to the output.
    *
    * \sa ProcessObject::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 
-  /** Override VeriyInputInformation() since this filter's inputs do
+  /** Override VerifyInputInformation() since this filter's inputs do
    * not need to occoupy the same physical space.
    *
    * \sa ProcessObject::VerifyInputInformation
    */
-  virtual void VerifyInputInformation() ITK_OVERRIDE {}
+  void
+  VerifyInputInformation() ITKv5_CONST override
+  {}
 
 protected:
   PasteImageFilter();
-  ~PasteImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~PasteImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** PasteImageFilter can be implemented as a multithreaded filter.
-   * Therefore, this implementation provides a ThreadedGenerateData()
+   * Therefore, this implementation provides a DynamicThreadedGenerateData()
    * routine which is called for each processing thread. The output
    * image data is allocated automatically by the superclass prior to
-   * calling ThreadedGenerateData(). ThreadedGenerateData can only
+   * calling DynamicThreadedGenerateData(). DynamicThreadedGenerateData can only
    * write to the portion of the output image specified by the
    * parameter "outputRegionForThread"
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()  */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
   SourceImageRegionType m_SourceRegion;
 
   InputImageIndexType m_DestinationIndex;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PasteImageFilter);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPasteImageFilter.hxx"
+#  include "itkPasteImageFilter.hxx"
 #endif
 
 #endif

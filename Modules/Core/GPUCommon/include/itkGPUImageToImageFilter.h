@@ -35,75 +35,83 @@ namespace itk
  *
  * \ingroup ITKGPUCommon
  */
-template< typename TInputImage, typename TOutputImage, typename TParentImageFilter =
-            ImageToImageFilter< TInputImage, TOutputImage > >
+template <typename TInputImage,
+          typename TOutputImage,
+          typename TParentImageFilter = ImageToImageFilter<TInputImage, TOutputImage>>
 class ITK_TEMPLATE_EXPORT GPUImageToImageFilter : public TParentImageFilter
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUImageToImageFilter      Self;
-  typedef TParentImageFilter         Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUImageToImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GPUImageToImageFilter;
+  using Superclass = TParentImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(GPUImageToImageFilter, TParentImageFilter);
 
-  /** Superclass typedefs. */
-  typedef typename Superclass::DataObjectIdentifierType DataObjectIdentifierType;
-  typedef typename Superclass::OutputImageRegionType    OutputImageRegionType;
-  typedef typename Superclass::OutputImagePixelType     OutputImagePixelType;
+  /** Superclass type alias. */
+  using DataObjectIdentifierType = typename Superclass::DataObjectIdentifierType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int, TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   // macro to set if GPU is used
   itkSetMacro(GPUEnabled, bool);
   itkGetConstMacro(GPUEnabled, bool);
   itkBooleanMacro(GPUEnabled);
 
-  void GenerateData() ITK_OVERRIDE;
-  virtual void GraftOutput(typename itk::GPUTraits< TOutputImage >::Type *output);
-  virtual void GraftOutput(const DataObjectIdentifierType & key, typename itk::GPUTraits< TOutputImage >::Type *output);
+  void
+  GenerateData() override;
+  virtual void
+  GraftOutput(typename itk::GPUTraits<TOutputImage>::Type * output);
+  virtual void
+  GraftOutput(const DataObjectIdentifierType & key, typename itk::GPUTraits<TOutputImage>::Type * output);
 
 protected:
-  virtual void GraftOutput(DataObject *output) ITK_OVERRIDE;
-  virtual void GraftOutput(const DataObjectIdentifierType & key, DataObject *output) ITK_OVERRIDE;
+  void
+  GraftOutput(DataObject * output) override;
+  void
+  GraftOutput(const DataObjectIdentifierType & key, DataObject * output) override;
   GPUImageToImageFilter();
-  ~GPUImageToImageFilter() ITK_OVERRIDE;
+  ~GPUImageToImageFilter() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void GPUGenerateData() {
-  }
+  virtual void
+  GPUGenerateData()
+  {}
 
   // GPU kernel manager
   typename GPUKernelManager::Pointer m_GPUKernelManager;
 
   // GPU kernel handle - kernel should be defined in specific filter (not in the
   // base class)
-  //int m_KernelHandle;
+  // int m_KernelHandle;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUImageToImageFilter);
-
   bool m_GPUEnabled;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUImageToImageFilter.hxx"
+#  include "itkGPUImageToImageFilter.hxx"
 #endif
 
 #endif

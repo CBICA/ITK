@@ -60,7 +60,7 @@ namespace itk
 
  * The speed function can be specified as a speed image or a
  * speed constant. The speed image is set using the method
- * SetInput(). If the speed image is ITK_NULLPTR, a constant speed function
+ * SetInput(). If the speed image is nullptr, a constant speed function
  * is used and is specified using method the SetSpeedConstant().
  *
  * If the speed function is constant and of value one, fast marching results
@@ -78,10 +78,10 @@ namespace itk
  * are used if the user does not specify all the information.
  *
  * The output information is computed as follows.
- * If the speed image is ITK_NULLPTR or if the OverrideOutputInformation is set to
+ * If the speed image is nullptr or if the OverrideOutputInformation is set to
  * true, the output information is set from user specified parameters. These
  * parameters can be specified using methods SetOutputRegion(), SetOutputSpacing(), SetOutputDirection(),
- * and SetOutputOrigin(). Else if the speed image is not ITK_NULLPTR, the output information
+ * and SetOutputOrigin(). Else if the speed image is not nullptr, the output information
  * is copied from the input speed image.
  *
  * For an alternative implementation, see itk::FastMarchingImageFilter.
@@ -103,18 +103,17 @@ namespace itk
  * \ingroup LevelSetSegmentation
  * \ingroup ITKFastMarching
  */
-template<
-  typename TLevelSet,
-  typename TSpeedImage = Image< float,  TLevelSet ::ImageDimension > >
-class ITK_TEMPLATE_EXPORT FastMarchingImageFilter:
-  public ImageToImageFilter< TSpeedImage, TLevelSet >
+template <typename TLevelSet, typename TSpeedImage = Image<float, TLevelSet ::ImageDimension>>
+class ITK_TEMPLATE_EXPORT FastMarchingImageFilter : public ImageToImageFilter<TSpeedImage, TLevelSet>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingImageFilter);
+
   /** Standard class typdedefs. */
-  typedef FastMarchingImageFilter    Self;
-  typedef ImageSource< TLevelSet >   Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = FastMarchingImageFilter;
+  using Superclass = ImageToImageFilter<TSpeedImage, TLevelSet>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -123,96 +122,112 @@ public:
   itkTypeMacro(FastMarchingImageFilter, ImageToImageFilter);
 
   /** Typedef support of level set method types. */
-  typedef LevelSetTypeDefault< TLevelSet >            LevelSetType;
-  typedef typename LevelSetType::LevelSetImageType    LevelSetImageType;
-  typedef typename LevelSetType::LevelSetPointer      LevelSetPointer;
-  typedef typename LevelSetType::PixelType            PixelType;
-  typedef typename LevelSetType::NodeType             NodeType;
-  typedef typename NodeType::IndexType                NodeIndexType;
-  typedef typename LevelSetType::NodeContainer        NodeContainer;
-  typedef typename LevelSetType::NodeContainerPointer NodeContainerPointer;
-  typedef typename LevelSetImageType::SizeType        OutputSizeType;
-  typedef typename LevelSetImageType::RegionType      OutputRegionType;
-  typedef typename LevelSetImageType::SpacingType     OutputSpacingType;
-  typedef typename LevelSetImageType::DirectionType   OutputDirectionType;
-  typedef typename LevelSetImageType::PointType       OutputPointType;
+  using LevelSetType = LevelSetTypeDefault<TLevelSet>;
+  using LevelSetImageType = typename LevelSetType::LevelSetImageType;
+  using LevelSetPointer = typename LevelSetType::LevelSetPointer;
+  using PixelType = typename LevelSetType::PixelType;
+  using NodeType = typename LevelSetType::NodeType;
+  using NodeIndexType = typename NodeType::IndexType;
+  using NodeContainer = typename LevelSetType::NodeContainer;
+  using NodeContainerPointer = typename LevelSetType::NodeContainerPointer;
+  using OutputSizeType = typename LevelSetImageType::SizeType;
+  using OutputRegionType = typename LevelSetImageType::RegionType;
+  using OutputSpacingType = typename LevelSetImageType::SpacingType;
+  using OutputDirectionType = typename LevelSetImageType::DirectionType;
+  using OutputPointType = typename LevelSetImageType::PointType;
 
-  class AxisNodeType:public NodeType
+  class AxisNodeType : public NodeType
   {
-public:
-    AxisNodeType() : m_Axis(0) {}
-    int GetAxis() const { return m_Axis; }
-    void SetAxis(int axis) { m_Axis = axis; }
-    const AxisNodeType & operator=(const NodeType & node)
-    { this->NodeType::operator=(node); return *this; }
+  public:
+    AxisNodeType() {}
+    int
+    GetAxis() const
+    {
+      return m_Axis;
+    }
+    void
+    SetAxis(int axis)
+    {
+      m_Axis = axis;
+    }
+    const AxisNodeType &
+    operator=(const NodeType & node)
+    {
+      this->NodeType::operator=(node);
+      return *this;
+    }
 
-private:
-    int m_Axis;
+  private:
+    int m_Axis{ 0 };
   };
 
-  /** SpeedImage typedef support. */
-  typedef TSpeedImage SpeedImageType;
+  /** SpeedImage type alias support */
+  using SpeedImageType = TSpeedImage;
 
-  /** SpeedImagePointer typedef support. */
-  typedef typename SpeedImageType::Pointer      SpeedImagePointer;
-  typedef typename SpeedImageType::ConstPointer SpeedImageConstPointer;
+  /** SpeedImagePointer type alias support */
+  using SpeedImagePointer = typename SpeedImageType::Pointer;
+  using SpeedImageConstPointer = typename SpeedImageType::ConstPointer;
 
   /** Dimension of the level set and the speed image. */
-  itkStaticConstMacro(SetDimension, unsigned int,
-                      LevelSetType::SetDimension);
-  itkStaticConstMacro(SpeedImageDimension, unsigned int,
-                      SpeedImageType::ImageDimension);
+  static constexpr unsigned int SetDimension = LevelSetType::SetDimension;
+  static constexpr unsigned int SpeedImageDimension = SpeedImageType::ImageDimension;
 
-  /** Index typedef support. */
-  typedef Index< itkGetStaticConstMacro(SetDimension) > IndexType;
+  /** Index type alias support */
+  using IndexType = Index<Self::SetDimension>;
 
   /** Enum of Fast Marching algorithm point types. FarPoints represent far
    * away points; TrialPoints represent points within a narrowband of the
    * propagating front; and AlivePoints represent points which have already
    * been processed. */
-  enum LabelType { FarPoint = 0, AlivePoint,
-                   TrialPoint, InitialTrialPoint, OutsidePoint };
+  enum LabelType
+  {
+    FarPoint = 0,
+    AlivePoint,
+    TrialPoint,
+    InitialTrialPoint,
+    OutsidePoint
+  };
 
-  /** LabelImage typedef support. */
-  typedef Image< unsigned char, itkGetStaticConstMacro(SetDimension) > LabelImageType;
+  /** LabelImage type alias support */
+  using LabelImageType = Image<unsigned char, Self::SetDimension>;
 
-  /** LabelImagePointer typedef support. */
-  typedef typename LabelImageType::Pointer LabelImagePointer;
+  /** LabelImagePointer type alias support */
+  using LabelImagePointer = typename LabelImageType::Pointer;
 
-  template< typename TPixel >
-  void SetBinaryMask( Image< TPixel, SetDimension >* iImage )
-    {
-    typedef Image< TPixel, SetDimension > InternalImageType;
-    typedef ImageRegionConstIteratorWithIndex< InternalImageType >
-        InternalRegionIterator;
-    InternalRegionIterator b_it( iImage, iImage->GetLargestPossibleRegion() );
+  template <typename TPixel>
+  void
+  SetBinaryMask(Image<TPixel, SetDimension> * iImage)
+  {
+    using InternalImageType = Image<TPixel, SetDimension>;
+    using InternalRegionIterator = ImageRegionConstIteratorWithIndex<InternalImageType>;
+    InternalRegionIterator b_it(iImage, iImage->GetLargestPossibleRegion());
     b_it.GoToBegin();
 
-    TPixel zero_value = NumericTraits< TPixel >::ZeroValue();
+    TPixel                                    zero_value = NumericTraits<TPixel>::ZeroValue();
     typename NodeContainer::ElementIdentifier NumberOfPoints = 0;
 
     NodeType node;
-    node.SetValue( 0. );
+    node.SetValue(0.);
 
-    while( !b_it.IsAtEnd() )
+    while (!b_it.IsAtEnd())
+    {
+      if (Math::ExactlyEquals(b_it.Get(), zero_value))
       {
-      if( Math::ExactlyEquals(b_it.Get(), zero_value) )
+        if (NumberOfPoints == 0)
         {
-        if( NumberOfPoints == 0 )
-          {
           m_OutsidePoints = NodeContainer::New();
-          }
-        node.SetIndex( b_it.GetIndex() );
-        m_OutsidePoints->InsertElement( NumberOfPoints++, node );
-
         }
-      ++b_it;
+        node.SetIndex(b_it.GetIndex());
+        m_OutsidePoints->InsertElement(NumberOfPoints++, node);
       }
-    this->Modified();
+      ++b_it;
     }
+    this->Modified();
+  }
 
   /** Set the container of points that are not meant to be evaluated. */
-  void SetOutsidePoints(NodeContainer *points)
+  void
+  SetOutsidePoints(NodeContainer * points)
   {
     m_OutsidePoints = points;
     this->Modified();
@@ -220,42 +235,48 @@ private:
 
   /** Set the container of Alive Points representing the initial front.
    * Alive points are represented as a VectorContainer of LevelSetNodes. */
-  void SetAlivePoints(NodeContainer *points)
+  void
+  SetAlivePoints(NodeContainer * points)
   {
     m_AlivePoints = points;
     this->Modified();
   }
 
   /** Get the container of Alive Points representing the initial front. */
-  NodeContainerPointer GetAlivePoints()
+  NodeContainerPointer
+  GetAlivePoints()
   {
     return m_AlivePoints;
   }
 
   /** Set the container of Trial Points representing the initial front.
    * Trial points are represented as a VectorContainer of LevelSetNodes. */
-  void SetTrialPoints(NodeContainer *points)
+  void
+  SetTrialPoints(NodeContainer * points)
   {
     m_TrialPoints = points;
     this->Modified();
   }
 
   /** Get the container of Trial Points representing the initial front. */
-  NodeContainerPointer GetTrialPoints()
+  NodeContainerPointer
+  GetTrialPoints()
   {
     return m_TrialPoints;
   }
 
   /** Get the point type label image. */
-  LabelImagePointer GetLabelImage() const
+  LabelImagePointer
+  GetLabelImage() const
   {
     return m_LabelImage;
   }
 
-  /** Set the Speed Constant. If the Speed Image is ITK_NULLPTR,
+  /** Set the Speed Constant. If the Speed Image is nullptr,
    * the SpeedConstant value is used for the whole level set.
    * By default, the SpeedConstant is set to 1.0. */
-  void SetSpeedConstant(double value)
+  void
+  SetSpeedConstant(double value)
   {
     m_SpeedConstant = value;
     m_InverseSpeed = -1.0 * itk::Math::sqr(1.0 / m_SpeedConstant);
@@ -294,21 +315,28 @@ private:
    * is set, the algorithm collects a container of all processed nodes.
    * This is useful for defining creating Narrowbands for level
    * set algorithms that supports narrow banding. */
-  NodeContainerPointer GetProcessedPoints() const
+  NodeContainerPointer
+  GetProcessedPoints() const
   {
     return m_ProcessedPoints;
   }
 
   /** The output largeset possible, spacing and origin is computed as follows.
-   * If the speed image is ITK_NULLPTR or if the OverrideOutputInformation is true,
+   * If the speed image is nullptr or if the OverrideOutputInformation is true,
    * the output information is set from user specified parameters. These
    * parameters can be specified using methods SetOutputRegion(), SetOutputSpacing(), SetOutputDirection(),
-   * and SetOutputOrigin(). Else if the speed image is not ITK_NULLPTR, the output information
+   * and SetOutputOrigin(). Else if the speed image is not nullptr, the output information
    * is copied from the input speed image. */
-  virtual void SetOutputSize(const OutputSizeType & size)
-  { m_OutputRegion = size; }
-  virtual OutputSizeType GetOutputSize() const
-  { return m_OutputRegion.GetSize(); }
+  virtual void
+  SetOutputSize(const OutputSizeType & size)
+  {
+    m_OutputRegion = size;
+  }
+  virtual OutputSizeType
+  GetOutputSize() const
+  {
+    return m_OutputRegion.GetSize();
+  }
   itkSetMacro(OutputRegion, OutputRegionType);
   itkGetConstReferenceMacro(OutputRegion, OutputRegionType);
   itkSetMacro(OutputSpacing, OutputSpacingType);
@@ -323,39 +351,43 @@ private:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< SetDimension, SpeedImageDimension > ) );
-  itkConceptMacro( SpeedConvertibleToDoubleCheck,
-                   ( Concept::Convertible< typename TSpeedImage::PixelType, double > ) );
-  itkConceptMacro( DoubleConvertibleToLevelSetCheck,
-                   ( Concept::Convertible< double, PixelType > ) );
-  itkConceptMacro( LevelSetOStreamWritableCheck,
-                   ( Concept::OStreamWritable< PixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<SetDimension, SpeedImageDimension>));
+  itkConceptMacro(SpeedConvertibleToDoubleCheck, (Concept::Convertible<typename TSpeedImage::PixelType, double>));
+  itkConceptMacro(DoubleConvertibleToLevelSetCheck, (Concept::Convertible<double, PixelType>));
+  itkConceptMacro(LevelSetOStreamWritableCheck, (Concept::OStreamWritable<PixelType>));
   // End concept checking
 #endif
 
 protected:
   FastMarchingImageFilter();
-  ~FastMarchingImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~FastMarchingImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void Initialize(LevelSetImageType *);
+  virtual void
+  Initialize(LevelSetImageType *);
 
-  virtual void UpdateNeighbors(const IndexType & index,
-                               const SpeedImageType *, LevelSetImageType *);
+  virtual void
+  UpdateNeighbors(const IndexType & index, const SpeedImageType *, LevelSetImageType *);
 
-  virtual double UpdateValue(const IndexType & index,
-                             const SpeedImageType *, LevelSetImageType *);
+  virtual double
+  UpdateValue(const IndexType & index, const SpeedImageType *, LevelSetImageType *);
 
-  const AxisNodeType & GetNodeUsedInCalculation(unsigned int idx) const
-  { return m_NodesUsed[idx]; }
+  const AxisNodeType &
+  GetNodeUsedInCalculation(unsigned int idx) const
+  {
+    return m_NodesUsed[idx];
+  }
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Generate the output image meta information. */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
-  virtual void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
   /** Get Large Value. This value is used to
       represent the concept of infinity for the time assigned to pixels that
@@ -364,7 +396,7 @@ protected:
   itkGetConstReferenceMacro(LargeValue, PixelType);
 
   OutputRegionType m_BufferedRegion;
-  typedef typename LevelSetImageType::IndexType LevelSetIndexType;
+  using LevelSetIndexType = typename LevelSetImageType::IndexType;
   LevelSetIndexType m_StartIndex;
   LevelSetIndexType m_LastIndex;
 
@@ -372,8 +404,6 @@ protected:
   itkGetConstReferenceMacro(LastIndex, LevelSetIndexType);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FastMarchingImageFilter);
-
   NodeContainerPointer m_AlivePoints;
   NodeContainerPointer m_TrialPoints;
   NodeContainerPointer m_OutsidePoints;
@@ -394,15 +424,14 @@ private:
   bool                m_OverrideOutputInformation;
 
   typename LevelSetImageType::PixelType m_LargeValue;
-  AxisNodeType m_NodesUsed[SetDimension];
+  AxisNodeType                          m_NodesUsed[SetDimension];
 
   /** Trial points are stored in a min-heap. This allow efficient access
    * to the trial point with minimum value which is the next grid point
    * the algorithm processes. */
-  typedef std::vector< AxisNodeType >  HeapContainer;
-  typedef std::greater< AxisNodeType > NodeComparer;
-  typedef std::priority_queue< AxisNodeType, HeapContainer, NodeComparer >
-  HeapType;
+  using HeapContainer = std::vector<AxisNodeType>;
+  using NodeComparer = std::greater<AxisNodeType>;
+  using HeapType = std::priority_queue<AxisNodeType, HeapContainer, NodeComparer>;
 
   HeapType m_TrialHeap;
 
@@ -411,7 +440,7 @@ private:
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFastMarchingImageFilter.hxx"
+#  include "itkFastMarchingImageFilter.hxx"
 #endif
 
 #endif

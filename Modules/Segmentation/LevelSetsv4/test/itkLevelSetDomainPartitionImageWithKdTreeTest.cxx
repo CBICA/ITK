@@ -18,33 +18,35 @@
 
 #include "itkBinaryImageToLevelSetImageAdaptor.h"
 #include "itkLevelSetDomainPartitionImageWithKdTree.h"
+#include "itkTestingMacros.h"
 
-int itkLevelSetDomainPartitionImageWithKdTreeTest( int argc, char* argv[] )
+int
+itkLevelSetDomainPartitionImageWithKdTreeTest(int argc, char * argv[])
 {
 
-  if( argc < 1 )
-    {
+  if (argc < 1)
+  {
     std::cerr << "Missing Arguments" << std::endl;
-    std::cerr << "Program " << argv[0] << std::endl;
+    std::cerr << "Program " << itkNameOfTestExecutableMacro(argv) << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned short                                    InputPixelType;
-  typedef itk::Image< InputPixelType, Dimension >           InputImageType;
-  typedef itk::IdentifierType                               IdentifierType;
+  using InputPixelType = unsigned short;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using IdentifierType = itk::IdentifierType;
 
-  typedef itk::LevelSetDomainPartitionImageWithKdTree< InputImageType > DomainPartitionSourceType;
-  typedef DomainPartitionSourceType::ListImageType                      ListImageType;
-  typedef DomainPartitionSourceType::LevelSetDomainRegionVectorType           LevelSetDomainRegionVectorType;
-  typedef DomainPartitionSourceType::CentroidVectorType                 CentroidVectorType;
-  typedef DomainPartitionSourceType::SampleType                         SampleType;
-  typedef DomainPartitionSourceType::TreeGeneratorType                  TreeGeneratorType;
-  typedef DomainPartitionSourceType::TreeType                           TreeType;
+  using DomainPartitionSourceType = itk::LevelSetDomainPartitionImageWithKdTree<InputImageType>;
+  using ListImageType = DomainPartitionSourceType::ListImageType;
+  using LevelSetDomainRegionVectorType = DomainPartitionSourceType::LevelSetDomainRegionVectorType;
+  using CentroidVectorType = DomainPartitionSourceType::CentroidVectorType;
+  using SampleType = DomainPartitionSourceType::SampleType;
+  using TreeGeneratorType = DomainPartitionSourceType::TreeGeneratorType;
+  using TreeType = DomainPartitionSourceType::TreeType;
 
-  typedef ListImageType::PixelType                                ListType;
-  typedef itk::ImageRegionConstIteratorWithIndex< ListImageType > ListImageIteratorType;
+  using ListType = ListImageType::PixelType;
+  using ListImageIteratorType = itk::ImageRegionConstIteratorWithIndex<ListImageType>;
 
   // load binary mask
   InputImageType::SizeType size;
@@ -60,97 +62,97 @@ int itkLevelSetDomainPartitionImageWithKdTreeTest( int argc, char* argv[] )
   spacing[1] = 1.0;
 
   InputImageType::IndexType index;
-  index.Fill( 0 );
+  index.Fill(0);
 
   InputImageType::RegionType region;
-  region.SetIndex( index );
-  region.SetSize( size );
+  region.SetIndex(index);
+  region.SetSize(size);
 
   // Binary initialization
   InputImageType::Pointer binary = InputImageType::New();
-  binary->SetRegions( region );
-  binary->SetSpacing( spacing );
-  binary->SetOrigin( origin );
+  binary->SetRegions(region);
+  binary->SetSpacing(spacing);
+  binary->SetOrigin(origin);
   binary->Allocate();
-  binary->FillBuffer( itk::NumericTraits<InputPixelType>::ZeroValue() );
+  binary->FillBuffer(itk::NumericTraits<InputPixelType>::ZeroValue());
 
   IdentifierType numberOfLevelSetFunctions = 10;
 
   LevelSetDomainRegionVectorType regionVector;
-  regionVector.resize( numberOfLevelSetFunctions );
+  regionVector.resize(numberOfLevelSetFunctions);
 
-  CentroidVectorType mv;
+  CentroidVectorType  mv;
   SampleType::Pointer sample = SampleType::New();
-  sample->SetMeasurementVectorSize( Dimension );
+  sample->SetMeasurementVectorSize(Dimension);
 
-  for( unsigned int i = 0; i < numberOfLevelSetFunctions; i++ )
-    {
-    index[0] = 10*i;
+  for (unsigned int i = 0; i < numberOfLevelSetFunctions; i++)
+  {
+    index[0] = 10 * i;
     index[1] = 0;
-    size.Fill( 10 );
+    size.Fill(10);
 
     InputImageType::RegionType region1;
-    region1.SetIndex( index );
-    region1.SetSize( size );
+    region1.SetIndex(index);
+    region1.SetSize(size);
 
     regionVector[i] = region1;
 
-    mv[0] = 10*i + 5.0;
+    mv[0] = 10 * i + 5.0;
     mv[1] = 5.0;
-    sample->PushBack( mv );
-    }
+    sample->PushBack(mv);
+  }
 
   TreeGeneratorType::Pointer treeGenerator = TreeGeneratorType::New();
-  treeGenerator->SetSample( sample );
-  treeGenerator->SetBucketSize( 2 );
+  treeGenerator->SetSample(sample);
+  treeGenerator->SetBucketSize(2);
   treeGenerator->Update();
   TreeType::Pointer kdtree = treeGenerator->GetOutput();
 
   DomainPartitionSourceType::Pointer partitionSource = DomainPartitionSourceType::New();
-  partitionSource->SetNumberOfLevelSetFunctions( numberOfLevelSetFunctions );
-  partitionSource->SetImage( binary );
-  partitionSource->SetLevelSetDomainRegionVector( regionVector );
-  partitionSource->SetNumberOfNeighbors( 3 );
-  partitionSource->SetKdTree( kdtree );
+  partitionSource->SetNumberOfLevelSetFunctions(numberOfLevelSetFunctions);
+  partitionSource->SetImage(binary);
+  partitionSource->SetLevelSetDomainRegionVector(regionVector);
+  partitionSource->SetNumberOfNeighbors(3);
+  partitionSource->SetKdTree(kdtree);
   partitionSource->PopulateListDomain();
 
 
   bool flag = true;
 
-  ListType ll;
+  ListType                    ll;
   ListImageType::ConstPointer listImage = partitionSource->GetListDomain();
-  ListImageIteratorType It( listImage, listImage->GetLargestPossibleRegion() );
+  ListImageIteratorType       It(listImage, listImage->GetLargestPossibleRegion());
   It.GoToBegin();
-  while( !It.IsAtEnd() )
-    {
+  while (!It.IsAtEnd())
+  {
     index = It.GetIndex();
-    ll =  It.Get();
+    ll = It.Get();
 
-    if ( ll.size() != 1 )
-      {
+    if (ll.size() != 1)
+    {
       flag = false;
       break;
-      }
+    }
 
-    ListType::iterator it=ll.begin();
+    auto it = ll.begin();
 
-    while( it != ll.end() )
+    while (it != ll.end())
+    {
+      IdentifierType id = index[0] / 10;
+      if (*it != id)
       {
-      IdentifierType id = index[0]/10;
-      if ( *it != id )
-        {
         flag = false;
         break;
-        }
-      ++it;
       }
+      ++it;
+    }
     ++It;
-    }
+  }
 
-  if ( !flag )
-    {
+  if (!flag)
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -18,7 +18,7 @@
 #ifndef itkAbsImageFilter_h
 #define itkAbsImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 #include "itkConceptChecking.h"
 
 namespace itk
@@ -29,28 +29,31 @@ namespace Functor
  * \brief Computes the absolute value of a pixel.
  * \ingroup ITKImageIntensity
  */
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class Abs
 {
 public:
-  Abs() {}
-  ~Abs() {}
-  bool operator!=(const Abs &) const
+  Abs() = default;
+  ~Abs() = default;
+  bool
+  operator!=(const Abs &) const
   {
     return false;
   }
 
-  bool operator==(const Abs & other) const
+  bool
+  operator==(const Abs & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    return static_cast<TOutput>( itk::Math::abs( A ) );
+    return static_cast<TOutput>(itk::Math::abs(A));
   }
 };
-}
+} // namespace Functor
 
 /** \class AbsImageFilter
  * \brief Computes the absolute value of each pixel.
@@ -61,52 +64,49 @@ public:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/AbsImageFilter,Compute the absolute value of an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/AbsValueOfImage,Absolute Value Of Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class AbsImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::Abs<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TOutputImage>
+class AbsImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef AbsImageFilter Self;
-  typedef UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                                   Functor::Abs< typename TInputImage::PixelType,
-                                                 typename TOutputImage::PixelType > >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AbsImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = AbsImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::Abs<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(AbsImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(AbsImageFilter, UnaryGeneratorImageFilter);
 
-  typedef typename TInputImage::PixelType     InputPixelType;
-  typedef typename TOutputImage::PixelType    OutputPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( ConvertibleCheck,
-                   ( Concept::Convertible< InputPixelType, OutputPixelType > ) );
-  itkConceptMacro( InputGreaterThanIntCheck,
-                   ( Concept::GreaterThanComparable< InputPixelType, InputPixelType > ) );
+  itkConceptMacro(ConvertibleCheck, (Concept::Convertible<InputPixelType, OutputPixelType>));
+  itkConceptMacro(InputGreaterThanIntCheck, (Concept::GreaterThanComparable<InputPixelType, InputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  AbsImageFilter() {}
-  virtual ~AbsImageFilter() ITK_OVERRIDE {}
+  AbsImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AbsImageFilter);
+  ~AbsImageFilter() override = default;
 };
 } // end namespace itk
 

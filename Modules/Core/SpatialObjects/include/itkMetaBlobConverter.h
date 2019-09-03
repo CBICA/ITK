@@ -30,16 +30,17 @@ namespace itk
  *  \sa MetaConverterBase
  *  \ingroup ITKSpatialObjects
  */
-template< unsigned int NDimensions = 3 >
-class ITK_TEMPLATE_EXPORT MetaBlobConverter :
-    public MetaConverterBase< NDimensions >
+template <unsigned int NDimensions = 3>
+class ITK_TEMPLATE_EXPORT MetaBlobConverter : public MetaConverterBase<NDimensions>
 {
 public:
-  /** Standard class typedefs */
-  typedef MetaBlobConverter                Self;
-  typedef MetaConverterBase< NDimensions > Superclass;
-  typedef SmartPointer< Self >             Pointer;
-  typedef SmartPointer< const Self >       ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MetaBlobConverter);
+
+  /** Standard class type aliases */
+  using Self = MetaBlobConverter;
+  using Superclass = MetaConverterBase<NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -47,38 +48,37 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MetaBlobConverter, MetaConverterBase);
 
-  typedef typename Superclass::SpatialObjectType SpatialObjectType;
-  typedef typename SpatialObjectType::Pointer    SpatialObjectPointer;
-  typedef typename Superclass::MetaObjectType    MetaObjectType;
+  using SpatialObjectType = typename Superclass::SpatialObjectType;
+  using SpatialObjectPointer = typename SpatialObjectType::Pointer;
+  using MetaObjectType = typename Superclass::MetaObjectType;
 
   /** Specific class types for conversion */
-  typedef BlobSpatialObject<NDimensions>               BlobSpatialObjectType;
-  typedef typename BlobSpatialObjectType::Pointer      BlobSpatialObjectPointer;
-  typedef typename BlobSpatialObjectType::ConstPointer BlobSpatialObjectConstPointer;
-  typedef MetaBlob                                     BlobMetaObjectType;
+  using BlobSpatialObjectType = BlobSpatialObject<NDimensions>;
+  using BlobSpatialObjectPointer = typename BlobSpatialObjectType::Pointer;
+  using BlobSpatialObjectConstPointer = typename BlobSpatialObjectType::ConstPointer;
+  using BlobMetaObjectType = MetaBlob;
 
 
   /** Convert the MetaObject to Spatial Object */
-  virtual SpatialObjectPointer MetaObjectToSpatialObject(const MetaObjectType *mo) ITK_OVERRIDE;
+  SpatialObjectPointer
+  MetaObjectToSpatialObject(const MetaObjectType * mo) override;
 
   /** Convert the SpatialObject to MetaObject */
-  virtual MetaObjectType *SpatialObjectToMetaObject(const SpatialObjectType *spatialObject) ITK_OVERRIDE;
+  MetaObjectType *
+  SpatialObjectToMetaObject(const SpatialObjectType * spatialObject) override;
 
 protected:
   /** Create the specific MetaObject for this class */
-  virtual MetaObjectType *CreateMetaObject() ITK_OVERRIDE;
+  MetaObjectType *
+  CreateMetaObject() override;
 
-  MetaBlobConverter();
-  ~MetaBlobConverter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MetaBlobConverter);
-
+  MetaBlobConverter() = default;
+  ~MetaBlobConverter() override = default;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-  #include "itkMetaBlobConverter.hxx"
+#  include "itkMetaBlobConverter.hxx"
 #endif
 
 #endif

@@ -67,38 +67,43 @@ namespace itk
  *
  * \ingroup ImageFilters
  * \ingroup ITKCommon
+ *
+ * \sphinx
+ * \sphinxexample{Core/Common/FilterImageWithoutCopying,Filter Image Without Copying Its Data}
+ * \sphinxexample{Core/Common/InPlaceFilterOfImage,In Place Filter Of Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT InPlaceImageFilter:public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT InPlaceImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef InPlaceImageFilter                              Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(InPlaceImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = InPlaceImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(InPlaceImageFilter, ImageToImageFilter);
 
-  /** Superclass typedefs. */
-  typedef typename Superclass::OutputImageType       OutputImageType;
-  typedef typename Superclass::OutputImagePointer    OutputImagePointer;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename Superclass::OutputImagePixelType  OutputImagePixelType;
+  /** Superclass type alias. */
+  using OutputImageType = typename Superclass::OutputImageType;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** In place operation can be turned on and off. Asking for
    * in-place operation, i.e. calling SetInplace(true) or InplaceOn(),
@@ -117,13 +122,15 @@ public:
    * operation if the InPlace is true and CanRunInPlace is true.
    * CanRunInPlace may also be overridded by InPlaceImageFilter
    * subclasses to fine tune its behavior. */
-  virtual bool CanRunInPlace() const;
+  virtual bool
+  CanRunInPlace() const;
 
 protected:
-  InPlaceImageFilter();
-  ~InPlaceImageFilter() ITK_OVERRIDE;
+  InPlaceImageFilter() = default;
+  ~InPlaceImageFilter() override = default;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** The GenerateData method normally allocates the buffers for all
    * of the outputs of a filter. Since InPlaceImageFilter's can use an
@@ -137,7 +144,8 @@ protected:
    * an InPlaceFilter is not threaded (i.e. it provides an
    * implementation of GenerateData()), then this method (or
    * equivalent) must be called in GenerateData(). */
-  virtual void AllocateOutputs() ITK_OVERRIDE
+  void
+  AllocateOutputs() override
   {
     this->InternalAllocateOutputs(IsSame<TInputImage, TOutputImage>());
   }
@@ -151,34 +159,34 @@ protected:
    * releases the input that it has overwritten.
    *
    * \sa ProcessObject::ReleaseInputs() */
-  virtual void ReleaseInputs() ITK_OVERRIDE;
+  void
+  ReleaseInputs() override;
 
   /** This methods should only be called during the GenerateData phase
    *  of the pipeline. This method return true if the input image's
    *  bulk data is the same as the output image's data.
    */
-  itkGetConstMacro(RunningInPlace,bool);
+  itkGetConstMacro(RunningInPlace, bool);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(InPlaceImageFilter);
-
   // the type are different we can't run in place
-  void InternalAllocateOutputs( const FalseType& )
+  void
+  InternalAllocateOutputs(const FalseType &)
   {
     this->m_RunningInPlace = false;
     this->Superclass::AllocateOutputs();
   }
 
-  void InternalAllocateOutputs( const TrueType& );
+  void
+  InternalAllocateOutputs(const TrueType &);
 
-  bool m_InPlace; // enable the possibility of in-place
-  bool m_RunningInPlace;
-
+  bool m_InPlace{ true }; // enable the possibility of in-place
+  bool m_RunningInPlace{ false };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkInPlaceImageFilter.hxx"
+#  include "itkInPlaceImageFilter.hxx"
 #endif
 
 #endif

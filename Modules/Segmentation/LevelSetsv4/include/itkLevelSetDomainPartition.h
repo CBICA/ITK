@@ -28,44 +28,42 @@ namespace itk
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  * \ingroup ITKLevelSetsv4
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT LevelSetDomainPartition:
-  public LevelSetDomainPartitionBase< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT LevelSetDomainPartition : public LevelSetDomainPartitionBase<TImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartition);
 
-  typedef LevelSetDomainPartition                 Self;
-  typedef LevelSetDomainPartitionBase< TImage >   Superclass;
-  typedef SmartPointer< Self >                    Pointer;
-  typedef SmartPointer< const Self >              ConstPointer;
+  using Self = LevelSetDomainPartition;
+  using Superclass = LevelSetDomainPartitionBase<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro(LevelSetDomainPartition, LevelSetDomainPartitionBase );
+  itkTypeMacro(LevelSetDomainPartition, LevelSetDomainPartitionBase);
 
-  typedef TImage                                ImageType;
-  typedef typename ImageType::Pointer           ImagePointer;
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
 
-  typedef typename Superclass::ListPixelType    ListPixelType;
+  using ListPixelType = typename Superclass::ListPixelType;
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void PopulateListImage();
+  void
+  PopulateListImage();
 
 protected:
-  LevelSetDomainPartition();
-  ~LevelSetDomainPartition();
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartition);
+  LevelSetDomainPartition() = default;
+  ~LevelSetDomainPartition() = default;
 };
-} //end namespace itk
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetDomainPartition.hxx"
+#  include "itkLevelSetDomainPartition.hxx"
 #endif
 
 #endif

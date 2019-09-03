@@ -37,16 +37,17 @@ namespace Statistics
  *
  * \ingroup ITKStatistics
  */
-template< typename TSample >
-class ITK_TEMPLATE_EXPORT Subsample:
-  public TSample
+template <typename TSample>
+class ITK_TEMPLATE_EXPORT Subsample : public TSample
 {
 public:
-  /** Standard class typedefs */
-  typedef Subsample                  Self;
-  typedef TSample                    Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(Subsample);
+
+  /** Standard class type aliases */
+  using Self = Subsample;
+  using Superclass = TSample;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Subsample, TSample);
@@ -55,94 +56,105 @@ public:
   itkNewMacro(Self);
 
   /** Smart pointer to the actual sample data holder */
-  typedef typename TSample::Pointer SamplePointer;
+  using SamplePointer = typename TSample::Pointer;
 
   /** Typedefs for Measurement vector, measurement, Instance Identifier,
    * frequency, size, size element value from the template argument TSample */
-  typedef typename TSample::MeasurementVectorType MeasurementVectorType;
-  typedef typename TSample::MeasurementType       MeasurementType;
-  typedef typename TSample::InstanceIdentifier    InstanceIdentifier;
-  typedef MeasurementVectorType                   ValueType;
+  using MeasurementVectorType = typename TSample::MeasurementVectorType;
+  using MeasurementType = typename TSample::MeasurementType;
+  using InstanceIdentifier = typename TSample::InstanceIdentifier;
+  using ValueType = MeasurementVectorType;
 
-  typedef typename TSample::AbsoluteFrequencyType      AbsoluteFrequencyType;
-  typedef typename TSample::TotalAbsoluteFrequencyType TotalAbsoluteFrequencyType;
+  using AbsoluteFrequencyType = typename TSample::AbsoluteFrequencyType;
+  using TotalAbsoluteFrequencyType = typename TSample::TotalAbsoluteFrequencyType;
 
   /** Type of the storage for instances that belong to the class
    * represented by a Subsample object. A Subsample object stores
    * only the InstanceIdentifiers. The actual data is still in the Sample
    * object */
-  typedef std::vector< InstanceIdentifier > InstanceIdentifierHolder;
+  using InstanceIdentifierHolder = std::vector<InstanceIdentifier>;
 
 // Disable clang warning false positive.
 // <https://llvm.org/bugs/show_bug.cgi?id=22582>
 #if defined(__clang__) && defined(__has_warning)
-# if __has_warning("-Winconsistent-missing-override")
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Winconsistent-missing-override"
-# endif
+#  if __has_warning("-Winconsistent-missing-override")
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Winconsistent-missing-override"
+#  endif
 #endif
 
   /** Get the Id Holder */
-  virtual const InstanceIdentifierHolder & GetIdHolder() const
+  const InstanceIdentifierHolder &
+  GetIdHolder() const
   {
     return this->m_IdHolder;
   }
 
 #if defined(__clang__) && defined(__has_warning)
-# if __has_warning("-Winconsistent-missing-override")
-#  pragma clang diagnostic pop
-# endif
+#  if __has_warning("-Winconsistent-missing-override")
+#    pragma clang diagnostic pop
+#  endif
 #endif
 
   /** Plug in the actual sample data */
-  void SetSample(const TSample *sample);
+  void
+  SetSample(const TSample * sample);
 
-  const TSample * GetSample() const;
+  const TSample *
+  GetSample() const;
 
   /** Initialize the subsample with all instances of the sample */
-  void InitializeWithAllInstances();
+  void
+  InitializeWithAllInstances();
 
   /** Add instance to the subsample */
-  void AddInstance(InstanceIdentifier id);
+  void
+  AddInstance(InstanceIdentifier id);
 
   /** returns SizeType object whose each element is the number of
    * elements in each dimension */
-  InstanceIdentifier Size() const ITK_OVERRIDE;
+  InstanceIdentifier
+  Size() const override;
 
   /** Clear the subsample */
-  void Clear();
+  void
+  Clear();
 
   /** returns the measurement of the instance which is identified
    * by the 'id' */
-  const MeasurementVectorType & GetMeasurementVector(InstanceIdentifier id) const ITK_OVERRIDE;
+  const MeasurementVectorType &
+  GetMeasurementVector(InstanceIdentifier id) const override;
 
   /** returns the frequency of the instance which is identified by the 'id' */
-  AbsoluteFrequencyType GetFrequency(InstanceIdentifier id) const ITK_OVERRIDE;
+  AbsoluteFrequencyType
+  GetFrequency(InstanceIdentifier id) const override;
 
   /** returns the total frequency for the 'd' dimension */
-  TotalAbsoluteFrequencyType GetTotalFrequency() const ITK_OVERRIDE;
+  TotalAbsoluteFrequencyType
+  GetTotalFrequency() const override;
 
-  void Swap(unsigned int index1, unsigned int index2);
+  void
+  Swap(unsigned int index1, unsigned int index2);
 
-  InstanceIdentifier GetInstanceIdentifier(unsigned int index);
+  InstanceIdentifier
+  GetInstanceIdentifier(unsigned int index);
 
-  const MeasurementVectorType & GetMeasurementVectorByIndex(unsigned int index) const;
+  const MeasurementVectorType &
+  GetMeasurementVectorByIndex(unsigned int index) const;
 
-  AbsoluteFrequencyType GetFrequencyByIndex(unsigned int index) const;
+  AbsoluteFrequencyType
+  GetFrequencyByIndex(unsigned int index) const;
 
   /** Method to graft another sample */
-  virtual void Graft(const DataObject *thatObject) ITK_OVERRIDE;
+  void
+  Graft(const DataObject * thatObject) override;
 
   class ConstIterator
   {
     friend class Subsample;
 
-public:
-
-    ConstIterator(const Self *sample)
-    {
-      *this = sample->Begin();
-    }
+  public:
+    ConstIterator(const Self * sample) { *this = sample->Begin(); }
 
     ConstIterator(const ConstIterator & iter)
     {
@@ -151,7 +163,8 @@ public:
       m_Sample = iter.m_Sample;
     }
 
-    ConstIterator & operator=(const ConstIterator & iter)
+    ConstIterator &
+    operator=(const ConstIterator & iter)
     {
       m_Iter = iter.m_Iter;
       m_Subsample = iter.m_Subsample;
@@ -159,97 +172,106 @@ public:
       return *this;
     }
 
-    bool operator!=(const ConstIterator & it)
+    bool
+    operator!=(const ConstIterator & it)
     {
-      return ( m_Iter != it.m_Iter );
+      return (m_Iter != it.m_Iter);
     }
 
-    bool operator==(const ConstIterator & it)
+    bool
+    operator==(const ConstIterator & it)
     {
-      return ( m_Iter == it.m_Iter );
+      return (m_Iter == it.m_Iter);
     }
 
-    ConstIterator & operator++()
+    ConstIterator &
+    operator++()
     {
       ++m_Iter;
       return *this;
     }
 
-    AbsoluteFrequencyType GetFrequency() const
+    AbsoluteFrequencyType
+    GetFrequency() const
     {
       return m_Sample->GetFrequency(*m_Iter);
     }
 
-    const MeasurementVectorType & GetMeasurementVector() const
+    const MeasurementVectorType &
+    GetMeasurementVector() const
     {
       return m_Sample->GetMeasurementVector(*m_Iter);
     }
 
-    InstanceIdentifier GetInstanceIdentifier() const
+    InstanceIdentifier
+    GetInstanceIdentifier() const
     {
-      return ( m_Iter - m_Subsample->GetIdHolder().begin() );
+      return (m_Iter - m_Subsample->GetIdHolder().begin());
     }
 
-protected:
+  protected:
     // Purposely not implemented
     ConstIterator();
 
     // Only to be called from the Subsample
-    ConstIterator(typename InstanceIdentifierHolder::const_iterator iter,
-                  const Self *classSample):
-      m_Iter(iter), m_Subsample(classSample), m_Sample( classSample->GetSample() )
+    ConstIterator(typename InstanceIdentifierHolder::const_iterator iter, const Self * classSample)
+      : m_Iter(iter)
+      , m_Subsample(classSample)
+      , m_Sample(classSample->GetSample())
     {}
 
     // ConstIterator pointing to ImageToListSampleAdaptor
     typename InstanceIdentifierHolder::const_iterator m_Iter;
 
     // Pointer to Subsample object
-    const Self *   m_Subsample;
-    const TSample *m_Sample;
+    const Self *    m_Subsample;
+    const TSample * m_Sample;
 
-private:
+  private:
   };
 
-  class Iterator:public ConstIterator
+  class Iterator : public ConstIterator
   {
     friend class Subsample;
 
-public:
-
-    Iterator(Self *sample):ConstIterator(sample)
+  public:
+    Iterator(Self * sample)
+      : ConstIterator(sample)
     {}
 
-    Iterator(const Iterator & iter):ConstIterator(iter)
+    Iterator(const Iterator & iter)
+      : ConstIterator(iter)
     {}
 
-    Iterator & operator=(const Iterator & iter)
+    Iterator &
+    operator=(const Iterator & iter)
     {
       this->ConstIterator::operator=(iter);
       return *this;
     }
 
-protected:
+  protected:
     // To ensure const-correctness these method must not be in the public API.
     // The are purposly not implemented, since they should never be called.
     Iterator();
-    Iterator(const Self *sample);
-    Iterator(typename InstanceIdentifierHolder::const_iterator iter,
-             const Self *classSample);
+    Iterator(const Self * sample);
+    Iterator(typename InstanceIdentifierHolder::const_iterator iter, const Self * classSample);
     Iterator(const ConstIterator & it);
-    ConstIterator & operator=(const ConstIterator & it);
+    ConstIterator &
+    operator=(const ConstIterator & it);
 
     // Only to be called from the Subsample
-    Iterator(typename InstanceIdentifierHolder::iterator iter,
-             Self *classSample):
-      ConstIterator(iter, classSample)
+    Iterator(typename InstanceIdentifierHolder::iterator iter, Self * classSample)
+      : ConstIterator(iter, classSample)
     {}
 
-private:
+  private:
   };
 
   /** This method returns an iterator to the beginning of the
       measurement vectors */
-  Iterator Begin()
+  Iterator
+  Begin()
   {
     Iterator iter(m_IdHolder.begin(), this);
 
@@ -258,21 +280,24 @@ private:
 
   /** This method returns an iterator to the beginning of the
       measurement vectors */
-  Iterator  End()
+  Iterator
+  End()
   {
     Iterator iter(m_IdHolder.end(), this);
 
     return iter;
   }
 
-  ConstIterator Begin() const
+  ConstIterator
+  Begin() const
   {
     ConstIterator iter(m_IdHolder.begin(), this);
 
     return iter;
   }
 
-  ConstIterator  End()  const
+  ConstIterator
+  End() const
   {
     ConstIterator iter(m_IdHolder.end(), this);
 
@@ -281,22 +306,21 @@ private:
 
 protected:
   Subsample();
-  virtual ~Subsample() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~Subsample() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(Subsample);
-
   const TSample *            m_Sample;
   InstanceIdentifierHolder   m_IdHolder;
   unsigned int               m_ActiveDimension;
   TotalAbsoluteFrequencyType m_TotalFrequency;
-};  // end of class
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSubsample.hxx"
+#  include "itkSubsample.hxx"
 #endif
 
 #endif

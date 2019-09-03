@@ -164,7 +164,11 @@ endfunction()
 function(itk_python_add_test)
   # No-op if wrapping is not available
   if(NOT ITK_WRAP_PYTHON)
-    return()
+    if(DEFINED ITK_SOURCE_DIR)
+      message(FATAL_ERROR "`itk_python_add_test` should never be called if `ITK_WRAP_PYTHON` if OFF")
+    else()
+      return()
+    endif()
   endif()
 
   set(options )
@@ -200,7 +204,7 @@ function(itk_python_add_test)
     ${PYTHON_ADD_TEST_COMMAND}
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
     )
-  set_property(TEST ${name} APPEND PROPERTY LABELS Python)
+  set_property(TEST ${PYTHON_ADD_TEST_NAME} APPEND PROPERTY LABELS Python)
 endfunction()
 
 #-----------------------------------------------------------------------------
@@ -221,7 +225,11 @@ endfunction()
 function(itk_python_expression_add_test)
   # No-op if wrapping is not available
   if(NOT ITK_WRAP_PYTHON)
-    return()
+    if(DEFINED ITK_SOURCE_DIR)
+      message(FATAL_ERROR "`itk_python_expression_add_test` should never be called if `ITK_WRAP_PYTHON` if OFF")
+    else()
+      return()
+    endif()
   endif()
 
   set(options )
@@ -241,7 +249,30 @@ function(CreateGoogleTestDriver KIT KIT_LIBS KitTests)
   itk_module_target_label(${exe})
 
   include(GoogleTest)
-  gtest_add_tests(${exe} "" AUTO)
+
+  # CMake 3.10 added this method, to avoid configure time introspection.
+  # Verion 3.10.3 is needed for the DISCOVERY_TIMEOUT method
+  if(NOT CMAKE_CROSSCOMPILING AND NOT ${CMAKE_VERSION} VERSION_LESS "3.10.3" )
+    gtest_discover_tests( ${exe} DISCOVERY_TIMEOUT 15 )
+  else()
+    set(_skip_dependency)
+    if( ITK_SKIP_GTEST_DEPENDANCY_AUTO_CHECK )
+      # This advanced behavior is only available through the
+      # command line.  It is intended to be used only when writing GoogleTests,
+      # to require the developer to explicitly ask for introspection of
+      # gtest instrumented files by the time-consumeing re-running of cmake
+      # for the entire project
+      #
+      # use "cmake -DITK_SKIP_GTEST_DEPENDANCY_AUTO_CHECK:BOOL=ON ."  to
+      #           Disable the slow introspection (i.e. while writing gtests)
+      # use "cmake -DITK_SKIP_GTEST_DEPENDANCY_AUTO_CHECK:BOOL=OFF ." to
+      #           enable the slow introspection (during all other development)
+      set(_skip_dependency "SKIP_DEPENDENCY")
+    endif()
+    gtest_add_tests(TARGET ${exe}
+      ${_skip_dependency}
+      )
+  endif()
   # TODO need to label the produced ctests
 endfunction()
 

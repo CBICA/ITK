@@ -41,11 +41,11 @@ namespace fem
 class ITKFEM_EXPORT LoadNode : public Load
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoadNode                 Self;
-  typedef Load                     Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoadNode;
+  using Superclass = Load;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through the object factory. */
   itkSimpleNewMacro(Self);
@@ -53,45 +53,50 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(LoadNode, Load);
 
-  typedef Element::Node::Float Float;
+  using Float = Element::Node::Float;
 
   /**
-    * Set the force acting at the node
-    */
-  void SetForce(const vnl_vector<Float> force);
+   * Set the force acting at the node
+   */
+  void
+  SetForce(const vnl_vector<Float> force);
 
   /**
-  * Get the force acting at the node
-  */
-  vnl_vector<Float> GetForce() const;
+   * Get the force acting at the node
+   */
+  vnl_vector<Float>
+  GetForce() const;
 
   /**
    * Set the node number on which the load is being applied.
    */
-  void SetNode(int num);
+  void
+  SetNode(int num);
 
   /**
    * Get the node number on which the load is being applied.
    */
-  int GetNode() const;
+  int
+  GetNode() const;
 
-  LoadNode():
-    m_Point(0)
-  {
-  }                             // default constructor
-  LoadNode(Element::ConstPointer element_, unsigned int pt_, vnl_vector<Float> F_) :
-    m_Point(pt_), m_Force(F_)
+  LoadNode()
+    : m_Point(0)
+  {} // default constructor
+  LoadNode(Element::ConstPointer element_, unsigned int pt_, vnl_vector<Float> F_)
+    : m_Point(pt_)
+    , m_Force(F_)
   {
     this->m_Element = element_;
   }
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
 protected:
-
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Point within the element on which the force acts.
@@ -104,8 +109,7 @@ protected:
    */
   vnl_vector<Float> m_Force;
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMLoadDOF_h
+#endif // itkFEMLoadNode_h

@@ -37,64 +37,59 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TInputImage, typename TFeatureImage, typename TOutputImage =
-            LabelMap< StatisticsLabelObject< typename TInputImage::PixelType,
-                                             TInputImage::ImageDimension > > >
-class ITK_TEMPLATE_EXPORT LabelImageToStatisticsLabelMapFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage,
+          typename TFeatureImage,
+          typename TOutputImage =
+            LabelMap<StatisticsLabelObject<typename TInputImage::PixelType, TInputImage::ImageDimension>>>
+class ITK_TEMPLATE_EXPORT LabelImageToStatisticsLabelMapFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelImageToStatisticsLabelMapFilter            Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelImageToStatisticsLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Standard class type aliases. */
+  using Self = LabelImageToStatisticsLabelMapFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TOutputImage                              OutputImageType;
-  typedef typename OutputImageType::Pointer         OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer    OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType      OutputImageRegionType;
-  typedef typename OutputImageType::PixelType       OutputImagePixelType;
-  typedef typename OutputImageType::LabelObjectType LabelObjectType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
-  typedef TFeatureImage                           FeatureImageType;
-  typedef typename FeatureImageType::Pointer      FeatureImagePointer;
-  typedef typename FeatureImageType::ConstPointer FeatureImageConstPointer;
-  typedef typename FeatureImageType::PixelType    FeatureImagePixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using LabelObjectType = typename OutputImageType::LabelObjectType;
+
+  using FeatureImageType = TFeatureImage;
+  using FeatureImagePointer = typename FeatureImageType::Pointer;
+  using FeatureImageConstPointer = typename FeatureImageType::ConstPointer;
+  using FeatureImagePixelType = typename FeatureImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef LabelImageToLabelMapFilter< InputImageType, OutputImageType > LabelizerType;
-  typedef StatisticsLabelMapFilter< OutputImageType, FeatureImageType > LabelObjectValuatorType;
+  using LabelizerType = LabelImageToLabelMapFilter<InputImageType, OutputImageType>;
+  using LabelObjectValuatorType = StatisticsLabelMapFilter<OutputImageType, FeatureImageType>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(LabelImageToStatisticsLabelMapFilter,
-               ImageToImageFilter);
+  itkTypeMacro(LabelImageToStatisticsLabelMapFilter, ImageToImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputImagePixelType > ) );
-  itkConceptMacro( IntConvertibleToInputCheck,
-                   ( Concept::Convertible< int, InputImagePixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputImagePixelType > ) );
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputImagePixelType>));
+  itkConceptMacro(IntConvertibleToInputCheck, (Concept::Convertible<int, InputImagePixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<InputImagePixelType>));
   // End concept checking
 #endif
 
@@ -122,26 +117,30 @@ public:
   itkBooleanMacro(ComputePerimeter);
 
   /** Set the feature image */
-  void SetFeatureImage(const TFeatureImage *input)
+  void
+  SetFeatureImage(const TFeatureImage * input)
   {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast< TFeatureImage * >( input ) );
+    this->SetNthInput(1, const_cast<TFeatureImage *>(input));
   }
 
   /** Get the feature image */
-  const FeatureImageType * GetFeatureImage()
+  const FeatureImageType *
+  GetFeatureImage()
   {
-    return static_cast< FeatureImageType * >( this->ProcessObject::GetInput(1) );
+    return static_cast<FeatureImageType *>(this->ProcessObject::GetInput(1));
   }
 
   /** Set the input image */
-  void SetInput1(const InputImageType *input)
+  void
+  SetInput1(const InputImageType * input)
   {
     this->SetInput(input);
   }
 
   /** Set the feature image */
-  void SetInput2(const FeatureImageType *input)
+  void
+  SetInput2(const FeatureImageType * input)
   {
     this->SetFeatureImage(input);
   }
@@ -166,24 +165,26 @@ public:
 
 protected:
   LabelImageToStatisticsLabelMapFilter();
-  ~LabelImageToStatisticsLabelMapFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~LabelImageToStatisticsLabelMapFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** LabelImageToStatisticsLabelMapFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** LabelImageToStatisticsLabelMapFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /** Single-threaded version of GenerateData.  This filter delegates
    * to GrayscaleGeodesicErodeImageFilter. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelImageToStatisticsLabelMapFilter);
-
   OutputImagePixelType m_BackgroundValue;
   bool                 m_ComputeFeretDiameter;
   bool                 m_ComputePerimeter;
@@ -193,7 +194,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelImageToStatisticsLabelMapFilter.hxx"
+#  include "itkLabelImageToStatisticsLabelMapFilter.hxx"
 #endif
 
 #endif

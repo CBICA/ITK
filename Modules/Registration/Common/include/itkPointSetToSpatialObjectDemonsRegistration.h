@@ -49,15 +49,17 @@ namespace itk
  * \ingroup RegistrationFilters
  * \ingroup ITKRegistrationCommon
  */
-template< typename TFixedPointSet, typename TMovingSpatialObject >
-class ITK_TEMPLATE_EXPORT PointSetToSpatialObjectDemonsRegistration:public ProcessObject
+template <typename TFixedPointSet, typename TMovingSpatialObject>
+class ITK_TEMPLATE_EXPORT PointSetToSpatialObjectDemonsRegistration : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef PointSetToSpatialObjectDemonsRegistration Self;
-  typedef ProcessObject                             Superclass;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PointSetToSpatialObjectDemonsRegistration);
+
+  /** Standard class type aliases. */
+  using Self = PointSetToSpatialObjectDemonsRegistration;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -66,12 +68,12 @@ public:
   itkTypeMacro(PointSetToSpatialObjectDemonsRegistration, ProcessObject);
 
   /**  Type of the Fixed PointSet. */
-  typedef          TFixedPointSet                  FixedPointSetType;
-  typedef typename FixedPointSetType::ConstPointer FixedPointSetConstPointer;
+  using FixedPointSetType = TFixedPointSet;
+  using FixedPointSetConstPointer = typename FixedPointSetType::ConstPointer;
 
   /**  Type of the Moving image. */
-  typedef          TMovingSpatialObject                  MovingSpatialObjectType;
-  typedef typename MovingSpatialObjectType::ConstPointer MovingSpatialObjectConstPointer;
+  using MovingSpatialObjectType = TMovingSpatialObject;
+  using MovingSpatialObjectConstPointer = typename MovingSpatialObjectType::ConstPointer;
 
   /** Set/Get the Fixed image. */
   itkSetConstObjectMacro(FixedPointSet, FixedPointSetType);
@@ -81,40 +83,20 @@ public:
   itkSetConstObjectMacro(MovingSpatialObject, MovingSpatialObjectType);
   itkGetConstObjectMacro(MovingSpatialObject, MovingSpatialObjectType);
 
-#ifdef ITKV3_COMPATIBILITY
-  /** Method that initiates the registration. This will Initialize and ensure
-   * that all inputs the registration needs are in place, via a call to
-   * Initialize() will then start the optimization process via a call to
-   * StartOptimization()
-   * StartRegistration is an old API from before
-   * ImageRegistrationMethod was a subclass of ProcessObject.
-   * Historically, one could call StartRegistration() instead of
-   * calling Update().  However, when called directly by the user, the
-   * inputs to ImageRegistrationMethod may not be up to date.  This
-   * may cause an unexpected behavior.
-   *
-   * Since we cannot eliminate StartRegistration for backward
-   * compatibility reasons, we check whether StartRegistration was
-   * called directly or whether Update() (which in turn called
-   * StartRegistration()). */
-  void StartRegistration(void) { this->Update(); }
-#endif
-
 protected:
   PointSetToSpatialObjectDemonsRegistration();
-  virtual ~PointSetToSpatialObjectDemonsRegistration() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~PointSetToSpatialObjectDemonsRegistration() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PointSetToSpatialObjectDemonsRegistration);
-
   MovingSpatialObjectConstPointer m_MovingSpatialObject;
   FixedPointSetConstPointer       m_FixedPointSet;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPointSetToSpatialObjectDemonsRegistration.hxx"
+#  include "itkPointSetToSpatialObjectDemonsRegistration.hxx"
 #endif
 
 #endif

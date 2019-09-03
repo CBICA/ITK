@@ -38,18 +38,19 @@ namespace itk
  * \ingroup SpatialFunctions
  * \ingroup ITKCommon
  */
-template< typename TOutput = double,
+template <typename TOutput = double,
           unsigned int VImageDimension = 3,
-          typename TInput = Point< SpacePrecisionType, VImageDimension > >
-class ITK_TEMPLATE_EXPORT GaussianSpatialFunction:
-  public SpatialFunction< TOutput, VImageDimension, TInput >
+          typename TInput = Point<SpacePrecisionType, VImageDimension>>
+class ITK_TEMPLATE_EXPORT GaussianSpatialFunction : public SpatialFunction<TOutput, VImageDimension, TInput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GaussianSpatialFunction                             Self;
-  typedef SpatialFunction< TOutput, VImageDimension, TInput > Superclass;
-  typedef SmartPointer< Self >                                Pointer;
-  typedef SmartPointer< const Self >                          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSpatialFunction);
+
+  /** Standard class type aliases. */
+  using Self = GaussianSpatialFunction;
+  using Superclass = SpatialFunction<TOutput, VImageDimension, TInput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -58,16 +59,17 @@ public:
   itkTypeMacro(GaussianSpatialFunction, SpatialFunction);
 
   /** Input type for the function. */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Type used to store gaussian parameters. */
-  typedef FixedArray< double, VImageDimension > ArrayType;
+  using ArrayType = FixedArray<double, VImageDimension>;
 
   /** Evaluate the function at a given position. */
-  OutputType Evaluate(const TInput & position) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const TInput & position) const override;
 
   /** Set/Get the scale factor to multiply the true value of the Gaussian. */
   itkSetMacro(Scale, double);
@@ -88,24 +90,23 @@ public:
 
 protected:
   GaussianSpatialFunction();
-  virtual ~GaussianSpatialFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GaussianSpatialFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSpatialFunction);
-
   ArrayType m_Sigma;
 
   ArrayType m_Mean;
 
-  double m_Scale;
+  double m_Scale{ 1.0 };
 
-  bool m_Normalized;
+  bool m_Normalized{ false };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGaussianSpatialFunction.hxx"
+#  include "itkGaussianSpatialFunction.hxx"
 #endif
 
 #endif

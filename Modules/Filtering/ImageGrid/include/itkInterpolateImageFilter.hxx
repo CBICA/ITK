@@ -25,61 +25,46 @@
 
 namespace itk
 {
-/**
- * Constructor
- */
-template< typename TInputImage, typename TOutputImage >
-InterpolateImageFilter< TInputImage, TOutputImage >
-::InterpolateImageFilter()
+template <typename TInputImage, typename TOutputImage>
+InterpolateImageFilter<TInputImage, TOutputImage>::InterpolateImageFilter()
 {
   // The filter requires two inputs
   this->SetNumberOfRequiredInputs(2);
 
   // Set default interpolator to linear
-  typedef LinearInterpolateImageFunction< IntermediateImageType >
-  LinearInterpolatorType;
-  typename LinearInterpolatorType::Pointer interpolator =
-    LinearInterpolatorType::New();
+  using LinearInterpolatorType = LinearInterpolateImageFunction<IntermediateImageType>;
+  typename LinearInterpolatorType::Pointer interpolator = LinearInterpolatorType::New();
 
-  m_Interpolator = static_cast< InterpolatorType * >( interpolator.GetPointer() );
+  m_Interpolator = static_cast<InterpolatorType *>(interpolator.GetPointer());
 
   // Set default distance to 0,5
   m_Distance = 0.5;
 
-  m_IntermediateImage = ITK_NULLPTR;
+  m_IntermediateImage = nullptr;
+  this->DynamicMultiThreadingOn();
 }
 
-/**
- * Set the second image
- */
-template< typename TInputImage, typename TOutputImage >
+
+template <typename TInputImage, typename TOutputImage>
 void
-InterpolateImageFilter< TInputImage, TOutputImage >
-::SetInput2(const InputImageType *image)
+InterpolateImageFilter<TInputImage, TOutputImage>::SetInput2(const InputImageType * image)
 {
   // Process object is not const-correct so the const_cast is required here
-  this->ProcessObject::SetNthInput( 1,
-                                    const_cast< InputImageType * >( image ) );
+  this->ProcessObject::SetNthInput(1, const_cast<InputImageType *>(image));
 }
 
-/**
- * Get the second image
- */
-template< typename TInputImage, typename TOutputImage >
-const typename InterpolateImageFilter< TInputImage, TOutputImage >::InputImageType *
-InterpolateImageFilter< TInputImage, TOutputImage >
-::GetInput2()
+
+template <typename TInputImage, typename TOutputImage>
+const typename InterpolateImageFilter<TInputImage, TOutputImage>::InputImageType *
+InterpolateImageFilter<TInputImage, TOutputImage>::GetInput2()
 {
-  return static_cast< const TInputImage * >( this->ProcessObject::GetInput(1) );
+  return static_cast<const TInputImage *>(this->ProcessObject::GetInput(1));
 }
 
-/**
- * Print out a description of self
- */
-template< typename TInputImage, typename TOutputImage >
+
+template <typename TInputImage, typename TOutputImage>
 void
-InterpolateImageFilter< TInputImage, TOutputImage >
-::PrintSelf(std::ostream & os, Indent indent) const
+InterpolateImageFilter<TInputImage, TOutputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -92,26 +77,24 @@ InterpolateImageFilter< TInputImage, TOutputImage >
  * InterpolatorType::SetInputImage is not thread-safe and hence
  * has to be setup before ThreadedGenerateData
  */
-template< typename TInputImage, typename TOutputImage >
+template <typename TInputImage, typename TOutputImage>
 void
-InterpolateImageFilter< TInputImage, TOutputImage >
-::BeforeThreadedGenerateData()
+InterpolateImageFilter<TInputImage, TOutputImage>::BeforeThreadedGenerateData()
 {
-  if ( !m_Interpolator )
-    {
+  if (!m_Interpolator)
+  {
     itkExceptionMacro(<< "Interpolator not set");
-    }
+  }
 
   // Create intermediate image
-  typedef typename IntermediateImageType::RegionType IntermediateImageRegionType;
-  typedef typename TOutputImage::RegionType          ImageRegionType;
+  using IntermediateImageRegionType = typename IntermediateImageType::RegionType;
+  using ImageRegionType = typename TOutputImage::RegionType;
 
   ImageRegionType outputRegion = this->GetOutput()->GetRequestedRegion();
 
   IntermediateImageRegionType intermediateRegion;
 
-  typedef ImageToImageFilterDetail::ImageRegionCopier< ImageDimension + 1, ImageDimension >
-  RegionCopierType;
+  using RegionCopierType = ImageToImageFilterDetail::ImageRegionCopier<ImageDimension + 1, ImageDimension>;
   RegionCopierType regionCopier;
   regionCopier(intermediateRegion, outputRegion);
 
@@ -126,103 +109,83 @@ InterpolateImageFilter< TInputImage, TOutputImage >
   intermediateRegion.SetIndex(ImageDimension, 0);
   intermediateRegion.SetSize(ImageDimension, 1);
 
-  ImageRegionConstIteratorWithIndex< TInputImage >      inIter(this->GetInput1(), outputRegion);
-  ImageRegionIteratorWithIndex< IntermediateImageType > outIter(m_IntermediateImage,
-                                                                intermediateRegion);
+  ImageRegionConstIteratorWithIndex<TInputImage>      inIter(this->GetInput1(), outputRegion);
+  ImageRegionIteratorWithIndex<IntermediateImageType> outIter(m_IntermediateImage, intermediateRegion);
 
-  while ( !inIter.IsAtEnd() )
-    {
-    outIter.Set( inIter.Get() );
+  while (!inIter.IsAtEnd())
+  {
+    outIter.Set(inIter.Get());
     ++inIter;
     ++outIter;
-    }
+  }
 
   intermediateRegion.SetIndex(ImageDimension, 1);
   intermediateRegion.SetSize(ImageDimension, 1);
 
-  inIter = ImageRegionConstIteratorWithIndex< TInputImage >(this->GetInput2(), outputRegion);
-  outIter = ImageRegionIteratorWithIndex< IntermediateImageType >(m_IntermediateImage,
-                                                                  intermediateRegion);
+  inIter = ImageRegionConstIteratorWithIndex<TInputImage>(this->GetInput2(), outputRegion);
+  outIter = ImageRegionIteratorWithIndex<IntermediateImageType>(m_IntermediateImage, intermediateRegion);
 
-  while ( !inIter.IsAtEnd() )
-    {
-    outIter.Set( inIter.Get() );
+  while (!inIter.IsAtEnd())
+  {
+    outIter.Set(inIter.Get());
     ++inIter;
     ++outIter;
-    }
+  }
 
   // Connect input image to interpolator
   m_Interpolator->SetInputImage(m_IntermediateImage);
 }
 
-/**
- * AfterThreadedGenerateData
- */
-template< typename TInputImage, typename TOutputImage >
+
+template <typename TInputImage, typename TOutputImage>
 void
-InterpolateImageFilter< TInputImage, TOutputImage >
-::AfterThreadedGenerateData()
+InterpolateImageFilter<TInputImage, TOutputImage>::AfterThreadedGenerateData()
 {
   // Clean up intermediate memory usage
-  m_IntermediateImage = ITK_NULLPTR;
+  m_IntermediateImage = nullptr;
 }
 
-/**
- * ThreadedGenerateData
- */
-template< typename TInputImage, typename TOutputImage >
+
+template <typename TInputImage, typename TOutputImage>
 void
-InterpolateImageFilter< TInputImage, TOutputImage >
-::ThreadedGenerateData(
-  const OutputImageRegionType & outputRegionForThread,
-  ThreadIdType threadId)
+InterpolateImageFilter<TInputImage, TOutputImage>::DynamicThreadedGenerateData(
+  const OutputImageRegionType & outputRegionForThread)
 {
-  // Get the output pointers
   OutputImagePointer outputPtr = this->GetOutput();
-
-  // Create an iterator that will walk the output region for this thread.
-  typedef ImageRegionIteratorWithIndex< TOutputImage > OutputIterator;
-
+  using OutputIterator = ImageRegionIteratorWithIndex<TOutputImage>;
   OutputIterator outIt(outputPtr, outputRegionForThread);
 
-  typedef typename TOutputImage::PixelType               OutputPixelType;
-  typedef typename TOutputImage::IndexType               IndexType;
-  typedef typename InterpolatorType::ContinuousIndexType ContinuousIndexType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using IndexType = typename TOutputImage::IndexType;
+  using ContinuousIndexType = typename InterpolatorType::ContinuousIndexType;
 
-  IndexType outputIndex;                         // Index to current output
-                                                 // pixel
-  ContinuousIndexType intermediateIndex;         // Coordinates of current
-                                                 // intermediate image pixel
-
-  // Estimate total work for progress methods/callbacks
-  ProgressReporter progress( this, threadId, outputRegionForThread.GetNumberOfPixels() );
+  IndexType           outputIndex;       // Index to current output pixel
+  ContinuousIndexType intermediateIndex; // Coordinates of current intermediate image pixel
 
   // Walk the output region
-  while ( !outIt.IsAtEnd() )
-    {
+  while (!outIt.IsAtEnd())
+  {
     // Determine the intermediate image index
     outputIndex = outIt.GetIndex();
-    for ( unsigned int j = 0; j < ImageDimension; ++j )
-      {
+    for (unsigned int j = 0; j < ImageDimension; ++j)
+    {
       intermediateIndex[j] = (double)outputIndex[j];
-      }
+    }
     intermediateIndex[ImageDimension] = m_Distance;
 
     // Evaluate input at right position and copy to the output
-    if ( m_Interpolator->IsInsideBuffer(intermediateIndex) )
-      {
-      outIt.Set( static_cast< OutputPixelType >(
-                   m_Interpolator->EvaluateAtContinuousIndex(intermediateIndex) ) );
-      }
+    if (m_Interpolator->IsInsideBuffer(intermediateIndex))
+    {
+      outIt.Set(static_cast<OutputPixelType>(m_Interpolator->EvaluateAtContinuousIndex(intermediateIndex)));
+    }
     else
-      {
+    {
       // should never be in here
       itkExceptionMacro(<< "Index not within the intermediate buffer");
-      }
+    }
 
     ++outIt;
-    progress.CompletedPixel();
-    }
+  }
 }
 } // end namespace itk
 

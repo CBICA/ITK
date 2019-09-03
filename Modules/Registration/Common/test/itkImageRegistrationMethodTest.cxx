@@ -30,69 +30,64 @@
  *  This file tests initialization errors.
  */
 
-int itkImageRegistrationMethodTest(int, char* [] )
+int
+itkImageRegistrationMethodTest(int, char *[])
 {
 
   itk::OutputWindow::SetInstance(itk::TextOutput::New().GetPointer());
 
   bool pass;
 
-  const unsigned int dimension = 3;
+  constexpr unsigned int dimension = 3;
 
   // Fixed Image Type
-  typedef itk::Image<float,dimension>                    FixedImageType;
+  using FixedImageType = itk::Image<float, dimension>;
 
   // Moving Image Type
-  typedef itk::Image<char,dimension>                     MovingImageType;
+  using MovingImageType = itk::Image<char, dimension>;
 
   // Transform Type
-  typedef itk::TranslationTransform< double, dimension > TransformType;
+  using TransformType = itk::TranslationTransform<double, dimension>;
 
   // Optimizer Type
-  typedef itk::RegularStepGradientDescentOptimizer       OptimizerType;
+  using OptimizerType = itk::RegularStepGradientDescentOptimizer;
 
   // Metric Type
-  typedef itk::MeanSquaresImageToImageMetric<
-                                    FixedImageType,
-                                    MovingImageType >    MetricType;
+  using MetricType = itk::MeanSquaresImageToImageMetric<FixedImageType, MovingImageType>;
 
   // Interpolation technique
-  typedef itk:: LinearInterpolateImageFunction<
-                                    MovingImageType,
-                                    double          >    InterpolatorType;
+  using InterpolatorType = itk::LinearInterpolateImageFunction<MovingImageType, double>;
 
   // Registration Method
-  typedef itk::ImageRegistrationMethod<
-                                    FixedImageType,
-                                    MovingImageType >    RegistrationType;
+  using RegistrationType = itk::ImageRegistrationMethod<FixedImageType, MovingImageType>;
 
 
-  MetricType::Pointer         metric        = MetricType::New();
-  TransformType::Pointer      transform     = TransformType::New();
-  OptimizerType::Pointer      optimizer     = OptimizerType::New();
-  FixedImageType::Pointer     fixedImage    = FixedImageType::New();
-  MovingImageType::Pointer    movingImage   = MovingImageType::New();
-  InterpolatorType::Pointer   interpolator  = InterpolatorType::New();
-  RegistrationType::Pointer   registration  = RegistrationType::New();
+  MetricType::Pointer       metric = MetricType::New();
+  TransformType::Pointer    transform = TransformType::New();
+  OptimizerType::Pointer    optimizer = OptimizerType::New();
+  FixedImageType::Pointer   fixedImage = FixedImageType::New();
+  MovingImageType::Pointer  movingImage = MovingImageType::New();
+  InterpolatorType::Pointer interpolator = InterpolatorType::New();
+  RegistrationType::Pointer registration = RegistrationType::New();
 
-  FixedImageType::SizeType    size;
-  size.Fill( 4 );  // the size of image have to be at least 4 in each dimension to
-                   // compute gradient image inside the metric.
-  FixedImageType::RegionType  region( size );
-  fixedImage->SetRegions( region );
+  FixedImageType::SizeType size;
+  size.Fill(4); // the size of image have to be at least 4 in each dimension to
+                // compute gradient image inside the metric.
+  FixedImageType::RegionType region(size);
+  fixedImage->SetRegions(region);
   fixedImage->Allocate();
-  fixedImage->FillBuffer( 3.0 );
+  fixedImage->FillBuffer(3.0);
 
-  movingImage->SetRegions( region );
+  movingImage->SetRegions(region);
   movingImage->Allocate();
-  movingImage->FillBuffer( 4 );
+  movingImage->FillBuffer(4);
 
-  registration->SetMetric(        metric        );
-  registration->SetOptimizer(     optimizer     );
-  registration->SetTransform(     transform     );
-  registration->SetFixedImage(    fixedImage    );
-  registration->SetMovingImage(   movingImage   );
-  registration->SetInterpolator(  interpolator  );
+  registration->SetMetric(metric);
+  registration->SetOptimizer(optimizer);
+  registration->SetTransform(transform);
+  registration->SetFixedImage(fixedImage);
+  registration->SetMovingImage(movingImage);
+  registration->SetInterpolator(interpolator);
 
   // Exercise Get methods
   std::cout << "metric: " << registration->GetMetric() << std::endl;
@@ -105,51 +100,49 @@ int itkImageRegistrationMethodTest(int, char* [] )
   std::cout << "initial parameters: ";
   std::cout << registration->GetInitialTransformParameters() << std::endl;
 
-  typedef RegistrationType::ParametersType ParametersType;
-  ParametersType initialParameters( transform->GetNumberOfParameters() );
+  using ParametersType = RegistrationType::ParametersType;
+  ParametersType initialParameters(transform->GetNumberOfParameters());
   initialParameters.Fill(0);
 
-  ParametersType badParameters( 2 );
-  badParameters.Fill( 5 );
+  ParametersType badParameters(2);
+  badParameters.Fill(5);
 
-  registration->SetInitialTransformParameters( initialParameters );
+  registration->SetInitialTransformParameters(initialParameters);
 
   std::cout << registration;
   /****************************************************
    * Test out initialization errors
    ****************************************************/
 
-#define TEST_INITIALIZATION_ERROR( ComponentName, badComponent, goodComponent ) \
-  registration->Set##ComponentName( badComponent ); \
-  try \
-    { \
-    pass = false; \
-    registration->Update(); \
-    } \
-  catch( itk::ExceptionObject& err ) \
-    { \
-    std::cout << "Caught expected ExceptionObject" << std::endl; \
-    std::cout << err << std::endl; \
-    pass = true; \
-    } \
-  registration->Set##ComponentName( goodComponent ); \
-  \
-  if( !pass ) \
-    { \
-    std::cout << "Test failed." << std::endl; \
-    return EXIT_FAILURE; \
-    }
+#define TEST_INITIALIZATION_ERROR(ComponentName, badComponent, goodComponent)                                          \
+  registration->Set##ComponentName(badComponent);                                                                      \
+  try                                                                                                                  \
+  {                                                                                                                    \
+    pass = false;                                                                                                      \
+    registration->Update();                                                                                            \
+  }                                                                                                                    \
+  catch (itk::ExceptionObject & err)                                                                                   \
+  {                                                                                                                    \
+    std::cout << "Caught expected ExceptionObject" << std::endl;                                                       \
+    std::cout << err << std::endl;                                                                                     \
+    pass = true;                                                                                                       \
+  }                                                                                                                    \
+  registration->Set##ComponentName(goodComponent);                                                                     \
+                                                                                                                       \
+  if (!pass)                                                                                                           \
+  {                                                                                                                    \
+    std::cout << "Test failed." << std::endl;                                                                          \
+    return EXIT_FAILURE;                                                                                               \
+  }
 
-  TEST_INITIALIZATION_ERROR( InitialTransformParameters, badParameters, initialParameters );
-  TEST_INITIALIZATION_ERROR( Metric, ITK_NULLPTR, metric );
-  TEST_INITIALIZATION_ERROR( Optimizer, ITK_NULLPTR, optimizer );
-  TEST_INITIALIZATION_ERROR( Transform, ITK_NULLPTR, transform );
-  TEST_INITIALIZATION_ERROR( FixedImage, ITK_NULLPTR, fixedImage );
-  TEST_INITIALIZATION_ERROR( MovingImage, ITK_NULLPTR, movingImage );
-  TEST_INITIALIZATION_ERROR( Interpolator, ITK_NULLPTR, interpolator );
+  TEST_INITIALIZATION_ERROR(InitialTransformParameters, badParameters, initialParameters);
+  TEST_INITIALIZATION_ERROR(Metric, nullptr, metric);
+  TEST_INITIALIZATION_ERROR(Optimizer, nullptr, optimizer);
+  TEST_INITIALIZATION_ERROR(Transform, nullptr, transform);
+  TEST_INITIALIZATION_ERROR(FixedImage, nullptr, fixedImage);
+  TEST_INITIALIZATION_ERROR(MovingImage, nullptr, movingImage);
+  TEST_INITIALIZATION_ERROR(Interpolator, nullptr, interpolator);
 
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;
-
-
 }

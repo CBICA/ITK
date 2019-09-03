@@ -51,16 +51,17 @@ namespace itk
  *
  * \ingroup ITKTransform
  */
-template<typename TParametersValueType=double>
-class ITK_TEMPLATE_EXPORT CenteredSimilarity2DTransform :
-  public Similarity2DTransform<TParametersValueType>
+template <typename TParametersValueType = double>
+class ITK_TEMPLATE_EXPORT CenteredSimilarity2DTransform : public Similarity2DTransform<TParametersValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef CenteredSimilarity2DTransform               Self;
-  typedef Similarity2DTransform<TParametersValueType> Superclass;
-  typedef SmartPointer<Self>                          Pointer;
-  typedef SmartPointer<const Self>                    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CenteredSimilarity2DTransform);
+
+  /** Standard class type aliases. */
+  using Self = CenteredSimilarity2DTransform;
+  using Superclass = Similarity2DTransform<TParametersValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer. */
   itkNewMacro(Self);
@@ -69,61 +70,62 @@ public:
   itkTypeMacro(CenteredSimilarity2DTransform, Similarity2DTransform);
 
   /** Dimension of parameters. */
-  itkStaticConstMacro(SpaceDimension,           unsigned int, 2);
-  itkStaticConstMacro(InputSpaceDimension,      unsigned int, 2);
-  itkStaticConstMacro(OutputSpaceDimension,     unsigned int, 2);
-  itkStaticConstMacro(ParametersDimension,      unsigned int, 6);
+  static constexpr unsigned int SpaceDimension = 2;
+  static constexpr unsigned int InputSpaceDimension = 2;
+  static constexpr unsigned int OutputSpaceDimension = 2;
+  static constexpr unsigned int ParametersDimension = 6;
 
   /** Scalar type. */
-  typedef typename Superclass::ScalarType ScalarType;
+  using ScalarType = typename Superclass::ScalarType;
 
   /** Parameters type. */
-  typedef typename Superclass::FixedParametersType      FixedParametersType;
-  typedef typename Superclass::FixedParametersValueType FixedParametersValueType;
-  typedef typename Superclass::ParametersType           ParametersType;
-  typedef typename Superclass::ParametersValueType      ParametersValueType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using FixedParametersValueType = typename Superclass::FixedParametersValueType;
+  using ParametersType = typename Superclass::ParametersType;
+  using ParametersValueType = typename Superclass::ParametersValueType;
 
   /** Jacobian type. */
-  typedef typename Superclass::JacobianType JacobianType;
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
 
   /** Offset type. */
-  typedef typename Superclass::OffsetType      OffsetType;
-  typedef typename Superclass::OffsetValueType OffsetValueType;
+  using OffsetType = typename Superclass::OffsetType;
+  using OffsetValueType = typename Superclass::OffsetValueType;
 
   /** Point type. */
-  typedef typename Superclass::InputPointType  InputPointType;
-  typedef typename Superclass::OutputPointType OutputPointType;
-  typedef typename InputPointType::ValueType   InputPointValueType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
+  using InputPointValueType = typename InputPointType::ValueType;
 
   /** Vector type. */
-  typedef typename Superclass::InputVectorType  InputVectorType;
-  typedef typename Superclass::OutputVectorType OutputVectorType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
 
   /** CovariantVector type. */
-  typedef typename Superclass::InputCovariantVectorType
-  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType
-  OutputCovariantVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
 
   /** VnlVector type. */
-  typedef typename Superclass::InputVnlVectorType  InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType OutputVnlVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
 
   /** Base inverse transform type. This type should not be changed to the
    * concrete inverse transform type or inheritance would be lost. */
-  typedef typename Superclass::InverseTransformBaseType InverseTransformBaseType;
-  typedef typename InverseTransformBaseType::Pointer    InverseTransformBasePointer;
+  using InverseTransformBaseType = typename Superclass::InverseTransformBaseType;
+  using InverseTransformBasePointer = typename InverseTransformBaseType::Pointer;
 
   /** Set the transformation from a container of parameters
-    * This is typically used by optimizers.
-    * There are 6 parameters. The first one represents the
-    * scale, the second represents the angle of rotation, the next
-    * two represent the center of the rotation
-    * and the last two represent the translation.
-    *
-    * \sa Transform::SetParameters()
-    * \sa Transform::SetFixedParameters() */
-  virtual void SetParameters(const ParametersType & parameters) ITK_OVERRIDE;
+   * This is typically used by optimizers.
+   * There are 6 parameters. The first one represents the
+   * scale, the second represents the angle of rotation, the next
+   * two represent the center of the rotation
+   * and the last two represent the translation.
+   *
+   * \sa Transform::SetParameters()
+   * \sa Transform::SetFixedParameters() */
+  void
+  SetParameters(const ParametersType & parameters) override;
 
   /** Get the parameters that uniquely define the transform
    * This is typically used by optimizers.
@@ -134,50 +136,56 @@ public:
    *
    * \sa Transform::GetParameters()
    * \sa Transform::GetFixedParameters() */
-  virtual const ParametersType & GetParameters() const ITK_OVERRIDE;
+  const ParametersType &
+  GetParameters() const override;
 
   /** Compute the Jacobian Matrix of the transformation at one point */
-  virtual void ComputeJacobianWithRespectToParameters( const InputPointType  & p, JacobianType & jacobian) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToParameters(const InputPointType & p, JacobianType & jacobian) const override;
 
   /** Set the fixed parameters and update internal transformation.
    * This is a null function as there are no fixed parameters. */
-  virtual void SetFixedParameters(const FixedParametersType &) ITK_OVERRIDE;
+  void
+  SetFixedParameters(const FixedParametersType &) override;
 
   /** Get the Fixed Parameters. An empty array is returned
    * as there are no fixed parameters. */
-  virtual const FixedParametersType & GetFixedParameters() const ITK_OVERRIDE;
+  const FixedParametersType &
+  GetFixedParameters() const override;
 
   /**
    * This method creates and returns a new Rigid2DTransform object
    * which is the inverse of self. */
-  void CloneInverseTo(Pointer & newinverse) const;
+  void
+  CloneInverseTo(Pointer & newinverse) const;
 
   /** Get an inverse of this transform. */
-  bool GetInverse(Self *inverse) const;
+  bool
+  GetInverse(Self * inverse) const;
 
   /** Return an inverse of this transform. */
-  virtual InverseTransformBasePointer GetInverseTransform() const ITK_OVERRIDE;
+  InverseTransformBasePointer
+  GetInverseTransform() const override;
 
   /**
    * This method creates and returns a new Rigid2DTransform object
    * which has the same parameters. */
-  void CloneTo(Pointer & clone) const;
+  void
+  CloneTo(Pointer & clone) const;
 
 protected:
   CenteredSimilarity2DTransform();
   CenteredSimilarity2DTransform(unsigned int spaceDimension, unsigned int parametersDimension);
 
-  virtual ~CenteredSimilarity2DTransform() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CenteredSimilarity2DTransform);
+  ~CenteredSimilarity2DTransform() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCenteredSimilarity2DTransform.hxx"
+#  include "itkCenteredSimilarity2DTransform.hxx"
 #endif
 
 #endif /* itkCenteredSimilarity2DTransform_h */

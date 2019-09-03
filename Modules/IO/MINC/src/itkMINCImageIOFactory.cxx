@@ -23,16 +23,11 @@ namespace itk
 {
 MINCImageIOFactory::MINCImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkMINCImageIO",
-                          "MINC Image IO",
-                          1,
-                          CreateObjectFunction< MINCImageIO >::New() );
+  this->RegisterOverride(
+    "itkImageIOBase", "itkMINCImageIO", "MINC Image IO", true, CreateObjectFunction<MINCImageIO>::New());
 }
 
-MINCImageIOFactory::~MINCImageIOFactory()
-{
-}
+MINCImageIOFactory::~MINCImageIOFactory() = default;
 
 const char *
 MINCImageIOFactory::GetITKSourceVersion() const
@@ -51,13 +46,14 @@ MINCImageIOFactory::GetDescription() const
 
 static bool MINCImageIOFactoryHasBeenRegistered;
 
-void ITKIOMINC_EXPORT MINCImageIOFactoryRegister__Private(void)
+void ITKIOMINC_EXPORT
+     MINCImageIOFactoryRegister__Private()
 {
-  if( !MINCImageIOFactoryHasBeenRegistered )
-    {
+  if (!MINCImageIOFactoryHasBeenRegistered)
+  {
     MINCImageIOFactoryHasBeenRegistered = true;
     MINCImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

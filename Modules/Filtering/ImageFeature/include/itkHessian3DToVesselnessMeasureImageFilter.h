@@ -72,38 +72,33 @@ namespace itk
  * \ingroup ITKImageFeature
  */
 
-template< typename  TPixel >
-class ITK_TEMPLATE_EXPORT Hessian3DToVesselnessMeasureImageFilter:public
-  ImageToImageFilter< Image< SymmetricSecondRankTensor< double, 3 >, 3 >,
-                      Image< TPixel, 3 > >
+template <typename TPixel>
+class ITK_TEMPLATE_EXPORT Hessian3DToVesselnessMeasureImageFilter
+  : public ImageToImageFilter<Image<SymmetricSecondRankTensor<double, 3>, 3>, Image<TPixel, 3>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef Hessian3DToVesselnessMeasureImageFilter Self;
-  typedef ImageToImageFilter<
-    Image< SymmetricSecondRankTensor< double, 3 >, 3 >,
-    Image< TPixel, 3 > >                    Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(Hessian3DToVesselnessMeasureImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Hessian3DToVesselnessMeasureImageFilter;
+  using Superclass = ImageToImageFilter<Image<SymmetricSecondRankTensor<double, 3>, 3>, Image<TPixel, 3>>;
 
-  typedef typename Superclass::InputImageType  InputImageType;
-  typedef typename Superclass::OutputImageType OutputImageType;
-  typedef typename InputImageType::PixelType   InputPixelType;
-  typedef TPixel                               OutputPixelType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using InputImageType = typename Superclass::InputImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = TPixel;
 
   /** Image dimension = 3. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                       InputImageType ::ImageDimension);
-  itkStaticConstMacro(InputPixelDimension, unsigned int,
-                      InputPixelType::Dimension);
+  static constexpr unsigned int ImageDimension = InputImageType ::ImageDimension;
+  static constexpr unsigned int InputPixelDimension = InputPixelType::Dimension;
 
-  typedef  FixedArray< double, itkGetStaticConstMacro(InputPixelDimension) >
-  EigenValueArrayType;
-  typedef  Image< EigenValueArrayType, itkGetStaticConstMacro(ImageDimension) >
-  EigenValueImageType;
-  typedef   SymmetricEigenAnalysisImageFilter<
-    InputImageType, EigenValueImageType >     EigenAnalysisFilterType;
+  using EigenValueArrayType = FixedArray<double, Self::InputPixelDimension>;
+  using EigenValueImageType = Image<EigenValueArrayType, Self::ImageDimension>;
+  using EigenAnalysisFilterType =
+    SymmetricEigenAnalysisFixedDimensionImageFilter<ImageDimension, InputImageType, EigenValueImageType>;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(Hessian3DToVesselnessMeasureImageFilter, ImageToImageFilter);
@@ -123,22 +118,21 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, OutputPixelType > ) );
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
   Hessian3DToVesselnessMeasureImageFilter();
-  ~Hessian3DToVesselnessMeasureImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~Hessian3DToVesselnessMeasureImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Generate Data */
-  void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(Hessian3DToVesselnessMeasureImageFilter);
-
   typename EigenAnalysisFilterType::Pointer m_SymmetricEigenValueFilter;
 
   double m_Alpha1;
@@ -147,7 +141,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHessian3DToVesselnessMeasureImageFilter.hxx"
+#  include "itkHessian3DToVesselnessMeasureImageFilter.hxx"
 #endif
 
 #endif

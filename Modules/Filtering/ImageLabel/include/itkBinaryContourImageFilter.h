@@ -19,8 +19,7 @@
 #define itkBinaryContourImageFilter_h
 
 #include "itkInPlaceImageFilter.h"
-#include "itkConceptChecking.h"
-#include "itkBarrier.h"
+#include "itkScanlineFilterCommon.h"
 #include <vector>
 
 namespace itk
@@ -44,24 +43,29 @@ namespace itk
  * \sa LabelContourImageFilter BinaryErodeImageFilter SimpleContourExtractorImageFilter
  * \ingroup ITKImageLabel
  *
- * \wiki
- * \wikiexample{EdgesAndGradients/BinaryContourImageFilter,Extract the boundaries of connected regions in a binary image}
- * \wikiexample{EdgesAndGradients/BinaryBoundaries,Extract the inner and outer boundaries of blobs in a binary image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageLabel/ExtractBoundariesOfConnectedRegionsInBinaryImage,Extract Boundaries Of Connected
+ * Regions In Binary Image} \sphinxexample{Filtering/ImageLabel/ExtractBoundariesOfBlobsInBinaryImage,Extract Inner And
+ * Outer Boundaries Of Blobs In Binary Image} \endsphinx
  */
 
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT BinaryContourImageFilter:
-  public InPlaceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT BinaryContourImageFilter
+  : public InPlaceImageFilter<TInputImage, TOutputImage>
+  , protected ScanlineFilterCommon<TInputImage, TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryContourImageFilter);
+
   /**
    * Standard "Self" & Superclass typedef.
    */
-  typedef BinaryContourImageFilter                        Self;
-  typedef InPlaceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  using Self = BinaryContourImageFilter;
+  using Superclass = InPlaceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass::Register;
+  using Superclass::UnRegister;
 
   /**
    * Run-time type information (and related methods)
@@ -74,39 +78,27 @@ public:
   itkNewMacro(Self);
 
   /**
-   * Image typedef support
+   * Image type alias support
    */
-  typedef TInputImage                                 InputImageType;
-  typedef typename InputImageType::Pointer            InputImagePointer;
-  typedef typename InputImageType::ConstPointer       InputImageConstPointer;
-  typedef typename InputImageType::IndexType          IndexType;
-  typedef typename InputImageType::SizeType           SizeType;
-  typedef typename InputImageType::OffsetType         OffsetType;
-  typedef typename InputImageType::PixelType          InputImagePixelType;
-  typedef typename InputImageType::InternalPixelType  InputInternalPixelType;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using IndexType = typename InputImageType::IndexType;
+  using SizeType = typename InputImageType::SizeType;
+  using OffsetType = typename InputImageType::OffsetType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using InputInternalPixelType = typename InputImageType::InternalPixelType;
 
-  typedef TOutputImage                                OutputImageType;
-  typedef typename OutputImageType::Pointer           OutputImagePointer;
-  typedef typename OutputImageType::RegionType        RegionType;
-  typedef typename OutputImageType::IndexType         OutputIndexType;
-  typedef typename OutputImageType::SizeType          OutputSizeType;
-  typedef typename OutputImageType::OffsetType        OutputOffsetType;
-  typedef typename OutputImageType::PixelType         OutputImagePixelType;
-  typedef typename OutputImageType::InternalPixelType OutputInternalPixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using RegionType = typename OutputImageType::RegionType;
+  using OutputIndexType = typename OutputImageType::IndexType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+  using OutputOffsetType = typename OutputImageType::OffsetType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using OutputInternalPixelType = typename OutputImageType::InternalPixelType;
 
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      OutputImageType::ImageDimension);
-
-#ifdef ITK_USE_CONCEPT_CHECKING
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      InputImageType::ImageDimension);
-
-  // Concept checking -- input and output dimensions must be the same
-  itkConceptMacro( SameDimension,
-                   ( Concept::SameDimension< itkGetStaticConstMacro(ImageDimension),
-                                             itkGetStaticConstMacro(OutputImageDimension) > ) );
-#endif
-
+  static constexpr unsigned int ImageDimension = OutputImageType::ImageDimension;
   /**
    * Set/Get whether the connected components are defined strictly by
    * face connectivity or by face+edge+vertex connectivity.  Default is
@@ -132,83 +124,65 @@ public:
   itkGetConstMacro(ForegroundValue, InputImagePixelType);
 
 protected:
-
   BinaryContourImageFilter();
-  virtual ~BinaryContourImageFilter() ITK_OVERRIDE {}
+  ~BinaryContourImageFilter() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  /**
-   * Standard pipeline methods.
-   */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  void ThreadedGenerateData(const RegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  AfterThreadedGenerateData() override;
+
+  void
+  DynamicThreadedGenerateData(const RegionType & outputRegionForThread) override;
+
+  void
+  ThreadedIntegrateData(const RegionType & outputRegionForThread);
 
   /** BinaryContourImageFilter needs the entire input. Therefore
    * it must provide an implementation GenerateInputRequestedRegion().
    * \sa ProcessObject::GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** BinaryContourImageFilter will produce all of the output.
    * Therefore it must provide an implementation of
    * EnlargeOutputRequestedRegion().
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
-  void EnlargeOutputRequestedRegion( DataObject * itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
+
+  using ScanlineFunctions = ScanlineFilterCommon<TInputImage, TOutputImage>;
+
+  using InternalLabelType = typename ScanlineFunctions::InternalLabelType;
+  using OutSizeType = typename ScanlineFunctions::OutSizeType;
+  using RunLength = typename ScanlineFunctions::RunLength;
+  using LineEncodingType = typename ScanlineFunctions::LineEncodingType;
+  using LineEncodingIterator = typename ScanlineFunctions::LineEncodingIterator;
+  using LineEncodingConstIterator = typename ScanlineFunctions::LineEncodingConstIterator;
+  using OffsetVectorType = typename ScanlineFunctions::OffsetVectorType;
+  using OffsetVectorConstIterator = typename ScanlineFunctions::OffsetVectorConstIterator;
+  using LineMapType = typename ScanlineFunctions::LineMapType;
+  using UnionFindType = typename ScanlineFunctions::UnionFindType;
+  using ConsecutiveVectorType = typename ScanlineFunctions::ConsecutiveVectorType;
 
 private:
-  BinaryContourImageFilter(const Self &); //Purposefully not implemented
-  void operator = ( const Self &);        //Purposefully not implemented
-
-  // types to support the run length encoding of lines
-  struct runLength
-  {
-    runLength( const OffsetValueType& iLength, const IndexType& iWhere ) :
-      m_Length( iLength ), m_Where( iWhere ) {}
-
-    // run length information - may be a more type safe way of doing this
-    OffsetValueType m_Length;
-
-    // Index of the start of the run
-    IndexType       m_Where;
-  };
-
-  typedef std::vector< runLength >                  LineEncodingType;
-  typedef typename LineEncodingType::iterator       LineEncodingIterator;
-  typedef typename LineEncodingType::const_iterator LineEncodingConstIterator;
-
-  // the map storing lines
-  typedef std::vector< LineEncodingType > LineMapType;
-
-  typedef std::vector< OffsetValueType > OffsetVec;
-
-  bool CheckNeighbors(const OutputIndexType & A,
-                      const OutputIndexType & B);
-
-  void CompareLines(LineEncodingType & current,
-                    const LineEncodingType & Neighbour);
-
-  void SetupLineOffsets(OffsetVec & LineOffsets);
-
-  void Wait();
-
-  Barrier::Pointer m_Barrier;
-
-  LineMapType   m_ForegroundLineMap;
-  LineMapType   m_BackgroundLineMap;
-  ThreadIdType  m_NumberOfThreads;
+  LineMapType m_ForegroundLineMap;
+  LineMapType m_BackgroundLineMap;
 
   InputImagePixelType  m_ForegroundValue;
   OutputImagePixelType m_BackgroundValue;
-  bool                 m_FullyConnected;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryContourImageFilter.hxx"
+#  include "itkBinaryContourImageFilter.hxx"
 #endif
 
 #endif

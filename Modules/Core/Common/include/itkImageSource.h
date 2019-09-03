@@ -59,39 +59,41 @@ namespace itk
  * \ingroup DataSources
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Developer/ImageSource,Produce an image programmatically.}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/ProduceImageProgrammatically,Produce Image Programmatically}
+ * \endsphinx
  */
-template< typename TOutputImage >
+template <typename TOutputImage>
 class ITK_TEMPLATE_EXPORT ImageSource
-  : public ProcessObject, private ImageSourceCommon
+  : public ProcessObject
+  , private ImageSourceCommon
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageSource                Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageSource);
+
+  /** Standard class type aliases. */
+  using Self = ImageSource;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Smart Pointer type to a DataObject. */
-  typedef DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = DataObject::Pointer;
 
-  typedef Superclass::DataObjectIdentifierType       DataObjectIdentifierType;
-  typedef Superclass::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectIdentifierType = Superclass::DataObjectIdentifierType;
+  using DataObjectPointerArraySizeType = Superclass::DataObjectPointerArraySizeType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageSource, ProcessObject);
 
-  /** Some convenient typedefs. */
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::Pointer    OutputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename OutputImageType::PixelType  OutputImagePixelType;
+  /** Some convenient type alias. */
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
   /** ImageDimension constant */
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Get the output data of this process object.  The output of this
    * function is not valid until an appropriate Update() method has
@@ -103,23 +105,23 @@ public:
    * particular ProcessObjects involved are filters.  The same
    * examples apply to non-image (e.g. Mesh) data as well.
    *
-   * \code
-   *   anotherFilter->SetInput( someFilter->GetOutput() );
-   *   anotherFilter->Update();
-   * \endcode
+     \code
+       anotherFilter->SetInput( someFilter->GetOutput() );
+       anotherFilter->Update();
+     \endcode
    *
    * In this situation, \a someFilter and \a anotherFilter are said
    * to constitute a \b pipeline.
    *
-   * \code
-   *   image = someFilter->GetOutput();
-   *   image->Update();
-   * \endcode
+     \code
+       image = someFilter->GetOutput();
+       image->Update();
+     \endcode
    *
-   * \code
-   *   someFilter->Update();
-   *   image = someFilter->GetOutput();
-   * \endcode
+     \code
+       someFilter->Update();
+       image = someFilter->GetOutput();
+     \endcode
    * (In the above example, the two lines of code can be in
    * either order.)
    *
@@ -140,10 +142,13 @@ public:
    * types. Derived classes should have names get methods for these
    * outputs.
    */
-  OutputImageType * GetOutput();
-  const OutputImageType * GetOutput() const;
+  OutputImageType *
+  GetOutput();
+  const OutputImageType *
+  GetOutput() const;
 
-  OutputImageType * GetOutput(unsigned int idx);
+  OutputImageType *
+  GetOutput(unsigned int idx);
 
   /** Graft the specified DataObject onto this ProcessObject's output.
    * This method grabs a handle to the specified DataObject's bulk
@@ -156,24 +161,24 @@ public:
    * process object is implemented using a mini-pipeline which is
    * defined in its GenerateData() method.  The usage is:
    *
-   * \code
-   *    // Setup the mini-pipeline to process the input to this filter
-   *    // The input is not connected to the pipeline.
-   *    typename InputImageType::Pointer input = InputImageType::New();
-   *    input->Graft( const_cast< InputImageType * >( this->GetInput() );
-   *    firstFilterInMiniPipeline->SetInput( input );
-   *
-   *    // setup the mini-pipeline to calculate the correct regions
-   *    // and write to the appropriate bulk data block
-   *    lastFilterInMiniPipeline->GraftOutput( this->GetOutput() );
-   *
-   *    // execute the mini-pipeline
-   *    lastFilterInMiniPipeline->Update();
-   *
-   *    // graft the mini-pipeline output back onto this filter's output.
-   *    // this is needed to get the appropriate regions passed back.
-   *    this->GraftOutput( lastFilterInMiniPipeline->GetOutput() );
-   * \endcode
+     \code
+        // Setup the mini-pipeline to process the input to this filter
+        // The input is not connected to the pipeline.
+        typename InputImageType::Pointer input = InputImageType::New();
+        input->Graft( const_cast< InputImageType * >( this->GetInput() );
+        firstFilterInMiniPipeline->SetInput( input );
+
+        // setup the mini-pipeline to calculate the correct regions
+        // and write to the appropriate bulk data block
+        lastFilterInMiniPipeline->GraftOutput( this->GetOutput() );
+
+        // execute the mini-pipeline
+        lastFilterInMiniPipeline->Update();
+
+        // graft the mini-pipeline output back onto this filter's output.
+        // this is needed to get the appropriate regions passed back.
+        this->GraftOutput( lastFilterInMiniPipeline->GetOutput() );
+     \endcode
    *
    * For proper pipeline execution, a filter using a mini-pipeline
    * must implement the GenerateInputRequestedRegion(),
@@ -183,14 +188,16 @@ public:
    * filter's pipeline mechanism must be consistent with what the
    * mini-pipeline will do).
    *  */
-  virtual void GraftOutput(DataObject *output);
+  virtual void
+  GraftOutput(DataObject * output);
 
   /** Graft the specified data object onto this ProcessObject's named
    * output. This is similar to the GraftOutput method except it
    * allows you to specify which output is affected.
    * See the GraftOutput for general usage information.
    */
-  virtual void GraftOutput(const DataObjectIdentifierType & key, DataObject *output);
+  virtual void
+  GraftOutput(const DataObjectIdentifierType & key, DataObject * output);
 
   /** Graft the specified data object onto this ProcessObject's idx'th
    * output. This is similar to the GraftOutput method except it
@@ -198,7 +205,8 @@ public:
    * must be a valid output number (less than
    * ProcessObject::GetNumberOfIndexedOutputs()). See the GraftOutput for
    * general usage information. */
-  virtual void GraftNthOutput(unsigned int idx, DataObject *output);
+  virtual void
+  GraftNthOutput(unsigned int idx, DataObject * output);
 
   /** Make a DataObject of the correct type to used as the specified
    * output.  Every ProcessObject subclass must be able to create a
@@ -213,61 +221,92 @@ public:
    * SmartPointer to a DataObject. If a subclass of ImageSource has
    * multiple outputs of different types, then that class must provide
    * an implementation of MakeOutput(). */
-  virtual ProcessObject::DataObjectPointer MakeOutput(ProcessObject::DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
-  virtual ProcessObject::DataObjectPointer MakeOutput(const ProcessObject::DataObjectIdentifierType &) ITK_OVERRIDE;
+  ProcessObject::DataObjectPointer
+  MakeOutput(ProcessObject::DataObjectPointerArraySizeType idx) override;
+  ProcessObject::DataObjectPointer
+  MakeOutput(const ProcessObject::DataObjectIdentifierType &) override;
 
 protected:
   ImageSource();
-  virtual ~ImageSource() ITK_OVERRIDE {}
+  ~ImageSource() override = default;
 
   /** A version of GenerateData() specific for image processing
    * filters.  This implementation will split the processing across
    * multiple threads. The buffer is allocated by this method. Then
    * the BeforeThreadedGenerateData() method is called (if
    * provided). Then, a series of threads are spawned each calling
-   * ThreadedGenerateData(). After all the threads have completed
+   * DynamicThreadedGenerateData(). After all the threads have completed
    * processing, the AfterThreadedGenerateData() method is called (if
    * provided). If an image processing filter cannot be threaded, the
    * filter should provide an implementation of GenerateData(). That
    * implementation is responsible for allocating the output buffer.
-   * If a filter an be threaded, it should NOT provide a
-   * GenerateData() method but should provide a ThreadedGenerateData()
-   * instead.
+   * If a filter can be threaded, it should NOT provide a
+   * GenerateData() method but should provide a
+   * DynamicThreadedGenerateData() instead.
    *
    * \sa ThreadedGenerateData() */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
+
+  /** Many filters do special management of image buffer and threading,
+   *  so this method provides just the multi-threaded invocation part
+   *  of GenerateData() method. */
+  void
+  ClassicMultiThread(ThreadFunctionType callbackFunction);
 
   /** If an imaging filter can be implemented as a multithreaded
    * algorithm, the filter will provide an implementation of
-   * ThreadedGenerateData(). This superclass will automatically split
-   * the output image into a number of pieces, spawn multiple threads,
-   * and call ThreadedGenerateData() in each thread. Prior to spawning
+   * ThreadedGenerateData() or DynamicThreadedGenerateData().
+   * This superclass will automatically split the output image into a
+   * number of pieces, spawn multiple threads, and call
+   * (Dynamic)ThreadedGenerateData() in each thread. Prior to spawning
    * threads, the BeforeThreadedGenerateData() method is called. After
    * all the threads have completed, the AfterThreadedGenerateData()
    * method is called. If an image processing filter cannot support
    * threading, that filter should provide an implementation of the
    * GenerateData() method instead of providing an implementation of
-   * ThreadedGenerateData().  If a filter provides a GenerateData()
+   * (Dynamic)ThreadedGenerateData().  If a filter provides a GenerateData()
    * method as its implementation, then the filter is responsible for
    * allocating the output data.  If a filter provides a
-   * ThreadedGenerateData() method as its implementation, then the
+   * (Dynamic)ThreadedGenerateData() method as its implementation, then the
    * output memory will allocated automatically by this superclass.
-   * The ThreadedGenerateData() method should only produce the output
+   * The (Dynamic)ThreadedGenerateData() method should only produce the output
    * specified by "outputThreadRegion"
-   * parameter. ThreadedGenerateData() cannot write to any other
+   * parameter. (Dynamic)ThreadedGenerateData() cannot write to any other
    * portion of the output image (as this is responsibility of a
    * different thread).
    *
+   * DynamicThreadedGenerateData() is the newer variant without threadId,
+   * and is the preferred signature, which is called by default. This
+   * variant can split the requested region into different number of
+   * pieces depending on current multi-processing load, which allows
+   * better load balancing. The non-dynamic (also known as classic)
+   * ThreadedGenerateData() signature has threadId, and number of pieces
+   * to be split into is known in advance. It is activated by calling
+   * this->DynamicMultiThreadingOff(); in derived class constructor.
+   * It should be used when the
+   * multi-threaded algorithm needs to pre-allocate some data structure
+   * with size dependent on the number of pieces (also known as chunks,
+   * work units, and sometimes also incorrectly as threads). Only
+   * PlatformMultiThreader guarantees that each piece will be processed
+   * in its own specific thread. Pool and TBB multi-threaders maintain
+   * a pool of threads (normally equal to number of processing cores)
+   * which they use to process the pieces. This normally results
+   * in a single thread being reused to process multiple work units.
+   *
    * \sa GenerateData(), SplitRequestedRegion() */
-  virtual void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId);
+  virtual void
+  ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId);
+  virtual void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread);
 
   /** The GenerateData method normally allocates the buffers for all of the
    * outputs of a filter. Some filters may want to override this default
    * behavior. For example, a filter may have multiple outputs with
    * varying resolution. Or a filter may want to process data in place by
    * grafting its input to its output. */
-  virtual void AllocateOutputs();
+  virtual void
+  AllocateOutputs();
 
   /** If an imaging filter needs to perform processing after the buffer
    * has been allocated but before threads are spawned, the filter can
@@ -279,7 +318,9 @@ protected:
    *      4) Call AfterThreadedGenerateData()
    * Note that this flow of control is only available if a filter provides
    * a ThreadedGenerateData() method and NOT a GenerateData() method. */
-  virtual void BeforeThreadedGenerateData() {}
+  virtual void
+  BeforeThreadedGenerateData()
+  {}
 
   /** If an imaging filter needs to perform processing after all
    * processing threads have completed, the filter can can provide an
@@ -291,14 +332,17 @@ protected:
    *      4) Call AfterThreadedGenerateData()
    * Note that this flow of control is only available if a filter provides
    * a ThreadedGenerateData() method and NOT a GenerateData() method. */
-  virtual void AfterThreadedGenerateData() {}
+  virtual void
+  AfterThreadedGenerateData()
+  {}
 
   /** \brief Returns the default image region splitter
    *
    * This is an adapter function from the private common base class to
    * the interface of this class.
    */
-  static const ImageRegionSplitterBase* GetGlobalDefaultSplitter()
+  static const ImageRegionSplitterBase *
+  GetGlobalDefaultSplitter()
   {
     return ImageSourceCommon::GetGlobalDefaultSplitter();
   }
@@ -313,7 +357,8 @@ protected:
    * desired this method should be overridden to return the
    * appropriate object.
    */
-  virtual const ImageRegionSplitterBase* GetImageRegionSplitter() const;
+  virtual const ImageRegionSplitterBase *
+  GetImageRegionSplitter() const;
 
   /** Split the output's RequestedRegion into "pieces" pieces, returning
    * region "i" as "splitRegion". This method is called concurrently
@@ -329,27 +374,37 @@ protected:
    *
    * \sa GetImageRegionSplitter
    **/
-  virtual
-  unsigned int SplitRequestedRegion(unsigned int i, unsigned int pieces, OutputImageRegionType & splitRegion);
+  virtual unsigned int
+  SplitRequestedRegion(unsigned int i, unsigned int pieces, OutputImageRegionType & splitRegion);
 
-  /** Static function used as a "callback" by the MultiThreader.  The threading
-   * library will call this routine for each thread, which will delegate the
-   * control to ThreadedGenerateData(). */
-  static ITK_THREAD_RETURN_TYPE ThreaderCallback(void *arg);
+  /** Static function used as a "callback" by the classic MultiThreader.
+   * The threading library will call this routine for each thread,
+   * which will delegate the control to ThreadedGenerateData(). */
+  static ITK_THREAD_RETURN_FUNCTION_CALL_CONVENTION
+  ThreaderCallback(void * arg);
 
-  /** Internal structure used for passing image data into the threading library
-    */
-  struct ThreadStruct {
+  /** Internal structure used for passing image data into the threading library */
+  struct ThreadStruct
+  {
     Pointer Filter;
   };
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageSource);
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  /** Whether to use classic multi-threading infrastructure (OFF by default).
+   * Classic multi-threading uses derived class' ImageRegionSplitter,
+   * thus enabling custom region splitting methods. */
+  itkGetConstMacro(DynamicMultiThreading, bool);
+  itkSetMacro(DynamicMultiThreading, bool);
+  itkBooleanMacro(DynamicMultiThreading);
+
+  bool m_DynamicMultiThreading;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageSource.hxx"
+#  include "itkImageSource.hxx"
 #endif
 
 #endif

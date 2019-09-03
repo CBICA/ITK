@@ -44,101 +44,103 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKMathematicalMorphology
  *
- * \wiki
- * \wikiexample{Morphology/GrayscaleErodeImageFilter,Erode a grayscale image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/MathematicalMorphology/ErodeAGrayscaleImage,Erode A Grayscale Image}
+ * \endsphinx
  */
 
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT GrayscaleErodeImageFilter:
-  public KernelImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT GrayscaleErodeImageFilter : public KernelImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GrayscaleErodeImageFilter                               Self;
-  typedef KernelImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
-  typedef SmartPointer< Self >                                    Pointer;
-  typedef SmartPointer< const Self >                              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GrayscaleErodeImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GrayscaleErodeImageFilter;
+  using Superclass = KernelImageFilter<TInputImage, TOutputImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(GrayscaleErodeImageFilter,
-               KernelImageFilter);
+  itkTypeMacro(GrayscaleErodeImageFilter, KernelImageFilter);
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  /** Image related typedefs. */
-  typedef TInputImage                                InputImageType;
-  typedef TOutputImage                               OutputImageType;
-  typedef typename TInputImage::RegionType           RegionType;
-  typedef typename TInputImage::SizeType             SizeType;
-  typedef typename TInputImage::IndexType            IndexType;
-  typedef typename TInputImage::PixelType            PixelType;
-  typedef typename TInputImage::OffsetType           OffsetType;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
+  /** Image related type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
+  using OffsetType = typename TInputImage::OffsetType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
   /** define values used to determine which algorithm to use */
-  enum AlgorithmType {
+  enum AlgorithmType
+  {
     BASIC = 0,
     HISTO = 1,
     ANCHOR = 2,
     VHGW = 3
-    };
+  };
 
-  typedef MovingHistogramErodeImageFilter< TInputImage, TOutputImage, TKernel >
-  HistogramFilterType;
-  typedef BasicErodeImageFilter< TInputImage, TOutputImage, TKernel >
-  BasicFilterType;
+  using HistogramFilterType = MovingHistogramErodeImageFilter<TInputImage, TOutputImage, TKernel>;
+  using BasicFilterType = BasicErodeImageFilter<TInputImage, TOutputImage, TKernel>;
 
-  typedef FlatStructuringElement< itkGetStaticConstMacro(ImageDimension) > FlatKernelType;
+  using FlatKernelType = FlatStructuringElement<Self::ImageDimension>;
 
-  typedef AnchorErodeImageFilter< TInputImage, FlatKernelType >           AnchorFilterType;
-  typedef VanHerkGilWermanErodeImageFilter< TInputImage, FlatKernelType > VHGWFilterType;
-  typedef CastImageFilter< TInputImage, TOutputImage >                    CastFilterType;
+  using AnchorFilterType = AnchorErodeImageFilter<TInputImage, FlatKernelType>;
+  using VHGWFilterType = VanHerkGilWermanErodeImageFilter<TInputImage, FlatKernelType>;
+  using CastFilterType = CastImageFilter<TInputImage, TOutputImage>;
 
   /** Typedef for boundary conditions. */
-  typedef ImageBoundaryCondition< InputImageType > *      ImageBoundaryConditionPointerType;
-  typedef ImageBoundaryCondition< InputImageType > const *ImageBoundaryConditionConstPointerType;
-  typedef ConstantBoundaryCondition< InputImageType >     DefaultBoundaryConditionType;
+  using ImageBoundaryConditionPointerType = ImageBoundaryCondition<InputImageType> *;
+  using ImageBoundaryConditionConstPointerType = const ImageBoundaryCondition<InputImageType> *;
+  using DefaultBoundaryConditionType = ConstantBoundaryCondition<InputImageType>;
 
-  /** Kernel typedef. */
-  typedef TKernel KernelType;
-//   typedef typename KernelType::Superclass KernelSuperclass;
-//   typedef Neighborhood< typename KernelType::PixelType, ImageDimension >
-// KernelSuperclass;
+  /** Kernel type alias. */
+  using KernelType = TKernel;
+  //   using KernelSuperclass = typename KernelType::Superclass;
+  //   using KernelSuperclass = Neighborhood< typename KernelType::PixelType, ImageDimension >;
 
   /** Set kernel (structuring element). */
-  void SetKernel(const KernelType & kernel) ITK_OVERRIDE;
+  void
+  SetKernel(const KernelType & kernel) override;
 
   /** Set/Get the boundary value. */
-  void SetBoundary(const PixelType value);
+  void
+  SetBoundary(const PixelType value);
 
   itkGetConstMacro(Boundary, PixelType);
 
   /** Set/Get the backend filter class. */
-  void SetAlgorithm(int algo);
+  void
+  SetAlgorithm(int algo);
 
   itkGetConstMacro(Algorithm, int);
 
   /** GrayscaleErodeImageFilter need to set its internal filters as modified */
-  virtual void Modified() const ITK_OVERRIDE;
+  void
+  Modified() const override;
 
-  void SetNumberOfThreads(ThreadIdType nb) ITK_OVERRIDE;
+  void
+  SetNumberOfWorkUnits(ThreadIdType nb) override;
 
 protected:
   GrayscaleErodeImageFilter();
-  ~GrayscaleErodeImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GrayscaleErodeImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GrayscaleErodeImageFilter);
-
   PixelType m_Boundary;
 
   // the filters used internally
@@ -159,7 +161,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGrayscaleErodeImageFilter.hxx"
+#  include "itkGrayscaleErodeImageFilter.hxx"
 #endif
 
 #endif

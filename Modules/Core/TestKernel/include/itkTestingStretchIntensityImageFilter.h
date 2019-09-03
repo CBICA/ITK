@@ -1,31 +1,31 @@
-  /*=========================================================================
-   *
-   *  Copyright Insight Software Consortium
-   *
-   *  Licensed under the Apache License, Version 2.0 (the "License");
-   *  you may not use this file except in compliance with the License.
-   *  You may obtain a copy of the License at
-   *
-   *         http://www.apache.org/licenses/LICENSE-2.0.txt
-   *
-   *  Unless required by applicable law or agreed to in writing, software
-   *  distributed under the License is distributed on an "AS IS" BASIS,
-   *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   *  See the License for the specific language governing permissions and
-   *  limitations under the License.
-   *
-   *=========================================================================*/
-  #ifndef itkTestingStretchIntensityImageFilter_h
-  #define itkTestingStretchIntensityImageFilter_h
+/*=========================================================================
+ *
+ *  Copyright Insight Software Consortium
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *         http://www.apache.org/licenses/LICENSE-2.0.txt
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *=========================================================================*/
+#ifndef itkTestingStretchIntensityImageFilter_h
+#define itkTestingStretchIntensityImageFilter_h
 
-  #include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryFunctorImageFilter.h"
 
-  namespace itk
-  {
-  namespace Testing
-  {
+namespace itk
+{
+namespace Testing
+{
 
-  /** \class StretchIntensityImageFilter
+/** \class StretchIntensityImageFilter
  *
  * \brief Applies a linear transformation to the intensity levels of the
  * input Image.
@@ -37,19 +37,21 @@
  *
  * \ingroup ITKTestKernel
  */
-template< typename  TInputImage, typename  TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT StretchIntensityImageFilter: public ImageSource< TOutputImage >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT StretchIntensityImageFilter : public ImageSource<TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef StretchIntensityImageFilter     Self;
-  typedef ImageSource< TOutputImage >     Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(StretchIntensityImageFilter);
 
-  typedef typename TOutputImage::PixelType                   OutputPixelType;
-  typedef typename TInputImage::PixelType                    InputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType RealType;
+  /** Standard class type aliases. */
+  using Self = StretchIntensityImageFilter;
+  using Superclass = ImageSource<TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using RealType = typename NumericTraits<InputPixelType>::RealType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -75,48 +77,47 @@ public:
 
   /** Set/Get the image input of this process object.  */
   using Superclass::SetInput;
-  virtual void SetInput(const TInputImage *image);
-  const TInputImage * GetInput() const;
+  virtual void
+  SetInput(const TInputImage * image);
+  const TInputImage *
+  GetInput() const;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputPixelType > ) );
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< OutputPixelType > ) );
-  itkConceptMacro( RealTypeMultiplyOperatorCheck,
-                   ( Concept::MultiplyOperator< RealType > ) );
-  itkConceptMacro( RealTypeAdditiveOperatorsCheck,
-                   ( Concept::AdditiveOperators< RealType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputPixelType>));
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<OutputPixelType>));
+  itkConceptMacro(RealTypeMultiplyOperatorCheck, (Concept::MultiplyOperator<RealType>));
+  itkConceptMacro(RealTypeAdditiveOperatorsCheck, (Concept::AdditiveOperators<RealType>));
   // End concept checking
 #endif
 
 protected:
   StretchIntensityImageFilter();
-  virtual ~StretchIntensityImageFilter() ITK_OVERRIDE {}
+  ~StretchIntensityImageFilter() override = default;
 
   /** Process to execute before entering the multithreaded section */
-  void BeforeThreadedGenerateData(void) ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  typedef typename Superclass::OutputImageRegionType    OutputImageRegionType;
-  typedef typename TInputImage::RegionType              InputImageRegionType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using InputImageRegionType = typename TInputImage::RegionType;
 
   /** UnaryFunctorImageFilter can be implemented as a multithreaded filter.
-   * Therefore, this implementation provides a ThreadedGenerateData() routine
+   * Therefore, this implementation provides a DynamicThreadedGenerateData() routine
    * which is called for each processing thread. The output image data is
    * allocated automatically by the superclass prior to calling
-   * ThreadedGenerateData().  ThreadedGenerateData can only write to the
+   * DynamicThreadedGenerateData().  DynamicThreadedGenerateData can only write to the
    * portion of the output image specified by the parameter
    * "outputRegionForThread"
    */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(StretchIntensityImageFilter);
-
   RealType m_Scale;
   RealType m_Shift;
 
@@ -130,7 +131,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTestingStretchIntensityImageFilter.hxx"
+#  include "itkTestingStretchIntensityImageFilter.hxx"
 #endif
 
 #endif

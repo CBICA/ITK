@@ -32,45 +32,46 @@ namespace itk
  *
  * \ingroup ITKOptimizers
  */
-template< typename TInternalComputationValueType >
-class ITK_TEMPLATE_EXPORT CostFunctionTemplate:public Object
+template <typename TInternalComputationValueType>
+class ITK_TEMPLATE_EXPORT CostFunctionTemplate : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef CostFunctionTemplate       Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(CostFunctionTemplate);
+
+  /** Standard class type aliases. */
+  using Self = CostFunctionTemplate;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(CostFunctionTemplate, Object);
 
-  /**  ParametersType typedef.
+  /**  ParametersType type alias.
    *  It defines a position in the optimization search space. */
-  typedef TInternalComputationValueType                        ParametersValueType;
-  typedef OptimizerParameters< TInternalComputationValueType > ParametersType;
+  using ParametersValueType = TInternalComputationValueType;
+  using ParametersType = OptimizerParameters<TInternalComputationValueType>;
 
   /** Return the number of parameters required to compute
    *  this cost function.
    *  This method MUST be overloaded by derived classes. */
-  virtual unsigned int GetNumberOfParameters(void) const  = 0;
+  virtual unsigned int
+  GetNumberOfParameters() const = 0;
 
 protected:
-  CostFunctionTemplate() {}
-  virtual ~CostFunctionTemplate() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CostFunctionTemplate);
+  CostFunctionTemplate() = default;
+  ~CostFunctionTemplate() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 
 /** This helps to meet backward compatibility */
-typedef CostFunctionTemplate<double> CostFunction;
+using CostFunction = CostFunctionTemplate<double>;
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCostFunction.hxx"
+#  include "itkCostFunction.hxx"
 #endif
 
 #endif

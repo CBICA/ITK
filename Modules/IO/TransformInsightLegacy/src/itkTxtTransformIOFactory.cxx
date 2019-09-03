@@ -22,28 +22,28 @@
 
 namespace itk
 {
-void TxtTransformIOFactory::PrintSelf(std::ostream &, Indent) const
+void
+TxtTransformIOFactory::PrintSelf(std::ostream &, Indent) const
 {}
 
 TxtTransformIOFactory::TxtTransformIOFactory()
 {
-  this->RegisterOverride( "itkTransformIOBaseTemplate",
-                          "itkTxtTransformIO",
-                          "Txt Transform float IO",
-                          1,
-                          CreateObjectFunction< TxtTransformIOTemplate< float > >::New() );
-  this->RegisterOverride( "itkTransformIOBaseTemplate",
-                          "itkTxtTransformIO",
-                          "Txt Transform double IO",
-                          1,
-                          CreateObjectFunction< TxtTransformIOTemplate< double > >::New() );
+  this->RegisterOverride("itkTransformIOBaseTemplate",
+                         "itkTxtTransformIO",
+                         "Txt Transform float IO",
+                         true,
+                         CreateObjectFunction<TxtTransformIOTemplate<float>>::New());
+  this->RegisterOverride("itkTransformIOBaseTemplate",
+                         "itkTxtTransformIO",
+                         "Txt Transform double IO",
+                         true,
+                         CreateObjectFunction<TxtTransformIOTemplate<double>>::New());
 }
 
-TxtTransformIOFactory::~TxtTransformIOFactory()
-{}
+TxtTransformIOFactory::~TxtTransformIOFactory() = default;
 
 const char *
-TxtTransformIOFactory::GetITKSourceVersion(void) const
+TxtTransformIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
@@ -59,12 +59,13 @@ TxtTransformIOFactory::GetDescription() const
 // DO NOT CALL DIRECTLY.
 static bool TxtTransformIOFactoryHasBeenRegistered;
 
-void ITKIOTransformInsightLegacy_EXPORT TxtTransformIOFactoryRegister__Private(void)
+void ITKIOTransformInsightLegacy_EXPORT
+     TxtTransformIOFactoryRegister__Private()
 {
-  if( ! TxtTransformIOFactoryHasBeenRegistered )
-    {
+  if (!TxtTransformIOFactoryHasBeenRegistered)
+  {
     TxtTransformIOFactoryHasBeenRegistered = true;
     TxtTransformIOFactory::RegisterOneFactory();
-    }
+  }
 }
 } // end namespace itk

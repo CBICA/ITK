@@ -40,75 +40,85 @@ namespace Function
  * https://hdl.handle.net/1926/1452
  *
  * \ingroup ITKColormap
+ *
+ * \sphinx
+ * \sphinxexample{Filtering/Colormap/CreateACustomColormap, Create A Custom Colormap}
+ * \sphinxexample{Filtering/Colormap/ApplyAColormapToAnImage,Apply A Colormap To An Image}
+ * \endsphinx
  */
-template< typename TScalar, typename TRGBPixel >
-class ITK_TEMPLATE_EXPORT CustomColormapFunction:
-  public ColormapFunction< TScalar, TRGBPixel >
+template <typename TScalar, typename TRGBPixel>
+class ITK_TEMPLATE_EXPORT CustomColormapFunction : public ColormapFunction<TScalar, TRGBPixel>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(CustomColormapFunction);
 
-  typedef CustomColormapFunction                 Self;
-  typedef ColormapFunction< TScalar, TRGBPixel > Superclass;
-  typedef SmartPointer< Self >                   Pointer;
-  typedef SmartPointer< const Self >             ConstPointer;
+  using Self = CustomColormapFunction;
+  using Superclass = ColormapFunction<TScalar, TRGBPixel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  typedef typename Superclass::RGBPixelType RGBPixelType;
-  typedef typename Superclass::ScalarType   ScalarType;
-  typedef typename Superclass::RealType     RealType;
+  using RGBPixelType = typename Superclass::RGBPixelType;
+  using ScalarType = typename Superclass::ScalarType;
+  using RealType = typename Superclass::RealType;
 
-  typedef std::vector< RealType > ChannelType;
+  using ChannelType = std::vector<RealType>;
 
-  virtual RGBPixelType operator()(const TScalar &) const ITK_OVERRIDE;
+  RGBPixelType
+  operator()(const TScalar &) const override;
 
-  void SetRedChannel(ChannelType red)
-    {
+  void
+  SetRedChannel(ChannelType red)
+  {
     m_RedChannel = red;
-    }
+  }
 
-  ChannelType GetRedChannel() const
-    {
+  ChannelType
+  GetRedChannel() const
+  {
     return m_RedChannel;
-    }
+  }
 
-  void SetGreenChannel(ChannelType green)
-    {
+  void
+  SetGreenChannel(ChannelType green)
+  {
     m_GreenChannel = green;
-    }
+  }
 
-  ChannelType GetGreenChannel() const
-    {
+  ChannelType
+  GetGreenChannel() const
+  {
     return m_GreenChannel;
-    }
+  }
 
-  void SetBlueChannel(ChannelType blue)
-    {
+  void
+  SetBlueChannel(ChannelType blue)
+  {
     m_BlueChannel = blue;
-    }
+  }
 
-  ChannelType GetBlueChannel() const
-    {
+  ChannelType
+  GetBlueChannel() const
+  {
     return m_BlueChannel;
-    }
+  }
 
 protected:
-  CustomColormapFunction() {}
-  ~CustomColormapFunction() ITK_OVERRIDE {}
+  CustomColormapFunction() = default;
+  ~CustomColormapFunction() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(CustomColormapFunction);
-
   ChannelType m_RedChannel;
   ChannelType m_GreenChannel;
   ChannelType m_BlueChannel;
 };
-} // end namespace functor
+} // end namespace Function
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkCustomColormapFunction.hxx"
+#  include "itkCustomColormapFunction.hxx"
 #endif
 
 #endif

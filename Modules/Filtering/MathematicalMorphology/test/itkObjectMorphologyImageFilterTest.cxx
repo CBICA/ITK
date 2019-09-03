@@ -16,8 +16,8 @@
  *
  *=========================================================================*/
 
-#include <stdlib.h>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 
 #include "itkImage.h"
 #include "itkIndex.h"
@@ -29,29 +29,30 @@
 #include "itkImageRegionIterator.h"
 #include "itkMacro.h"
 
-int itkObjectMorphologyImageFilterTest(int, char* [] )
+int
+itkObjectMorphologyImageFilterTest(int, char *[])
 {
   // Define the dimension of the images
-  const unsigned int myDimension = 3;
+  constexpr unsigned int myDimension = 3;
 
   // Define the values of the input images
-  const unsigned short fgValue = 1;
-  const unsigned short bgValue = 0;
+  constexpr unsigned short fgValue = 1;
+  constexpr unsigned short bgValue = 0;
 
   // Declare the types of the images
-  typedef itk::Image<unsigned short, myDimension>  myImageType;
+  using myImageType = itk::Image<unsigned short, myDimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<myDimension>         myIndexType;
+  using myIndexType = itk::Index<myDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<myDimension>          mySizeType;
+  using mySizeType = itk::Size<myDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<myDimension>        myRegionType;
+  using myRegionType = itk::ImageRegion<myDimension>;
 
   // Create an image
-  myImageType::Pointer inputImage  = myImageType::New();
+  myImageType::Pointer inputImage = myImageType::New();
 
   // Define their size, and start index
   mySizeType size;
@@ -65,15 +66,15 @@ int itkObjectMorphologyImageFilterTest(int, char* [] )
   index[2] = 0;
 
   myRegionType region;
-  region.SetIndex( index );
-  region.SetSize( size );
+  region.SetIndex(index);
+  region.SetSize(size);
 
   // Initialize Image
-  inputImage->SetRegions( region );
+  inputImage->SetRegions(region);
   inputImage->Allocate();
 
   // Declare Iterator types apropriated for each image
-  typedef itk::ImageRegionIterator<myImageType>  myIteratorType;
+  using myIteratorType = itk::ImageRegionIterator<myImageType>;
 
   // Initialize the content of Image
   inputImage->FillBuffer(bgValue);
@@ -109,34 +110,25 @@ int itkObjectMorphologyImageFilterTest(int, char* [] )
   inputImage->SetPixel(ind, fgValue);
 
   // Declare the type for the structuring element
-  typedef itk::BinaryBallStructuringElement<unsigned short, myDimension>
-    myKernelType;
+  using myKernelType = itk::BinaryBallStructuringElement<unsigned short, myDimension>;
 
   // Declare the type for the morphology Filter
-  typedef itk::DilateObjectMorphologyImageFilter<myImageType, myImageType,
-                                                 myKernelType>
-    myDilateFilterType;
-  typedef itk::BinaryDilateImageFilter<myImageType, myImageType,
-                                                 myKernelType>
-    binDilateFilterType;
+  using myDilateFilterType = itk::DilateObjectMorphologyImageFilter<myImageType, myImageType, myKernelType>;
+  using binDilateFilterType = itk::BinaryDilateImageFilter<myImageType, myImageType, myKernelType>;
 
 
-  typedef itk::ErodeObjectMorphologyImageFilter<myImageType, myImageType,
-                                                 myKernelType>
-    myErodeFilterType;
+  using myErodeFilterType = itk::ErodeObjectMorphologyImageFilter<myImageType, myImageType, myKernelType>;
 
-  typedef itk::BinaryErodeImageFilter<myImageType, myImageType,
-                                                 myKernelType>
-    binErodeFilterType;
+  using binErodeFilterType = itk::BinaryErodeImageFilter<myImageType, myImageType, myKernelType>;
 
   // Create the filter
-  myDilateFilterType::Pointer dilateFilter = myDilateFilterType::New();
-  myErodeFilterType::Pointer erodeFilter = myErodeFilterType::New();
+  myDilateFilterType::Pointer  dilateFilter = myDilateFilterType::New();
+  myErodeFilterType::Pointer   erodeFilter = myErodeFilterType::New();
   binDilateFilterType::Pointer binDilateFilter = binDilateFilterType::New();
-  binErodeFilterType::Pointer binErodeFilter = binErodeFilterType::New();
+  binErodeFilterType::Pointer  binErodeFilter = binErodeFilterType::New();
 
   // Create the structuring element
-  myKernelType ball;
+  myKernelType           ball;
   myKernelType::SizeType ballSize;
   ballSize[0] = 5;
   ballSize[1] = 4;
@@ -145,57 +137,57 @@ int itkObjectMorphologyImageFilterTest(int, char* [] )
   ball.CreateStructuringElement();
 
   // Connect the input image
-  dilateFilter->SetInput( inputImage );
-  dilateFilter->SetKernel( ball );
-  dilateFilter->SetObjectValue( fgValue );
+  dilateFilter->SetInput(inputImage);
+  dilateFilter->SetKernel(ball);
+  dilateFilter->SetObjectValue(fgValue);
   myImageType::Pointer outputImage = dilateFilter->GetOutput();
 
   clock_t start, end;
-  double elapsedTime;
+  double  elapsedTime;
 
   // Execute the filter
   try
-    {
+  {
     std::cout << "Object Dilate..." << std::endl;
     start = clock();
     dilateFilter->Update();
     end = clock();
 
-    elapsedTime = (end - start) / (double) CLOCKS_PER_SEC;
+    elapsedTime = (end - start) / (double)CLOCKS_PER_SEC;
 
     //  Print the content of the result image
     std::cout << "  Success: " << std::endl;
     std::cout << "    Time = " << elapsedTime << std::endl;
-    }
-  catch (itk::ExceptionObject& e)
-    {
-    std::cerr << "Exception caught during dilate filter Update\n"  << e;
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    std::cerr << "Exception caught during dilate filter Update\n" << e;
     return -1;
-    }
+  }
 
-  binDilateFilter->SetInput( inputImage );
-  binDilateFilter->SetKernel( ball );
-  binDilateFilter->SetDilateValue( fgValue );
+  binDilateFilter->SetInput(inputImage);
+  binDilateFilter->SetKernel(ball);
+  binDilateFilter->SetDilateValue(fgValue);
   myImageType::Pointer outputBinImage = binDilateFilter->GetOutput();
   try
-    {
+  {
     std::cout << "Binary Dilate..." << std::endl;
 
     start = clock();
     binDilateFilter->Update();
     end = clock();
 
-    elapsedTime = (end - start) / (double) CLOCKS_PER_SEC;
+    elapsedTime = (end - start) / (double)CLOCKS_PER_SEC;
 
     //  Print the content of the result image
     std::cout << "  Success: " << std::endl;
     std::cout << "    Time = " << elapsedTime << std::endl;
-    }
-  catch (itk::ExceptionObject& e)
-    {
-    std::cerr << "Exception caught during dilate filter Update\n"  << e;
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    std::cerr << "Exception caught during dilate filter Update\n" << e;
     return -1;
-    }
+  }
 
   // Create an iterator for going through the image output
   myIteratorType itObj(outputImage, outputImage->GetBufferedRegion());
@@ -205,34 +197,33 @@ int itkObjectMorphologyImageFilterTest(int, char* [] )
   itObj.GoToBegin();
   itBin.GoToBegin();
   int count = 0;
-  while( !itObj.IsAtEnd() && !itBin.IsAtEnd() )
+  while (!itObj.IsAtEnd() && !itBin.IsAtEnd())
+  {
+    if (itObj.Get() != itBin.Get())
     {
-    if(itObj.Get() != itBin.Get())
-      {
       std::cerr << "Error: Dilated images differ!" << std::endl;
-      std::cerr << "   Slice = " << count/(size[1]*size[0]) << std::endl;
-      unsigned int x, y;
+      std::cerr << "   Slice = " << count / (size[1] * size[0]) << std::endl;
+      unsigned int  x, y;
       itk::Index<3> i;
-      i[2] = count/(size[1]*size[0]);
-      for(y=0; y<size[1]; y++)
-        {
+      i[2] = count / (size[1] * size[0]);
+      for (y = 0; y < size[1]; y++)
+      {
         i[1] = y;
-        for(x=0; x<size[0]; x++)
-          {
+        for (x = 0; x < size[0]; x++)
+        {
           i[0] = x;
-          std::cerr << outputImage->GetPixel(i)
-                    << outputBinImage->GetPixel(i) << " ";
-          }
-        std::cerr << std::endl;
+          std::cerr << outputImage->GetPixel(i) << outputBinImage->GetPixel(i) << " ";
         }
-      return -1;
+        std::cerr << std::endl;
       }
+      return -1;
+    }
     ++itObj;
     ++itBin;
     ++count;
-    }
+  }
   end = clock();
-  elapsedTime = (end - start) / (double) CLOCKS_PER_SEC;
+  elapsedTime = (end - start) / (double)CLOCKS_PER_SEC;
   std::cout << "  Success: " << std::endl;
   std::cout << "    Time = " << elapsedTime << std::endl;
 
@@ -243,56 +234,56 @@ int itkObjectMorphologyImageFilterTest(int, char* [] )
   ball.CreateStructuringElement();
 
   // Connect the input image
-  erodeFilter->SetInput( outputImage );
-  erodeFilter->SetKernel( ball );
-  erodeFilter->SetObjectValue( fgValue );
-  erodeFilter->SetBackgroundValue( bgValue );
+  erodeFilter->SetInput(outputImage);
+  erodeFilter->SetKernel(ball);
+  erodeFilter->SetObjectValue(fgValue);
+  erodeFilter->SetBackgroundValue(bgValue);
   myImageType::Pointer output2Image = erodeFilter->GetOutput();
 
   // Execute the filter
   try
-    {
+  {
     std::cout << "Object Erode..." << std::endl;
     start = clock();
     erodeFilter->Update();
     end = clock();
 
-    elapsedTime = (end - start) / (double) CLOCKS_PER_SEC;
+    elapsedTime = (end - start) / (double)CLOCKS_PER_SEC;
 
     //  Print the content of the result image
     std::cout << "  Success: " << std::endl;
     std::cout << "    Time = " << elapsedTime << std::endl;
-    }
-  catch (itk::ExceptionObject& e)
-    {
-    std::cerr << "Exception caught during erode filter Update\n"  << e;
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    std::cerr << "Exception caught during erode filter Update\n" << e;
     return -1;
-    }
+  }
 
-  binErodeFilter->SetInput( outputImage );
-  binErodeFilter->SetKernel( ball );
-  binErodeFilter->SetErodeValue( fgValue );
+  binErodeFilter->SetInput(outputImage);
+  binErodeFilter->SetKernel(ball);
+  binErodeFilter->SetErodeValue(fgValue);
   myImageType::Pointer outputBin2Image = binErodeFilter->GetOutput();
 
   // Execute the filter
   try
-    {
+  {
     std::cout << "Binary Erode..." << std::endl;
     start = clock();
     binErodeFilter->Update();
     end = clock();
 
-    elapsedTime = (end - start) / (double) CLOCKS_PER_SEC;
+    elapsedTime = (end - start) / (double)CLOCKS_PER_SEC;
 
     //  Print the content of the result image
     std::cout << "  Success: " << std::endl;
     std::cout << "    Time = " << elapsedTime << std::endl;
-    }
-  catch (itk::ExceptionObject& e)
-    {
-    std::cerr << "Exception caught during erode filter Update\n"  << e;
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    std::cerr << "Exception caught during erode filter Update\n" << e;
     return -1;
-    }
+  }
 
   // Create an iterator for going through the image output
   myIteratorType it2Obj(output2Image, output2Image->GetBufferedRegion());
@@ -300,40 +291,38 @@ int itkObjectMorphologyImageFilterTest(int, char* [] )
   std::cout << "Test for Erode equality..." << std::endl;
   start = clock();
   count = 0;
-  while( !it2Obj.IsAtEnd() )
+  while (!it2Obj.IsAtEnd())
+  {
+    if (it2Obj.Get() != it2Bin.Get())
     {
-    if(it2Obj.Get() != it2Bin.Get())
-      {
       std::cout << "As expected: Error: Eroded images differ!" << std::endl;
       std::cout << "  Please see documentation - ErodeObject and BinaryErode";
       std::cout << std::endl << "    produce different results" << std::endl;
-      std::cout << "   Slice = " << count/(size[1]*size[0]) << std::endl;
-      unsigned int x, y;
+      std::cout << "   Slice = " << count / (size[1] * size[0]) << std::endl;
+      unsigned int  x, y;
       itk::Index<3> i;
-      i[2] = count/(size[1]*size[0]);
-      for(y=0; y<size[1]; y++)
-        {
+      i[2] = count / (size[1] * size[0]);
+      for (y = 0; y < size[1]; y++)
+      {
         i[1] = y;
-        for(x=0; x<size[0]; x++)
-          {
+        for (x = 0; x < size[0]; x++)
+        {
           i[0] = x;
-          std::cout << output2Image->GetPixel(i)
-                    << outputBin2Image->GetPixel(i) << " ";
-          }
-        std::cout << std::endl;
+          std::cout << output2Image->GetPixel(i) << outputBin2Image->GetPixel(i) << " ";
         }
-      break;
+        std::cout << std::endl;
       }
+      break;
+    }
     ++it2Obj;
     ++it2Bin;
     ++count;
-    }
+  }
   end = clock();
-  elapsedTime = (end - start) / (double) CLOCKS_PER_SEC;
+  elapsedTime = (end - start) / (double)CLOCKS_PER_SEC;
   std::cout << "  Success: " << std::endl;
   std::cout << "    Time = " << elapsedTime << std::endl;
 
   // All objects should be automatically destroyed at this point
   return EXIT_SUCCESS;
-
 }

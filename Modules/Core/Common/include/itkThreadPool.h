@@ -21,15 +21,16 @@
 #include "itkConfigure.h"
 #include "itkIntTypes.h"
 
-#include <map>
-#include <set>
 #include <deque>
+#include <functional>
+#include <future>
+#include <condition_variable>
+#include <thread>
 
-#include "itkThreadJob.h"
 #include "itkObject.h"
 #include "itkObjectFactory.h"
-#include "itkSimpleFastMutexLock.h"
-#include "itkMutexLockHolder.h"
+#include "itkSingletonMacro.h"
+
 
 namespace itk
 {
@@ -38,120 +39,127 @@ namespace itk
  * \class ThreadPool
  * \brief Thread pool maintains a constant number of threads.
  *
- * Thread pool is called and initialized from within the MultiThreader.
+ * Thread pool is called and initialized from within the PoolMultiThreader.
  * Initially the thread pool is started with GlobalDefaultNumberOfThreads.
- * The ThreadJob class is used to submit jobs to the thread pool. The ThreadJob's
- * necessary members need to be set and then the ThreadJob can be passed to the
- * ThreadPool by calling its AddWork method.
- * One can then wait for the job by calling the WaitForJob method.
+ * The jobs are submitted via AddWork method.
  *
- * When thread pool is in use by the MultiThreader, invoking SetNumberOfThreads
- * on MultiThreader will only increase the number of jobs submitted to the
- * ThreadPool, it will not increase the number of threads. This trick can be
- * used to increase the number of chunks, which can help load balancing in
- * case the algorithm takes more time for some parts of the image, and there
- * is relatively small overhead for chunking (splitting the image for processing).
- *
- * If more threads are required, e.g. in case when Barrier is used,
- * AddThreads method should be invoked.
+ * This implementation heavily borrows from:
+ * https://github.com/progschj/ThreadPool
  *
  * \ingroup OSSystemObjects
  * \ingroup ITKCommon
  */
+
+struct ThreadPoolGlobals;
+
 class ITKCommon_EXPORT ThreadPool : public Object
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadPool);
 
-  /** Standard class typedefs. */
-  typedef ThreadPool               Self;
-  typedef Object                   Superclass;
-  typedef SmartPointer< Self >     Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
-
-  typedef ThreadJob::Semaphore Semaphore;
+  /** Standard class type aliases. */
+  using Self = ThreadPool;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ThreadPool, Object);
 
   /** Returns the global instance */
-  static Pointer New();
+  static Pointer
+  New();
 
   /** Returns the global singleton instance of the ThreadPool */
-  static Pointer GetInstance();
+  static Pointer
+  GetInstance();
 
   /** Add this job to the thread pool queue.
-   * All data members of the ThreadJob must be filled.
-   * The semaphore pointer must point to a valid semaphore structure.
-   * AddWork will initialize that semaphore, and the invoker must pass it
-   * to WaitForJob in order to wait for the job's completion.
-   */
-  void AddWork(const ThreadJob& job);
+   *
+   * This method returns an std::future, and calling get()
+   * will block until the result is ready. Example usage:
+\code
+auto result = pool->AddWork([](int param) { return param; }, 7);
+\endcode
+   * std::cout << result.get() << std::endl; */
+  template <class Function, class... Arguments>
+  auto
+  AddWork(Function && function, Arguments &&... arguments)
+    -> std::future<typename std::result_of<Function(Arguments...)>::type>
+  {
+    using return_type = typename std::result_of<Function(Arguments...)>::type;
+
+    auto task = std::make_shared<std::packaged_task<return_type()>>(
+      std::bind(std::forward<Function>(function), std::forward<Arguments>(arguments)...));
+
+    std::future<return_type> res = task->get_future();
+    {
+      std::unique_lock<std::mutex> lock(this->GetMutex());
+      m_WorkQueue.emplace_back([task]() { (*task)(); });
+    }
+    m_Condition.notify_one();
+    return res;
+  }
 
   /** Can call this method if we want to add extra threads to the pool. */
-  void AddThreads(ThreadIdType count);
+  void
+  AddThreads(ThreadIdType count);
+
+  ThreadIdType
+  GetMaximumNumberOfThreads() const
+  {
+    return static_cast<ThreadIdType>(m_Threads.size());
+  }
 
   /** The approximate number of idle threads. */
-  int GetNumberOfCurrentlyIdleThreads() const;
+  int
+  GetNumberOfCurrentlyIdleThreads() const;
 
-  /** This method blocks until the given job has finished executing. */
-  void WaitForJob(Semaphore& jobSemaphore);
-
-  /** Platform specific number of threads */
-  static ThreadIdType GetGlobalDefaultNumberOfThreadsByPlatform();
-
-  /** Examines environment variables and falls back to hyper-threaded core count */
-  static ThreadIdType GetGlobalDefaultNumberOfThreads();
+  /** Set/Get wait for threads.
+  This function should be used carefully, probably only during static
+  initialization phase to disable waiting for threads when ITK is built as a
+  static library and linked into a shared library (Windows only).*/
+  static bool
+  GetDoNotWaitForThreads();
+  static void
+  SetDoNotWaitForThreads(bool doNotWaitForThreads);
 
 protected:
-
-  static void PlatformCreate(Semaphore &semaphore);
-  static void PlatformWait(Semaphore &semaphore);
-  static void PlatformSignal(Semaphore &semaphore);
-  static void PlatformDelete(Semaphore &semaphore);
-  static bool PlatformClose(ThreadProcessIdType &threadId); //returns success status
-
-  /** Called to add a thread to the thread pool.
-  This method add a thread to the thread pool and pushes the thread handle
-  into the m_Threads vector.
-   */
-  void AddThread();
-
-  /** Platform-specific function to clean up all the threads. */
-  void DeleteThreads();
+  /* We need access to the mutex in AddWork, and the variable is only
+   * visible in .cxx file, so this method returns it. */
+  std::mutex &
+  GetMutex();
 
   ThreadPool();
-  virtual ~ThreadPool() ITK_OVERRIDE;
+  ~ThreadPool() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadPool);
+  /** Only used to synchronize the global variable across static libraries.*/
+  itkGetGlobalDeclarationMacro(ThreadPoolGlobals, PimplGlobals);
 
-  /** Set if exception occurs */
-  bool m_ExceptionOccurred;
-
-  /** This is a list of jobs(ThreadJob) submitted to the thread pool.
+  /** This is a list of jobs submitted to the thread pool.
    * This is the only place where the jobs are submitted.
-   * Filled by AddWork, emptied by ThreadExecute.
-   */
-  std::deque<ThreadJob> m_WorkQueue;
+   * Filled by AddWork, emptied by ThreadExecute. */
+  std::deque<std::function<void()>> m_WorkQueue;
 
-  /** When a thread is idle, it is waiting on m_ThreadsSemaphore.
-  * AddWork signals this semaphore to resume a (random) thread.
-  */
-  Semaphore m_ThreadsSemaphore;
+  /** When a thread is idle, it is waiting on m_Condition.
+   * AddWork signals it to resume a (random) thread. */
+  std::condition_variable m_Condition;
 
   /** Vector to hold all thread handles.
-   * Thread handles are used to delete the threads.
-   */
-  std::vector<ThreadProcessIdType> m_Threads;
+   * Thread handles are used to delete (join) the threads. */
+  std::vector<std::thread> m_Threads;
+
+  /* Has destruction started? */
+  bool m_Stopping{ false };
 
   /** To lock on the internal variables */
-  static SimpleFastMutexLock m_Mutex;
-
-  static Pointer m_ThreadPoolInstance;
+  static ThreadPoolGlobals * m_PimplGlobals;
 
   /** The continuously running thread function */
-  static ITK_THREAD_RETURN_TYPE ThreadExecute(void *param);
+  static void
+  ThreadExecute();
 };
 
-}
+} // namespace itk
 #endif

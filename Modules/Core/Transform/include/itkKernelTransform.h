@@ -28,7 +28,6 @@
 #include "vnl/vnl_vector.h"
 #include "vnl/vnl_vector_fixed.h"
 #include "vnl/algo/vnl_svd.h"
-#include "vnl/vnl_sample.h"
 
 namespace itk
 {
@@ -57,17 +56,17 @@ namespace itk
  *
  * \ingroup ITKTransform
  */
-template<typename TParametersValueType,
-          unsigned int NDimensions>
-class ITK_TEMPLATE_EXPORT KernelTransform :
-  public Transform<TParametersValueType, NDimensions, NDimensions>
+template <typename TParametersValueType, unsigned int NDimensions>
+class ITK_TEMPLATE_EXPORT KernelTransform : public Transform<TParametersValueType, NDimensions, NDimensions>
 {
 public:
-  /** Standard class typedefs. */
-  typedef KernelTransform                                             Self;
-  typedef Transform<TParametersValueType, NDimensions, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                        Pointer;
-  typedef SmartPointer<const Self>                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(KernelTransform);
+
+  /** Standard class type aliases. */
+  using Self = KernelTransform;
+  using Superclass = Transform<TParametersValueType, NDimensions, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(KernelTransform, Transform);
@@ -76,133 +75,153 @@ public:
   itkNewMacro(Self);
 
   /** Dimension of the domain space. */
-  itkStaticConstMacro(SpaceDimension, unsigned int, NDimensions);
+  static constexpr unsigned int SpaceDimension = NDimensions;
 
   /** Scalar type. */
-  typedef typename Superclass::ScalarType ScalarType;
+  using ScalarType = typename Superclass::ScalarType;
 
   /** Parameters type. */
-  typedef typename Superclass::FixedParametersType FixedParametersType;
-  typedef typename Superclass::ParametersType      ParametersType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using ParametersType = typename Superclass::ParametersType;
 
-  /** Jacobian type. */
-  typedef typename Superclass::JacobianType JacobianType;
+  /** Jacobian types. */
+  using JacobianType = typename Superclass::JacobianType;
+  using JacobianPositionType = typename Superclass::JacobianPositionType;
+  using InverseJacobianPositionType = typename Superclass::InverseJacobianPositionType;
 
   /** Transform category type. */
-  typedef typename Superclass::TransformCategoryType TransformCategoryType;
+  using TransformCategoryType = typename Superclass::TransformCategoryType;
 
   /** Standard coordinate point type for this class. */
-  typedef typename Superclass::InputPointType  InputPointType;
-  typedef typename Superclass::OutputPointType OutputPointType;
+  using InputPointType = typename Superclass::InputPointType;
+  using OutputPointType = typename Superclass::OutputPointType;
 
   /** Standard vector type for this class. */
-  typedef typename Superclass::InputVectorType  InputVectorType;
-  typedef typename Superclass::OutputVectorType OutputVectorType;
+  using InputVectorType = typename Superclass::InputVectorType;
+  using OutputVectorType = typename Superclass::OutputVectorType;
 
   /** Standard covariant vector type for this class */
-  typedef typename Superclass::InputCovariantVectorType  InputCovariantVectorType;
-  typedef typename Superclass::OutputCovariantVectorType OutputCovariantVectorType;
+  using InputCovariantVectorType = typename Superclass::InputCovariantVectorType;
+  using OutputCovariantVectorType = typename Superclass::OutputCovariantVectorType;
 
   /** Standard vnl_vector type for this class. */
-  typedef typename Superclass::InputVnlVectorType  InputVnlVectorType;
-  typedef typename Superclass::OutputVnlVectorType OutputVnlVectorType;
+  using InputVnlVectorType = typename Superclass::InputVnlVectorType;
+  using OutputVnlVectorType = typename Superclass::OutputVnlVectorType;
 
-   /** The number of parameters defininig this transform. */
-  typedef typename Superclass::NumberOfParametersType NumberOfParametersType;
+  /** The number of parameters defininig this transform. */
+  using NumberOfParametersType = typename Superclass::NumberOfParametersType;
 
-  /** PointList typedef. This type is used for maintaining lists of points,
+  /** PointList type alias. This type is used for maintaining lists of points,
    * specifically, the source and target landmark lists. */
-  typedef DefaultStaticMeshTraits<TParametersValueType, NDimensions, NDimensions, TParametersValueType, TParametersValueType> PointSetTraitsType;
-  typedef PointSet<InputPointType, NDimensions, PointSetTraitsType>                                PointSetType;
+  using PointSetTraitsType =
+    DefaultStaticMeshTraits<TParametersValueType, NDimensions, NDimensions, TParametersValueType, TParametersValueType>;
+  using PointSetType = PointSet<InputPointType, NDimensions, PointSetTraitsType>;
 
-  typedef typename PointSetType::Pointer                      PointSetPointer;
-  typedef typename PointSetType::PointsContainer              PointsContainer;
-  typedef typename PointSetType::PointsContainerIterator      PointsIterator;
-  typedef typename PointSetType::PointsContainerConstIterator PointsConstIterator;
-  typedef typename PointSetType::PointIdentifier              PointIdentifier;
+  using PointSetPointer = typename PointSetType::Pointer;
+  using PointsContainer = typename PointSetType::PointsContainer;
+  using PointsIterator = typename PointSetType::PointsContainerIterator;
+  using PointsConstIterator = typename PointSetType::PointsContainerConstIterator;
+  using PointIdentifier = typename PointSetType::PointIdentifier;
 
-  /** VectorSet typedef. */
-  typedef itk::VectorContainer<SizeValueType, InputVectorType> VectorSetType;
-  typedef typename VectorSetType::Pointer                      VectorSetPointer;
+  /** VectorSet type alias. */
+  using VectorSetType = itk::VectorContainer<SizeValueType, InputVectorType>;
+  using VectorSetPointer = typename VectorSetType::Pointer;
 
   /** Get/Set the source landmarks list, which we will denote \f$ p \f$. */
-  itkGetModifiableObjectMacro(SourceLandmarks, PointSetType); //NOTE: This is used to circumvent the SetTargetLandmarks
-  virtual void SetSourceLandmarks(PointSetType *);
+  itkGetModifiableObjectMacro(SourceLandmarks, PointSetType); // NOTE: This is used to circumvent the SetTargetLandmarks
+  virtual void
+  SetSourceLandmarks(PointSetType *);
 
   /** Get the target landmarks list, which we will denote  \f$ q \f$. */
-  itkGetModifiableObjectMacro(TargetLandmarks, PointSetType); //NOTE: This is used to circumvent the SetTargetLandmarks
-  virtual void SetTargetLandmarks(PointSetType *);
+  itkGetModifiableObjectMacro(TargetLandmarks, PointSetType); // NOTE: This is used to circumvent the SetTargetLandmarks
+  virtual void
+  SetTargetLandmarks(PointSetType *);
 
   /** Get the displacements list, which we will denote \f$ d \f$,
    * where \f$ d_i = q_i - p_i \f$. */
   itkGetModifiableObjectMacro(Displacements, VectorSetType);
 
   /** Compute W matrix. */
-  void ComputeWMatrix();
+  void
+  ComputeWMatrix();
 
   /** Compute the position of point in the new space */
-  virtual OutputPointType TransformPoint(const InputPointType & thisPoint) const ITK_OVERRIDE;
+  OutputPointType
+  TransformPoint(const InputPointType & thisPoint) const override;
 
   /** These vector transforms are not implemented for this transform */
   using Superclass::TransformVector;
-  virtual OutputVectorType TransformVector(const InputVectorType &) const ITK_OVERRIDE
+  OutputVectorType
+  TransformVector(const InputVectorType &) const override
   {
-    itkExceptionMacro( << "TransformVector(const InputVectorType &) is not implemented for KernelTransform");
+    itkExceptionMacro(<< "TransformVector(const InputVectorType &) is not implemented for KernelTransform");
   }
 
-  virtual OutputVnlVectorType TransformVector(const InputVnlVectorType &) const ITK_OVERRIDE
+  OutputVnlVectorType
+  TransformVector(const InputVnlVectorType &) const override
   {
-    itkExceptionMacro( << "TransformVector(const InputVnlVectorType &) is not implemented for KernelTransform");
+    itkExceptionMacro(<< "TransformVector(const InputVnlVectorType &) is not implemented for KernelTransform");
   }
 
   /**  Method to transform a CovariantVector. */
   using Superclass::TransformCovariantVector;
-  virtual OutputCovariantVectorType TransformCovariantVector(const InputCovariantVectorType &) const ITK_OVERRIDE
+  OutputCovariantVectorType
+  TransformCovariantVector(const InputCovariantVectorType &) const override
   {
-    itkExceptionMacro( << "TransformCovariantVector(const InputCovariantVectorType &) is not implemented for KernelTransform");
+    itkExceptionMacro(
+      << "TransformCovariantVector(const InputCovariantVectorType &) is not implemented for KernelTransform");
   }
 
-  /** 'I' (identity) matrix typedef. */
-  typedef vnl_matrix_fixed<TParametersValueType, NDimensions, NDimensions> IMatrixType;
+  /** 'I' (identity) matrix type alias. */
+  using IMatrixType = vnl_matrix_fixed<TParametersValueType, NDimensions, NDimensions>;
 
   /** Compute the Jacobian Matrix of the transformation at one point */
-  virtual void ComputeJacobianWithRespectToParameters( const InputPointType  & p, JacobianType & jacobian) const ITK_OVERRIDE;
+  void
+  ComputeJacobianWithRespectToParameters(const InputPointType & p, JacobianType & jacobian) const override;
 
-  virtual void ComputeJacobianWithRespectToPosition(const InputPointType &,
-                                                    JacobianType &) const ITK_OVERRIDE
+  void
+  ComputeJacobianWithRespectToPosition(const InputPointType &, JacobianPositionType &) const override
   {
-    itkExceptionMacro( "ComputeJacobianWithRespectToPosition not yet implemented "
-                       "for " << this->GetNameOfClass() );
+    itkExceptionMacro("ComputeJacobianWithRespectToPosition not yet implemented "
+                      "for "
+                      << this->GetNameOfClass());
   }
+  using Superclass::ComputeJacobianWithRespectToPosition;
 
   /** Set the Transformation Parameters and update the internal transformation.
    * The parameters represent the source landmarks. Each landmark point is
    * represented by NDimensions doubles. All the landmarks are concatenated to
    * form one flat Array<double>. */
-  virtual void SetParameters(const ParametersType &) ITK_OVERRIDE;
+  void
+  SetParameters(const ParametersType &) override;
 
   /** Set Transform Fixed Parameters:
    *     To support the transform file writer this function was
    *     added to set the target landmarks similar to the
    *     SetParameters function setting the source landmarks
    */
-  virtual void SetFixedParameters(const FixedParametersType &) ITK_OVERRIDE;
+  void
+  SetFixedParameters(const FixedParametersType &) override;
 
   /** Update the Parameters array from the landmarks corrdinates. */
-  virtual void UpdateParameters() const;
+  virtual void
+  UpdateParameters() const;
 
   /** Get the Transformation Parameters - Gets the Source Landmarks */
-  virtual const ParametersType & GetParameters() const ITK_OVERRIDE;
+  const ParametersType &
+  GetParameters() const override;
 
   /** Get Transform Fixed Parameters - Gets the Target Landmarks */
-  virtual const FixedParametersType & GetFixedParameters() const ITK_OVERRIDE;
+  const FixedParametersType &
+  GetFixedParameters() const override;
 
   /** This transform is not linear, because the transformation of a linear
    * combination of points is not equal to the linear combination of the
    * transformations of individual points */
-  virtual TransformCategoryType GetTransformCategory() const ITK_OVERRIDE
+  TransformCategoryType
+  GetTransformCategory() const override
   {
-    return Self::Spline;
+    return Self::TransformCategoryType::Spline;
   }
 
   /** Stiffness of the spline.  A stiffness of zero results in the
@@ -215,47 +234,48 @@ public:
    * International Conference of the IEEE Engineering in Medicine and
    * Biology Society. 1996.
    */
-  itkSetClampMacro( Stiffness, double, 0.0, NumericTraits<double>::max() );
+  itkSetClampMacro(Stiffness, double, 0.0, NumericTraits<double>::max());
   itkGetConstMacro(Stiffness, double);
 
 protected:
   KernelTransform();
-  virtual ~KernelTransform() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~KernelTransform() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 public:
-  /** 'G' matrix typedef. */
-  typedef vnl_matrix_fixed<TParametersValueType, NDimensions, NDimensions> GMatrixType;
+  /** 'G' matrix type alias. */
+  using GMatrixType = vnl_matrix_fixed<TParametersValueType, NDimensions, NDimensions>;
 
-  /** 'L' matrix typedef. */
-  typedef vnl_matrix<TParametersValueType> LMatrixType;
+  /** 'L' matrix type alias. */
+  using LMatrixType = vnl_matrix<TParametersValueType>;
 
-  /** 'K' matrix typedef. */
-  typedef vnl_matrix<TParametersValueType> KMatrixType;
+  /** 'K' matrix type alias. */
+  using KMatrixType = vnl_matrix<TParametersValueType>;
 
-  /** 'P' matrix typedef. */
-  typedef vnl_matrix<TParametersValueType> PMatrixType;
+  /** 'P' matrix type alias. */
+  using PMatrixType = vnl_matrix<TParametersValueType>;
 
-  /** 'Y' matrix typedef. */
-  typedef vnl_matrix<TParametersValueType> YMatrixType;
+  /** 'Y' matrix type alias. */
+  using YMatrixType = vnl_matrix<TParametersValueType>;
 
-  /** 'W' matrix typedef. */
-  typedef vnl_matrix<TParametersValueType> WMatrixType;
+  /** 'W' matrix type alias. */
+  using WMatrixType = vnl_matrix<TParametersValueType>;
 
-  /** 'D' matrix typedef. Deformation component */
-  typedef vnl_matrix<TParametersValueType> DMatrixType;
+  /** 'D' matrix type alias. Deformation component */
+  using DMatrixType = vnl_matrix<TParametersValueType>;
 
-  /** 'A' matrix typedef. Rotational part of the Affine component */
-  typedef vnl_matrix_fixed<TParametersValueType, NDimensions, NDimensions> AMatrixType;
+  /** 'A' matrix type alias. Rotational part of the Affine component */
+  using AMatrixType = vnl_matrix_fixed<TParametersValueType, NDimensions, NDimensions>;
 
-  /** 'B' matrix typedef. Translational part of the Affine component */
-  typedef vnl_vector_fixed<TParametersValueType, NDimensions> BMatrixType;
+  /** 'B' matrix type alias. Translational part of the Affine component */
+  using BMatrixType = vnl_vector_fixed<TParametersValueType, NDimensions>;
 
-  /** Row matrix typedef. */
-  typedef vnl_matrix_fixed<TParametersValueType, 1, NDimensions> RowMatrixType;
+  /** Row matrix type alias. */
+  using RowMatrixType = vnl_matrix_fixed<TParametersValueType, 1, NDimensions>;
 
-  /** Column matrix typedef. */
-  typedef vnl_matrix_fixed<TParametersValueType, NDimensions, 1> ColumnMatrixType;
+  /** Column matrix type alias. */
+  using ColumnMatrixType = vnl_matrix_fixed<TParametersValueType, NDimensions, 1>;
 
 protected:
   /** Compute G(x)
@@ -264,7 +284,8 @@ protected:
    *    Elastic body spline
    *    Thin plate spline
    *    Volume spline */
-  virtual void ComputeG(const InputVectorType & landmarkVector, GMatrixType & gmatrix) const;
+  virtual void
+  ComputeG(const InputVectorType & landmarkVector, GMatrixType & gmatrix) const;
 
   /** Compute a G(x) for a point to itself (i.e. for the block diagonal
    * elements of the matrix K. Parameter indicates for which landmark
@@ -279,28 +300,35 @@ protected:
 
   /** Compute the contribution of the landmarks weighted by the kernel funcion
       to the global deformation of the space  */
-  virtual void ComputeDeformationContribution(const InputPointType & inputPoint, OutputPointType & result) const;
+  virtual void
+  ComputeDeformationContribution(const InputPointType & inputPoint, OutputPointType & result) const;
 
   /** Compute K matrix. */
-  void ComputeK();
+  void
+  ComputeK();
 
   /** Compute L matrix. */
-  void ComputeL();
+  void
+  ComputeL();
 
   /** Compute P matrix. */
-  void ComputeP();
+  void
+  ComputeP();
 
   /** Compute Y matrix. */
-  void ComputeY();
+  void
+  ComputeY();
 
   /** Compute displacements \f$ q_i - p_i \f$. */
-  void ComputeD();
+  void
+  ComputeD();
 
   /** Reorganize the components of W into
     D (deformable), A (rotation part of affine)
     and B (translational part of affine ) components.
     \warning This method release the memory of the W Matrix  */
-  void ReorganizeW();
+  void
+  ReorganizeW();
 
   /** Stiffness parameter */
   double m_Stiffness;
@@ -355,14 +383,11 @@ protected:
   PointSetPointer m_TargetLandmarks;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(KernelTransform);
-
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkKernelTransform.hxx"
+#  include "itkKernelTransform.hxx"
 #endif
 
 #endif // itkKernelTransform_h

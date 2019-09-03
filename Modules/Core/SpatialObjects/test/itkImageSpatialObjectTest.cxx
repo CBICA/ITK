@@ -18,11 +18,11 @@
 // Disable warning for long symbol names in this file only
 
 /*
-* This is a test file for the itkImageSpatialObject class.
-* The suported pixel types does not include itkRGBPixel, itkRGBAPixel, etc...
-* So far it only allows to manage images of simple types like unsigned short,
-* unsigned int, or itk::Vector<...>.
-*/
+ * This is a test file for the itkImageSpatialObject class.
+ * The suported pixel types does not include itkRGBPixel, itkRGBAPixel, etc...
+ * So far it only allows to manage images of simple types like unsigned short,
+ * unsigned int, or itk::Vector<...>.
+ */
 
 
 #include "itkImageRegionIterator.h"
@@ -31,22 +31,23 @@
 #include "itkLinearInterpolateImageFunction.h"
 
 
-int itkImageSpatialObjectTest(int, char* [])
+int
+itkImageSpatialObjectTest(int, char *[])
 {
-  #define NDimensions 3
+#define NDimensions 3
 
-  typedef double                                     ScalarType;
-  typedef unsigned short                             Pixel;
-  typedef itk::Image<Pixel,NDimensions>              ImageType;
-  typedef itk::ImageSpatialObject<NDimensions,Pixel> ImageSpatialObject;
-  typedef itk::ImageRegionIterator<ImageType>        Iterator;
-  typedef itk::Point<ScalarType,NDimensions>         Point;
+  using ScalarType = double;
+  using Pixel = unsigned short;
+  using ImageType = itk::Image<Pixel, NDimensions>;
+  using ImageSpatialObject = itk::ImageSpatialObject<NDimensions, Pixel>;
+  using Iterator = itk::ImageRegionIterator<ImageType>;
+  using PointType = itk::Point<ScalarType, NDimensions>;
 
-  ImageType::Pointer image = ImageType::New();
-  ImageType::SizeType size = {{ 10, 10, 10 }};
-  ImageType::IndexType index = {{ 0, 0, 0 }};
+  ImageType::Pointer    image = ImageType::New();
+  ImageType::SizeType   size = { { 10, 10, 10 } };
+  ImageType::IndexType  index = { { 0, 0, 0 } };
   ImageType::RegionType region;
-  ImageType::PointType origin;
+  ImageType::PointType  origin;
   origin.Fill(5);
 
   region.SetSize(size);
@@ -57,134 +58,137 @@ int itkImageSpatialObjectTest(int, char* [])
   image->SetRequestedRegion(region);
   image->Allocate();
 
-  Iterator it(image,region);
-  Pixel p =0;
+  Iterator it(image, region);
+  Pixel    p = 0;
 
-  for(; !it.IsAtEnd(); ++it, ++p)
-    {
+  for (; !it.IsAtEnd(); ++it, ++p)
+  {
     it.Set(p);
-    }
+  }
   it.GoToBegin();
 
   ImageSpatialObject::Pointer imageSO = ImageSpatialObject::New();
   imageSO->Print(std::cout);
 
   imageSO->SetImage(image);
+  imageSO->Update();
+
   ImageSpatialObject::TransformType::OffsetType offset;
   offset.Fill(5);
 
-  imageSO->GetObjectToParentTransform()->SetOffset(offset);
-  imageSO->ComputeObjectToWorldTransform();
+  imageSO->GetModifiableObjectToParentTransform()->SetOffset(offset);
+  imageSO->Update();
 
-  Point q,r;
-  double returnedValue,expectedValue;
+  PointType q;
+  PointType r;
+  double    returnedValue;
+  double    expectedValue;
 
   r.Fill(9);
   q.Fill(15);
 
-  imageSO->ComputeBoundingBox();
-  std::cout << "Bounding Box = " << imageSO->GetBoundingBox()->GetBounds() << std::endl;
-  std::cout<<"IsInside()...";
-  if( imageSO->IsInside(r) || !imageSO->IsInside(q) )
-    {
-    std::cout<<"[FAILED]"<<std::endl;
+  std::cout << "Bounding Box = " << imageSO->GetMyBoundingBoxInWorldSpace()->GetBounds() << std::endl;
+  std::cout << "IsInside()...";
+  if (imageSO->IsInsideInWorldSpace(r) || !imageSO->IsInsideInWorldSpace(q))
+  {
+    std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
-    std::cout<<"[PASSED]"<<std::endl;
-    }
+  {
+    std::cout << "[PASSED]" << std::endl;
+  }
 
   q.Fill(15.1);
   expectedValue = 555;
 
   try
-    {
-    imageSO->ValueAt(q,returnedValue);
-    }
-  catch( itk::ExceptionObject & )
-    {
+  {
+    imageSO->ValueAtInWorldSpace(q, returnedValue);
+  }
+  catch (itk::ExceptionObject &)
+  {
     throw;
-    }
+  }
 
-  std::cout<<"ValueAt()...";
-  if( itk::Math::NotAlmostEquals( returnedValue, expectedValue ) )
-    {
+  std::cout << "ValueAt()...";
+  if (itk::Math::NotAlmostEquals(returnedValue, expectedValue))
+  {
     std::cout << "Expected: " << expectedValue << " returned: " << returnedValue << std::endl;
-    std::cout <<"[FAILED]: " << std::endl;
+    std::cout << "[FAILED]: " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
-    std::cout<<"[PASSED]"<<std::endl;
-    }
+  {
+    std::cout << "[PASSED]" << std::endl;
+  }
 
-  ImageSpatialObject::OutputVectorType derivative,expectedDerivative;
-  Pixel expectedPixel;
+  ImageSpatialObject::DerivativeVectorType derivative;
+  ImageSpatialObject::DerivativeVectorType expectedDerivative;
+  Pixel                                    expectedPixel;
 
-  imageSO->DerivativeAt(q,1,derivative);
+  imageSO->DerivativeAtInWorldSpace(q, 1, derivative);
   expectedPixel = 1;
-  expectedDerivative[0]=expectedPixel;
+  expectedDerivative[0] = expectedPixel;
   expectedPixel = 10;
-  expectedDerivative[1]=expectedPixel;
+  expectedDerivative[1] = expectedPixel;
   expectedPixel = 100;
-  expectedDerivative[2]=expectedPixel;
-  std::cout<<"DerivativeAt()...";
-  if( derivative != expectedDerivative )
-    {
-    std::cout<<"[FAILED]"<<std::endl;
+  expectedDerivative[2] = expectedPixel;
+  std::cout << "DerivativeAt()...";
+  if (derivative != expectedDerivative)
+  {
+    std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
-    std::cout<<"[PASSED]"<<std::endl;
-    }
+  {
+    std::cout << "[PASSED]" << std::endl;
+  }
 
   // Now testing the ValueAt() with an interpolator
-  typedef itk::LinearInterpolateImageFunction<ImageType> InterpolatorType;
+  using InterpolatorType = itk::LinearInterpolateImageFunction<ImageType>;
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
   imageSO->SetInterpolator(interpolator);
   expectedValue = 566.1;
 
   try
-    {
-    imageSO->ValueAt(q,returnedValue);
-    }
-  catch( itk::ExceptionObject & )
-    {
+  {
+    imageSO->ValueAtInWorldSpace(q, returnedValue);
+  }
+  catch (itk::ExceptionObject &)
+  {
     throw;
-    }
+  }
 
-  std::cout<<"ValueAt() with interpolator...";
-  if( std::fabs(returnedValue-expectedValue)>0.001 )
-    {
+  std::cout << "ValueAt() with interpolator...";
+  if (std::fabs(returnedValue - expectedValue) > 0.001)
+  {
     std::cout << "Expected: " << expectedValue << " returned: " << returnedValue << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
-    std::cout<<"[PASSED]"<<std::endl;
-    }
+  {
+    std::cout << "[PASSED]" << std::endl;
+  }
 
 
-  imageSO->DerivativeAt(q,1,derivative);
-  expectedDerivative[0]=1;
-  expectedDerivative[1]=10;
-  expectedDerivative[2]=100;
-  std::cout<<"DerivativeAt() with interpolator ...";
-  if(  std::fabs(derivative[0]-expectedDerivative[0])>0.00001
-    || std::fabs(derivative[1]-expectedDerivative[1])>0.00001
-    || std::fabs(derivative[2]-expectedDerivative[2])>0.00001
-    )
-    {
+  imageSO->DerivativeAtInWorldSpace(q, 1, derivative);
+  expectedDerivative[0] = 1;
+  expectedDerivative[1] = 10;
+  expectedDerivative[2] = 100;
+  std::cout << "DerivativeAt() with interpolator ...";
+  if (std::fabs(derivative[0] - expectedDerivative[0]) > 0.00001 ||
+      std::fabs(derivative[1] - expectedDerivative[1]) > 0.00001 ||
+      std::fabs(derivative[2] - expectedDerivative[2]) > 0.00001)
+  {
     std::cout << "Expected: " << derivative << " returned: " << expectedDerivative << std::endl;
-    std::cout<<"[FAILED]"<<std::endl;
+    std::cout << "[FAILED]" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
-    std::cout<<"[PASSED]"<<std::endl;
-    }
+  {
+    std::cout << "[PASSED]" << std::endl;
+  }
 
   imageSO->Print(std::cout);
 

@@ -63,7 +63,7 @@ target_link_libraries(DeformableRegistration7 ${ITK_LIBRARIES})
 add_executable(DeformableRegistration8 DeformableRegistration8.cxx )
 target_link_libraries(DeformableRegistration8 ${ITK_LIBRARIES})
 
-if( ITK_USE_FFTWD )
+if( ITK_USE_FFTWD AND NOT ITK_USE_CUFFTW )
   add_executable(DeformableRegistration9 DeformableRegistration9.cxx )
   target_link_libraries(DeformableRegistration9 ${ITK_LIBRARIES})
 
@@ -86,11 +86,13 @@ target_link_libraries(MultiStageImageRegistration1 ${ITK_LIBRARIES})
 add_executable(MultiStageImageRegistration2 MultiStageImageRegistration2.cxx )
 target_link_libraries(MultiStageImageRegistration2 ${ITK_LIBRARIES})
 
-add_executable(DeformableRegistration1 DeformableRegistration1.cxx )
-target_link_libraries(DeformableRegistration1 ${ITK_LIBRARIES})
+if (ITKFEMRegistration_ENABLED)
+  add_executable(DeformableRegistration1 DeformableRegistration1.cxx )
+  target_link_libraries(DeformableRegistration1 ${ITK_LIBRARIES})
 
-add_executable(DeformableRegistration11 DeformableRegistration11.cxx )
-target_link_libraries(DeformableRegistration11 ${ITK_LIBRARIES})
+  add_executable(DeformableRegistration11 DeformableRegistration11.cxx )
+  target_link_libraries(DeformableRegistration11 ${ITK_LIBRARIES})
+endif()
 
 add_executable(DeformableRegistration2 DeformableRegistration2.cxx )
 target_link_libraries(DeformableRegistration2 ${ITK_LIBRARIES})

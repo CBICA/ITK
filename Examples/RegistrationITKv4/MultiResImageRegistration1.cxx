@@ -81,9 +81,8 @@
 // \center
 // \includegraphics[width=\textwidth]{MultiResRegistrationConcept}
 // \itkcaption[Conceptual representation of Multi-Resolution
-// registration]{Conceptual representation of the multi-resolution registration process.}
-// \label{fig:MultiResRegistrationConcept}
-// \end{figure}
+// registration]{Conceptual representation of the multi-resolution registration
+// process.} \label{fig:MultiResRegistrationConcept} \end{figure}
 //
 // Software Guide : EndLatex
 
@@ -140,13 +139,13 @@ class RegistrationInterfaceCommand : public itk::Command
 
   // Software Guide : BeginCodeSnippet
 public:
-  typedef  RegistrationInterfaceCommand   Self;
-  typedef  itk::Command                   Superclass;
-  typedef  itk::SmartPointer<Self>        Pointer;
-  itkNewMacro( Self );
+  using Self = RegistrationInterfaceCommand;
+  using Superclass = itk::Command;
+  using Pointer = itk::SmartPointer<Self>;
+  itkNewMacro(Self);
 
 protected:
-  RegistrationInterfaceCommand() {};
+  RegistrationInterfaceCommand() = default;
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -158,10 +157,10 @@ protected:
 
   // Software Guide : BeginCodeSnippet
 public:
-  typedef   TRegistration      RegistrationType;
-  typedef   RegistrationType * RegistrationPointer;
-  typedef   itk::RegularStepGradientDescentOptimizerv4<double>  OptimizerType;
-  typedef   OptimizerType * OptimizerPointer;
+  using RegistrationType = TRegistration;
+  using RegistrationPointer = RegistrationType *;
+  using OptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
+  using OptimizerPointer = OptimizerType *;
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -173,9 +172,9 @@ public:
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  void Execute( itk::Object * object,
-                const itk::EventObject & event) ITK_OVERRIDE
-    {
+  void
+  Execute(itk::Object * object, const itk::EventObject & event) override
+  {
     // Software Guide : EndCodeSnippet
 
     // Software Guide : BeginLatex
@@ -187,10 +186,10 @@ public:
     // Software Guide : EndLatex
 
     // Software Guide : BeginCodeSnippet
-    if( !(itk::MultiResolutionIterationEvent().CheckEvent( &event ) ) )
-      {
+    if (!(itk::MultiResolutionIterationEvent().CheckEvent(&event)))
+    {
       return;
-      }
+    }
     // Software Guide : EndCodeSnippet
 
     // Software Guide : BeginLatex
@@ -204,22 +203,22 @@ public:
     // Software Guide : EndLatex
 
     // Software Guide : BeginCodeSnippet
-    RegistrationPointer registration =
-      static_cast<RegistrationPointer>( object );
-    OptimizerPointer optimizer =  static_cast< OptimizerPointer >(
-        registration->GetModifiableOptimizer() );
+    auto registration = static_cast<RegistrationPointer>(object);
+    auto optimizer =
+      static_cast<OptimizerPointer>(registration->GetModifiableOptimizer());
     // Software Guide : EndCodeSnippet
 
     unsigned int currentLevel = registration->GetCurrentLevel();
     typename RegistrationType::ShrinkFactorsPerDimensionContainerType shrinkFactors =
-      registration->GetShrinkFactorsPerDimension( currentLevel );
+      registration->GetShrinkFactorsPerDimension(currentLevel);
     typename RegistrationType::SmoothingSigmasArrayType smoothingSigmas =
       registration->GetSmoothingSigmasPerLevel();
 
     std::cout << "-------------------------------------" << std::endl;
     std::cout << " Current level = " << currentLevel << std::endl;
     std::cout << "    shrink factor = " << shrinkFactors << std::endl;
-    std::cout << "    smoothing sigma = " << smoothingSigmas[currentLevel] << std::endl;
+    std::cout << "    smoothing sigma = ";
+    std::cout << smoothingSigmas[currentLevel] << std::endl;
     std::cout << std::endl;
 
     // Software Guide : BeginLatex
@@ -238,19 +237,18 @@ public:
     // Software Guide : EndLatex
 
     // Software Guide : BeginCodeSnippet
-    if ( registration->GetCurrentLevel() == 0 )
-      {
-      optimizer->SetLearningRate( 16.00 );
-      optimizer->SetMinimumStepLength( 2.5 );
-      }
-    else
-      {
-      optimizer->SetLearningRate( optimizer->GetCurrentStepLength() );
-      optimizer->SetMinimumStepLength(
-        optimizer->GetMinimumStepLength() * 0.2 );
-      }
-    // Software Guide : EndCodeSnippet
+    if (registration->GetCurrentLevel() == 0)
+    {
+      optimizer->SetLearningRate(16.00);
+      optimizer->SetMinimumStepLength(2.5);
     }
+    else
+    {
+      optimizer->SetLearningRate(optimizer->GetCurrentStepLength());
+      optimizer->SetMinimumStepLength(optimizer->GetMinimumStepLength() * 0.2);
+    }
+    // Software Guide : EndCodeSnippet
+  }
 
   // Software Guide : BeginLatex
   //
@@ -261,10 +259,11 @@ public:
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  void Execute(const itk::Object * , const itk::EventObject & ) ITK_OVERRIDE
-    {
+  void
+  Execute(const itk::Object *, const itk::EventObject &) override
+  {
     return;
-    }
+  }
 };
 // Software Guide : EndCodeSnippet
 
@@ -274,44 +273,48 @@ public:
 class CommandIterationUpdate : public itk::Command
 {
 public:
-  typedef  CommandIterationUpdate   Self;
-  typedef  itk::Command             Superclass;
-  typedef  itk::SmartPointer<Self>  Pointer;
-  itkNewMacro( Self );
+  using Self = CommandIterationUpdate;
+  using Superclass = itk::Command;
+  using Pointer = itk::SmartPointer<Self>;
+  itkNewMacro(Self);
 
 protected:
-  CommandIterationUpdate(): m_CumulativeIterationIndex(0) {};
+  CommandIterationUpdate(){};
 
 public:
-  typedef   itk::RegularStepGradientDescentOptimizerv4<double>  OptimizerType;
-  typedef   const OptimizerType *                               OptimizerPointer;
+  using OptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
+  using OptimizerPointer = const OptimizerType *;
 
-  void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(itk::Object * caller, const itk::EventObject & event) override
   {
-  Execute( (const itk::Object *)caller, event);
+    Execute((const itk::Object *)caller, event);
   }
 
-  void Execute(const itk::Object * object, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(const itk::Object * object, const itk::EventObject & event) override
   {
-  OptimizerPointer optimizer = static_cast< OptimizerPointer >( object );
-  if( !(itk::IterationEvent().CheckEvent( &event )) )
+    auto optimizer = static_cast<OptimizerPointer>(object);
+    if (!(itk::IterationEvent().CheckEvent(&event)))
     {
-    return;
+      return;
     }
-  std::cout << optimizer->GetCurrentIteration() << "   ";
-  std::cout << optimizer->GetValue() << "   ";
-  std::cout << optimizer->GetCurrentPosition() << "   ";
-  std::cout << m_CumulativeIterationIndex++ << std::endl;
+    std::cout << optimizer->GetCurrentIteration() << "   ";
+    std::cout << optimizer->GetValue() << "   ";
+    std::cout << optimizer->GetCurrentPosition() << "   ";
+    std::cout << m_CumulativeIterationIndex++ << std::endl;
   }
+
 private:
-  unsigned int m_CumulativeIterationIndex;
+  unsigned int m_CumulativeIterationIndex{ 0 };
 };
 
 
-int main( int argc, const char *argv[] )
+int
+main(int argc, const char * argv[])
 {
-  if( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Missing Parameters " << std::endl;
     std::cerr << "Usage: " << argv[0];
     std::cerr << " fixedImageFile  movingImageFile ";
@@ -319,21 +322,21 @@ int main( int argc, const char *argv[] )
     std::cerr << " [checkerBoardBefore] [checkerBoardAfter]";
     std::cerr << " [numberOfBins] " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const    unsigned int    Dimension = 2;
-  typedef  float           PixelType;
+  constexpr unsigned int Dimension = 2;
+  using PixelType = float;
 
-  const std::string fixedImageFile  = argv[1];
+  const std::string fixedImageFile = argv[1];
   const std::string movingImageFile = argv[2];
-  const std::string outImagefile    = argv[3];
-  const PixelType backgroundGrayLevel  = (argc >4 )? atoi(argv[4]): 100;
-  const std::string checkerBoardBefore = (argc >5 )?      argv[5]: "";
-  const std::string checkerBoardAfter  = (argc >6 )?      argv[6]: "";
-  const int numberOfBins               = (argc >7 )? atoi(argv[7]): 0;
+  const std::string outImagefile = argv[3];
+  const PixelType   backgroundGrayLevel = (argc > 4) ? std::stoi(argv[4]) : 100;
+  const std::string checkerBoardBefore = (argc > 5) ? argv[5] : "";
+  const std::string checkerBoardAfter = (argc > 6) ? argv[6] : "";
+  const int         numberOfBins = (argc > 7) ? std::stoi(argv[7]) : 0;
 
-  typedef itk::Image< PixelType, Dimension >  FixedImageType;
-  typedef itk::Image< PixelType, Dimension >  MovingImageType;
+  using FixedImageType = itk::Image<PixelType, Dimension>;
+  using MovingImageType = itk::Image<PixelType, Dimension>;
 
   //  Software Guide : BeginLatex
   //
@@ -348,62 +351,58 @@ int main( int argc, const char *argv[] )
   //
   //  Software Guide : EndLatex
 
-  typedef itk::TranslationTransform< double, Dimension >              TransformType;
+  using TransformType = itk::TranslationTransform<double, Dimension>;
 
-  typedef itk::RegularStepGradientDescentOptimizerv4<double>          OptimizerType;
+  using OptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
 
-  typedef itk::MattesMutualInformationImageToImageMetricv4<
-                                                    FixedImageType,
-                                                    MovingImageType > MetricType;
-  typedef itk::ImageRegistrationMethodv4<
-                                      FixedImageType,
-                                      MovingImageType,
-                                      TransformType >                 RegistrationType;
+  using MetricType =
+    itk::MattesMutualInformationImageToImageMetricv4<FixedImageType, MovingImageType>;
+  using RegistrationType =
+    itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType, TransformType>;
 
   //  All the components are instantiated using their \code{New()} method
   //  and connected to the registration object as in previous example.
   //
-  TransformType::Pointer      transform     = TransformType::New();
-  OptimizerType::Pointer      optimizer     = OptimizerType::New();
-  MetricType::Pointer         metric        = MetricType::New();
-  RegistrationType::Pointer   registration  = RegistrationType::New();
+  TransformType::Pointer    transform = TransformType::New();
+  OptimizerType::Pointer    optimizer = OptimizerType::New();
+  MetricType::Pointer       metric = MetricType::New();
+  RegistrationType::Pointer registration = RegistrationType::New();
 
-  registration->SetOptimizer( optimizer );
-  registration->SetMetric( metric  );
+  registration->SetOptimizer(optimizer);
+  registration->SetMetric(metric);
 
-  typedef itk::ImageFileReader< FixedImageType  > FixedImageReaderType;
-  typedef itk::ImageFileReader< MovingImageType > MovingImageReaderType;
+  using FixedImageReaderType = itk::ImageFileReader<FixedImageType>;
+  using MovingImageReaderType = itk::ImageFileReader<MovingImageType>;
 
-  FixedImageReaderType::Pointer  fixedImageReader  =
-                                            FixedImageReaderType::New();
-  MovingImageReaderType::Pointer movingImageReader =
-                                            MovingImageReaderType::New();
+  FixedImageReaderType::Pointer  fixedImageReader = FixedImageReaderType::New();
+  MovingImageReaderType::Pointer movingImageReader = MovingImageReaderType::New();
 
-  fixedImageReader->SetFileName(  fixedImageFile );
-  movingImageReader->SetFileName( movingImageFile );
+  fixedImageReader->SetFileName(fixedImageFile);
+  movingImageReader->SetFileName(movingImageFile);
 
-  registration->SetFixedImage(    fixedImageReader->GetOutput()    );
-  registration->SetMovingImage(   movingImageReader->GetOutput()   );
+  registration->SetFixedImage(fixedImageReader->GetOutput());
+  registration->SetMovingImage(movingImageReader->GetOutput());
 
 
-  typedef OptimizerType::ParametersType ParametersType;
-  ParametersType initialParameters( transform->GetNumberOfParameters() );
+  using ParametersType = OptimizerType::ParametersType;
+  ParametersType initialParameters(transform->GetNumberOfParameters());
 
-  initialParameters[0] = 0.0;  // Initial offset in mm along X
-  initialParameters[1] = 0.0;  // Initial offset in mm along Y
+  initialParameters[0] = 0.0; // Initial offset in mm along X
+  initialParameters[1] = 0.0; // Initial offset in mm along Y
 
-  transform->SetParameters( initialParameters );
+  transform->SetParameters(initialParameters);
 
-  registration->SetInitialTransform( transform );
+  registration->SetInitialTransform(transform);
   registration->InPlaceOn();
 
-  metric->SetNumberOfHistogramBins( 24 );
+  metric->SetNumberOfHistogramBins(24);
 
-  if( argc > 7 )
-    {
-    // optionally, override the values with numbers taken from the command line arguments.
-    metric->SetNumberOfHistogramBins( numberOfBins );
-    }
+  if (argc > 7)
+  {
+    // optionally, override the values with numbers taken from the command line
+    // arguments.
+    metric->SetNumberOfHistogramBins(numberOfBins);
+  }
 
   //  Software Guide : BeginLatex
   //
@@ -415,14 +414,14 @@ int main( int argc, const char *argv[] )
   //  Software Guide : EndLatex
 
   //  Software Guide : BeginCodeSnippet
-  optimizer->SetNumberOfIterations( 200 );
-  optimizer->SetRelaxationFactor( 0.5 );
+  optimizer->SetNumberOfIterations(200);
+  optimizer->SetRelaxationFactor(0.5);
   // Software Guide : EndCodeSnippet
 
   // Create the Command observer and register it with the optimizer.
   //
   CommandIterationUpdate::Pointer observer = CommandIterationUpdate::New();
-  optimizer->AddObserver( itk::IterationEvent(), observer );
+  optimizer->AddObserver(itk::IterationEvent(), observer);
 
 
   //  Software Guide : BeginLatex
@@ -442,23 +441,23 @@ int main( int argc, const char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int numberOfLevels = 3;
+  constexpr unsigned int numberOfLevels = 3;
 
   RegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
-  shrinkFactorsPerLevel.SetSize( 3 );
+  shrinkFactorsPerLevel.SetSize(3);
   shrinkFactorsPerLevel[0] = 3;
   shrinkFactorsPerLevel[1] = 2;
   shrinkFactorsPerLevel[2] = 1;
 
   RegistrationType::SmoothingSigmasArrayType smoothingSigmasPerLevel;
-  smoothingSigmasPerLevel.SetSize( 3 );
+  smoothingSigmasPerLevel.SetSize(3);
   smoothingSigmasPerLevel[0] = 0;
   smoothingSigmasPerLevel[1] = 0;
   smoothingSigmasPerLevel[2] = 0;
 
-  registration->SetNumberOfLevels ( numberOfLevels );
-  registration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
-  registration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
+  registration->SetNumberOfLevels(numberOfLevels);
+  registration->SetShrinkFactorsPerLevel(shrinkFactorsPerLevel);
+  registration->SetSmoothingSigmasPerLevel(smoothingSigmasPerLevel);
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -470,10 +469,10 @@ int main( int argc, const char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef RegistrationInterfaceCommand<RegistrationType> CommandType;
+  using CommandType = RegistrationInterfaceCommand<RegistrationType>;
   CommandType::Pointer command = CommandType::New();
 
-  registration->AddObserver( itk::MultiResolutionIterationEvent(), command );
+  registration->AddObserver(itk::MultiResolutionIterationEvent(), command);
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -483,18 +482,18 @@ int main( int argc, const char *argv[] )
   //  Software Guide : EndLatex
 
   try
-    {
+  {
     registration->Update();
     std::cout << "Optimizer stop condition: "
               << registration->GetOptimizer()->GetStopConditionDescription()
               << std::endl;
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "ExceptionObject caught !" << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   ParametersType finalParameters = transform->GetParameters();
 
@@ -509,10 +508,10 @@ int main( int argc, const char *argv[] )
   // Print out results
   //
   std::cout << "Result = " << std::endl;
-  std::cout << " Translation X = " << TranslationAlongX  << std::endl;
-  std::cout << " Translation Y = " << TranslationAlongY  << std::endl;
+  std::cout << " Translation X = " << TranslationAlongX << std::endl;
+  std::cout << " Translation Y = " << TranslationAlongY << std::endl;
   std::cout << " Iterations    = " << numberOfIterations << std::endl;
-  std::cout << " Metric value  = " << bestValue          << std::endl;
+  std::cout << " Metric value  = " << bestValue << std::endl;
 
 
   //  Software Guide : BeginLatex
@@ -557,85 +556,81 @@ int main( int argc, const char *argv[] )
   //
   //  Software Guide : EndLatex
 
-  typedef itk::ResampleImageFilter<
-                            MovingImageType,
-                            FixedImageType >    ResampleFilterType;
+  using ResampleFilterType = itk::ResampleImageFilter<MovingImageType, FixedImageType>;
 
   ResampleFilterType::Pointer resample = ResampleFilterType::New();
 
-  resample->SetTransform( transform );
-  resample->SetInput( movingImageReader->GetOutput() );
+  resample->SetTransform(transform);
+  resample->SetInput(movingImageReader->GetOutput());
 
   FixedImageType::Pointer fixedImage = fixedImageReader->GetOutput();
 
 
-  resample->SetSize(    fixedImage->GetLargestPossibleRegion().GetSize() );
-  resample->SetOutputOrigin(  fixedImage->GetOrigin() );
-  resample->SetOutputSpacing( fixedImage->GetSpacing() );
-  resample->SetOutputDirection( fixedImage->GetDirection() );
-  resample->SetDefaultPixelValue( backgroundGrayLevel );
+  resample->SetSize(fixedImage->GetLargestPossibleRegion().GetSize());
+  resample->SetOutputOrigin(fixedImage->GetOrigin());
+  resample->SetOutputSpacing(fixedImage->GetSpacing());
+  resample->SetOutputDirection(fixedImage->GetDirection());
+  resample->SetDefaultPixelValue(backgroundGrayLevel);
 
 
-  typedef  unsigned char  OutputPixelType;
+  using OutputPixelType = unsigned char;
 
-  typedef itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
-  typedef itk::CastImageFilter<
-                        FixedImageType,
-                        OutputImageType > CastFilterType;
+  using CastFilterType = itk::CastImageFilter<FixedImageType, OutputImageType>;
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
 
-  WriterType::Pointer      writer =  WriterType::New();
-  CastFilterType::Pointer  caster =  CastFilterType::New();
+  WriterType::Pointer     writer = WriterType::New();
+  CastFilterType::Pointer caster = CastFilterType::New();
 
 
-  writer->SetFileName( outImagefile );
+  writer->SetFileName(outImagefile);
 
 
-  caster->SetInput( resample->GetOutput() );
-  writer->SetInput( caster->GetOutput()   );
+  caster->SetInput(resample->GetOutput());
+  writer->SetInput(caster->GetOutput());
   writer->Update();
 
   //
   // Generate checkerboards before and after registration
   //
-  typedef itk::CheckerBoardImageFilter< FixedImageType > CheckerBoardFilterType;
+  using CheckerBoardFilterType = itk::CheckerBoardImageFilter<FixedImageType>;
 
   CheckerBoardFilterType::Pointer checker = CheckerBoardFilterType::New();
 
-  checker->SetInput1( fixedImage );
-  checker->SetInput2( resample->GetOutput() );
+  checker->SetInput1(fixedImage);
+  checker->SetInput2(resample->GetOutput());
 
-  caster->SetInput( checker->GetOutput() );
-  writer->SetInput( caster->GetOutput()   );
+  caster->SetInput(checker->GetOutput());
+  writer->SetInput(caster->GetOutput());
 
-  resample->SetDefaultPixelValue( 0 );
+  resample->SetDefaultPixelValue(0);
 
   // Before registration
   TransformType::Pointer identityTransform = TransformType::New();
   identityTransform->SetIdentity();
-  resample->SetTransform( identityTransform );
+  resample->SetTransform(identityTransform);
 
-  for (int q=0; q< argc; ++q)
-    {
+  for (int q = 0; q < argc; ++q)
+  {
     std::cout << q << " " << argv[q] << std::endl;
-    }
-  if( checkerBoardBefore != std::string("") )
-    {
-    writer->SetFileName( checkerBoardBefore );
+  }
+  if (checkerBoardBefore != std::string(""))
+  {
+    writer->SetFileName(checkerBoardBefore);
     writer->Update();
-    }
+  }
 
 
   // After registration
-  resample->SetTransform( transform );
-  if( checkerBoardAfter != std::string("") )
-    {
-    writer->SetFileName( checkerBoardAfter );
+  resample->SetTransform(transform);
+  if (checkerBoardAfter != std::string(""))
+  {
+    writer->SetFileName(checkerBoardAfter);
     writer->Update();
-    }
+  }
 
   //  Software Guide : BeginLatex
   //

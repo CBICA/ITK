@@ -37,23 +37,29 @@ namespace Accessor
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TInternalType, typename TExternalType >
+template <typename TInternalType, typename TExternalType>
 class ComplexToPhasePixelAccessor
 {
 public:
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef TExternalType ExternalType;
+  using ExternalType = TExternalType;
 
-  /** Internal typedef. It defines the internal phase
+  /** Internal type alias. It defines the internal phase
    * representation of data. */
-  typedef TInternalType InternalType;
+  using InternalType = TInternalType;
 
-  static inline void Set(TInternalType & output, const TExternalType & input)
-  { output = (TInternalType)( input ); }
+  static inline void
+  Set(TInternalType & output, const TExternalType & input)
+  {
+    output = (TInternalType)(input);
+  }
 
-  static inline TExternalType Get(const TInternalType & input)
-  { return (TExternalType)( std::atan2( input.imag(), input.real() ) ); }
+  static inline TExternalType
+  Get(const TInternalType & input)
+  {
+    return (TExternalType)(std::atan2(input.imag(), input.real()));
+  }
 };
 } // end namespace Accessor
 
@@ -66,21 +72,19 @@ public:
  * \ingroup ImageAdaptors
  * \ingroup ITKImageAdaptors
  */
-template< typename TImage, typename TOutputPixelType >
-class ComplexToPhaseImageAdaptor:public
-  ImageAdaptor< TImage,
-                Accessor::ComplexToPhasePixelAccessor<
-                  typename TImage::PixelType,
-                  TOutputPixelType >   >
+template <typename TImage, typename TOutputPixelType>
+class ComplexToPhaseImageAdaptor
+  : public ImageAdaptor<TImage, Accessor::ComplexToPhasePixelAccessor<typename TImage::PixelType, TOutputPixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ComplexToPhaseImageAdaptor Self;
-  typedef ImageAdaptor< TImage, Accessor::ComplexToPhasePixelAccessor<
-                          typename TImage::PixelType,
-                          TOutputPixelType > >  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToPhaseImageAdaptor);
+
+  /** Standard class type aliases. */
+  using Self = ComplexToPhaseImageAdaptor;
+  using Superclass =
+    ImageAdaptor<TImage, Accessor::ComplexToPhasePixelAccessor<typename TImage::PixelType, TOutputPixelType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -89,11 +93,8 @@ public:
   itkTypeMacro(ComplexToPhaseImageAdaptor, ImageAdaptor);
 
 protected:
-  ComplexToPhaseImageAdaptor() {}
-  virtual ~ComplexToPhaseImageAdaptor() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToPhaseImageAdaptor);
+  ComplexToPhaseImageAdaptor() = default;
+  ~ComplexToPhaseImageAdaptor() override = default;
 };
 } // end namespace itk
 

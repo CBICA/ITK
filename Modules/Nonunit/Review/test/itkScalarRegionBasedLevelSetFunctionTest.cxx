@@ -21,138 +21,145 @@
 namespace itk
 {
 
-template < typename TInput, // LevelSetImageType
-  typename TFeature, // FeatureImageType
-  typename TSharedData >
-class ScalarRegionBasedLevelSetFunctionTestHelper :
- public ScalarRegionBasedLevelSetFunction< TInput, TFeature, TSharedData >
+template <typename TInput,   // LevelSetImageType
+          typename TFeature, // FeatureImageType
+          typename TSharedData>
+class ScalarRegionBasedLevelSetFunctionTestHelper
+  : public ScalarRegionBasedLevelSetFunction<TInput, TFeature, TSharedData>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ScalarRegionBasedLevelSetFunctionTestHelper                       Self;
-  typedef ScalarRegionBasedLevelSetFunction<TInput,TFeature,TSharedData>    Superclass;
-  typedef SmartPointer<Self>                                                Pointer;
-  typedef SmartPointer<const Self>                                          ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ScalarRegionBasedLevelSetFunctionTestHelper);
 
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  /** Standard class type aliases. */
+  using Self = ScalarRegionBasedLevelSetFunctionTestHelper;
+  using Superclass = ScalarRegionBasedLevelSetFunction<TInput, TFeature, TSharedData>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro( ScalarRegionBasedLevelSetFunctionTestHelper, ScalarRegionBasedLevelSetFunction );
+  itkTypeMacro(ScalarRegionBasedLevelSetFunctionTestHelper, ScalarRegionBasedLevelSetFunction);
 
-  typedef typename Superclass::ScalarValueType     ScalarValueType;
-  typedef typename Superclass::FeaturePixelType    FeaturePixelType;
-  typedef typename Superclass::FeatureIndexType    FeatureIndexType;
+  using ScalarValueType = typename Superclass::ScalarValueType;
+  using FeaturePixelType = typename Superclass::FeaturePixelType;
+  using FeatureIndexType = typename Superclass::FeatureIndexType;
 
-  virtual ScalarValueType ComputeInternalTerm(const FeaturePixelType &,
-    const FeatureIndexType & ) ITK_OVERRIDE
-    {
-    return ScalarValueType( 0 );
-    }
+  ScalarValueType
+  ComputeInternalTerm(const FeaturePixelType &, const FeatureIndexType &) override
+  {
+    return ScalarValueType(0);
+  }
 
-  virtual ScalarValueType ComputeExternalTerm(const FeaturePixelType &,
-    const FeatureIndexType & ) ITK_OVERRIDE
-    {
-    return ScalarValueType( 0 );
-    }
+  ScalarValueType
+  ComputeExternalTerm(const FeaturePixelType &, const FeatureIndexType &) override
+  {
+    return ScalarValueType(0);
+  }
 
-  virtual ScalarValueType ComputeOverlapParameters( const FeatureIndexType& ,
-    ScalarValueType& ) ITK_OVERRIDE
-    {
-    return ScalarValueType( 0 );
-    }
+  ScalarValueType
+  ComputeOverlapParameters(const FeatureIndexType &, ScalarValueType &) override
+  {
+    return ScalarValueType(0);
+  }
 
-  virtual void ComputeParameters() ITK_OVERRIDE {}
+  void
+  ComputeParameters() override
+  {}
 
-  virtual void UpdateSharedDataParameters() ITK_OVERRIDE {}
+  void
+  UpdateSharedDataParameters() override
+  {}
 
-  virtual void UpdateSharedDataInsideParameters( const unsigned int& ,
-    const FeaturePixelType&, const ScalarValueType& ) ITK_OVERRIDE {}
+  void
+  UpdateSharedDataInsideParameters(const unsigned int &, const FeaturePixelType &, const ScalarValueType &) override
+  {}
 
-  virtual void UpdateSharedDataOutsideParameters( const unsigned int& ,
-    const FeaturePixelType&, const ScalarValueType& ) ITK_OVERRIDE {}
+  void
+  UpdateSharedDataOutsideParameters(const unsigned int &, const FeaturePixelType &, const ScalarValueType &) override
+  {}
 
 protected:
   ScalarRegionBasedLevelSetFunctionTestHelper() {}
-  ~ScalarRegionBasedLevelSetFunctionTestHelper() {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ScalarRegionBasedLevelSetFunctionTestHelper);
+  ~ScalarRegionBasedLevelSetFunctionTestHelper() override {}
 };
 
 template <unsigned int NDimension>
 class ScalarRegionBasedLevelSetFunctionSharedDataHelper : public DataObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef ScalarRegionBasedLevelSetFunctionSharedDataHelper   Self;
-  typedef DataObject                                          Superclass;
-  typedef SmartPointer<Self>                                  Pointer;
-  typedef SmartPointer<const Self>                            ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ScalarRegionBasedLevelSetFunctionSharedDataHelper;
+  using Superclass = DataObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro( ScalarRegionBasedLevelSetFunctionSharedDataHelper, DataObject );
+  itkTypeMacro(ScalarRegionBasedLevelSetFunctionSharedDataHelper, DataObject);
 
-  unsigned long       m_FunctionCount;
+  unsigned long m_FunctionCount;
 
-  typedef Index< NDimension >                 IndexType;
-  typedef std::list< unsigned int >           ListPixelType;
+  using IndexType = Index<NDimension>;
+  using ListPixelType = std::list<unsigned int>;
 
-  typedef Image< ListPixelType, NDimension > ImageType;
-  typename ImageType::Pointer   m_NearestNeighborListImage;
+  using ImageType = Image<ListPixelType, NDimension>;
+  typename ImageType::Pointer m_NearestNeighborListImage;
 
-  typedef double                              PixelType;
-  typedef Image< PixelType, NDimension >      InputImageType;
+  using PixelType = double;
+  using InputImageType = Image<PixelType, NDimension>;
 
   struct SingleData
-    {
+  {
     typename InputImageType::Pointer m_HeavisideFunctionOfLevelSetImage;
-    int m_WeightedNumberOfPixelsInsideLevelSet;
-    int m_WeightedSumOfPixelValuesInsideLevelSet;
-    int m_ForegroundConstantValues;
+    int                              m_WeightedNumberOfPixelsInsideLevelSet;
+    int                              m_WeightedSumOfPixelValuesInsideLevelSet;
+    int                              m_ForegroundConstantValues;
 
     int m_WeightedNumberOfPixelsOutsideLevelSet;
     int m_WeightedSumOfPixelValuesOutsideLevelSet;
     int m_BackgroundConstantValues;
 
-    IndexType GetFeatureIndex( const IndexType & indx )
-      {
+    IndexType
+    GetFeatureIndex(const IndexType & indx)
+    {
       return indx;
-      }
+    }
 
-    IndexType GetIndex( const IndexType & globalIndex )
-      {
+    IndexType
+    GetIndex(const IndexType & globalIndex)
+    {
       return globalIndex;
-      }
-    };
+    }
+  };
 
-  SingleData* m_LevelSetDataPointerVector[19];
-
+  SingleData * m_LevelSetDataPointerVector[19];
 };
 
-}
+} // namespace itk
 
-int itkScalarRegionBasedLevelSetFunctionTest( int, char* [] )
+int
+itkScalarRegionBasedLevelSetFunctionTest(int, char *[])
 {
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
-  typedef double                                  PixelType;
-  typedef itk::Image< PixelType, Dimension >      ImageType;
-  typedef itk::Image< float, Dimension >          FeatureImageType;
+  using PixelType = double;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using FeatureImageType = itk::Image<float, Dimension>;
 
-  typedef itk::ScalarRegionBasedLevelSetFunctionSharedDataHelper<Dimension>      DataHelperType;
+  using DataHelperType = itk::ScalarRegionBasedLevelSetFunctionSharedDataHelper<Dimension>;
 
-  typedef itk::ScalarRegionBasedLevelSetFunctionTestHelper<
-    ImageType, FeatureImageType, DataHelperType >      RegionBasedLevelSetFunctionType;
+  using RegionBasedLevelSetFunctionType =
+    itk::ScalarRegionBasedLevelSetFunctionTestHelper<ImageType, FeatureImageType, DataHelperType>;
 
   RegionBasedLevelSetFunctionType::Pointer function = RegionBasedLevelSetFunctionType::New();
-  if( function.IsNull() )
-    {
+  if (function.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

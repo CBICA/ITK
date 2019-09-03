@@ -37,60 +37,71 @@ namespace itk
  * \tparam TImage         Type of image on which the class operates.
  * \tparam TOperator      The value type of the operator (defaults to
  * the image pixel type).
-* \tparam TComputation   The value type used as the return type of the
+ * \tparam TComputation   The value type used as the return type of the
  * inner product calculation (defaults to the operator type).
  *
  * \ingroup Operators
  * \ingroup ITKCommon
  */
 
-template< typename TImage, typename TOperator = typename TImage::PixelType, typename TComputation = TOperator >
+template <typename TImage, typename TOperator = typename TImage::PixelType, typename TComputation = TOperator>
 class ITK_TEMPLATE_EXPORT NeighborhoodInnerProduct
 {
 public:
-  /** Standard typedefs */
-  typedef NeighborhoodInnerProduct Self;
+  /** Standard type alias */
+  using Self = NeighborhoodInnerProduct;
 
-  /** Capture some typedefs from the template parameters. */
-  typedef typename TImage::PixelType ImagePixelType;
-  typedef TOperator                  OperatorPixelType;
-  typedef TComputation               OutputPixelType;
+  /** Capture some type alias from the template parameters. */
+  using ImagePixelType = typename TImage::PixelType;
+  using OperatorPixelType = TOperator;
+  using OutputPixelType = TComputation;
 
-  /** Capture some typedefs from the template parameters. */
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  /** Capture some type alias from the template parameters. */
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
-  /** Operator typedef */
-  typedef Neighborhood< OperatorPixelType,
-                        itkGetStaticConstMacro(ImageDimension) > OperatorType;
+  /** Operator type alias */
+  using OperatorType = Neighborhood<OperatorPixelType, Self::ImageDimension>;
 
-  typedef Neighborhood< ImagePixelType,
-                        itkGetStaticConstMacro(ImageDimension) > NeighborhoodType;
+  using NeighborhoodType = Neighborhood<ImagePixelType, Self::ImageDimension>;
+
+  static OutputPixelType
+  Compute(const ConstNeighborhoodIterator<TImage> & it,
+          const OperatorType &                      op,
+          const unsigned                            start = 0,
+          const unsigned                            stride = 1);
+
+  static OutputPixelType
+  Compute(const NeighborhoodType & N, const OperatorType & op, const unsigned start = 0, const unsigned stride = 1);
 
   /** Reference oeprator. */
-  OutputPixelType operator()(const std::slice & s,
-                             const ConstNeighborhoodIterator< TImage > & it,
-                             const OperatorType & op) const;
-
-  OutputPixelType operator()(const ConstNeighborhoodIterator< TImage > & it,
-                             const OperatorType & op) const
+  OutputPixelType
+  operator()(const std::slice & s, const ConstNeighborhoodIterator<TImage> & it, const OperatorType & op) const
   {
-    return this->operator()(std::slice(0, it.Size(), 1), it, op);
+    return Self::Compute(it, op, s.start(), s.stride());
   }
 
-  OutputPixelType operator()(const std::slice & s,
-                             const NeighborhoodType & N,
-                             const OperatorType & op) const;
-
-  OutputPixelType operator()(const NeighborhoodType & N,
-                             const OperatorType & op) const
+  OutputPixelType
+  operator()(const ConstNeighborhoodIterator<TImage> & it, const OperatorType & op) const
   {
-    return this->operator()(std::slice(0, N.Size(), 1), N, op);
+    return Self::Compute(it, op);
+  }
+
+  OutputPixelType
+  operator()(const std::slice & s, const NeighborhoodType & N, const OperatorType & op) const
+  {
+    return Self::Compute(N, op, s.start(), s.stride());
+  }
+
+  OutputPixelType
+  operator()(const NeighborhoodType & N, const OperatorType & op) const
+  {
+    return Self::Compute(N, op);
   }
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkNeighborhoodInnerProduct.hxx"
+#  include "itkNeighborhoodInnerProduct.hxx"
 #endif
 
 /*

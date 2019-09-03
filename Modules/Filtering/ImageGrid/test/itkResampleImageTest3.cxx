@@ -31,33 +31,33 @@
  * '--compare' option.
  */
 
-int itkResampleImageTest3(int argc, char * argv [] )
+int
+itkResampleImageTest3(int argc, char * argv[])
 {
 
-  if( argc < 3 )
-    {
-    std::cerr << "Usage: "<< argv[0];
+  if (argc < 3)
+  {
+    std::cerr << "Usage: " << argv[0];
     std::cerr << " inputImage resampledImage" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int NDimensions = 2;
+  constexpr unsigned int NDimensions = 2;
 
-  typedef unsigned char                          PixelType;
-  typedef itk::Image<PixelType, NDimensions>     ImageType;
-  typedef double                                 CoordRepType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, NDimensions>;
+  using CoordRepType = double;
 
-  typedef itk::IdentityTransform<CoordRepType,NDimensions>  TransformType;
-  typedef itk::LinearInterpolateImageFunction<ImageType,CoordRepType>
-                                                            InterpolatorType;
+  using TransformType = itk::IdentityTransform<CoordRepType, NDimensions>;
+  using InterpolatorType = itk::LinearInterpolateImageFunction<ImageType, CoordRepType>;
 
-  typedef itk::ImageFileReader< ImageType >                ReaderType;
-  typedef itk::ImageFileWriter< ImageType >                WriterType;
-  typedef itk::ChangeInformationImageFilter< ImageType >   ChangeInfoType;
-  typedef itk::ResampleImageFilter< ImageType, ImageType > ResampleFilterType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using WriterType = itk::ImageFileWriter<ImageType>;
+  using ChangeInfoType = itk::ChangeInformationImageFilter<ImageType>;
+  using ResampleFilterType = itk::ResampleImageFilter<ImageType, ImageType>;
 
   ReaderType::Pointer reader1 = ReaderType::New();
-  reader1->SetFileName( argv[1] );
+  reader1->SetFileName(argv[1]);
   reader1->Update();
 
   // Create an identity transformation
@@ -72,55 +72,53 @@ int itkResampleImageTest3(int argc, char * argv [] )
   direction[0][1] = 0.0;
   direction[1][0] = 0.0;
   direction[1][1] = -1.0;
-  ImageType::RegionType inputRegion =
-  reader1->GetOutput()->GetLargestPossibleRegion();
-  ImageType::PointType origin;
+  ImageType::RegionType inputRegion = reader1->GetOutput()->GetLargestPossibleRegion();
+  ImageType::PointType  origin;
   origin[0] = inputRegion.GetSize()[0];
   origin[1] = inputRegion.GetSize()[1];
 
   ChangeInfoType::Pointer changeInfo = ChangeInfoType::New();
   changeInfo->ChangeDirectionOn();
-  changeInfo->SetOutputDirection( direction );
+  changeInfo->SetOutputDirection(direction);
   changeInfo->ChangeOriginOn();
-  changeInfo->SetOutputOrigin( origin );
-  changeInfo->SetInput( reader1->GetOutput() );
+  changeInfo->SetOutputOrigin(origin);
+  changeInfo->SetInput(reader1->GetOutput());
 
   // Create and configure a resampling filter
   ResampleFilterType::Pointer resample = ResampleFilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( resample, ResampleImageFilter, ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(resample, ResampleImageFilter, ImageToImageFilter);
 
-  resample->SetInput( reader1->GetOutput() );
-  TEST_SET_GET_VALUE( reader1->GetOutput(), resample->GetInput() );
+  resample->SetInput(reader1->GetOutput());
+  ITK_TEST_SET_GET_VALUE(reader1->GetOutput(), resample->GetInput());
 
-  resample->SetReferenceImage( changeInfo->GetOutput() );
-  TEST_SET_GET_VALUE( changeInfo->GetOutput(), resample->GetReferenceImage() );
+  resample->SetReferenceImage(changeInfo->GetOutput());
+  ITK_TEST_SET_GET_VALUE(changeInfo->GetOutput(), resample->GetReferenceImage());
 
   resample->UseReferenceImageOn();
-  TEST_EXPECT_TRUE( resample->GetUseReferenceImage() );
+  ITK_TEST_EXPECT_TRUE(resample->GetUseReferenceImage());
 
-  resample->SetTransform( identityTransform );
-  TEST_SET_GET_VALUE( identityTransform, resample->GetTransform() );
+  resample->SetTransform(identityTransform);
+  ITK_TEST_SET_GET_VALUE(identityTransform, resample->GetTransform());
 
-  resample->SetInterpolator( interpolator );
-  TEST_SET_GET_VALUE( interpolator, resample->GetInterpolator() );
+  resample->SetInterpolator(interpolator);
+  ITK_TEST_SET_GET_VALUE(interpolator, resample->GetInterpolator());
 
   WriterType::Pointer writer1 = WriterType::New();
-  writer1->SetFileName( argv[2] );
-  writer1->SetInput( resample->GetOutput() );
+  writer1->SetFileName(argv[2]);
+  writer1->SetInput(resample->GetOutput());
 
   // Run the resampling filter
   try
-    {
+  {
     writer1->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
- std::cout << "Test passed." << std::endl;
- return EXIT_SUCCESS;
-
+  std::cout << "Test passed." << std::endl;
+  return EXIT_SUCCESS;
 }

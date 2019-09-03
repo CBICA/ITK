@@ -37,15 +37,16 @@ namespace itk
  *  \tparam VDimension Dimension of the input space
  *  \ingroup ITKLevelSetsv4
  */
-template< unsigned int VDimension >
-class ITK_TEMPLATE_EXPORT MalcolmSparseLevelSetImage :
-    public LevelSetSparseImage< int8_t, VDimension >
+template <unsigned int VDimension>
+class ITK_TEMPLATE_EXPORT MalcolmSparseLevelSetImage : public LevelSetSparseImage<int8_t, VDimension>
 {
 public:
-  typedef MalcolmSparseLevelSetImage                Self;
-  typedef SmartPointer< Self >                      Pointer;
-  typedef SmartPointer< const Self >                ConstPointer;
-  typedef LevelSetSparseImage< int8_t, VDimension > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MalcolmSparseLevelSetImage);
+
+  using Self = MalcolmSparseLevelSetImage;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = LevelSetSparseImage<int8_t, VDimension>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -53,71 +54,88 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MalcolmSparseLevelSetImage, LevelSetSparseImage);
 
-  itkStaticConstMacro ( Dimension, unsigned int, VDimension );
+  static constexpr unsigned int Dimension = VDimension;
 
-  typedef typename Superclass::InputType        InputType;
-  typedef typename Superclass::OutputType       OutputType;
-  typedef typename Superclass::OutputRealType   OutputRealType;
-  typedef typename Superclass::GradientType     GradientType;
-  typedef typename Superclass::HessianType      HessianType;
-  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+  using InputType = typename Superclass::InputType;
+  using OutputType = typename Superclass::OutputType;
+  using OutputRealType = typename Superclass::OutputRealType;
+  using GradientType = typename Superclass::GradientType;
+  using HessianType = typename Superclass::HessianType;
+  using LevelSetDataType = typename Superclass::LevelSetDataType;
 
-  typedef typename Superclass::LayerIdType            LayerIdType;
-  typedef typename Superclass::LabelObjectType        LabelObjectType;
-  typedef typename Superclass::LabelObjectPointer     LabelObjectPointer;
-  typedef typename Superclass::LabelObjectLengthType  LabelObjectLengthType;
-  typedef typename Superclass::LabelObjectLineType    LabelObjectLineType;
+  using LayerIdType = typename Superclass::LayerIdType;
+  using LabelObjectType = typename Superclass::LabelObjectType;
+  using LabelObjectPointer = typename Superclass::LabelObjectPointer;
+  using LabelObjectLengthType = typename Superclass::LabelObjectLengthType;
+  using LabelObjectLineType = typename Superclass::LabelObjectLineType;
 
-  typedef typename Superclass::LabelMapType     LabelMapType;
-  typedef typename Superclass::LabelMapPointer  LabelMapPointer;
-  typedef typename Superclass::RegionType       RegionType;
+  using LabelMapType = typename Superclass::LabelMapType;
+  using LabelMapPointer = typename Superclass::LabelMapPointer;
+  using RegionType = typename Superclass::RegionType;
 
-  typedef typename Superclass::LayerType          LayerType;
-  typedef typename Superclass::LayerIterator      LayerIterator;
-  typedef typename Superclass::LayerConstIterator LayerConstIterator;
+  using LayerType = typename Superclass::LayerType;
+  using LayerIterator = typename Superclass::LayerIterator;
+  using LayerConstIterator = typename Superclass::LayerConstIterator;
 
-  typedef typename Superclass::LayerMapType           LayerMapType;
-  typedef typename Superclass::LayerMapIterator       LayerMapIterator;
-  typedef typename Superclass::LayerMapConstIterator  LayerMapConstIterator;
+  using LayerMapType = typename Superclass::LayerMapType;
+  using LayerMapIterator = typename Superclass::LayerMapIterator;
+  using LayerMapConstIterator = typename Superclass::LayerMapConstIterator;
 
   /** Returns the value of the level set function at a given location inputPixel */
   using Superclass::Evaluate;
-  virtual OutputType Evaluate( const InputType& inputPixel ) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & inputPixel) const override;
 
   /** Returns the Hessian of the level set function at a given location inputPixel */
-  virtual HessianType EvaluateHessian( const InputType& inputPixel ) const ITK_OVERRIDE;
+  HessianType
+  EvaluateHessian(const InputType & inputPixel) const override;
 
   /** Returns the Laplacian of the level set function at a given location inputPixel */
-  virtual OutputRealType EvaluateLaplacian( const InputType& inputPixel ) const ITK_OVERRIDE;
+  OutputRealType
+  EvaluateLaplacian(const InputType & inputPixel) const override;
 
   /** Returns the MeanCurvature of the level set function at a given location inputPixel */
-  virtual OutputRealType EvaluateMeanCurvature( const InputType& inputPixel ) const ITK_OVERRIDE;
+  OutputRealType
+  EvaluateMeanCurvature(const InputType & inputPixel) const override;
 
-  virtual void EvaluateHessian( const InputType& inputPixel, LevelSetDataType& data ) const ITK_OVERRIDE;
-  virtual void EvaluateLaplacian( const InputType& inputPixel, LevelSetDataType& data ) const ITK_OVERRIDE;
-  virtual void EvaluateMeanCurvature( const InputType& inputPixel, LevelSetDataType& data ) const ITK_OVERRIDE;
+  void
+  EvaluateHessian(const InputType & inputPixel, LevelSetDataType & data) const override;
+  void
+  EvaluateLaplacian(const InputType & inputPixel, LevelSetDataType & data) const override;
+  void
+  EvaluateMeanCurvature(const InputType & inputPixel, LevelSetDataType & data) const override;
 
-  static inline LayerIdType MinusOneLayer() { return -1; }
-  static inline LayerIdType ZeroLayer() { return 0; }
-  static inline LayerIdType PlusOneLayer() { return 1; }
+  static inline LayerIdType
+  MinusOneLayer()
+  {
+    return -1;
+  }
+  static inline LayerIdType
+  ZeroLayer()
+  {
+    return 0;
+  }
+  static inline LayerIdType
+  PlusOneLayer()
+  {
+    return 1;
+  }
 
 protected:
-
   MalcolmSparseLevelSetImage();
 
-  virtual ~MalcolmSparseLevelSetImage() ITK_OVERRIDE;
+  ~MalcolmSparseLevelSetImage() override = default;
 
   /** Initialize the sparse field layers */
-  virtual void InitializeLayers() ITK_OVERRIDE;
+  void
+  InitializeLayers() override;
 
-  virtual void InitializeInternalLabelList() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MalcolmSparseLevelSetImage);
+  void
+  InitializeInternalLabelList() override;
 };
-}
+} // namespace itk
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMalcolmSparseLevelSetImage.hxx"
+#  include "itkMalcolmSparseLevelSetImage.hxx"
 #endif
 
 #endif // itkMalcolmSparseLevelSetImage_h

@@ -50,19 +50,21 @@ namespace itk
  * \sa ConvolutionImageFilter
  *
  */
-template< typename TInputImage, typename TKernelImage = TInputImage, typename TOutputImage = TInputImage, typename TInternalPrecision=double >
-class ITK_TEMPLATE_EXPORT FFTConvolutionImageFilter :
-  public ConvolutionImageFilterBase< TInputImage, TKernelImage, TOutputImage >
+template <typename TInputImage,
+          typename TKernelImage = TInputImage,
+          typename TOutputImage = TInputImage,
+          typename TInternalPrecision = double>
+class ITK_TEMPLATE_EXPORT FFTConvolutionImageFilter
+  : public ConvolutionImageFilterBase<TInputImage, TKernelImage, TOutputImage>
 
 {
 public:
-  typedef FFTConvolutionImageFilter                       Self;
-  typedef ConvolutionImageFilterBase< TInputImage,
-                                      TKernelImage,
-                                      TOutputImage >
-                                                          Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FFTConvolutionImageFilter);
+
+  using Self = FFTConvolutionImageFilter;
+  using Superclass = ConvolutionImageFilterBase<TInputImage, TKernelImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -71,52 +73,47 @@ public:
   itkTypeMacro(FFTConvolutionImageFilter, ConvolutionImageFilterBase);
 
   /** Dimensionality of input and output data is assumed to be the same. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef TInputImage                           InputImageType;
-  typedef TOutputImage                          OutputImageType;
-  typedef TKernelImage                          KernelImageType;
-  typedef typename InputImageType::PixelType    InputPixelType;
-  typedef typename OutputImageType::PixelType   OutputPixelType;
-  typedef typename KernelImageType::PixelType   KernelPixelType;
-  typedef typename InputImageType::IndexType    InputIndexType;
-  typedef typename OutputImageType::IndexType   OutputIndexType;
-  typedef typename KernelImageType::IndexType   KernelIndexType;
-  typedef typename InputImageType::SizeType     InputSizeType;
-  typedef typename OutputImageType::SizeType    OutputSizeType;
-  typedef typename KernelImageType::SizeType    KernelSizeType;
-  typedef typename InputSizeType::SizeValueType SizeValueType;
-  typedef typename InputImageType::RegionType   InputRegionType;
-  typedef typename OutputImageType::RegionType  OutputRegionType;
-  typedef typename KernelImageType::RegionType  KernelRegionType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using KernelImageType = TKernelImage;
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using KernelPixelType = typename KernelImageType::PixelType;
+  using InputIndexType = typename InputImageType::IndexType;
+  using OutputIndexType = typename OutputImageType::IndexType;
+  using KernelIndexType = typename KernelImageType::IndexType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+  using KernelSizeType = typename KernelImageType::SizeType;
+  using SizeValueType = typename InputSizeType::SizeValueType;
+  using InputRegionType = typename InputImageType::RegionType;
+  using OutputRegionType = typename OutputImageType::RegionType;
+  using KernelRegionType = typename KernelImageType::RegionType;
 
   /** Internal types used by the FFT filters. */
-  typedef Image< TInternalPrecision, TInputImage::ImageDimension >  InternalImageType;
-  typedef typename InternalImageType::Pointer                       InternalImagePointerType;
-  typedef std::complex< TInternalPrecision >                        InternalComplexType;
-  typedef Image< InternalComplexType, TInputImage::ImageDimension > InternalComplexImageType;
-  typedef typename InternalComplexImageType::Pointer                InternalComplexImagePointerType;
+  using InternalImageType = Image<TInternalPrecision, TInputImage::ImageDimension>;
+  using InternalImagePointerType = typename InternalImageType::Pointer;
+  using InternalComplexType = std::complex<TInternalPrecision>;
+  using InternalComplexImageType = Image<InternalComplexType, TInputImage::ImageDimension>;
+  using InternalComplexImagePointerType = typename InternalComplexImageType::Pointer;
 
   /** Typedef to describe the boundary condition. */
-  typedef typename Superclass::BoundaryConditionType        BoundaryConditionType;
-  typedef typename Superclass::BoundaryConditionPointerType BoundaryConditionPointerType;
+  using BoundaryConditionType = typename Superclass::BoundaryConditionType;
+  using BoundaryConditionPointerType = typename Superclass::BoundaryConditionPointerType;
 
   itkSetMacro(SizeGreatestPrimeFactor, SizeValueType);
   itkGetMacro(SizeGreatestPrimeFactor, SizeValueType);
 
 protected:
   FFTConvolutionImageFilter();
-  ~FFTConvolutionImageFilter() ITK_OVERRIDE {}
+  ~FFTConvolutionImageFilter() override = default;
 
   /** Because the inputs are real, we can use the specialized filters
    * for real-to-complex Fourier transforms. */
-  typedef RealToHalfHermitianForwardFFTImageFilter< InternalImageType,
-                                                    InternalComplexImageType >
-    FFTFilterType;
-  typedef HalfHermitianToRealInverseFFTImageFilter< InternalComplexImageType,
-                                                    InternalImageType >
-    IFFTFilterType;
+  using FFTFilterType = RealToHalfHermitianForwardFFTImageFilter<InternalImageType, InternalComplexImageType>;
+  using IFFTFilterType = HalfHermitianToRealInverseFFTImageFilter<InternalComplexImageType, InternalImageType>;
 
   /** FFTConvolutionImageFilter needs the entire image kernel, which in
    * general is going to be a different size than the output requested
@@ -125,53 +122,63 @@ protected:
    * pipeline execution model.
    *
    * \sa ProcessObject::GenerateInputRequestedRegion()  */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** This filter uses a minipipeline to compute the output. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Prepare the input images for operations in the Fourier
    * domain. This includes resizing the input and kernel images,
    * normalizing the kernel if requested, shifting the kernel, and
    * taking the Fourier transform of the padded inputs. */
-  void PrepareInputs(const InputImageType * input,
-                     const KernelImageType * kernel,
-                     InternalComplexImagePointerType & preparedInput,
-                     InternalComplexImagePointerType & preparedKernel,
-                     ProgressAccumulator * progress, float progressWeight);
+  void
+  PrepareInputs(const InputImageType *            input,
+                const KernelImageType *           kernel,
+                InternalComplexImagePointerType & preparedInput,
+                InternalComplexImagePointerType & preparedKernel,
+                ProgressAccumulator *             progress,
+                float                             progressWeight);
 
   /** Prepare the input image. This includes padding the image and
    * taking the Fourier transform of the padded image. */
-  void PrepareInput(const InputImageType * input,
-                    InternalComplexImagePointerType & preparedInput,
-                    ProgressAccumulator * progress, float progressWeight);
+  void
+  PrepareInput(const InputImageType *            input,
+               InternalComplexImagePointerType & preparedInput,
+               ProgressAccumulator *             progress,
+               float                             progressWeight);
 
   /** Pad the input image. */
-  void PadInput(const InputImageType * input,
-                InternalImagePointerType & paddedInput,
-                ProgressAccumulator * progress, float progressWeight);
+  void
+  PadInput(const InputImageType *     input,
+           InternalImagePointerType & paddedInput,
+           ProgressAccumulator *      progress,
+           float                      progressWeight);
 
   /** Take the Fourier transform of the padded input. */
-  void TransformPaddedInput(const InternalImageType * paddedInput,
-                            InternalComplexImagePointerType & transformedInput,
-                            ProgressAccumulator * progress, float progressWeight);
+  void
+  TransformPaddedInput(const InternalImageType *         paddedInput,
+                       InternalComplexImagePointerType & transformedInput,
+                       ProgressAccumulator *             progress,
+                       float                             progressWeight);
 
   /** Prepare the kernel. This includes resizing the input and kernel
    * images, normalizing the kernel if requested, shifting the kernel,
    * and taking the Fourier transform of the padded kernel. */
-  void PrepareKernel(const KernelImageType * kernel,
-                     InternalComplexImagePointerType & preparedKernel,
-                     ProgressAccumulator * progress, float progressWeight);
+  void
+  PrepareKernel(const KernelImageType *           kernel,
+                InternalComplexImagePointerType & preparedKernel,
+                ProgressAccumulator *             progress,
+                float                             progressWeight);
 
   /** Produce output from the final Fourier domain image. */
-  void ProduceOutput(InternalComplexImageType * paddedOutput,
-                     ProgressAccumulator * progress,
-                     float progressWeight);
+  void
+  ProduceOutput(InternalComplexImageType * paddedOutput, ProgressAccumulator * progress, float progressWeight);
 
   /** Crop the padded version of the output. */
-  void CropOutput(InternalImageType * paddedOutput,
-                  ProgressAccumulator * progress,
-                  float progressWeight);
+  void
+  CropOutput(InternalImageType * paddedOutput, ProgressAccumulator * progress, float progressWeight);
 
   /** Get the lower bound for the padding of both the kernel and input
    * images. Assuming that the regions of the kernel and input are the
@@ -179,25 +186,27 @@ protected:
    * padded kernel and padded input so that they are the same. This
    * is important to avoid exceptions in filters that operate on these
    * images. */
-  InputSizeType GetPadLowerBound() const;
+  InputSizeType
+  GetPadLowerBound() const;
 
   /** Get the pad size. */
-  InputSizeType GetPadSize() const;
+  InputSizeType
+  GetPadSize() const;
 
   /** Get whether the X dimension has an odd size. */
-  bool GetXDimensionIsOdd() const;
+  bool
+  GetXDimensionIsOdd() const;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FFTConvolutionImageFilter);
-
   SizeValueType m_SizeGreatestPrimeFactor;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFFTConvolutionImageFilter.hxx"
+#  include "itkFFTConvolutionImageFilter.hxx"
 #endif
 
 #endif

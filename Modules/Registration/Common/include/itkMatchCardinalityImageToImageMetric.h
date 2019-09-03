@@ -63,17 +63,17 @@ namespace itk
  * \ingroup RegistrationMetrics
  * \ingroup ITKRegistrationCommon
  */
-template< typename TFixedImage, typename TMovingImage >
-class ITK_TEMPLATE_EXPORT MatchCardinalityImageToImageMetric:
-  public ImageToImageMetric< TFixedImage, TMovingImage >
+template <typename TFixedImage, typename TMovingImage>
+class ITK_TEMPLATE_EXPORT MatchCardinalityImageToImageMetric : public ImageToImageMetric<TFixedImage, TMovingImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(MatchCardinalityImageToImageMetric);
 
-  /** Standard class typedefs. */
-  typedef MatchCardinalityImageToImageMetric              Self;
-  typedef ImageToImageMetric< TFixedImage, TMovingImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MatchCardinalityImageToImageMetric;
+  using Superclass = ImageToImageMetric<TFixedImage, TMovingImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -82,27 +82,27 @@ public:
   itkTypeMacro(MatchCardinalityImageToImageMetric, ImageToImageMetric);
 
   /** Types transferred from the base class */
-  typedef typename Superclass::RealType                RealType;
-  typedef typename Superclass::TransformType           TransformType;
-  typedef typename Superclass::TransformPointer        TransformPointer;
-  typedef typename Superclass::TransformParametersType TransformParametersType;
-  typedef typename Superclass::TransformJacobianType   TransformJacobianType;
-  typedef typename Superclass::GradientPixelType       GradientPixelType;
+  using RealType = typename Superclass::RealType;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformParametersType = typename Superclass::TransformParametersType;
+  using TransformJacobianType = typename Superclass::TransformJacobianType;
+  using GradientPixelType = typename Superclass::GradientPixelType;
 
-  typedef typename Superclass::MeasureType             MeasureType;
-  typedef typename Superclass::DerivativeType          DerivativeType;
-  typedef typename Superclass::FixedImageType          FixedImageType;
-  typedef typename Superclass::MovingImageType         MovingImageType;
-  typedef typename Superclass::FixedImageConstPointer  FixedImageConstPointer;
-  typedef typename Superclass::MovingImageConstPointer MovingImageConstPointer;
-  typedef typename Superclass::FixedImageRegionType    FixedImageRegionType;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using FixedImageConstPointer = typename Superclass::FixedImageConstPointer;
+  using MovingImageConstPointer = typename Superclass::MovingImageConstPointer;
+  using FixedImageRegionType = typename Superclass::FixedImageRegionType;
 
   /** Get the derivatives of the match measure. */
-  void GetDerivative(const TransformParametersType &,
-                     DerivativeType & derivative) const ITK_OVERRIDE
+  void
+  GetDerivative(const TransformParametersType &, DerivativeType & derivative) const override
   {
     itkWarningMacro(<< "This metric does not provide metric derivatives.");
-    derivative.Fill(NumericTraits< typename DerivativeType::ValueType >::ZeroValue());
+    derivative.Fill(NumericTraits<typename DerivativeType::ValueType>::ZeroValue());
   }
 
   /**  Get the value of the metric at a particular parameter
@@ -111,7 +111,8 @@ public:
    *  of pixels under consideration (within the buffer and if
    *  specified within a mask). In other words, the metric measure the
    *  percentage of pixel matches or mismatches. */
-  MeasureType GetValue(const TransformParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  GetValue(const TransformParametersType & parameters) const override;
 
   /** Set/Get whether this metric measures pixel matches or pixel
    * mismatches. Note the GetValue() returns the number of matches (or
@@ -124,63 +125,67 @@ public:
   itkGetConstMacro(MeasureMatches, bool);
 
   /** Return the multithreader used by this class. */
-  MultiThreader * GetMultiThreader()
-  { return m_Threader; }
+  MultiThreaderBase *
+  GetMultiThreader()
+  {
+    return m_Threader;
+  }
 
 protected:
   MatchCardinalityImageToImageMetric();
-  virtual ~MatchCardinalityImageToImageMetric() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MatchCardinalityImageToImageMetric() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Non-const version of GetValue().  This is a hack around various
    * const issues with trying to spawn threads from the const version
    * of GetValue().
    */
-  MeasureType GetNonconstValue(const TransformParametersType & parameters);
+  MeasureType
+  GetNonconstValue(const TransformParametersType & parameters);
 
   /**
    * Thread worker routine to calculate the contribution of the a
    * subregion to the overall metric.  Can only be called from
    * GetValue(). */
-  virtual
-  void ThreadedGetValue(const FixedImageRegionType & outputRegionForThread,
-                        ThreadIdType threadId);
+  virtual void
+  ThreadedGetValue(const FixedImageRegionType & outputRegionForThread, ThreadIdType threadId);
 
   /** Split the FixedImageRegion into "num" pieces, returning
    * region "i" as "splitRegion". This method is called "num" times. The
    * regions must not overlap. The method returns the number of pieces that
    * the routine is capable of splitting the FixedImageRegion,
    * i.e. return value is less than or equal to "num". */
-  virtual
-  ThreadIdType SplitFixedRegion(ThreadIdType i, int num, FixedImageRegionType & splitRegion);
+  virtual ThreadIdType
+  SplitFixedRegion(ThreadIdType i, int num, FixedImageRegionType & splitRegion);
 
-  /** Static function used as a "callback" by the MultiThreader.  The threading
+  /** Static function used as a "callback" by the MultiThreaderBase.  The threading
    * library will call this routine for each thread, which will delegate the
    * control to ThreadedGetValue(). */
-  static ITK_THREAD_RETURN_TYPE ThreaderCallback(void *arg);
+  static ITK_THREAD_RETURN_FUNCTION_CALL_CONVENTION
+  ThreaderCallback(void * arg);
 
   /** Internal structure used for passing image data into the threading library
-    */
-  struct ThreadStruct {
+   */
+  struct ThreadStruct
+  {
     Pointer Metric;
   };
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MatchCardinalityImageToImageMetric);
-
-  bool                         m_MeasureMatches;
-  std::vector< MeasureType >   m_ThreadMatches;
-  std::vector< SizeValueType > m_ThreadCounts;
+  bool                       m_MeasureMatches;
+  std::vector<MeasureType>   m_ThreadMatches;
+  std::vector<SizeValueType> m_ThreadCounts;
 
   /** Support processing data in multiple threads. Used by subclasses
    * (e.g., ImageSource). */
-  MultiThreader::Pointer m_Threader;
+  MultiThreaderBase::Pointer m_Threader;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMatchCardinalityImageToImageMetric.hxx"
+#  include "itkMatchCardinalityImageToImageMetric.hxx"
 #endif
 
 #endif

@@ -33,47 +33,50 @@ namespace itk
  *
  * Here's a usage example of STLContainerAdaptor
  *
- * \code
- *     itk::STLConstContainerAdaptor<itk::VectorContainer<SizeValueType, ElementType>> vecAdaptor(aContainer);
- *     const std::vector<ElementType> & vec = vecAdaptor.GetSTLContainerRef();
- *     // do things with vec ...
- * \endcode
+   \code
+       itk::STLConstContainerAdaptor<itk::VectorContainer<SizeValueType, ElementType>> vecAdaptor(aContainer);
+       const std::vector<ElementType> & vec = vecAdaptor.GetSTLContainerRef();
+       // do things with vec ...
+   \endcode
  *
  * \ingroup ITKCommon
  */
 
-template< typename TContainer >
+template <typename TContainer>
 class STLConstContainerAdaptor
 {
 public:
+  using AdapteeType = const TContainer;
 
-  typedef const TContainer AdapteeType;
-
-  typedef const typename AdapteeType::Element          ElementType;
-  typedef const typename AdapteeType::STLContainerType TargetType;
+  using ElementType = const typename AdapteeType::Element;
+  using TargetType = const typename AdapteeType::STLContainerType;
 
 private:
-
   AdapteeType & m_AdapteeRef;
 
   /** hide the copy constructor to allow only direct construction of the adapter
-    */
-  STLConstContainerAdaptor(const STLConstContainerAdaptor & r);
+   */
+  STLConstContainerAdaptor(const STLConstContainerAdaptor & r) = delete;
 
   /* hide and avoid operator= */
-  const STLConstContainerAdaptor & operator=(const STLConstContainerAdaptor & r);
+  const STLConstContainerAdaptor &
+  operator=(const STLConstContainerAdaptor & r) = delete;
 
 public:
+  STLConstContainerAdaptor(AdapteeType & adaptee)
+    : m_AdapteeRef(adaptee)
+  {}
 
-  STLConstContainerAdaptor(AdapteeType & adaptee):m_AdapteeRef(adaptee) {}
+  STLConstContainerAdaptor(AdapteeType * adaptee)
+    : m_AdapteeRef(*adaptee)
+  {}
 
-  STLConstContainerAdaptor(AdapteeType *adaptee):m_AdapteeRef(*adaptee) {}
-
-  TargetType & GetSTLConstContainerRef()
+  TargetType &
+  GetSTLConstContainerRef()
   {
     return m_AdapteeRef.CastToSTLConstContainer();
   }
 };
-}   // end namespace itk
+} // end namespace itk
 
 #endif

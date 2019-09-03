@@ -22,145 +22,122 @@
 
 namespace itk
 {
-/** Constructor */
-template< unsigned int NDimensions >
-MetaBlobConverter< NDimensions >
-::MetaBlobConverter()
-{}
 
-template< unsigned int NDimensions >
-typename MetaBlobConverter< NDimensions >::MetaObjectType *
-MetaBlobConverter< NDimensions>
-::CreateMetaObject()
+template <unsigned int NDimensions>
+typename MetaBlobConverter<NDimensions>::MetaObjectType *
+MetaBlobConverter<NDimensions>::CreateMetaObject()
 {
   return dynamic_cast<MetaObjectType *>(new BlobMetaObjectType);
 }
 
 /** Convert a metaBlob into an Blob SpatialObject  */
-template< unsigned int NDimensions >
-typename MetaBlobConverter< NDimensions >::SpatialObjectPointer
-MetaBlobConverter< NDimensions >
-::MetaObjectToSpatialObject(const MetaObjectType *mo)
+template <unsigned int NDimensions>
+typename MetaBlobConverter<NDimensions>::SpatialObjectPointer
+MetaBlobConverter<NDimensions>::MetaObjectToSpatialObject(const MetaObjectType * mo)
 {
-  const BlobMetaObjectType *Blob = dynamic_cast<const BlobMetaObjectType *>(mo);
-  if(Blob == ITK_NULLPTR)
-    {
+  const auto * Blob = dynamic_cast<const BlobMetaObjectType *>(mo);
+  if (Blob == nullptr)
+  {
     itkExceptionMacro(<< "Can't downcast MetaObject to BlobMetaObject");
-    }
+  }
 
   typename BlobSpatialObjectType::Pointer blob = BlobSpatialObjectType::New();
 
-  unsigned int ndims = Blob->NDims();
-  double       spacing[NDimensions];
-  for ( unsigned int ii = 0; ii < ndims; ii++ )
-    {
-    spacing[ii] = Blob->ElementSpacing()[ii];
-    }
+  blob->GetProperty().SetName(Blob->Name());
+  blob->SetId(Blob->ID());
+  blob->SetParentId(Blob->ParentID());
+  blob->GetProperty().SetRed(Blob->Color()[0]);
+  blob->GetProperty().SetGreen(Blob->Color()[1]);
+  blob->GetProperty().SetBlue(Blob->Color()[2]);
+  blob->GetProperty().SetAlpha(Blob->Color()[3]);
 
-  blob->GetIndexToObjectTransform()->SetScaleComponent(spacing);
-  blob->GetProperty()->SetName( Blob->Name() );
-  blob->SetId( Blob->ID() );
-  blob->SetParentId( Blob->ParentID() );
-  blob->GetProperty()->SetRed(Blob->Color()[0]);
-  blob->GetProperty()->SetGreen(Blob->Color()[1]);
-  blob->GetProperty()->SetBlue(Blob->Color()[2]);
-  blob->GetProperty()->SetAlpha(Blob->Color()[3]);
+  using BlobPointType = itk::SpatialObjectPoint<NDimensions>;
 
-  typedef itk::SpatialObjectPoint< NDimensions > BlobPointType;
+  auto it2 = Blob->GetPoints().begin();
 
-  MetaBlob::PointListType::const_iterator it2 = Blob->GetPoints().begin();
+  vnl_vector<double> v(NDimensions);
 
-  vnl_vector< double > v(ndims);
-
-  for ( unsigned int identifier = 0; identifier < Blob->GetPoints().size(); identifier++ )
-    {
+  for (unsigned int identifier = 0; identifier < Blob->GetPoints().size(); identifier++)
+  {
     BlobPointType pnt;
 
-    typedef typename BlobSpatialObjectType::PointType PointType;
+    using PointType = typename BlobSpatialObjectType::PointType;
     PointType point;
 
-    for ( unsigned int ii = 0; ii < ndims; ii++ )
-      {
-      point[ii] = ( *it2 )->m_X[ii];
-      }
-
-    pnt.SetPosition(point);
-
-    pnt.SetRed( ( *it2 )->m_Color[0] );
-    pnt.SetGreen( ( *it2 )->m_Color[1] );
-    pnt.SetBlue( ( *it2 )->m_Color[2] );
-    pnt.SetAlpha( ( *it2 )->m_Color[3] );
-
-    blob->GetPoints().push_back(pnt);
-    it2++;
+    for (unsigned int ii = 0; ii < NDimensions; ii++)
+    {
+      point[ii] = (*it2)->m_X[ii];
     }
 
-  return SpatialObjectPointer(blob.GetPointer());
+    pnt.SetPositionInObjectSpace(point);
+
+    pnt.SetRed((*it2)->m_Color[0]);
+    pnt.SetGreen((*it2)->m_Color[1]);
+    pnt.SetBlue((*it2)->m_Color[2]);
+    pnt.SetAlpha((*it2)->m_Color[3]);
+
+    blob->AddPoint(pnt);
+    it2++;
+  }
+
+  return SpatialObjectPointer(blob);
 }
 
 /** Convert a Blob SpatialObject into a metaBlob */
-template< unsigned int NDimensions >
+template <unsigned int NDimensions>
 typename MetaBlobConverter<NDimensions>::MetaObjectType *
-MetaBlobConverter< NDimensions >
-::SpatialObjectToMetaObject(const SpatialObjectType *spatialObject)
+MetaBlobConverter<NDimensions>::SpatialObjectToMetaObject(const SpatialObjectType * spatialObject)
 {
   BlobSpatialObjectConstPointer blobSO = dynamic_cast<const BlobSpatialObjectType *>(spatialObject);
-  if(blobSO.IsNull())
-    {
+  if (blobSO.IsNull())
+  {
     itkExceptionMacro(<< "Can't downcast SpatialObject to BlobSpatialObject");
-    }
+  }
 
-  BlobMetaObjectType *Blob = new MetaBlob(NDimensions);
+  auto * Blob = new MetaBlob(NDimensions);
 
   // fill in the Blob information
-  typename BlobSpatialObjectType::PointListType::const_iterator i;
-  for ( i = blobSO->GetPoints().begin();
-        i != blobSO->GetPoints().end();
-        i++ )
+  typename BlobSpatialObjectType::BlobPointListType::const_iterator it;
+  for (it = blobSO->GetPoints().begin(); it != blobSO->GetPoints().end(); it++)
+  {
+    auto * pnt = new BlobPnt(NDimensions);
+
+    for (unsigned int d = 0; d < NDimensions; d++)
     {
-    BlobPnt *pnt = new BlobPnt(NDimensions);
+      pnt->m_X[d] = (*it).GetPositionInObjectSpace()[d];
+    }
 
-    for ( unsigned int d = 0; d < NDimensions; d++ )
-      {
-      pnt->m_X[d] = ( *i ).GetPosition()[d];
-      }
-
-    pnt->m_Color[0] = ( *i ).GetRed();
-    pnt->m_Color[1] = ( *i ).GetGreen();
-    pnt->m_Color[2] = ( *i ).GetBlue();
-    pnt->m_Color[3] = ( *i ).GetAlpha();
+    pnt->m_Color[0] = (*it).GetRed();
+    pnt->m_Color[1] = (*it).GetGreen();
+    pnt->m_Color[2] = (*it).GetBlue();
+    pnt->m_Color[3] = (*it).GetAlpha();
 
     Blob->GetPoints().push_back(pnt);
-    }
+  }
 
-  if ( NDimensions == 2 )
-    {
+  if (NDimensions == 2)
+  {
     Blob->PointDim("x y red green blue alpha");
-    }
+  }
   else
-    {
+  {
     Blob->PointDim("x y z red green blue alpha");
-    }
+  }
 
   float color[4];
-  for ( unsigned int ii = 0; ii < 4; ii++ )
-    {
-    color[ii] = spatialObject->GetProperty()->GetColor()[ii];
-    }
+  for (unsigned int ii = 0; ii < 4; ii++)
+  {
+    color[ii] = spatialObject->GetProperty().GetColor()[ii];
+  }
 
   Blob->Color(color);
-  Blob->ID( spatialObject->GetId() );
-  if ( spatialObject->GetParent() )
-    {
-    Blob->ParentID( spatialObject->GetParent()->GetId() );
-    }
+  Blob->ID(spatialObject->GetId());
+  if (spatialObject->GetParent())
+  {
+    Blob->ParentID(spatialObject->GetParent()->GetId());
+  }
   Blob->NPoints(Blob->GetPoints().size());
 
-  for ( unsigned int ii = 0; ii < NDimensions; ii++ )
-    {
-    Blob->ElementSpacing(ii, spatialObject->GetIndexToObjectTransform()
-                         ->GetScaleComponent()[ii]);
-    }
   Blob->BinaryData(true);
   return Blob;
 }

@@ -37,16 +37,18 @@ namespace itk
  * \ingroup Functions
  * \ingroup ITKCommon
  */
-template< typename TRealValueType = double >
-class GaussianKernelFunction:public KernelFunctionBase<TRealValueType>
+template <typename TRealValueType = double>
+class GaussianKernelFunction : public KernelFunctionBase<TRealValueType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GaussianKernelFunction             Self;
-  typedef KernelFunctionBase<TRealValueType> Superclass;
-  typedef SmartPointer< Self >               Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianKernelFunction);
 
-  typedef typename Superclass::RealType  RealType;
+  /** Standard class type aliases. */
+  using Self = GaussianKernelFunction;
+  using Superclass = KernelFunctionBase<TRealValueType>;
+  using Pointer = SmartPointer<Self>;
+
+  using RealType = typename Superclass::RealType;
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
@@ -54,18 +56,24 @@ public:
   itkTypeMacro(GaussianKernelFunction, KernelFunctionBase);
 
   /** Evaluate the function. */
-  TRealValueType Evaluate(const TRealValueType & u) const ITK_OVERRIDE
-  { return ( std::exp( static_cast< TRealValueType >(-0.5) * itk::Math::sqr(u) ) * m_Factor ); }
+  TRealValueType
+  Evaluate(const TRealValueType & u) const override
+  {
+    return (std::exp(static_cast<TRealValueType>(-0.5) * itk::Math::sqr(u)) * m_Factor);
+  }
 
 protected:
-  GaussianKernelFunction(): m_Factor(  NumericTraits< TRealValueType >::OneValue() / std::sqrt(static_cast< TRealValueType >(2.0 * itk::Math::pi )) ) {};
-  virtual ~GaussianKernelFunction() ITK_OVERRIDE {};
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-  { Superclass::PrintSelf(os, indent); }
+  GaussianKernelFunction()
+    : m_Factor(NumericTraits<TRealValueType>::OneValue() /
+               std::sqrt(static_cast<TRealValueType>(2.0 * itk::Math::pi))){};
+  ~GaussianKernelFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianKernelFunction);
-
   const TRealValueType m_Factor;
 };
 } // end namespace itk

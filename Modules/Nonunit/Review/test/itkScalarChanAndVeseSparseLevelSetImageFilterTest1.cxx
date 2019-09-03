@@ -18,37 +18,40 @@
 
 #include "itkScalarChanAndVeseSparseLevelSetImageFilter.h"
 
-int itkScalarChanAndVeseSparseLevelSetImageFilterTest1( int, char* [] )
+int
+itkScalarChanAndVeseSparseLevelSetImageFilterTest1(int, char *[])
 {
-  const unsigned int Dimension = 3;
+  constexpr unsigned int Dimension = 3;
 
-  typedef double                                  PixelType;
-  typedef itk::Image< PixelType, Dimension >      ImageType;
-  typedef itk::Image< float, Dimension >          FeatureImageType;
-  typedef ImageType                               OutputImageType;
+  using PixelType = double;
+  using ImageType = itk::Image<PixelType, Dimension>;
+  using FeatureImageType = itk::Image<float, Dimension>;
+  using OutputImageType = ImageType;
 
-  typedef itk::ScalarChanAndVeseLevelSetFunctionData< ImageType, FeatureImageType >  DataHelperType;
+  using DataHelperType = itk::ScalarChanAndVeseLevelSetFunctionData<ImageType, FeatureImageType>;
 
-  typedef itk::ConstrainedRegionBasedLevelSetFunctionSharedData< ImageType, FeatureImageType, DataHelperType >
-    SharedDataHelperType;
+  using SharedDataHelperType =
+    itk::ConstrainedRegionBasedLevelSetFunctionSharedData<ImageType, FeatureImageType, DataHelperType>;
 
-  typedef itk::ScalarChanAndVeseLevelSetFunction<
-    ImageType, FeatureImageType, SharedDataHelperType >      RegionBasedLevelSetFunctionType;
+  using RegionBasedLevelSetFunctionType =
+    itk::ScalarChanAndVeseLevelSetFunction<ImageType, FeatureImageType, SharedDataHelperType>;
 
   RegionBasedLevelSetFunctionType::Pointer function = RegionBasedLevelSetFunctionType::New();
-  if( function.IsNull() )
-    {
+  if (function.IsNull())
+  {
     return EXIT_FAILURE;
-    }
+  }
 
-  typedef itk::ScalarChanAndVeseSparseLevelSetImageFilter<
-    ImageType, FeatureImageType, OutputImageType,
-    RegionBasedLevelSetFunctionType, SharedDataHelperType >                     FilterType;
+  using FilterType = itk::ScalarChanAndVeseSparseLevelSetImageFilter<ImageType,
+                                                                     FeatureImageType,
+                                                                     OutputImageType,
+                                                                     RegionBasedLevelSetFunctionType,
+                                                                     SharedDataHelperType>;
 
   FilterType::Pointer filter = FilterType::New();
 
   std::cout << "GetNameOfClass() = " << filter->GetNameOfClass() << std::endl;
-  filter->Print( std::cout );
+  filter->Print(std::cout);
 
   return EXIT_SUCCESS;
 }

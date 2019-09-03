@@ -60,21 +60,23 @@ namespace itk
  * \ingroup RegistrationFilters
  * \ingroup ITKRegistrationCommon
  *
- * \wiki
- * \wikiexample{Registration/ImageRegistrationMethod,A basic global registration of two images}
- * \wikiexample{Registration/ImageRegistrationMethodAffine,A global registration of two images}
- * \wikiexample{Registration/ImageRegistrationMethodBSpline,A global registration of two images}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Registration/Common/GlobalRegistrationOfTwoImages,Global Registration Of Two Images}
+ * \sphinxexample{Core/Transform/GlobalRegistrationTwoImagesAffine,Global Registration Two Images (Affine)}
+ * \sphinxexample{Core/Transform/GlobalRegistrationTwoImagesBSpline,Global Registration Of Two Images (BSpline)}
+ * \endsphinx
  */
-template< typename TFixedImage, typename TMovingImage >
-class ITK_TEMPLATE_EXPORT ImageRegistrationMethod:public ProcessObject
+template <typename TFixedImage, typename TMovingImage>
+class ITK_TEMPLATE_EXPORT ImageRegistrationMethod : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageRegistrationMethod    Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageRegistrationMethod);
+
+  /** Standard class type aliases. */
+  using Self = ImageRegistrationMethod;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -83,52 +85,54 @@ public:
   itkTypeMacro(ImageRegistrationMethod, ProcessObject);
 
   /**  Type of the Fixed image. */
-  typedef          TFixedImage                  FixedImageType;
-  typedef typename FixedImageType::ConstPointer FixedImageConstPointer;
+  using FixedImageType = TFixedImage;
+  using FixedImageConstPointer = typename FixedImageType::ConstPointer;
 
   /**  Type of the Moving image. */
-  typedef          TMovingImage                  MovingImageType;
-  typedef typename MovingImageType::ConstPointer MovingImageConstPointer;
+  using MovingImageType = TMovingImage;
+  using MovingImageConstPointer = typename MovingImageType::ConstPointer;
 
   /**  Type of the metric. */
-  typedef ImageToImageMetric< FixedImageType, MovingImageType > MetricType;
-  typedef typename MetricType::Pointer                          MetricPointer;
-  typedef typename MetricType::FixedImageRegionType             FixedImageRegionType;
+  using MetricType = ImageToImageMetric<FixedImageType, MovingImageType>;
+  using MetricPointer = typename MetricType::Pointer;
+  using FixedImageRegionType = typename MetricType::FixedImageRegionType;
 
   /**  Type of the Transform . */
-  typedef  typename MetricType::TransformType TransformType;
-  typedef  typename TransformType::Pointer    TransformPointer;
+  using TransformType = typename MetricType::TransformType;
+  using TransformPointer = typename TransformType::Pointer;
 
   /** Type for the output: Using Decorator pattern for enabling
    *  the Transform to be passed in the data pipeline */
-  typedef  DataObjectDecorator< TransformType >      TransformOutputType;
-  typedef typename TransformOutputType::Pointer      TransformOutputPointer;
-  typedef typename TransformOutputType::ConstPointer TransformOutputConstPointer;
+  using TransformOutputType = DataObjectDecorator<TransformType>;
+  using TransformOutputPointer = typename TransformOutputType::Pointer;
+  using TransformOutputConstPointer = typename TransformOutputType::ConstPointer;
 
   /**  Type of the Interpolator. */
-  typedef  typename MetricType::InterpolatorType InterpolatorType;
-  typedef  typename InterpolatorType::Pointer    InterpolatorPointer;
+  using InterpolatorType = typename MetricType::InterpolatorType;
+  using InterpolatorPointer = typename InterpolatorType::Pointer;
 
   /**  Type of the optimizer. */
-  typedef   SingleValuedNonLinearOptimizer OptimizerType;
+  using OptimizerType = SingleValuedNonLinearOptimizer;
 
   /** Type of the Transformation parameters This is the same type used to
    *  represent the search space of the optimization algorithm */
-  typedef  typename MetricType::TransformParametersType ParametersType;
+  using ParametersType = typename MetricType::TransformParametersType;
 
   /** Smart Pointer type to a DataObject. */
-  typedef typename DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = typename DataObject::Pointer;
 
   /** Set/Get the Fixed image. */
-  void SetFixedImage(const FixedImageType *fixedImage);
+  void
+  SetFixedImage(const FixedImageType * fixedImage);
   itkGetConstObjectMacro(FixedImage, FixedImageType);
 
   /** Set/Get the Moving image. */
-  void SetMovingImage(const MovingImageType *movingImage);
+  void
+  SetMovingImage(const MovingImageType * movingImage);
   itkGetConstObjectMacro(MovingImage, MovingImageType);
 
   /** Set/Get the Optimizer. */
-  itkSetObjectMacro(Optimizer,  OptimizerType);
+  itkSetObjectMacro(Optimizer, OptimizerType);
   itkGetModifiableObjectMacro(Optimizer, OptimizerType);
 
   /** Set/Get the Metric. */
@@ -144,7 +148,8 @@ public:
   itkGetModifiableObjectMacro(Interpolator, InterpolatorType);
 
   /** Set/Get the initial transformation parameters. */
-  virtual void SetInitialTransformParameters(const ParametersType & param);
+  virtual void
+  SetInitialTransformParameters(const ParametersType & param);
 
   itkGetConstReferenceMacro(InitialTransformParameters, ParametersType);
 
@@ -159,7 +164,8 @@ public:
    \warning The same region can also be set directly into the metric.
    please avoid to set the region in both places since this can lead
    to inconsistent configurations.  */
-  void SetFixedImageRegion(const FixedImageRegionType & region);
+  void
+  SetFixedImageRegion(const FixedImageRegionType & region);
 
   /** Get the region of the fixed image to be considered as region of
    interest during the registration. This region will be passed to
@@ -176,57 +182,43 @@ public:
   itkSetMacro(FixedImageRegionDefined, bool);
 
   /** Initialize by setting the interconnects between the components. */
-  virtual void Initialize();
+  virtual void
+  Initialize();
 
   /** Returns the transform resulting from the registration process  */
-  const TransformOutputType * GetOutput() const;
+  const TransformOutputType *
+  GetOutput() const;
 
   /** Make a DataObject of the correct type to be used as the specified
    * output. */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
 
   /** Method to return the latest modified time of this object or
    * any of its cached ivars */
-  virtual ModifiedTimeType GetMTime() const ITK_OVERRIDE;
-
-#ifdef ITKV3_COMPATIBILITY
-  /** Method that initiates the registration. This will Initialize and ensure
-   * that all inputs the registration needs are in place, via a call to
-   * Initialize() will then start the optimization process via a call to
-   * StartOptimization()
-   * StartRegistration is an old API from before
-   * ImageRegistrationMethod was a subclass of ProcessObject.
-   * Historically, one could call StartRegistration() instead of
-   * calling Update().  However, when called directly by the user, the
-   * inputs to ImageRegistrationMethod may not be up to date.  This
-   * may cause an unexpected behavior.
-   *
-   * Since we cannot eliminate StartRegistration for backward
-   * compatibility reasons, we check whether StartRegistration was
-   * called directly or whether Update() (which in turn called
-   * StartRegistration()). */
-  void StartRegistration(void) { this->Update(); }
-#endif
+  ModifiedTimeType
+  GetMTime() const override;
 
 protected:
   ImageRegistrationMethod();
-  virtual ~ImageRegistrationMethod() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageRegistrationMethod() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
   /** Method invoked by the pipeline in order to trigger the computation of
    * the registration. */
-  virtual void  GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Provides derived classes with the ability to set this private var */
   itkSetMacro(LastTransformParameters, ParametersType);
 
   /* Start the Optimization */
-  void StartOptimization();
+  void
+  StartOptimization();
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageRegistrationMethod);
-
   MetricPointer          m_Metric;
   OptimizerType::Pointer m_Optimizer;
 
@@ -245,7 +237,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageRegistrationMethod.hxx"
+#  include "itkImageRegistrationMethod.hxx"
 #endif
 
 #endif

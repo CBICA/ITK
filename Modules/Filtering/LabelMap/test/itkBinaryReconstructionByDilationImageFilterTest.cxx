@@ -22,57 +22,58 @@
 #include "itkBinaryReconstructionByDilationImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkBinaryReconstructionByDilationImageFilterTest(int argc, char * argv[])
+int
+itkBinaryReconstructionByDilationImageFilterTest(int argc, char * argv[])
 {
-  if( argc != 6 )
-    {
-    std::cerr << "Usage: " << argv[0];
+  if (argc != 6)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv);
     std::cerr << " input marker output";
     std::cerr << " fg bg";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 3;
+  constexpr unsigned int dim = 3;
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, dim > ImageType;
+  using ImageType = itk::Image<PixelType, dim>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   ReaderType::Pointer reader2 = ReaderType::New();
-  reader2->SetFileName( argv[2] );
+  reader2->SetFileName(argv[2]);
 
-  typedef itk::BinaryReconstructionByDilationImageFilter< ImageType > LabelReconstructionType;
+  using LabelReconstructionType = itk::BinaryReconstructionByDilationImageFilter<ImageType>;
   LabelReconstructionType::Pointer reconstruction = LabelReconstructionType::New();
 
-  //testing get and set macros for Lambda
-  int fg = atoi( argv[4] );
-  reconstruction->SetForegroundValue( fg );
-  TEST_SET_GET_VALUE( fg , reconstruction->GetForegroundValue() );
+  // testing get and set macros for Lambda
+  int fg = std::stoi(argv[4]);
+  reconstruction->SetForegroundValue(fg);
+  ITK_TEST_SET_GET_VALUE(fg, reconstruction->GetForegroundValue());
 
-  int bg = atoi( argv[5] );
-  reconstruction->SetBackgroundValue( bg );
-  TEST_SET_GET_VALUE( bg , reconstruction->GetBackgroundValue() );
+  int bg = std::stoi(argv[5]);
+  reconstruction->SetBackgroundValue(bg);
+  ITK_TEST_SET_GET_VALUE(bg, reconstruction->GetBackgroundValue());
 
-  reconstruction->SetMaskImage( reader->GetOutput() );
-  reconstruction->SetInput( "MaskImage", reader->GetOutput() );
-  reconstruction->SetMarkerImage( reader2->GetOutput() );
-  reconstruction->SetInput( "MarkerImage", reader2->GetOutput() );
+  reconstruction->SetMaskImage(reader->GetOutput());
+  reconstruction->SetInput("MaskImage", reader->GetOutput());
+  reconstruction->SetMarkerImage(reader2->GetOutput());
+  reconstruction->SetInput("MarkerImage", reader2->GetOutput());
 
   itk::SimpleFilterWatcher watcher(reconstruction, "filter");
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( reconstruction->GetOutput() );
-  writer->SetFileName( argv[3] );
+  writer->SetInput(reconstruction->GetOutput());
+  writer->SetFileName(argv[3]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

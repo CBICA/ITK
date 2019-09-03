@@ -40,97 +40,105 @@ namespace itk
  * \ingroup DataRepresentation
  * \ingroup ITKCommon
  */
-template< typename T, unsigned int D >
-class NumericTraits< FixedArray< T, D > >
+template <typename T, unsigned int D>
+class NumericTraits<FixedArray<T, D>>
 {
 private:
-
-  typedef  typename NumericTraits< T >::AbsType        ElementAbsType;
-  typedef  typename NumericTraits< T >::AccumulateType ElementAccumulateType;
-  typedef  typename NumericTraits< T >::FloatType      ElementFloatType;
-  typedef  typename NumericTraits< T >::PrintType      ElementPrintType;
-  typedef  typename NumericTraits< T >::RealType       ElementRealType;
+  using ElementAbsType = typename NumericTraits<T>::AbsType;
+  using ElementAccumulateType = typename NumericTraits<T>::AccumulateType;
+  using ElementFloatType = typename NumericTraits<T>::FloatType;
+  using ElementPrintType = typename NumericTraits<T>::PrintType;
+  using ElementRealType = typename NumericTraits<T>::RealType;
 
 public:
-
   /** Return the type of the native component type. */
-  typedef T ValueType;
+  using ValueType = T;
 
-  typedef FixedArray< T, D > Self;
+  using Self = FixedArray<T, D>;
 
   /** Unsigned component type */
-  typedef FixedArray< ElementAbsType, D > AbsType;
+  using AbsType = FixedArray<ElementAbsType, D>;
 
   /** Accumulation of addition and multiplication. */
-  typedef FixedArray< ElementAccumulateType, D > AccumulateType;
+  using AccumulateType = FixedArray<ElementAccumulateType, D>;
 
   /** Typedef for operations that use floating point instead of real precision
-    */
-  typedef FixedArray< ElementFloatType, D > FloatType;
+   */
+  using FloatType = FixedArray<ElementFloatType, D>;
 
   /** Return the type that can be printed. */
-  typedef FixedArray< ElementPrintType, D > PrintType;
+  using PrintType = FixedArray<ElementPrintType, D>;
 
   /** Type for real-valued scalar operations. */
-  typedef FixedArray< ElementRealType, D > RealType;
+  using RealType = FixedArray<ElementRealType, D>;
 
   /** Type for real-valued scalar operations. */
-  typedef ElementRealType ScalarRealType;
+  using ScalarRealType = ElementRealType;
 
   /** Measurement vector type */
-  typedef Self MeasurementVectorType;
+  using MeasurementVectorType = Self;
 
   /** Component wise defined element
    *
    * \note minimum value for floating pointer types is defined as
    * minimum positive normalize value.
    */
-  static const Self max(const Self &)
+  static const Self
+  max(const Self &)
   {
-    return Self( NumericTraits< T >::max() );
+    return Self(NumericTraits<T>::max());
   }
 
-  static const Self min(const Self &)
+  static const Self
+  min(const Self &)
   {
-    return Self( NumericTraits< T >::min() );
+    return Self(NumericTraits<T>::min());
   }
 
-  static const Self max()
+  static const Self
+  max()
   {
-    return Self( NumericTraits< T >::max() );
+    return Self(NumericTraits<T>::max());
   }
 
-  static const Self min()
+  static const Self
+  min()
   {
-    return Self( NumericTraits< T >::min() );
+    return Self(NumericTraits<T>::min());
   }
 
-  static const Self NonpositiveMin()
+  static const Self
+  NonpositiveMin()
   {
-    return Self( NumericTraits< T >::NonpositiveMin() );
+    return Self(NumericTraits<T>::NonpositiveMin());
   }
 
-  static const Self ZeroValue()
+  static const Self
+  ZeroValue()
   {
-    return Self( NumericTraits< T >::ZeroValue() );
+    return Self(NumericTraits<T>::ZeroValue());
   }
 
-  static const Self OneValue()
+  static const Self
+  OneValue()
   {
-    return Self( NumericTraits< T >::OneValue() );
+    return Self(NumericTraits<T>::OneValue());
   }
 
-  static const Self NonpositiveMin(const Self &)
+  static const Self
+  NonpositiveMin(const Self &)
   {
     return NonpositiveMin();
   }
 
-  static const Self ZeroValue(const Self &)
+  static const Self
+  ZeroValue(const Self &)
   {
     return ZeroValue();
   }
 
-  static const Self OneValue(const Self &)
+  static const Self
+  OneValue(const Self &)
   {
     return OneValue();
   }
@@ -138,40 +146,44 @@ public:
   /** Fixed length vectors cannot be resized, so an exception will
    *  be thrown if the input size is not valid.  If the size is valid
    *  the vector will be filled with zeros. */
-  static void SetLength(FixedArray< T, D > & m, const unsigned int s)
+  static void
+  SetLength(FixedArray<T, D> & m, const unsigned int s)
   {
-    if ( s != D )
-      {
-      itkGenericExceptionMacro(<< "Cannot set the size of a FixedArray of length "
-                               << D << " to " << s);
-      }
-    m.Fill(NumericTraits< T >::ZeroValue());
+    if (s != D)
+    {
+      itkGenericExceptionMacro(<< "Cannot set the size of a FixedArray of length " << D << " to " << s);
+    }
+    m.Fill(NumericTraits<T>::ZeroValue());
   }
 
   /** Return the length of the array. */
-  static unsigned int GetLength(const FixedArray< T, D > &)
+  static unsigned int
+  GetLength(const FixedArray<T, D> &)
   {
     return D;
   }
 
   /** Return the length of the array. */
-  static unsigned int GetLength()
+  static unsigned int
+  GetLength()
   {
     return D;
   }
 
-  static void AssignToArray( const Self & v, MeasurementVectorType & mv )
+  static void
+  AssignToArray(const Self & v, MeasurementVectorType & mv)
   {
     mv = v;
   }
 
-  template<typename TArray>
-  static void AssignToArray( const Self & v, TArray & mv )
+  template <typename TArray>
+  static void
+  AssignToArray(const Self & v, TArray & mv)
   {
-    for( unsigned int i=0; i<D; i++ )
-      {
+    for (unsigned int i = 0; i < D; i++)
+    {
       mv[i] = v[i];
-      }
+    }
   }
 
   /** \note: the functions are preferred over the member variables as
@@ -181,29 +193,33 @@ public:
   static const Self ITKCommon_EXPORT One;
 };
 
-// a macro to define and initialize static member variables
-#define itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, D)                                 \
-  template< >                                                                                        \
-  ITKCommon_EXPORT const GENERIC_ARRAY< T, D >  NumericTraits< GENERIC_ARRAY< T, D > >::Zero = GENERIC_ARRAY< T, D >( \
-    NumericTraits< T >::Zero);                                                                       \
-  template< >                                                                                        \
-  ITKCommon_EXPORT const GENERIC_ARRAY< T, D >  NumericTraits< GENERIC_ARRAY< T, D > >::One = GENERIC_ARRAY< T, D >( \
-    NumericTraits< T >::One);
+// a macro to define and initialize static member variables,
+// NOTE: (T)(NumericTraits< T >::[Zero|One]) is needed to generate
+//       a temporary variable that is initialized from the
+//       constexpr [Zero|One] to be passed by const reference
+//       to the GENERIC_ARRAY<T,D> constructor.
+#define itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, D)                                                   \
+  template <>                                                                                                          \
+  ITKCommon_EXPORT const GENERIC_ARRAY<T, D> NumericTraits<GENERIC_ARRAY<T, D>>::Zero =                                \
+    GENERIC_ARRAY<T, D>((T)(NumericTraits<T>::Zero));                                                                  \
+  template <>                                                                                                          \
+  ITKCommon_EXPORT const GENERIC_ARRAY<T, D> NumericTraits<GENERIC_ARRAY<T, D>>::One =                                 \
+    GENERIC_ARRAY<T, D>((T)(NumericTraits<T>::One));
 
 //
 // List here the array dimension specializations of these static
 // Traits:
 //
-#define itkStaticNumericTraitsGenericArrayDimensionsMacro(GENERIC_ARRAY, T) \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 1);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 2);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 3);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 4);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 5);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 6);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 7);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 8);             \
-  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 9);             \
+#define itkStaticNumericTraitsGenericArrayDimensionsMacro(GENERIC_ARRAY, T)                                            \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 1);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 2);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 3);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 4);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 5);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 6);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 7);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 8);                                                        \
+  itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 9);                                                        \
   itkStaticNumericTraitsGenericArrayMacro(GENERIC_ARRAY, T, 10);
 } // end namespace itk
 

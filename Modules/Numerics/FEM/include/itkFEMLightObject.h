@@ -46,12 +46,12 @@ namespace fem
 class ITKFEM_EXPORT FEMLightObject : public itk::LightObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef FEMLightObject           Self;
-  typedef itk::LightObject         Superclass;
-  typedef Self                     Baseclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = FEMLightObject;
+  using Superclass = itk::LightObject;
+  using Baseclass = Self;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(FEMLightObject, itk::LightObject);
@@ -59,33 +59,36 @@ public:
   /**
    * Set the global number of the object
    */
-  void SetGlobalNumber(int);
+  void
+  SetGlobalNumber(int);
 
   /**
-  * Get the global number of the object
-  */
-  int GetGlobalNumber() const;
+   * Get the global number of the object
+   */
+  int
+  GetGlobalNumber() const;
 
 protected:
-
   /**
    * Default constructor
    */
-  FEMLightObject() : m_GlobalNumber(-1)
-  {
-  }
+  FEMLightObject()
+    : m_GlobalNumber(-1)
+  {}
 
   /**
    * Virtual destructor
    */
-  virtual ~FEMLightObject() ITK_OVERRIDE {}
+  ~FEMLightObject() override {}
 
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Copy constructor must be available for the FEM objects...
    */
-  FEMLightObject(const FEMLightObject & o) : itk::LightObject()
+  FEMLightObject(const FEMLightObject & o)
+    : itk::LightObject()
   {
     m_GlobalNumber = o.m_GlobalNumber;
   }
@@ -99,8 +102,7 @@ protected:
    */
   int m_GlobalNumber;
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMLightObject_h
+#endif // itkFEMLightObject_h

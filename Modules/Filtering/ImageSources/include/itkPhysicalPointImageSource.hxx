@@ -25,54 +25,46 @@
 
 namespace itk
 {
-
-template< typename TOutputImage >
+template <typename TOutputImage>
 void
-PhysicalPointImageSource< TOutputImage >
-::GenerateOutputInformation()
+PhysicalPointImageSource<TOutputImage>::GenerateOutputInformation()
 {
   // this methods is overloaded so that if the output image is a
   // VectorImage then the correct number of components are set.
   Superclass::GenerateOutputInformation();
-  OutputImageType* output = this->GetOutput();
+  OutputImageType * output = this->GetOutput();
 
-  if ( !output )
-    {
+  if (!output)
+  {
     return;
-    }
-  if ( output->GetNumberOfComponentsPerPixel() != TOutputImage::ImageDimension )
-    {
-    output->SetNumberOfComponentsPerPixel( TOutputImage::ImageDimension );
-    }
+  }
+  if (output->GetNumberOfComponentsPerPixel() != TOutputImage::ImageDimension)
+  {
+    output->SetNumberOfComponentsPerPixel(TOutputImage::ImageDimension);
+  }
 }
 
-template< typename TOutputImage >
+template <typename TOutputImage>
 void
-PhysicalPointImageSource< TOutputImage >
-::ThreadedGenerateData (const RegionType &outputRegionForThread, ThreadIdType threadId)
+PhysicalPointImageSource<TOutputImage>::DynamicThreadedGenerateData(const RegionType & outputRegionForThread)
 {
-  // Support progress methods/callbacks
-  ProgressReporter progress( this, threadId, outputRegionForThread.GetNumberOfPixels() );
+  TOutputImage * image = this->GetOutput(0);
 
-  TOutputImage *image = this->GetOutput(0);
+  ImageRegionIteratorWithIndex<TOutputImage> it(image, outputRegionForThread);
+  PointType                                  pt;
+  PixelType                                  px;
+  NumericTraits<PixelType>::SetLength(px, TOutputImage::ImageDimension);
 
-  ImageRegionIteratorWithIndex< TOutputImage > it(image, outputRegionForThread);
-  PointType pt;
-  PixelType px;
-  NumericTraits<PixelType>::SetLength(px, TOutputImage::ImageDimension );
+  for (; !it.IsAtEnd(); ++it)
+  {
+    image->TransformIndexToPhysicalPoint(it.GetIndex(), pt);
 
-  for (; !it.IsAtEnd(); ++it )
+    for (unsigned int i = 0; i < TOutputImage::ImageDimension; ++i)
     {
-    image->TransformIndexToPhysicalPoint( it.GetIndex(), pt );
-
-
-    for( unsigned int i = 0; i < TOutputImage::ImageDimension; ++i )
-      {
-      px[i] = static_cast<typename PixelType::ValueType> (pt[i]);
-      }
-    it.Set( px );
-    progress.CompletedPixel();
+      px[i] = static_cast<typename PixelType::ValueType>(pt[i]);
     }
+    it.Set(px);
+  }
 }
 } // end namespace itk
 

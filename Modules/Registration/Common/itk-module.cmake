@@ -5,10 +5,20 @@ metrics to compare the fixed and moving image and classes to coordinate the
 registration procedure.  There are classes to perform multi-resolution image
 registration and also classes to registrations other that image-to-image
 registrations, e.g. point set-to-image  or point set-to-point set
-registrations.  Transforms used in the registration can be found in \\\\ref
-ITKTransform, and optimizers can be found in \\\\ref ITKOptimizers.  To compare
-the moving image to the fixed image with the image metric, an interpolator is
-required-- these can be found in \\\\ref ITKImageFunction.")
+registrations.  Transforms used in the registration can be found in
+ITKTransform, and optimizers can be found in ITKOptimizers. To compare the
+moving image to the fixed image with the image metric, an interpolator is
+required-- these can be found in ITKImageFunction.")
+
+if(BUILD_EXAMPLES)
+set(EXAMPLE_TEST_CASE_DEPENDANCIES
+  ITKImageCompare
+  ITKIOTransformBase
+  ITKIOImageBase
+  ITKPDEDeformableRegistration
+  ITKFFT
+)
+endif()
 
 itk_module(ITKRegistrationCommon
   DEPENDS
@@ -29,6 +39,7 @@ itk_module(ITKRegistrationCommon
     ITKImageSources
     ITKColormap
     ITKQuadEdgeMesh
+    ${EXAMPLE_TEST_CASE_DEPENDANCIES}
   DESCRIPTION
     "${DOCUMENTATION}"
 )

@@ -70,7 +70,8 @@
 #include "itkVector.h"
 #include "itkMatrix.h"
 
-int main(int, char *[])
+int
+main(int, char *[])
 {
   //  Software Guide : BeginLatex
   //
@@ -103,20 +104,23 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int PointDimension = 3;
-  const unsigned int MaxTopologicalDimension = 2;
+  constexpr unsigned int PointDimension = 3;
+  constexpr unsigned int MaxTopologicalDimension = 2;
 
-  typedef itk::Vector<double,4>                  PixelType;
-  typedef itk::Matrix<double,4,3>                CellDataType;
+  using PixelType = itk::Vector<double, 4>;
+  using CellDataType = itk::Matrix<double, 4, 3>;
 
-  typedef double CoordinateType;
-  typedef double InterpolationWeightType;
+  using CoordinateType = double;
+  using InterpolationWeightType = double;
 
-  typedef itk::DefaultStaticMeshTraits<
-            PixelType, PointDimension, MaxTopologicalDimension,
-            CoordinateType, InterpolationWeightType, CellDataType > MeshTraits;
+  using MeshTraits = itk::DefaultStaticMeshTraits<PixelType,
+                                                  PointDimension,
+                                                  MaxTopologicalDimension,
+                                                  CoordinateType,
+                                                  InterpolationWeightType,
+                                                  CellDataType>;
 
-  typedef itk::Mesh< PixelType, PointDimension, MeshTraits > MeshType;
+  using MeshType = itk::Mesh<PixelType, PointDimension, MeshTraits>;
   // Software Guide : EndCodeSnippet
 
 
@@ -130,8 +134,8 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef MeshType::CellType                CellType;
-  typedef itk::LineCell< CellType >         LineType;
+  using CellType = MeshType::CellType;
+  using LineType = itk::LineCell<CellType>;
   // Software Guide : EndCodeSnippet
 
 
@@ -150,19 +154,19 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  MeshType::Pointer  mesh = MeshType::New();
+  MeshType::Pointer mesh = MeshType::New();
 
-  typedef MeshType::PointType PointType;
+  using PointType = MeshType::PointType;
   PointType point;
 
-  const unsigned int numberOfPoints = 10;
-  for(unsigned int id=0; id<numberOfPoints; id++)
-    {
-    point[0] = 1.565;   // Initialize points here
-    point[1] = 3.647;   // with arbitrary values
+  constexpr unsigned int numberOfPoints = 10;
+  for (unsigned int id = 0; id < numberOfPoints; id++)
+  {
+    point[0] = 1.565; // Initialize points here
+    point[1] = 3.647; // with arbitrary values
     point[2] = 4.129;
-    mesh->SetPoint( id, point );
-    }
+    mesh->SetPoint(id, point);
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -184,19 +188,19 @@ int main(int, char *[])
 
   // Software Guide : BeginCodeSnippet
   CellType::CellAutoPointer line;
-  const unsigned int numberOfCells = numberOfPoints-1;
-  for(unsigned int cellId=0; cellId<numberOfCells; cellId++)
-    {
-    line.TakeOwnership(  new LineType  );
-    line->SetPointId( 0, cellId   ); // first point
-    line->SetPointId( 1, cellId+1 ); // second point
-    mesh->SetCell( cellId, line );   // insert the cell
-    }
+  const unsigned int        numberOfCells = numberOfPoints - 1;
+  for (unsigned int cellId = 0; cellId < numberOfCells; cellId++)
+  {
+    line.TakeOwnership(new LineType);
+    line->SetPointId(0, cellId);     // first point
+    line->SetPointId(1, cellId + 1); // second point
+    mesh->SetCell(cellId, line);     // insert the cell
+  }
   // Software Guide : EndCodeSnippet
 
 
   std::cout << "Points = " << mesh->GetNumberOfPoints() << std::endl;
-  std::cout << "Cells  = " << mesh->GetNumberOfCells()  << std::endl;
+  std::cout << "Cells  = " << mesh->GetNumberOfCells() << std::endl;
 
   //  Software Guide : BeginLatex
   //
@@ -209,11 +213,11 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  for(unsigned int cellId=0; cellId<numberOfCells; cellId++)
-    {
+  for (unsigned int cellId = 0; cellId < numberOfCells; cellId++)
+  {
     CellDataType value;
-    mesh->SetCellData( cellId, value );
-    }
+    mesh->SetCellData(cellId, value);
+  }
 
   // Software Guide : EndCodeSnippet
 
@@ -231,12 +235,12 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  for(unsigned int cellId=0; cellId<numberOfCells; ++cellId)
-    {
+  for (unsigned int cellId = 0; cellId < numberOfCells; ++cellId)
+  {
     CellDataType value;
-    mesh->GetCellData( cellId, &value );
+    mesh->GetCellData(cellId, &value);
     std::cout << "Cell " << cellId << " = " << value << std::endl;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -249,7 +253,7 @@ int main(int, char *[])
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef MeshType::CellDataContainer::ConstIterator CellDataIterator;
+  using CellDataIterator = MeshType::CellDataContainer::ConstIterator;
   // Software Guide : EndCodeSnippet
 
 
@@ -274,7 +278,7 @@ int main(int, char *[])
 
   // Software Guide : BeginCodeSnippet
   CellDataIterator cellDataIterator = mesh->GetCellData()->Begin();
-  CellDataIterator end              = mesh->GetCellData()->End();
+  CellDataIterator end = mesh->GetCellData()->End();
   // Software Guide : EndCodeSnippet
 
 
@@ -291,12 +295,12 @@ int main(int, char *[])
 
 
   // Software Guide : BeginCodeSnippet
-  while( cellDataIterator != end )
-    {
+  while (cellDataIterator != end)
+  {
     CellDataType cellValue = cellDataIterator.Value();
     std::cout << cellValue << std::endl;
     ++cellDataIterator;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

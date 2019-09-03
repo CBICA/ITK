@@ -17,6 +17,7 @@
  *=========================================================================*/
 #include "itkImageSeriesWriter.h"
 
-namespace itk{
-ImageSeriesWriterException::~ImageSeriesWriterException() ITK_NOEXCEPT {};
+namespace itk
+{
+ImageSeriesWriterException::~ImageSeriesWriterException() noexcept = default;
 }

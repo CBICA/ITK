@@ -22,70 +22,73 @@
 
 namespace itk
 {
-template< typename TTreeType >
-class ITK_TEMPLATE_EXPORT ChildTreeIterator:public TreeIteratorBase< TTreeType >
+template <typename TTreeType>
+class ITK_TEMPLATE_EXPORT ChildTreeIterator : public TreeIteratorBase<TTreeType>
 {
 public:
-
   /** Typedefs */
-  typedef ChildTreeIterator                       Self;
-  typedef TreeIteratorBase< TTreeType >           Superclass;
-  typedef TTreeType                               TreeType;
-  typedef typename TTreeType::ValueType           ValueType;
-  typedef typename Superclass::TreeNodeType       TreeNodeType;
-  typedef typename TreeNodeType::ChildIdentifier  ChildIdentifier;
-  typedef typename Superclass::NodeType           NodeType;
+  using Self = ChildTreeIterator;
+  using Superclass = TreeIteratorBase<TTreeType>;
+  using TreeType = TTreeType;
+  using ValueType = typename TTreeType::ValueType;
+  using TreeNodeType = typename Superclass::TreeNodeType;
+  using ChildIdentifier = typename TreeNodeType::ChildIdentifier;
+  using NodeType = typename Superclass::NodeType;
 
   /** Constructor */
-  ChildTreeIterator(TreeType *tree, const TreeNodeType *start = ITK_NULLPTR);
+  ChildTreeIterator(TreeType * tree, const TreeNodeType * start = nullptr);
 
   /** Constructor */
-  ChildTreeIterator(const TreeIteratorBase< TTreeType > & iterator);
+  ChildTreeIterator(const TreeIteratorBase<TTreeType> & iterator);
 
   /** Get the type of the iterator */
-  NodeType GetType() const;
+  NodeType
+  GetType() const override;
 
   /** Go to a specific child node */
-  virtual bool GoToChild(ChildIdentifier number = 0);
+  bool
+  GoToChild(ChildIdentifier number = 0) override;
 
   /** Go to a parent node */
-  virtual bool GoToParent();
+  bool
+  GoToParent() override;
 
   /** Clone function */
-  TreeIteratorBase< TTreeType > * Clone();
+  TreeIteratorBase<TTreeType> *
+  Clone() override;
 
   /** operator = */
-  Self & operator=(Superclass & iterator)
+  Self &
+  operator=(Superclass & iterator)
   {
-    if(this != &iterator)
-      {
+    if (this != &iterator)
+    {
       Superclass::operator=(iterator);
-      ChildTreeIterator< TTreeType > & it =
-        static_cast< ChildTreeIterator< TTreeType > & >( iterator );
+      auto &      it = static_cast<ChildTreeIterator<TTreeType> &>(iterator);
       m_ListPosition = it.m_ListPosition;
       m_ParentNode = it.m_ParentNode;
-      }
+    }
     return *this;
   }
 
 protected:
-
   /** Get the next value */
-  const ValueType & Next();
+  const ValueType &
+  Next() override;
 
   /** Return true if the next value exists */
-  bool HasNext() const;
+  bool
+  HasNext() const override;
 
 private:
-
-  mutable ChildIdentifier  m_ListPosition;
-  TreeNodeType *           m_ParentNode;
+  mutable ChildIdentifier m_ListPosition;
+  TreeNodeType *          m_ParentNode;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkChildTreeIterator.hxx"
+#  include "itkChildTreeIterator.hxx"
 #endif
 
 #endif

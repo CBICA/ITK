@@ -57,19 +57,21 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename T >
-class ITK_TEMPLATE_EXPORT AutoPointerDataObjectDecorator:public DataObject
+template <typename T>
+class ITK_TEMPLATE_EXPORT AutoPointerDataObjectDecorator : public DataObject
 {
 public:
-  /** Standard typedefs. */
-  typedef AutoPointerDataObjectDecorator Self;
-  typedef DataObject                     Superclass;
-  typedef SmartPointer< Self >           Pointer;
-  typedef SmartPointer< const Self >     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AutoPointerDataObjectDecorator);
+
+  /** Standard type alias */
+  using Self = AutoPointerDataObjectDecorator;
+  using Superclass = DataObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Typedef for the component type (object being decorated) */
-  typedef T                  ComponentType;
-  typedef std::auto_ptr< T > ComponentPointer;
+  using ComponentType = T;
+  using ComponentPointer = std::unique_ptr<T>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -78,28 +80,35 @@ public:
   itkTypeMacro(AutoPointerDataObjectDecorator, DataObject);
 
   /** Set the contained object */
-  virtual void Set(T *val);
+  virtual void
+  Set(T * val);
 
   /** Get the contained object */
-  virtual T * Get() { return m_Component.get(); }
-  virtual const T * Get() const { return m_Component.get(); }
+  virtual T *
+  Get()
+  {
+    return m_Component.get();
+  }
+  virtual const T *
+  Get() const
+  {
+    return m_Component.get();
+  }
 
 protected:
-  AutoPointerDataObjectDecorator();
-  ~AutoPointerDataObjectDecorator() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  AutoPointerDataObjectDecorator() = default;
+  ~AutoPointerDataObjectDecorator() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 protected:
-
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AutoPointerDataObjectDecorator);
-
   ComponentPointer m_Component;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAutoPointerDataObjectDecorator.hxx"
+#  include "itkAutoPointerDataObjectDecorator.hxx"
 #endif
 
 #endif

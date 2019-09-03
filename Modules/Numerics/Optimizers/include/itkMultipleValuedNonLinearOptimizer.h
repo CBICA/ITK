@@ -31,19 +31,20 @@ namespace itk
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizers
  */
-class ITKOptimizers_EXPORT MultipleValuedNonLinearOptimizer:
-  public NonLinearOptimizer
+class ITKOptimizers_EXPORT MultipleValuedNonLinearOptimizer : public NonLinearOptimizer
 {
 public:
-  /** Standard class typedefs. */
-  typedef MultipleValuedNonLinearOptimizer Self;
-  typedef NonLinearOptimizer               Superclass;
-  typedef SmartPointer< Self >             Pointer;
-  typedef SmartPointer< const Self >       ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MultipleValuedNonLinearOptimizer);
+
+  /** Standard class type aliases. */
+  using Self = MultipleValuedNonLinearOptimizer;
+  using Superclass = NonLinearOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Type of the Cost Function   */
-  typedef  MultipleValuedCostFunction CostFunctionType;
-  typedef  CostFunctionType::Pointer  CostFunctionPointer;
+  using CostFunctionType = MultipleValuedCostFunction;
+  using CostFunctionPointer = CostFunctionType::Pointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -53,30 +54,29 @@ public:
 
   /**  Parameters type.
    *  It defines a position in the optimization search space. */
-  typedef Superclass::ParametersType ParametersType;
+  using ParametersType = Superclass::ParametersType;
 
   /**  Measure type.
    *  It defines a type used to return the cost function value.
    *  Here an Array is used for Multivalued functions   */
-  typedef Array< double > MeasureType;
+  using MeasureType = Array<double>;
 
   /**  Derivative type.
    *  It defines a type used to return the cost function derivative.
    *  Here a bidimensional Array is used for Multivalued functions   */
-  typedef Array2D< double > DerivativeType;
+  using DerivativeType = Array2D<double>;
 
   /** Set the cost function. */
-  virtual void SetCostFunction(CostFunctionType *costFunction);
+  virtual void
+  SetCostFunction(CostFunctionType * costFunction);
 
 protected:
   MultipleValuedNonLinearOptimizer();
-  virtual ~MultipleValuedNonLinearOptimizer() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MultipleValuedNonLinearOptimizer() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   CostFunctionPointer m_CostFunction;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MultipleValuedNonLinearOptimizer);
 };
 } // end namespace itk
 

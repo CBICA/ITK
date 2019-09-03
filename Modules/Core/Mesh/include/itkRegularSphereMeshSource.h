@@ -37,15 +37,17 @@ namespace itk
  *
  * \ingroup ITKMesh
  */
-template< typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT RegularSphereMeshSource:public MeshSource< TOutputMesh >
+template <typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT RegularSphereMeshSource : public MeshSource<TOutputMesh>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef RegularSphereMeshSource         Self;
-  typedef itk::MeshSource< TOutputMesh >  Superclass;
-  typedef itk::SmartPointer< Self >       Pointer;
-  typedef itk::SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RegularSphereMeshSource);
+
+  /** Standard "Self" type alias. */
+  using Self = RegularSphereMeshSource;
+  using Superclass = itk::MeshSource<TOutputMesh>;
+  using Pointer = itk::SmartPointer<Self>;
+  using ConstPointer = itk::SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -54,26 +56,26 @@ public:
   itkTypeMacro(RegularSphereMeshSource, MeshSource);
 
   /** Hold on to the type information specified by the template parameters. */
-  typedef TOutputMesh                         OutputMeshType;
-  typedef typename OutputMeshType::MeshTraits MeshTraits;
-  typedef typename OutputMeshType::PointType  PointType;
-  typedef typename MeshTraits::PixelType      PixelType;
-  typedef typename PointType::VectorType      VectorType;
+  using OutputMeshType = TOutputMesh;
+  using MeshTraits = typename OutputMeshType::MeshTraits;
+  using PointType = typename OutputMeshType::PointType;
+  using PixelType = typename MeshTraits::PixelType;
+  using VectorType = typename PointType::VectorType;
 
-  /** Some convenient typedefs. */
-  typedef typename OutputMeshType::Pointer                OutputMeshPointer;
-  typedef typename OutputMeshType::CellTraits             CellTraits;
-  typedef typename OutputMeshType::PointsContainerPointer PointsContainerPointer;
-  typedef typename OutputMeshType::PointsContainer        PointsContainer;
+  /** Some convenient type alias. */
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
+  using CellTraits = typename OutputMeshType::CellTraits;
+  using PointsContainerPointer = typename OutputMeshType::PointsContainerPointer;
+  using PointsContainer = typename OutputMeshType::PointsContainer;
 
   /** Define the triangular cell types which form the surface  */
-  typedef itk::CellInterface< PixelType, CellTraits > CellInterfaceType;
-  typedef itk::TriangleCell< CellInterfaceType >      TriCellType;
-  typedef typename TriCellType::SelfAutoPointer       TriCellAutoPointer;
-  typedef typename TriCellType::CellAutoPointer       CellAutoPointer;
+  using CellInterfaceType = itk::CellInterface<PixelType, CellTraits>;
+  using TriCellType = itk::TriangleCell<CellInterfaceType>;
+  using TriCellAutoPointer = typename TriCellType::SelfAutoPointer;
+  using CellAutoPointer = typename TriCellType::CellAutoPointer;
 
-  typedef std::pair< IdentifierType, IdentifierType >         IndexPairType;
-  typedef itk::MapContainer< IndexPairType, IdentifierType >  PointMapType;
+  using IndexPairType = std::pair<IdentifierType, IdentifierType>;
+  using PointMapType = itk::MapContainer<IndexPairType, IdentifierType>;
 
   /** Set the resolution level to be used for generating cells in the Sphere.
    *  High values of this parameter will produce sphere with more triangles. */
@@ -87,19 +89,23 @@ public:
   /** Set/Get scales of the Sphere. This is a vector of values that can
    * actually be used for generating ellipsoids aligned with the coordinate
    * axis. */
-  itkSetMacro(Scale,  VectorType);
-  itkGetConstMacro(Scale,  VectorType);
+  itkSetMacro(Scale, VectorType);
+  itkGetConstMacro(Scale, VectorType);
 
 protected:
   RegularSphereMeshSource();
-  ~RegularSphereMeshSource() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, itk::Indent indent) const ITK_OVERRIDE;
+  ~RegularSphereMeshSource() override = default;
+  void
+  PrintSelf(std::ostream & os, itk::Indent indent) const override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  PointType Divide(const PointType & p1, const PointType & p2) const;
+  PointType
+  Divide(const PointType & p1, const PointType & p2) const;
 
-  void AddCell(OutputMeshType *mesh, const typename OutputMeshType::PointIdentifier *pointIds, IdentifierType idx);
+  void
+  AddCell(OutputMeshType * mesh, const typename OutputMeshType::PointIdentifier * pointIds, IdentifierType idx);
 
   /** model center */
   PointType m_Center;
@@ -109,14 +115,11 @@ protected:
 
   /** model scales */
   VectorType m_Scale;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RegularSphereMeshSource);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRegularSphereMeshSource.hxx"
+#  include "itkRegularSphereMeshSource.hxx"
 #endif
 
 #endif //_itkRegularSphereMeshSource_h

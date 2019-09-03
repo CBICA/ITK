@@ -41,12 +41,15 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TCellInterface >
-class ITK_TEMPLATE_EXPORT TriangleCell:
-  public TCellInterface, private TriangleCellTopology
+template <typename TCellInterface>
+class ITK_TEMPLATE_EXPORT TriangleCell
+  : public TCellInterface
+  , private TriangleCellTopology
 {
 public:
-  /** Standard class typedefs. */
+  ITK_DISALLOW_COPY_AND_ASSIGN(TriangleCell);
+
+  /** Standard class type aliases. */
   itkCellCommonTypedefs(TriangleCell);
   itkCellInheritedTypedefs(TCellInterface);
 
@@ -54,99 +57,122 @@ public:
   itkTypeMacro(TriangleCell, CellInterface);
 
   /** The type of boundary for this triangle's vertices. */
-  typedef VertexCell< TCellInterface >         VertexType;
-  typedef typename VertexType::SelfAutoPointer VertexAutoPointer;
+  using VertexType = VertexCell<TCellInterface>;
+  using VertexAutoPointer = typename VertexType::SelfAutoPointer;
 
   /** The type of boundary for this triangle's edges. */
-  typedef LineCell< TCellInterface >         EdgeType;
-  typedef typename EdgeType::SelfAutoPointer EdgeAutoPointer;
+  using EdgeType = LineCell<TCellInterface>;
+  using EdgeAutoPointer = typename EdgeType::SelfAutoPointer;
 
   /** Triangle-specific topology numbers. */
-  itkStaticConstMacro(NumberOfPoints, unsigned int, 3);
-  itkStaticConstMacro(NumberOfVertices, unsigned int, 3);
-  itkStaticConstMacro(NumberOfEdges, unsigned int, 3);
-  itkStaticConstMacro(CellDimension, unsigned int, 2);
+  static constexpr unsigned int NumberOfPoints = 3;
+  static constexpr unsigned int NumberOfVertices = 3;
+  static constexpr unsigned int NumberOfEdges = 3;
+  static constexpr unsigned int CellDimension = 2;
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::TRIANGLE_CELL; }
-  virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
+  CellGeometry
+  GetType() const override
+  {
+    return Superclass::TRIANGLE_CELL;
+  }
+  void
+  MakeCopy(CellAutoPointer &) const override;
 
-  virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
+  unsigned int
+  GetDimension() const override;
 
-  virtual unsigned int GetNumberOfPoints(void) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfPoints() const override;
 
-  virtual CellFeatureCount GetNumberOfBoundaryFeatures(int dimension) const ITK_OVERRIDE;
+  CellFeatureCount
+  GetNumberOfBoundaryFeatures(int dimension) const override;
 
-  virtual bool GetBoundaryFeature(int dimension, CellFeatureIdentifier,
-                                  CellAutoPointer &) ITK_OVERRIDE;
-  virtual void SetPointIds(PointIdConstIterator first) ITK_OVERRIDE;
+  bool
+  GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) override;
+  void
+  SetPointIds(PointIdConstIterator first) override;
 
-  virtual void SetPointIds(PointIdConstIterator first,
-                           PointIdConstIterator last) ITK_OVERRIDE;
+  void
+  SetPointIds(PointIdConstIterator first, PointIdConstIterator last) override;
 
-  virtual void SetPointId(int localId, PointIdentifier) ITK_OVERRIDE;
-  virtual PointIdIterator      PointIdsBegin(void) ITK_OVERRIDE;
+  void
+  SetPointId(int localId, PointIdentifier) override;
+  PointIdIterator
+  PointIdsBegin() override;
 
-  virtual PointIdConstIterator PointIdsBegin(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsBegin() const override;
 
-  virtual PointIdIterator      PointIdsEnd(void) ITK_OVERRIDE;
+  PointIdIterator
+  PointIdsEnd() override;
 
-  virtual PointIdConstIterator PointIdsEnd(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsEnd() const override;
 
   /** Triangle-specific interface. */
-  virtual CellFeatureCount GetNumberOfVertices() const;
+  virtual CellFeatureCount
+  GetNumberOfVertices() const;
 
-  virtual CellFeatureCount GetNumberOfEdges() const;
+  virtual CellFeatureCount
+  GetNumberOfEdges() const;
 
-  virtual bool GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
-  virtual bool GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
+  virtual bool
+  GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
+  virtual bool
+  GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
 
-  virtual bool EvaluatePosition(CoordRepType *,
-                                PointsContainer *,
-                                CoordRepType *,
-                                CoordRepType[],
-                                double *,
-                                InterpolationWeightType *) ITK_OVERRIDE;
+  bool
+  EvaluatePosition(CoordRepType *,
+                   PointsContainer *,
+                   CoordRepType *,
+                   CoordRepType[],
+                   double *,
+                   InterpolationWeightType *) override;
 
   /** Cell visitor interface. */
   itkCellVisitMacro(Superclass::TRIANGLE_CELL);
 
   /** \brief Compute Area to a TriangleCell given a PointsContainer.  */
-  CoordRepType ComputeArea(PointsContainer *);
+  CoordRepType
+  ComputeArea(PointsContainer *);
 
-  PointType ComputeBarycenter(CoordRepType *,
-                              PointsContainer *);
+  PointType
+  ComputeBarycenter(CoordRepType *, PointsContainer *);
 
-  PointType ComputeCenterOfGravity(PointsContainer *);
+  PointType
+  ComputeCenterOfGravity(PointsContainer *);
 
-  PointType ComputeCircumCenter(PointsContainer *);
+  PointType
+  ComputeCircumCenter(PointsContainer *);
 
 public:
-  TriangleCell():
-    m_PointIds( NumberOfPoints, NumericTraits< PointIdentifier >::max() )
+  TriangleCell()
+    : m_PointIds(NumberOfPoints, NumericTraits<PointIdentifier>::max())
   {}
-  ~TriangleCell() ITK_OVERRIDE {}
+#if defined(__GNUC__) && (__GNUC__ > 5)
+  ~TriangleCell() override = default;
+#else
+  ~TriangleCell() override{};
+#endif
 
 protected:
   /** Store the number of points needed for a triangle. */
-  std::vector< PointIdentifier > m_PointIds;
+  std::vector<PointIdentifier> m_PointIds;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TriangleCell);
-
   /** Computes the SQUARED distance between a point and a line segment defined
    * by two other points */
-  double DistanceToLine(PointType x, PointType p1, PointType p2,
-                        double & t, CoordRepType *closestPoint);
+  double
+  DistanceToLine(PointType x, PointType p1, PointType p2, double & t, CoordRepType * closestPoint);
 
-  double DistanceToLine(PointType x, PointType p1, PointType p2,
-                        double & t, PointType & closestPoint);
+  double
+  DistanceToLine(PointType x, PointType p1, PointType p2, double & t, PointType & closestPoint);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTriangleCell.hxx"
+#  include "itkTriangleCell.hxx"
 #endif
 
 #endif

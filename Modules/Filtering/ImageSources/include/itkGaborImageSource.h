@@ -43,27 +43,27 @@ namespace itk
  * \ingroup DataSources
  * \ingroup ITKImageSources
  */
-template< typename TOutputImage >
-class ITK_TEMPLATE_EXPORT GaborImageSource:
-  public GenerateImageSource< TOutputImage >
+template <typename TOutputImage>
+class ITK_TEMPLATE_EXPORT GaborImageSource : public GenerateImageSource<TOutputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaborImageSource);
 
-  /** Standard class typedefs. */
-  typedef GaborImageSource                    Self;
-  typedef GenerateImageSource< TOutputImage > Superclass;
-  typedef SmartPointer< Self >                Pointer;
-  typedef SmartPointer< const Self >          ConstPointer;
+  /** Standard class type aliases. */
+  using Self = GaborImageSource;
+  using Superclass = GenerateImageSource<TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  /** Output image typedefs */
-  typedef TOutputImage                            OutputImageType;
-  typedef typename OutputImageType::PixelType     PixelType;
-  typedef typename OutputImageType::RegionType    RegionType;
-  typedef typename OutputImageType::SpacingType   SpacingType;
-  typedef typename OutputImageType::PointType     PointType;
-  typedef typename OutputImageType::DirectionType DirectionType;
+  /** Output image type alias */
+  using OutputImageType = TOutputImage;
+  using PixelType = typename OutputImageType::PixelType;
+  using RegionType = typename OutputImageType::RegionType;
+  using SpacingType = typename OutputImageType::SpacingType;
+  using PointType = typename OutputImageType::PointType;
+  using DirectionType = typename OutputImageType::DirectionType;
 
-  typedef typename RegionType::SizeType SizeType;
+  using SizeType = typename RegionType::SizeType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(GaborImageSource, GenerateImageSource);
@@ -72,12 +72,10 @@ public:
   itkNewMacro(Self);
 
   /** Dimensionality of the output image */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      OutputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = OutputImageType::ImageDimension;
 
   /** Type used to store gabor parameters. */
-  typedef FixedArray< double,
-                      itkGetStaticConstMacro(ImageDimension) >    ArrayType;
+  using ArrayType = FixedArray<double, Self::ImageDimension>;
 
   /** Set/Get the the standard deviation in each direction. */
   itkSetMacro(Sigma, ArrayType);
@@ -99,20 +97,20 @@ public:
 
 protected:
   GaborImageSource();
-  // ~GaborImageSource(); default implementation ok
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GaborImageSource() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaborImageSource);
+  bool m_CalculateImaginaryPart{ false };
 
-  bool m_CalculateImaginaryPart;
-
-  double m_Frequency;
+  double m_Frequency{ 0.4 };
 
   /** Evaluate using a stretched gabor filter (ensure zero dc response) */
-  double m_PhaseOffset;
+  double m_PhaseOffset{ 0.0 };
 
   ArrayType m_Sigma;
 
@@ -121,7 +119,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGaborImageSource.hxx"
+#  include "itkGaborImageSource.hxx"
 #endif
 
 #endif

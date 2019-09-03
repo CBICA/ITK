@@ -23,18 +23,14 @@ namespace itk
 {
 OpenCVVideoIOFactory::OpenCVVideoIOFactory()
 {
-  this->RegisterOverride( "itkVideoIOBase",
-                          "itkOpenCVVideoIO",
-                          "OpenCV Video IO",
-                          1,
-                          CreateObjectFunction< OpenCVVideoIO >::New() );
+  this->RegisterOverride(
+    "itkVideoIOBase", "itkOpenCVVideoIO", "OpenCV Video IO", 1, CreateObjectFunction<OpenCVVideoIO>::New());
 }
 
-OpenCVVideoIOFactory::~OpenCVVideoIOFactory()
-{}
+OpenCVVideoIOFactory::~OpenCVVideoIOFactory() {}
 
 const char *
-OpenCVVideoIOFactory::GetITKSourceVersion(void) const
+OpenCVVideoIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
@@ -50,13 +46,14 @@ OpenCVVideoIOFactory::GetDescription() const
 
 static bool OpenCVVideoIOFactoryHasBeenRegistered;
 
-void OpenCVVideoIOFactoryRegister__Private(void)
+void
+OpenCVVideoIOFactoryRegister__Private()
 {
-  if( ! OpenCVVideoIOFactoryHasBeenRegistered )
-    {
+  if (!OpenCVVideoIOFactoryHasBeenRegistered)
+  {
     OpenCVVideoIOFactoryHasBeenRegistered = true;
     OpenCVVideoIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

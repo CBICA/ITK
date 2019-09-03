@@ -19,27 +19,34 @@
 #include "itkQuadEdgeMesh.h"
 #include <iostream>
 
-int itkQuadEdgeMeshNoPointConstTest( int , char* [] )
+int
+itkQuadEdgeMeshNoPointConstTest(int, char *[])
 {
-  typedef itk::QuadEdgeMesh< double, 3 >     MeshType;
-  typedef MeshType::QEType                   QEType;
-  typedef QEType::OriginRefType              OriginRefType;
+  using MeshType = itk::QuadEdgeMesh<double, 3>;
+  using QEType = MeshType::QEType;
+  using OriginRefType = QEType::OriginRefType;
 
-  OriginRefType VCL_LIMIT = std::numeric_limits< OriginRefType >::max( );
+  OriginRefType NUM_LIMIT = std::numeric_limits<OriginRefType>::max();
   OriginRefType GQE_LIMIT = QEType::m_NoPoint;
   OriginRefType QEM_LIMIT = MeshType::m_NoPoint;
 
-  std::cout << "VCL limit:     " << VCL_LIMIT << std::endl;
+  std::cout << "VCL limit:     " << NUM_LIMIT << std::endl;
   std::cout << "Geom QE limit: " << GQE_LIMIT << std::endl;
   std::cout << "QE mesh limit: " << QEM_LIMIT << std::endl;
 
-  if( VCL_LIMIT != GQE_LIMIT ) return EXIT_FAILURE;
-  if( VCL_LIMIT != QEM_LIMIT ) return EXIT_FAILURE;
-  if( QEM_LIMIT != GQE_LIMIT ) return EXIT_FAILURE;
+  if (NUM_LIMIT != GQE_LIMIT)
+    return EXIT_FAILURE;
+  if (NUM_LIMIT != QEM_LIMIT)
+    return EXIT_FAILURE;
+  if (QEM_LIMIT != GQE_LIMIT)
+    return EXIT_FAILURE;
 
-  if( VCL_LIMIT == 0 ) return EXIT_FAILURE;
-  if( GQE_LIMIT == 0 ) return EXIT_FAILURE;
-  if( QEM_LIMIT == 0 ) return EXIT_FAILURE;
+  if (NUM_LIMIT == 0)
+    return EXIT_FAILURE;
+  if (GQE_LIMIT == 0)
+    return EXIT_FAILURE;
+  if (QEM_LIMIT == 0)
+    return EXIT_FAILURE;
 
   return EXIT_SUCCESS;
 }

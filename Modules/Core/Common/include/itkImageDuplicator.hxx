@@ -24,58 +24,55 @@
 namespace itk
 {
 /** Constructor */
-template< typename TInputImage >
-ImageDuplicator< TInputImage >
-::ImageDuplicator()
+template <typename TInputImage>
+ImageDuplicator<TInputImage>::ImageDuplicator()
 {
-  m_InputImage = ITK_NULLPTR;
-  m_Output = ITK_NULLPTR;
+  m_InputImage = nullptr;
+  m_DuplicateImage = nullptr;
   m_InternalImageTime = 0;
 }
 
 /** */
-template< typename TInputImage >
+template <typename TInputImage>
 void
-ImageDuplicator< TInputImage >
-::Update(void)
+ImageDuplicator<TInputImage>::Update()
 {
-  if ( !m_InputImage )
-    {
+  if (!m_InputImage)
+  {
     itkExceptionMacro(<< "Input image has not been connected");
     return;
-    }
+  }
 
   // Update only if the input image has been modified
   const ModifiedTimeType t1 = m_InputImage->GetPipelineMTime();
   const ModifiedTimeType t2 = m_InputImage->GetMTime();
-  const ModifiedTimeType t = ( t1 > t2 ? t1 : t2 );
+  const ModifiedTimeType t = (t1 > t2 ? t1 : t2);
 
-  if ( t == m_InternalImageTime )
-    {
+  if (t == m_InternalImageTime)
+  {
     return; // No need to update
-    }
+  }
 
   // Cache the timestamp
   m_InternalImageTime = t;
 
   // Allocate the image
-  m_Output = ImageType::New();
-  m_Output->CopyInformation( m_InputImage );
-  m_Output->SetRequestedRegion( m_InputImage->GetRequestedRegion() );
-  m_Output->SetBufferedRegion( m_InputImage->GetBufferedRegion() );
-  m_Output->Allocate();
-  typename ImageType::RegionType region = m_InputImage->GetLargestPossibleRegion();
-  ImageAlgorithm::Copy(m_InputImage.GetPointer(),m_Output.GetPointer(),region,region);
+  m_DuplicateImage = ImageType::New();
+  m_DuplicateImage->CopyInformation(m_InputImage);
+  m_DuplicateImage->SetRequestedRegion(m_InputImage->GetRequestedRegion());
+  m_DuplicateImage->SetBufferedRegion(m_InputImage->GetBufferedRegion());
+  m_DuplicateImage->Allocate();
+  typename ImageType::RegionType region = m_InputImage->GetBufferedRegion();
+  ImageAlgorithm::Copy(m_InputImage.GetPointer(), m_DuplicateImage.GetPointer(), region, region);
 }
 
-template< typename TInputImage >
+template <typename TInputImage>
 void
-ImageDuplicator< TInputImage >
-::PrintSelf(std::ostream & os, Indent indent) const
+ImageDuplicator<TInputImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
   os << indent << "Input Image: " << m_InputImage << std::endl;
-  os << indent << "Output Image: " << m_Output << std::endl;
+  os << indent << "Output Image: " << m_DuplicateImage << std::endl;
   os << indent << "Internal Image Time: " << m_InternalImageTime << std::endl;
 }
 } // end namespace itk

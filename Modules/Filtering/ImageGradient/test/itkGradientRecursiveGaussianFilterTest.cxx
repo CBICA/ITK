@@ -19,26 +19,27 @@
 #include "itkGradientRecursiveGaussianImageFilter.h"
 #include "itkSimpleFilterWatcher.h"
 
-int itkGradientRecursiveGaussianFilterTest(int, char* [] )
+int
+itkGradientRecursiveGaussianFilterTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int myDimension = 3;
+  constexpr unsigned int myDimension = 3;
 
   // Declare the types of the images
-  typedef itk::Image<float, myDimension>           myImageType;
+  using myImageType = itk::Image<float, myDimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<myDimension>             myIndexType;
+  using myIndexType = itk::Index<myDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<myDimension>              mySizeType;
+  using mySizeType = itk::Size<myDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<myDimension>        myRegionType;
+  using myRegionType = itk::ImageRegion<myDimension>;
 
   // Create the image
-  myImageType::Pointer inputImage  = myImageType::New();
+  myImageType::Pointer inputImage = myImageType::New();
 
 
   // Define their size, and start index
@@ -51,27 +52,27 @@ int itkGradientRecursiveGaussianFilterTest(int, char* [] )
   start.Fill(0);
 
   myRegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImage->SetLargestPossibleRegion( region );
-  inputImage->SetBufferedRegion( region );
-  inputImage->SetRequestedRegion( region );
+  inputImage->SetLargestPossibleRegion(region);
+  inputImage->SetBufferedRegion(region);
+  inputImage->SetRequestedRegion(region);
   inputImage->Allocate();
 
   // Declare Iterator type for the input image
-  typedef itk::ImageRegionIteratorWithIndex<myImageType>  myIteratorType;
+  using myIteratorType = itk::ImageRegionIteratorWithIndex<myImageType>;
 
   // Create one iterator for the Input Image A (this is a light object)
-  myIteratorType it( inputImage, inputImage->GetRequestedRegion() );
+  myIteratorType it(inputImage, inputImage->GetRequestedRegion());
 
   // Initialize the content of Image A
-  while( !it.IsAtEnd() )
-    {
-    it.Set( 0.0 );
+  while (!it.IsAtEnd())
+  {
+    it.Set(0.0);
     ++it;
-    }
+  }
 
   size[0] = 4;
   size[1] = 4;
@@ -83,32 +84,32 @@ int itkGradientRecursiveGaussianFilterTest(int, char* [] )
 
   // Create one iterator for an internal region
   myRegionType innerRegion;
-  innerRegion.SetSize( size );
-  innerRegion.SetIndex( start );
-  myIteratorType itb( inputImage, innerRegion );
+  innerRegion.SetSize(size);
+  innerRegion.SetIndex(start);
+  myIteratorType itb(inputImage, innerRegion);
 
   // Initialize the content the internal region
-  while( !itb.IsAtEnd() )
-    {
-    itb.Set( 100.0 );
+  while (!itb.IsAtEnd())
+  {
+    itb.Set(100.0);
     ++itb;
-    }
+  }
 
   // Declare the type for the
-  typedef itk::GradientRecursiveGaussianImageFilter< myImageType >  myFilterType;
+  using myFilterType = itk::GradientRecursiveGaussianImageFilter<myImageType>;
 
-  typedef myFilterType::OutputImageType myGradientImageType;
+  using myGradientImageType = myFilterType::OutputImageType;
 
 
   // Create a  Filter
-  myFilterType::Pointer filter = myFilterType::New();
+  myFilterType::Pointer    filter = myFilterType::New();
   itk::SimpleFilterWatcher watcher(filter);
 
   // Connect the input images
-  filter->SetInput( inputImage );
+  filter->SetInput(inputImage);
 
   // Select the value of Sigma
-  filter->SetSigma( 2.5 );
+  filter->SetSigma(2.5);
 
 
   // Execute the filter
@@ -121,63 +122,63 @@ int itkGradientRecursiveGaussianFilterTest(int, char* [] )
   myGradientImageType::Pointer outputImage = filter->GetOutput();
 
   // Declare Iterator type for the output image
-  typedef itk::ImageRegionIteratorWithIndex<myGradientImageType>  myOutputIteratorType;
+  using myOutputIteratorType = itk::ImageRegionIteratorWithIndex<myGradientImageType>;
 
   // Create an iterator for going through the output image
-  myOutputIteratorType itg( outputImage, outputImage->GetRequestedRegion() );
+  myOutputIteratorType itg(outputImage, outputImage->GetRequestedRegion());
 
   //  Print the content of the result image
   std::cout << " Result " << std::endl;
   itg.GoToBegin();
-  while( !itg.IsAtEnd() )
-    {
+  while (!itg.IsAtEnd())
+  {
     std::cout << itg.Get();
     ++itg;
-    }
+  }
   std::cout << std::endl;
 
   //
   // Test with a change in image direction
   //
   myImageType::DirectionType direction;
-  direction.Fill( 0.0 );
+  direction.Fill(0.0);
   direction[0][0] = -1.0;
   direction[1][1] = -1.0;
   direction[2][2] = -1.0;
-  inputImage->SetDirection( direction );
+  inputImage->SetDirection(direction);
 
   // Create a  Filter
   myFilterType::Pointer filter2 = myFilterType::New();
-  filter2->SetInput( inputImage );
-  filter2->SetSigma( 2.5 );
+  filter2->SetInput(inputImage);
+  filter2->SetSigma(2.5);
   filter2->Update();
   myGradientImageType::Pointer outputFlippedImage = filter2->GetOutput();
 
   // compare the output between identity direction and flipped direction
   std::cout << " Result of flipped image " << std::endl;
-  myOutputIteratorType itf( outputFlippedImage, outputFlippedImage->GetRequestedRegion() );
+  myOutputIteratorType itf(outputFlippedImage, outputFlippedImage->GetRequestedRegion());
   itf.GoToBegin();
   bool passed = true;
-  while( !itf.IsAtEnd() )
-    {
+  while (!itf.IsAtEnd())
+  {
     std::cout << itf.Get();
     myImageType::IndexType index;
-    for( unsigned int d = 0; d < myDimension; d++ )
-      {
-      index[d] = region.GetSize()[d] - 1 - itf.GetIndex()[d];
-      }
-    if( itf.Value() != outputImage->GetPixel( index ) )
-      {
-      passed = false;
-      }
-    ++itf;
-    }
-  std::cout << std::endl;
-  if( ! passed )
+    for (unsigned int d = 0; d < myDimension; d++)
     {
+      index[d] = region.GetSize()[d] - 1 - itf.GetIndex()[d];
+    }
+    if (itf.Value() != outputImage->GetPixel(index))
+    {
+      passed = false;
+    }
+    ++itf;
+  }
+  std::cout << std::endl;
+  if (!passed)
+  {
     std::cerr << "Flipped image gradient does not match regular image as expected." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // All objects should be automatically destroyed at this point
   return EXIT_SUCCESS;

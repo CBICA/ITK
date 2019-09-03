@@ -29,7 +29,7 @@
 #define itkLabelMapFilter_h
 
 #include "itkImageToImageFilter.h"
-#include "itkFastMutexLock.h"
+#include <mutex>
 
 namespace itk
 {
@@ -53,17 +53,17 @@ namespace itk
  * \ingroup LabeledImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT LabelMapFilter:
-  public
-  ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LabelMapFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelMapFilter                                  Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapFilter);
+
+  /** Standard class type aliases. */
+  using Self = LabelMapFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LabelMapFilter, ImageToImageFilter);
@@ -71,66 +71,78 @@ public:
   /** Standard New method. */
   itkNewMacro(Self);
 
-  /** Some convenient typedefs. */
-  typedef typename Superclass::InputImageType         InputImageType;
-  typedef typename Superclass::InputImagePointer      InputImagePointer;
-  typedef typename Superclass::InputImageConstPointer InputImageConstPointer;
-  typedef typename Superclass::InputImageRegionType   InputImageRegionType;
-  typedef typename Superclass::InputImagePixelType    InputImagePixelType;
-  typedef typename InputImageType::LabelObjectType    LabelObjectType;
+  /** Some convenient type alias. */
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputImageConstPointer = typename Superclass::InputImageConstPointer;
+  using InputImageRegionType = typename Superclass::InputImageRegionType;
+  using InputImagePixelType = typename Superclass::InputImagePixelType;
+  using LabelObjectType = typename InputImageType::LabelObjectType;
 
-  typedef TOutputImage                           OutputImageType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int, TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** LabelMapFilter requires the entire input to be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** LabelMapFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject * itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
 protected:
   LabelMapFilter();
-  ~LabelMapFilter() ITK_OVERRIDE;
+  ~LabelMapFilter() override = default;
 
-  virtual void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  virtual void AfterThreadedGenerateData() ITK_OVERRIDE;
+  void
+  AfterThreadedGenerateData() override;
 
-  virtual void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
 
-  virtual void ThreadedProcessLabelObject(LabelObjectType *labelObject);
+  // derived classes call this as inherited so we must delegate to DynamicThreadedGenerateData
+  void
+  ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread, ThreadIdType) override
+  {
+    Self::DynamicThreadedGenerateData(outputRegionForThread);
+  }
+
+  virtual void
+  ThreadedProcessLabelObject(LabelObjectType * labelObject);
 
   /**
    * Return the label collection image to use. This method may be overloaded
    * if the label collection image to use is not the input image.
    */
-  virtual InputImageType * GetLabelMap()
+  virtual InputImageType *
+  GetLabelMap()
   {
-    return static_cast< InputImageType * >( const_cast< DataObject * >( this->ProcessObject::GetInput(0) ) );
+    return static_cast<InputImageType *>(const_cast<DataObject *>(this->ProcessObject::GetInput(0)));
   }
 
-  typename FastMutexLock::Pointer m_LabelObjectContainerLock;
+  std::mutex m_LabelObjectContainerLock;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelMapFilter);
-
   typename InputImageType::Iterator m_LabelObjectIterator;
-  float                             m_InverseNumberOfLabelObjects;
-  SizeValueType                     m_NumberOfLabelObjectsProcessed;
+  float                             m_InverseNumberOfLabelObjects{ 1.0f };
+  SizeValueType                     m_NumberOfLabelObjectsProcessed{ 1 };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelMapFilter.hxx"
+#  include "itkLabelMapFilter.hxx"
 #endif
 
 #endif

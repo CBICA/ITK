@@ -18,7 +18,7 @@
 #ifndef itkComplexToPhaseImageFilter_h
 #define itkComplexToPhaseImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 #include "itkMath.h"
 
 namespace itk
@@ -31,72 +31,70 @@ namespace itk
  */
 namespace Functor
 {
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class ComplexToPhase
 {
 public:
-  ComplexToPhase() {}
-  ~ComplexToPhase() {}
-  bool operator!=(const ComplexToPhase &) const
+  ComplexToPhase() = default;
+  ~ComplexToPhase() = default;
+  bool
+  operator!=(const ComplexToPhase &) const
   {
     return false;
   }
 
-  bool operator==(const ComplexToPhase & other) const
+  bool
+  operator==(const ComplexToPhase & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    return static_cast<TOutput>( std::atan2( A.imag(), A.real() ) );
+    return static_cast<TOutput>(std::atan2(A.imag(), A.real()));
   }
 };
-}
+} // namespace Functor
 
-template< typename TInputImage, typename TOutputImage >
-class ComplexToPhaseImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::ComplexToPhase<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TOutputImage>
+class ComplexToPhaseImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ComplexToPhaseImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::ComplexToPhase< typename TInputImage::PixelType,
-                              typename TOutputImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToPhaseImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ComplexToPhaseImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::ComplexToPhase<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ComplexToPhaseImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(ComplexToPhaseImageFilter, UnaryGeneratorImageFilter);
 
-  typedef typename TInputImage::PixelType                     InputPixelType;
-  typedef typename TOutputImage::PixelType                    OutputPixelType;
-  typedef typename NumericTraits< InputPixelType >::ValueType InputPixelValueType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelValueType = typename NumericTraits<InputPixelType>::ValueType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputPixelValueType, OutputPixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputPixelValueType, OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  ComplexToPhaseImageFilter() {}
-  virtual ~ComplexToPhaseImageFilter() ITK_OVERRIDE {}
+  ComplexToPhaseImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToPhaseImageFilter);
+  ~ComplexToPhaseImageFilter() override = default;
 };
 } // end namespace itk
 

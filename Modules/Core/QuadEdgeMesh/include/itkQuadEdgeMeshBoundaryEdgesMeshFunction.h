@@ -33,43 +33,42 @@ namespace itk
  *        components.
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TMesh >
-class ITK_TEMPLATE_EXPORT QuadEdgeMeshBoundaryEdgesMeshFunction:
-  public FunctionBase< TMesh, typename TMesh::EdgeListPointerType >
+template <typename TMesh>
+class ITK_TEMPLATE_EXPORT QuadEdgeMeshBoundaryEdgesMeshFunction
+  : public FunctionBase<TMesh, typename TMesh::EdgeListPointerType>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshBoundaryEdgesMeshFunction);
+
   // Standard types
-  typedef QuadEdgeMeshBoundaryEdgesMeshFunction Self;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
-  typedef FunctionBase< TMesh,
-                        typename  TMesh::EdgeListPointerType > Superclass;
+  using Self = QuadEdgeMeshBoundaryEdgesMeshFunction;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = FunctionBase<TMesh, typename TMesh::EdgeListPointerType>;
 
   // Types in superclass:
-  typedef typename Superclass::InputType  InputType;
-  typedef typename Superclass::OutputType OutputType;
+  using InputType = typename Superclass::InputType;
+  using OutputType = typename Superclass::OutputType;
 
   // Local aliases
-  typedef InputType                       MeshType;
-  typedef typename MeshType::QEPrimal     QEPrimal;
-  typedef typename MeshType::EdgeCellType EdgeCellType;
-  typedef typename MeshType::EdgeListType EdgeListType;
+  using MeshType = InputType;
+  using QEPrimal = typename MeshType::QEPrimal;
+  using EdgeCellType = typename MeshType::EdgeCellType;
+  using EdgeListType = typename MeshType::EdgeListType;
 
   itkTypeMacro(QuadEdgeMeshBoundaryEdgesMeshFunction, FunctionBase);
   itkNewMacro(Self);
 
-  virtual OutputType Evaluate(const InputType & mesh) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & mesh) const override;
 
 protected:
-  QuadEdgeMeshBoundaryEdgesMeshFunction() {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(QuadEdgeMeshBoundaryEdgesMeshFunction);
+  QuadEdgeMeshBoundaryEdgesMeshFunction() = default;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkQuadEdgeMeshBoundaryEdgesMeshFunction.hxx"
+#  include "itkQuadEdgeMeshBoundaryEdgesMeshFunction.hxx"
 #endif
 
 #endif

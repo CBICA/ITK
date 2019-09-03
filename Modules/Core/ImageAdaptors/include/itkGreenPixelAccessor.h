@@ -37,37 +37,45 @@ namespace itk
  * \ingroup ITKImageAdaptors
  */
 
-template< typename T >
+template <typename T>
 class GreenPixelAccessor
 {
 public:
-  /** Standard class typedefs. */
-  typedef   GreenPixelAccessor Self;
+  /** Standard class type aliases. */
+  using Self = GreenPixelAccessor;
 
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit */
-  typedef T ExternalType;
+  using ExternalType = T;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data */
-  typedef     RGBPixel< T > InternalType;
+  using InternalType = RGBPixel<T>;
 
   /** Write access to the Green component */
-  inline void Set(InternalType & output, const ExternalType & input) const
-  { output.SetGreen(input); }
+  inline void
+  Set(InternalType & output, const ExternalType & input) const
+  {
+    output.SetGreen(input);
+  }
 
   /** Read access to the Green component */
-  inline const ExternalType & Get(const InternalType & input) const
-  { return input.GetGreen(); }
+  inline const ExternalType &
+  Get(const InternalType & input) const
+  {
+    return input.GetGreen();
+  }
 
-  bool operator!=(const Self & ) const
+  bool
+  operator!=(const Self &) const
   {
     return false;
   }
 
-  bool operator==(const Self & other) const
+  bool
+  operator==(const Self & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 };
 } // end namespace itk

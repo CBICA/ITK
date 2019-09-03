@@ -21,23 +21,20 @@
 
 namespace itk
 {
-void NiftiImageIOFactory::PrintSelf(std::ostream &, Indent) const
+void
+NiftiImageIOFactory::PrintSelf(std::ostream &, Indent) const
 {}
 
 NiftiImageIOFactory::NiftiImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkNiftiImageIO",
-                          "Nifti Image IO",
-                          1,
-                          CreateObjectFunction< NiftiImageIO >::New() );
+  this->RegisterOverride(
+    "itkImageIOBase", "itkNiftiImageIO", "Nifti Image IO", true, CreateObjectFunction<NiftiImageIO>::New());
 }
 
-NiftiImageIOFactory::~NiftiImageIOFactory()
-{}
+NiftiImageIOFactory::~NiftiImageIOFactory() = default;
 
 const char *
-NiftiImageIOFactory::GetITKSourceVersion(void) const
+NiftiImageIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
@@ -53,13 +50,14 @@ NiftiImageIOFactory::GetDescription() const
 
 static bool NiftiImageIOFactoryHasBeenRegistered;
 
-void ITKIONIFTI_EXPORT NiftiImageIOFactoryRegister__Private(void)
+void ITKIONIFTI_EXPORT
+     NiftiImageIOFactoryRegister__Private()
 {
-  if( ! NiftiImageIOFactoryHasBeenRegistered )
-    {
+  if (!NiftiImageIOFactoryHasBeenRegistered)
+  {
     NiftiImageIOFactoryHasBeenRegistered = true;
     NiftiImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

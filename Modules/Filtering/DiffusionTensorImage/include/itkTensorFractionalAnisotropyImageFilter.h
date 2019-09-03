@@ -27,29 +27,32 @@ namespace itk
 // every pixel.
 namespace Functor
 {
-template< typename TInput >
+template <typename TInput>
 class TensorFractionalAnisotropyFunction
 {
 public:
-  typedef typename TInput::RealValueType RealValueType;
-  TensorFractionalAnisotropyFunction() {}
-  ~TensorFractionalAnisotropyFunction() {}
-  bool operator!=(const TensorFractionalAnisotropyFunction &) const
+  using RealValueType = typename TInput::RealValueType;
+  TensorFractionalAnisotropyFunction() = default;
+  ~TensorFractionalAnisotropyFunction() = default;
+  bool
+  operator!=(const TensorFractionalAnisotropyFunction &) const
   {
     return false;
   }
 
-  bool operator==(const TensorFractionalAnisotropyFunction & other) const
+  bool
+  operator==(const TensorFractionalAnisotropyFunction & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline RealValueType operator()(const TInput & x) const
+  inline RealValueType
+  operator()(const TInput & x) const
   {
     return x.GetFractionalAnisotropy();
   }
 };
-}  // end namespace functor
+} // end namespace Functor
 
 /** \class TensorFractionalAnisotropyImageFilter
  * \brief Computes the Fractional Anisotropy for every pixel of a input tensor image.
@@ -66,31 +69,31 @@ public:
  *
  * \ingroup ITKDiffusionTensorImage
  */
-template< typename  TInputImage,
-  typename  TOutputImage = Image<
-    typename NumericTraits< typename TInputImage::PixelType::ValueType >::RealType,
-    TInputImage::Dimension > >
-class TensorFractionalAnisotropyImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::TensorFractionalAnisotropyFunction<
-                             typename TInputImage::PixelType > >
+template <typename TInputImage,
+          typename TOutputImage =
+            Image<typename NumericTraits<typename TInputImage::PixelType::ValueType>::RealType, TInputImage::Dimension>>
+class TensorFractionalAnisotropyImageFilter
+  : public UnaryFunctorImageFilter<TInputImage,
+                                   TOutputImage,
+                                   Functor::TensorFractionalAnisotropyFunction<typename TInputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TensorFractionalAnisotropyImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::TensorFractionalAnisotropyFunction<
-      typename TInputImage::PixelType > >         Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TensorFractionalAnisotropyImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = TensorFractionalAnisotropyImageFilter;
+  using Superclass =
+    UnaryFunctorImageFilter<TInputImage,
+                            TOutputImage,
+                            Functor::TensorFractionalAnisotropyFunction<typename TInputImage::PixelType>>;
 
-  typedef typename Superclass::OutputImageType OutputImageType;
-  typedef typename TOutputImage::PixelType     OutputPixelType;
-  typedef typename TInputImage::PixelType      InputPixelType;
-  typedef typename InputPixelType::ValueType   InputValueType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using OutputImageType = typename Superclass::OutputImageType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputValueType = typename InputPixelType::ValueType;
 
   /** Run-time type information (and related methods).   */
   itkTypeMacro(TensorFractionalAnisotropyImageFilter, UnaryFunctorImageFilter);
@@ -99,22 +102,21 @@ public:
   itkNewMacro(Self);
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-  { this->Superclass::PrintSelf(os, indent); }
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    this->Superclass::PrintSelf(os, indent);
+  }
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputValueType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputValueType>));
   // End concept checking
 #endif
 
 protected:
-  TensorFractionalAnisotropyImageFilter() {}
-  virtual ~TensorFractionalAnisotropyImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TensorFractionalAnisotropyImageFilter);
+  TensorFractionalAnisotropyImageFilter() = default;
+  ~TensorFractionalAnisotropyImageFilter() override = default;
 };
 } // end namespace itk
 

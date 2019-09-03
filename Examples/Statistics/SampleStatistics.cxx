@@ -54,7 +54,8 @@
 #include "itkCovarianceSampleFilter.h"
 // Software Guide : EndCodeSnippet
 
-int main()
+int
+main()
 {
   // Software Guide : BeginLatex
   //
@@ -65,37 +66,37 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int MeasurementVectorLength = 3;
-  typedef itk::Vector< float, MeasurementVectorLength > MeasurementVectorType;
-  typedef itk::Statistics::ListSample< MeasurementVectorType > SampleType;
+  constexpr unsigned int MeasurementVectorLength = 3;
+  using MeasurementVectorType = itk::Vector<float, MeasurementVectorLength>;
+  using SampleType = itk::Statistics::ListSample<MeasurementVectorType>;
   SampleType::Pointer sample = SampleType::New();
-  sample->SetMeasurementVectorSize( MeasurementVectorLength );
+  sample->SetMeasurementVectorSize(MeasurementVectorLength);
   MeasurementVectorType mv;
   mv[0] = 1.0;
   mv[1] = 2.0;
   mv[2] = 4.0;
 
-  sample->PushBack( mv );
+  sample->PushBack(mv);
 
   mv[0] = 2.0;
   mv[1] = 4.0;
   mv[2] = 5.0;
-  sample->PushBack( mv );
+  sample->PushBack(mv);
 
   mv[0] = 3.0;
   mv[1] = 8.0;
   mv[2] = 6.0;
-  sample->PushBack( mv );
+  sample->PushBack(mv);
 
   mv[0] = 2.0;
   mv[1] = 7.0;
   mv[2] = 4.0;
-  sample->PushBack( mv );
+  sample->PushBack(mv);
 
   mv[0] = 3.0;
   mv[1] = 2.0;
   mv[2] = 7.0;
-  sample->PushBack( mv );
+  sample->PushBack(mv);
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -111,11 +112,11 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::Statistics::MeanSampleFilter< SampleType > MeanAlgorithmType;
+  using MeanAlgorithmType = itk::Statistics::MeanSampleFilter<SampleType>;
 
   MeanAlgorithmType::Pointer meanAlgorithm = MeanAlgorithmType::New();
 
-  meanAlgorithm->SetInput( sample );
+  meanAlgorithm->SetInput(sample);
   meanAlgorithm->Update();
 
   std::cout << "Sample mean = " << meanAlgorithm->GetMean() << std::endl;
@@ -131,12 +132,10 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::Statistics::CovarianceSampleFilter< SampleType >
-    CovarianceAlgorithmType;
-  CovarianceAlgorithmType::Pointer covarianceAlgorithm =
-    CovarianceAlgorithmType::New();
+  using CovarianceAlgorithmType = itk::Statistics::CovarianceSampleFilter<SampleType>;
+  CovarianceAlgorithmType::Pointer covarianceAlgorithm = CovarianceAlgorithmType::New();
 
-  covarianceAlgorithm->SetInput( sample );
+  covarianceAlgorithm->SetInput(sample);
   covarianceAlgorithm->Update();
 
   std::cout << "Mean = " << std::endl;

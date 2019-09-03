@@ -23,104 +23,101 @@
 
 #include <iostream>
 
-int itkVectorRescaleIntensityImageFilterTest( int, char* [] )
+int
+itkVectorRescaleIntensityImageFilterTest(int, char *[])
 {
-  const unsigned int VectorDimension = 3;
+  constexpr unsigned int VectorDimension = 3;
 
-  typedef itk::Vector< int,   VectorDimension > InputPixelType;
-  typedef itk::Vector< float, VectorDimension > OutputPixelType;
+  using InputPixelType = itk::Vector<int, VectorDimension>;
+  using OutputPixelType = itk::Vector<float, VectorDimension>;
 
-  const unsigned int ImageDimension = 3;
+  constexpr unsigned int ImageDimension = 3;
 
-  typedef itk::Image< InputPixelType, ImageDimension > InputImageType;
-  typedef itk::Image< OutputPixelType,ImageDimension > OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, ImageDimension>;
+  using OutputImageType = itk::Image<OutputPixelType, ImageDimension>;
 
-  InputImageType::Pointer    inputImage  = InputImageType::New();
+  InputImageType::Pointer    inputImage = InputImageType::New();
   InputImageType::RegionType region;
   InputImageType::SizeType   size;
   InputImageType::IndexType  index;
 
-  size.Fill( 20 );
-  index.Fill( 0 );
+  size.Fill(20);
+  index.Fill(0);
 
-  region.SetIndex( index );
-  region.SetSize( size );
+  region.SetIndex(index);
+  region.SetSize(size);
 
   InputPixelType pixelValue;
   pixelValue[0] = 10;
   pixelValue[1] = 20;
   pixelValue[2] = 30;
 
-  inputImage->SetRegions( region );
+  inputImage->SetRegions(region);
   inputImage->Allocate();
-  inputImage->FillBuffer( pixelValue );
+  inputImage->FillBuffer(pixelValue);
 
-  typedef itk::VectorRescaleIntensityImageFilter<
-                                     InputImageType,
-                                     OutputImageType> FilterType;
+  using FilterType = itk::VectorRescaleIntensityImageFilter<InputImageType, OutputImageType>;
 
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, VectorRescaleIntensityImageFilter,
-    UnaryFunctorImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, VectorRescaleIntensityImageFilter, UnaryFunctorImageFilter);
 
-  filter->SetInput( inputImage );
+  filter->SetInput(inputImage);
 
-  const double desiredMaximum = 2.0;
-  filter->SetOutputMaximumMagnitude( desiredMaximum );
-  TEST_SET_GET_VALUE( desiredMaximum, filter->GetOutputMaximumMagnitude() );
+  constexpr double desiredMaximum = 2.0;
+  filter->SetOutputMaximumMagnitude(desiredMaximum);
+  ITK_TEST_SET_GET_VALUE(desiredMaximum, filter->GetOutputMaximumMagnitude());
 
-  filter->SetFunctor( filter->GetFunctor() );
+  filter->SetFunctor(filter->GetFunctor());
 
-  TRY_EXPECT_NO_EXCEPTION( filter->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(filter->Update());
 
   FilterType::InputRealType scale = filter->GetScale();
-  std::cout << "Input scale value: " <<
-    static_cast< itk::NumericTraits< FilterType::InputRealType >::PrintType > (scale) << std::endl;
+  std::cout << "Input scale value: " << static_cast<itk::NumericTraits<FilterType::InputRealType>::PrintType>(scale)
+            << std::endl;
 
   FilterType::InputRealType shift = filter->GetShift();
-  std::cout << "Input scale value: " <<
-    static_cast< itk::NumericTraits< FilterType::InputRealType >::PrintType > (shift) << std::endl;
+  std::cout << "Input scale value: " << static_cast<itk::NumericTraits<FilterType::InputRealType>::PrintType>(shift)
+            << std::endl;
 
-  FilterType::InputRealType inputMaximumMagnitude =
-    filter->GetInputMaximumMagnitude();
-  std::cout << "Input maximum magnitude: " <<
-    static_cast< itk::NumericTraits< FilterType::InputRealType >::PrintType > (inputMaximumMagnitude)
-    << std::endl;
+  FilterType::InputRealType inputMaximumMagnitude = filter->GetInputMaximumMagnitude();
+  std::cout << "Input maximum magnitude: "
+            << static_cast<itk::NumericTraits<FilterType::InputRealType>::PrintType>(inputMaximumMagnitude)
+            << std::endl;
 
   OutputImageType::ConstPointer outputImage = filter->GetOutput();
 
-  typedef itk::ImageRegionConstIterator< OutputImageType > IteratorType;
+  using IteratorType = itk::ImageRegionConstIterator<OutputImageType>;
 
-  IteratorType ot( outputImage, outputImage->GetBufferedRegion() );
+  IteratorType ot(outputImage, outputImage->GetBufferedRegion());
 
   ot.GoToBegin();
 
   const double tolerance = 1e-3;
 
-  const double factor = desiredMaximum / static_cast< double >( pixelValue.GetNorm() );
+  const double factor = desiredMaximum / static_cast<double>(pixelValue.GetNorm());
 
-  while( !ot.IsAtEnd() )
-    {
+  while (!ot.IsAtEnd())
+  {
     const OutputPixelType outputValue = ot.Get();
-    for( unsigned int k = 0; k < VectorDimension; k++ )
+    for (unsigned int k = 0; k < VectorDimension; k++)
+    {
+      if (itk::Math::NotAlmostEquals(outputValue[k],
+                                     itk::NumericTraits<itk::NumericTraits<OutputPixelType>::ValueType>::ZeroValue()))
       {
-      if( itk::Math::NotAlmostEquals( outputValue[k],
-        itk::NumericTraits< itk::NumericTraits< OutputPixelType >::ValueType >::ZeroValue() ) )
+        if (!itk::Math::FloatAlmostEqual(
+              static_cast<double>(outputValue[k]), static_cast<double>(pixelValue[k] * factor), 10, tolerance))
         {
-        if( !itk::Math::FloatAlmostEqual( static_cast< double > ( outputValue[k] ),
-          static_cast< double >( pixelValue[k] * factor ), 10, tolerance ) )
-          {
           std::cerr << "Test FAILED !" << std::endl;
-          std::cerr.precision( static_cast< int >( itk::Math::abs( std::log10( tolerance ) ) ) );
-          std::cerr << "Input  Pixel Value = " << pixelValue  << std::endl;
+          std::cerr.precision(static_cast<int>(itk::Math::abs(std::log10(tolerance))));
+          std::cerr << "Input  Pixel Value = " << pixelValue << std::endl;
           std::cerr << "Output Pixel Value = " << outputValue << std::endl;
           return EXIT_FAILURE;
-          }
         }
       }
-    ++ot;
     }
+    ++ot;
+  }
 
   std::cout << "Test PASSED ! " << std::endl;
   return EXIT_SUCCESS;

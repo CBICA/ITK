@@ -49,37 +49,42 @@ namespace itk
  * \sa MorphologyImageFilter, GrayscaleDilateImageFilter, GrayscaleErodeImageFilter
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKBinaryMathematicalMorphology
+ *
+ * \sphinx
+ * \sphinxexample{Filtering/BinaryMathematicalMorphology/ClosingBinaryImage,Closing Binary Image}
+ * \endsphinx
  */
 
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT BinaryMorphologicalClosingImageFilter:
-  public KernelImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT BinaryMorphologicalClosingImageFilter
+  : public KernelImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryMorphologicalClosingImageFilter                   Self;
-  typedef KernelImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
-  typedef SmartPointer< Self >                                    Pointer;
-  typedef SmartPointer< const Self >                              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryMorphologicalClosingImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BinaryMorphologicalClosingImageFilter;
+  using Superclass = KernelImageFilter<TInputImage, TOutputImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BinaryMorphologicalClosingImageFilter,
-               KernelImageFilter);
+  itkTypeMacro(BinaryMorphologicalClosingImageFilter, KernelImageFilter);
 
-  typedef TInputImage                          InputImageType;
-  typedef TOutputImage                         OutputImageType;
-  typedef typename InputImageType::Pointer     InputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
 
   /** Declaration of pixel type. */
-  typedef typename TInputImage::PixelType InputPixelType;
-  typedef typename TInputImage::PixelType OutputPixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TInputImage::PixelType;
 
-  /** Kernel typedef. */
-  typedef TKernel KernelType;
+  /** Kernel type alias. */
+  using KernelType = TKernel;
 
   /** Set the value in the image to consider as "foreground". Defaults to
    * maximum value of InputPixelType. */
@@ -97,16 +102,16 @@ public:
 
 protected:
   BinaryMorphologicalClosingImageFilter();
-  ~BinaryMorphologicalClosingImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryMorphologicalClosingImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Single-threaded version of GenerateData.  This filter delegates
    * to GrayscaleDilateImageFilter GrayscaleErodeImageFilter. */
-  void  GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryMorphologicalClosingImageFilter);
-
   InputPixelType m_ForegroundValue;
 
   bool m_SafeBorder;
@@ -114,7 +119,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryMorphologicalClosingImageFilter.hxx"
+#  include "itkBinaryMorphologicalClosingImageFilter.hxx"
 #endif
 
 #endif

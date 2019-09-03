@@ -10,7 +10,9 @@
 
 #include <cmath>
 #include "vnl_c_na_vector.h"
-#include <vcl_compiler.h>
+#ifdef _MSC_VER
+#  include <vcl_msvc_warnings.h>
+#endif
 #include <vnl/vnl_math.h>
 #include <vnl/vnl_na.h>
 #include <vnl/vnl_complex_traits.h>
@@ -153,8 +155,8 @@ template VNL_EXPORT void vnl_c_na_vector_inf_norm(T const *, unsigned, S *)
 #undef VNL_C_NA_VECTOR_INSTANTIATE_ordered
 #define VNL_C_NA_VECTOR_INSTANTIATE_ordered(T) \
 VNL_C_NA_VECTOR_INSTANTIATE_norm(T, vnl_c_na_vector<T >::abs_t); \
-template class VNL_EXPORT vnl_c_na_vector<T >; \
-template VNL_EXPORT std::ostream& print_na_vector(std::ostream &,T const *,unsigned)
+template class vnl_c_na_vector<T >; \
+template std::ostream& print_na_vector(std::ostream &,T const *,unsigned)
 
 
 #undef VNL_C_NA_VECTOR_INSTANTIATE_unordered

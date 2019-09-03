@@ -58,37 +58,35 @@ namespace itk
  * \sa ImageToImageFilter BinaryErodeImageFilter BinaryMorphologyImageFilter
  * \ingroup ITKBinaryMathematicalMorphology
  *
- * \wiki
- * \wikiexample{Morphology/BinaryDilateImageFilter,Dilate a binary image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/BinaryMathematicalMorphology/DilateABinaryImage,Dilate A Binary Image}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT BinaryDilateImageFilter:
-  public BinaryMorphologyImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT BinaryDilateImageFilter
+  : public BinaryMorphologyImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryDilateImageFilter);
+
   /** Extract dimension from input and output image. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Extract the dimension of the kernel */
-  itkStaticConstMacro(KernelDimension, unsigned int,
-                      TKernel::NeighborhoodDimension);
+  static constexpr unsigned int KernelDimension = TKernel::NeighborhoodDimension;
 
-  /** Convenient typedefs for simplifying declarations. */
-  typedef TInputImage  InputImageType;
-  typedef TOutputImage OutputImageType;
-  typedef TKernel      KernelType;
+  /** Convenient type alias for simplifying declarations. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using KernelType = TKernel;
 
-  /** Standard class typedefs. */
-  typedef BinaryDilateImageFilter Self;
-  typedef BinaryMorphologyImageFilter< InputImageType, OutputImageType,
-                                       KernelType > Superclass;
+  /** Standard class type aliases. */
+  using Self = BinaryDilateImageFilter;
+  using Superclass = BinaryMorphologyImageFilter<InputImageType, OutputImageType, KernelType>;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -97,48 +95,53 @@ public:
   itkTypeMacro(BinaryDilateImageFilter, BinaryMorphologyImageFilter);
 
   /** Kernel (structuring element) iterator. */
-  typedef typename KernelType::ConstIterator KernelIteratorType;
+  using KernelIteratorType = typename KernelType::ConstIterator;
 
-  /** Image typedef support. */
-  typedef typename InputImageType::PixelType                 InputPixelType;
-  typedef typename OutputImageType::PixelType                OutputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType InputRealType;
-  typedef typename InputImageType::OffsetType                OffsetType;
-  typedef typename InputImageType::IndexType                 IndexType;
+  /** Image type alias support */
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using InputRealType = typename NumericTraits<InputPixelType>::RealType;
+  using OffsetType = typename InputImageType::OffsetType;
+  using IndexType = typename InputImageType::IndexType;
 
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename InputImageType::SizeType    InputSizeType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using InputSizeType = typename InputImageType::SizeType;
 
   /** Set the value in the image to consider as "foreground". Defaults to
    * maximum value of PixelType. This is an alias to the
    * ForegroundValue in the superclass. */
-  void SetDilateValue(const InputPixelType & value)
-  { this->SetForegroundValue(value); }
+  void
+  SetDilateValue(const InputPixelType & value)
+  {
+    this->SetForegroundValue(value);
+  }
 
   /** Get the value in the image considered as "foreground". Defaults to
    * maximum value of PixelType. This is an alias to the
    * ForegroundValue in the superclass. */
-  InputPixelType GetDilateValue() const
-  { return this->GetForegroundValue(); }
+  InputPixelType
+  GetDilateValue() const
+  {
+    return this->GetForegroundValue();
+  }
 
 protected:
   BinaryDilateImageFilter();
-  virtual ~BinaryDilateImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryDilateImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   // type inherited from the superclass
-  typedef typename Superclass::NeighborIndexContainer NeighborIndexContainer;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryDilateImageFilter);
+  using NeighborIndexContainer = typename Superclass::NeighborIndexContainer;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryDilateImageFilter.hxx"
+#  include "itkBinaryDilateImageFilter.hxx"
 #endif
 
 #endif

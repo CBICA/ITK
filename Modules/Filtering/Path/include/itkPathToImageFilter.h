@@ -32,15 +32,17 @@ namespace itk
  * assumed internally to be 1.0).
  * \ingroup ITKPath
  */
-template< typename TInputPath, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT PathToImageFilter:public ImageSource< TOutputImage >
+template <typename TInputPath, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT PathToImageFilter : public ImageSource<TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef PathToImageFilter           Self;
-  typedef ImageSource< TOutputImage > Superclass;
-  typedef SmartPointer< Self >        Pointer;
-  typedef SmartPointer< const Self >  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PathToImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = PathToImageFilter;
+  using Superclass = ImageSource<TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -48,42 +50,48 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(PathToImageFilter, ImageSource);
 
-  /** Some convenient typedefs. */
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef          TInputPath                        InputPathType;
-  typedef typename InputPathType::Pointer            InputPathPointer;
-  typedef typename InputPathType::ConstPointer       InputPathConstPointer;
-  typedef          TOutputImage                      OutputImageType;
-  typedef typename OutputImageType::Pointer          OutputImagePointer;
-  typedef typename OutputImageType::SizeType         SizeType;
-  typedef typename OutputImageType::ValueType        ValueType;
+  /** Some convenient type alias. */
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using InputPathType = TInputPath;
+  using InputPathPointer = typename InputPathType::Pointer;
+  using InputPathConstPointer = typename InputPathType::ConstPointer;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using SizeType = typename OutputImageType::SizeType;
+  using ValueType = typename OutputImageType::ValueType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Set/Get the path input of this process object.  */
   using Superclass::SetInput;
-  virtual void SetInput(const InputPathType *path);
+  virtual void
+  SetInput(const InputPathType * path);
 
-  virtual void SetInput(unsigned int, const TInputPath *path);
+  virtual void
+  SetInput(unsigned int, const TInputPath * path);
 
-  const InputPathType * GetInput();
+  const InputPathType *
+  GetInput();
 
-  const InputPathType * GetInput(unsigned int idx);
+  const InputPathType *
+  GetInput(unsigned int idx);
 
   /** Spacing (size of a pixel) of the output image. The
    * spacing is the geometric distance between image samples.
    * It is stored internally as double, but may be set from
    * float. \sa GetSpacing() */
-  virtual void SetSpacing(const double *spacing);
+  virtual void
+  SetSpacing(const double * spacing);
 
-  virtual void SetSpacing(const float *spacing);
+  virtual void
+  SetSpacing(const float * spacing);
 
-  virtual const double * GetSpacing() const;
+  virtual const double *
+  GetSpacing() const;
 
   /** Set/Get the value for pixels on and off the path.
-  * By default, this filter will return a "0" image with path pixels set to 1 */
+   * By default, this filter will return a "0" image with path pixels set to 1 */
   itkSetMacro(PathValue, ValueType);
   itkGetConstMacro(PathValue, ValueType);
   itkSetMacro(BackgroundValue, ValueType);
@@ -93,11 +101,14 @@ public:
    * coordinates of the index (0,0,...,0).  It is stored internally
    * as double but may be set from float.
    * \sa GetOrigin() */
-  virtual void SetOrigin(const double *origin);
+  virtual void
+  SetOrigin(const double * origin);
 
-  virtual void SetOrigin(const float *origin);
+  virtual void
+  SetOrigin(const float * origin);
 
-  virtual const double * GetOrigin() const;
+  virtual const double *
+  GetOrigin() const;
 
   /** Set/Get Size */
   itkSetMacro(Size, SizeType);
@@ -105,26 +116,27 @@ public:
 
 protected:
   PathToImageFilter();
-  ~PathToImageFilter() ITK_OVERRIDE;
+  ~PathToImageFilter() override = default;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE {}  // do nothing
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override
+  {} // do nothing
+  void
+  GenerateData() override;
 
-  SizeType m_Size;
-  double m_Spacing[OutputImageDimension];
-  double m_Origin[OutputImageDimension];
+  SizeType  m_Size;
+  double    m_Spacing[OutputImageDimension];
+  double    m_Origin[OutputImageDimension];
   ValueType m_PathValue;
   ValueType m_BackgroundValue;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PathToImageFilter);
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPathToImageFilter.hxx"
+#  include "itkPathToImageFilter.hxx"
 #endif
 
 #endif

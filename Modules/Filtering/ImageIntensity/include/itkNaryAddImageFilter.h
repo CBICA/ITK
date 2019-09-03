@@ -30,35 +30,39 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class Add1
 {
 public:
-  typedef typename NumericTraits< TInput >::AccumulateType AccumulatorType;
-  Add1() {}
-  ~Add1() {}
-  inline TOutput operator()(const std::vector< TInput > & B) const
+  using AccumulatorType = typename NumericTraits<TInput>::AccumulateType;
+  Add1() = default;
+  ~Add1() = default;
+  inline TOutput
+  operator()(const std::vector<TInput> & B) const
   {
-    AccumulatorType sum = NumericTraits< TOutput >::ZeroValue();
+    AccumulatorType sum = NumericTraits<TOutput>::ZeroValue();
 
-    for ( unsigned int i = 0; i < B.size(); i++ )
-      {
-      sum += static_cast< AccumulatorType >( B[i] );
-      }
-    return static_cast< TOutput >( sum );
+    for (unsigned int i = 0; i < B.size(); i++)
+    {
+      sum += static_cast<AccumulatorType>(B[i]);
+    }
+    return static_cast<TOutput>(sum);
   }
 
-  bool operator==(const Add1 &) const
+  bool
+  operator==(const Add1 &) const
   {
     return true;
   }
 
-  bool operator!=(const Add1 &) const
+  bool
+  operator!=(const Add1 &) const
   {
     return false;
   }
 };
-}
+} // namespace Functor
+
 /** \class NaryAddImageFilter
  * \brief Pixel-wise addition of N images.
  *
@@ -70,18 +74,18 @@ public:
  * the operator+ with each other. This condition is
  * required because internally this filter will perform the operation
  *
- * \code
- *        pixel_from_image_N + pixel_from_image_(N+1)
- * \endcode
+   \code
+          pixel_from_image_N + pixel_from_image_(N+1)
+   \endcode
  *
  * Additionally the type resulting from the sum, will be cast to
  * the pixel type of the output image.
  *
  * The total operation over one pixel will be
  *
- * \code
- *  output_pixel = static_cast<OutputPixelType>( input_pixel_N + input_pixel_(N+1) )
- * \endcode
+   \code
+    output_pixel = static_cast<OutputPixelType>( input_pixel_N + input_pixel_(N+1) )
+   \endcode
  *
  * For example, this filter could be used directly for adding images whose
  * pixels are vectors of the same dimension, and to store the resulting vector
@@ -93,46 +97,42 @@ public:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  */
-template< typename TInputImage, typename TOutputImage >
-class NaryAddImageFilter:
-  public
-  NaryFunctorImageFilter< TInputImage, TOutputImage,
-                          Functor::Add1< typename TInputImage::PixelType,  typename TInputImage::PixelType > >
+template <typename TInputImage, typename TOutputImage>
+class NaryAddImageFilter
+  : public NaryFunctorImageFilter<TInputImage,
+                                  TOutputImage,
+                                  Functor::Add1<typename TInputImage::PixelType, typename TInputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef NaryAddImageFilter Self;
-  typedef NaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::Add1< typename TInputImage::PixelType,
-                   typename TInputImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NaryAddImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = NaryAddImageFilter;
+  using Superclass =
+    NaryFunctorImageFilter<TInputImage,
+                           TOutputImage,
+                           Functor::Add1<typename TInputImage::PixelType, typename TInputImage::PixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(NaryAddImageFilter,
-               NaryFunctorImageFilter);
+  itkTypeMacro(NaryAddImageFilter, NaryFunctorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< typename TInputImage::PixelType,
-                                           typename TOutputImage::PixelType > ) );
-  itkConceptMacro( InputHasZeroCheck,
-                   ( Concept::HasZero< typename TInputImage::PixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck,
+                  (Concept::Convertible<typename TInputImage::PixelType, typename TOutputImage::PixelType>));
+  itkConceptMacro(InputHasZeroCheck, (Concept::HasZero<typename TInputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  NaryAddImageFilter() {}
-  virtual ~NaryAddImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NaryAddImageFilter);
+  NaryAddImageFilter() = default;
+  ~NaryAddImageFilter() override = default;
 };
 } // end namespace itk
 

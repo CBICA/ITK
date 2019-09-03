@@ -44,13 +44,15 @@ namespace itk
  *
  * \ingroup ITKIOLSM
  */
-class ITKIOLSM_EXPORT LSMImageIO:public TIFFImageIO
+class ITKIOLSM_EXPORT LSMImageIO : public TIFFImageIO
 {
 public:
-  /** Standard class typedefs. */
-  typedef LSMImageIO           Self;
-  typedef TIFFImageIO          Superclass;
-  typedef SmartPointer< Self > Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LSMImageIO);
+
+  /** Standard class type aliases. */
+  using Self = LSMImageIO;
+  using Superclass = TIFFImageIO;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -62,37 +64,44 @@ public:
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanReadFile(const char *) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char *) override;
 
   /** Set the spacing and dimesion information for the current filename. */
-  virtual void ReadImageInformation() ITK_OVERRIDE;
+  void
+  ReadImageInformation() override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read(void *buffer) ITK_OVERRIDE;
+  void
+  Read(void * buffer) override;
 
   /*-------- This part of the interfaces deals with writing data. ----- */
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanWriteFile(const char *) ITK_OVERRIDE;
+  bool
+  CanWriteFile(const char *) override;
 
   /** Writes the spacing and dimensions of the image.
    * Assumes SetFileName has been called with a valid file name. */
-  virtual void WriteImageInformation() ITK_OVERRIDE {}
+  void
+  WriteImageInformation() override
+  {}
 
   /** Writes the data to disk from the memory buffer provided. Make sure
    * that the IORegion has been set properly. */
-  virtual void Write(const void *buffer) ITK_OVERRIDE;
+  void
+  Write(const void * buffer) override;
 
 protected:
   LSMImageIO();
-  ~LSMImageIO() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~LSMImageIO() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LSMImageIO);
-
-  void FillZeissStruct(char *z);
+  void
+  FillZeissStruct(char * z);
 };
 } // end namespace itk
 

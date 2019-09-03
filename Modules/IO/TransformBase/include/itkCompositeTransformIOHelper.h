@@ -44,15 +44,15 @@ namespace itk
  *  of CompositeTransform.
  * \ingroup ITKIOTransformBase
  */
-template<typename TParametersValueType>
+template <typename TParametersValueType>
 class ITK_TEMPLATE_EXPORT CompositeTransformIOHelperTemplate
 {
 public:
-  typedef typename TransformIOBaseTemplate<TParametersValueType>::TransformType          TransformType;
-  typedef typename TransformIOBaseTemplate<TParametersValueType>::TransformPointer       TransformPointer;
-  typedef typename TransformIOBaseTemplate<TParametersValueType>::TransformListType      TransformListType;
-  typedef typename TransformIOBaseTemplate<TParametersValueType>::ConstTransformPointer  ConstTransformPointer;
-  typedef typename TransformIOBaseTemplate<TParametersValueType>::ConstTransformListType ConstTransformListType;
+  using TransformType = typename TransformIOBaseTemplate<TParametersValueType>::TransformType;
+  using TransformPointer = typename TransformIOBaseTemplate<TParametersValueType>::TransformPointer;
+  using TransformListType = typename TransformIOBaseTemplate<TParametersValueType>::TransformListType;
+  using ConstTransformPointer = typename TransformIOBaseTemplate<TParametersValueType>::ConstTransformPointer;
+  using ConstTransformListType = typename TransformIOBaseTemplate<TParametersValueType>::ConstTransformListType;
 
   /** from a composite transform, recover a
    * TransformIOBase::ConstTransformList.
@@ -62,13 +62,15 @@ public:
    * rebuild the list and possibly invalidate any iterators on the
    * list.
    */
-  ConstTransformListType &GetTransformList(const TransformType *transform);
+  ConstTransformListType &
+  GetTransformList(const TransformType * transform);
   /** set a compositeTransform's transform list from a
    ** TransformIOABase::TransformList.  If there is any mismatch
    ** between a transform being added to composite and the composite,
    ** this will throw an exception
    */
-  void SetTransformList(TransformType *transform,TransformListType &transformList);
+  void
+  SetTransformList(TransformType * transform, TransformListType & transformList);
 
 private:
   ConstTransformListType m_TransformList;
@@ -78,7 +80,8 @@ private:
    ** selects the correct concrete type for CompositeTransform.
    */
   template <unsigned int VDimension>
-  int BuildTransformList(const TransformType *transform);
+  int
+  BuildTransformList(const TransformType * transform);
 
   /** Sets a CompositeTransform's TransformQueue from the
    **  TransformIO's list of TransformBase. Will throw an exception
@@ -86,11 +89,12 @@ private:
    **  doesn't match that of the concrete CompositeTransform's type.
    */
   template <unsigned int VDimension>
-  int InternalSetTransformList(TransformType *transform,TransformListType &transformList);
+  int
+  InternalSetTransformList(TransformType * transform, TransformListType & transformList);
 };
 
 /** This helps to meet backward compatibility */
-typedef CompositeTransformIOHelperTemplate<double> CompositeTransformIOHelper;
+using CompositeTransformIOHelper = CompositeTransformIOHelperTemplate<double>;
 
 } // namespace itk
 
@@ -108,30 +112,24 @@ typedef CompositeTransformIOHelperTemplate<double> CompositeTransformIOHelper;
 //            need to be considered. This code *MUST* be *OUTSIDE* the header
 //            guards.
 //
-#  if defined( ITKIOTransformBase_EXPORTS )
+#if defined(ITKIOTransformBase_EXPORTS)
 //   We are building this library
-#    define ITKIOTransformBase_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
-#  else
+#  define ITKIOTransformBase_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
+#else
 //   We are using this library
-#    define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_EXPORT
-#  endif
+#  define ITKIOTransformBase_EXPORT_EXPLICIT ITKIOTransformBase_EXPORT
+#endif
 namespace itk
 {
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
 
-  extern template class ITKIOTransformBase_EXPORT_EXPLICIT CompositeTransformIOHelperTemplate< double >;
-extern template class ITKIOTransformBase_EXPORT_EXPLICIT CompositeTransformIOHelperTemplate< float >;
+extern template class ITKIOTransformBase_EXPORT_EXPLICIT CompositeTransformIOHelperTemplate<double>;
+extern template class ITKIOTransformBase_EXPORT_EXPLICIT CompositeTransformIOHelperTemplate<float>;
 
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+ITK_GCC_PRAGMA_DIAG_POP()
 
 } // end namespace itk
-#  undef ITKIOTransformBase_EXPORT_EXPLICIT
+#undef ITKIOTransformBase_EXPORT_EXPLICIT
 #endif

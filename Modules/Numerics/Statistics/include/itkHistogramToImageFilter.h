@@ -46,27 +46,27 @@ namespace itk
  * \ingroup ITKStatistics
  */
 
-template< typename THistogram, typename TImage, typename TFunction >
-class ITK_TEMPLATE_EXPORT HistogramToImageFilter:
-  public ImageSource< TImage >
+template <typename THistogram, typename TImage, typename TFunction>
+class ITK_TEMPLATE_EXPORT HistogramToImageFilter : public ImageSource<TImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(HistogramToImageFilter);
 
-  /** Standard class typedefs. */
-  typedef TFunction                                           FunctorType;
-  typedef HistogramToImageFilter                              Self;
-  typedef ImageSource< TImage >                               Superclass;
-  typedef SmartPointer< Self >                                Pointer;
-  typedef SmartPointer< const Self >                          ConstPointer;
+  /** Standard class type aliases. */
+  using FunctorType = TFunction;
+  using Self = HistogramToImageFilter;
+  using Superclass = ImageSource<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TImage                                              OutputImageType;
-  typedef typename Superclass::Pointer                        OutputImagePointer;
-  typedef typename OutputImageType::SpacingType               SpacingType;
-  typedef typename OutputImageType::PointType                 PointType;
-  typedef typename OutputImageType::PixelType                 OutputPixelType;
+  using OutputImageType = TImage;
+  using OutputImagePointer = typename Superclass::Pointer;
+  using SpacingType = typename OutputImageType::SpacingType;
+  using PointType = typename OutputImageType::PointType;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
   // Define an iterator to iterate through the image
-  typedef itk::ImageRegionIteratorWithIndex< OutputImageType > ImageIteratorType;
+  using ImageIteratorType = itk::ImageRegionIteratorWithIndex<OutputImageType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -74,23 +74,25 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(HistogramToImageFilter, ImageSource);
 
-  /** Superclass typedefs. */
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
+  /** Superclass type alias. */
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
-  /** Some convenient typedefs. */
-  typedef THistogram                                    HistogramType;
-  typedef typename HistogramType::MeasurementVectorType MeasurementVectorType;
-  typedef typename HistogramType::SizeType              HistogramSizeType;
-  typedef typename OutputImageType::SizeType            SizeType;
+  /** Some convenient type alias. */
+  using HistogramType = THistogram;
+  using MeasurementVectorType = typename HistogramType::MeasurementVectorType;
+  using HistogramSizeType = typename HistogramType::SizeType;
+  using SizeType = typename OutputImageType::SizeType;
 
   /** Determine the image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int, OutputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = OutputImageType::ImageDimension;
 
   /** Set/Get the input of this process object.  */
   using Superclass::SetInput;
-  virtual void SetInput(const HistogramType *histogram);
+  virtual void
+  SetInput(const HistogramType * histogram);
 
-  const HistogramType * GetInput();
+  const HistogramType *
+  GetInput();
 
   /** Set the functor object.  This replaces the current Functor with a
    * copy of the specified Functor. This allows the user to specify a
@@ -98,7 +100,8 @@ public:
    * This method requires an operator!=() be defined on the functor
    * (or the compiler's default implementation of operator!=() being
    * appropriate). */
-  void SetFunctor(const FunctorType & functor)
+  void
+  SetFunctor(const FunctorType & functor)
   {
     m_Functor = functor;
     this->Modified();
@@ -108,30 +111,39 @@ public:
    * (Functors do not have to derive from itk::LightObject, so they do
    * not necessarily have a reference count. So we cannot return a
    * SmartPointer.) */
-  FunctorType & GetFunctor() { return m_Functor; }
-  const FunctorType & GetFunctor() const { return m_Functor; }
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
+  const FunctorType &
+  GetFunctor() const
+  {
+    return m_Functor;
+  }
 
-  void SetTotalFrequency(SizeValueType n);
+  void
+  SetTotalFrequency(SizeValueType n);
 
 protected:
   HistogramToImageFilter();
-  ~HistogramToImageFilter() ITK_OVERRIDE;
+  ~HistogramToImageFilter() override = default;
 
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   FunctorType m_Functor;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HistogramToImageFilter);
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHistogramToImageFilter.hxx"
+#  include "itkHistogramToImageFilter.hxx"
 #endif
 
 #endif

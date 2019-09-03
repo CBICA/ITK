@@ -45,19 +45,19 @@ template <typename TBaseClass = Element>
 class ITK_TEMPLATE_EXPORT Element2DStress : public TBaseClass
 {
 public:
-  /** Standard class typedefs. */
-  typedef Element2DStress          Self;
-  typedef TBaseClass               Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Element2DStress;
+  using Superclass = TBaseClass;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(Element2DStress, TBaseClass);
 
-  // Repeat the required typedefs and enums from parent class
-  typedef typename Superclass::Float      Float;
-  typedef typename Superclass::MatrixType MatrixType;
-  typedef typename Superclass::VectorType VectorType;
+  // Repeat the required type alias and enums from parent class
+  using Float = typename Superclass::Float;
+  using MatrixType = typename Superclass::MatrixType;
+  using VectorType = typename Superclass::VectorType;
 
   /**
    * Default constructor only clears the internal storage
@@ -72,22 +72,26 @@ public:
   /**
    * Compute the B matrix.
    */
-  virtual void GetStrainDisplacementMatrix(MatrixType & B, const MatrixType & shapeDgl) const ITK_OVERRIDE;
+  void
+  GetStrainDisplacementMatrix(MatrixType & B, const MatrixType & shapeDgl) const override;
 
   /**
    * Compute the D matrix.
    */
-  virtual void GetMaterialMatrix(MatrixType & D) const ITK_OVERRIDE;
+  void
+  GetMaterialMatrix(MatrixType & D) const override;
 
   /**
    * Compute the mass matrix specific for 2D stress problems.
    */
-  void GetMassMatrix(MatrixType & Me) const ITK_OVERRIDE;
+  void
+  GetMassMatrix(MatrixType & Me) const override;
 
   /**
    * 2D stress elements have 2 DOFs per node.
    */
-  virtual unsigned int GetNumberOfDegreesOfFreedomPerNode(void) const ITK_OVERRIDE
+  unsigned int
+  GetNumberOfDegreesOfFreedomPerNode() const override
   {
     return 2;
   }
@@ -95,41 +99,43 @@ public:
   /**
    * Get/Set the material properties for the element
    */
-  virtual Material::ConstPointer GetMaterial(void) const ITK_OVERRIDE
+  Material::ConstPointer
+  GetMaterial() const override
   {
     return dynamic_cast<const Material *>(m_mat);
   }
 
-  virtual void SetMaterial(Material::ConstPointer mat_) ITK_OVERRIDE
+  void
+  SetMaterial(Material::ConstPointer mat_) override
   {
-    this->SetMaterialInternal(mat_.GetPointer());
+    this->SetMaterialInternal(mat_);
   }
-  virtual void SetMaterial(Material::Pointer mat_)
+  virtual void
+  SetMaterial(Material::Pointer mat_)
   {
-    this->SetMaterialInternal(mat_.GetPointer());
+    this->SetMaterialInternal(mat_);
   }
 
 protected:
-
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * Pointer to material properties of the element
    */
   const MaterialLinearElasticity * m_mat;
-  virtual void SetMaterialInternal(const Material *mat_)
-    {
-      m_mat =
-        dynamic_cast<const MaterialLinearElasticity *>( mat_ );
-    }
+  virtual void
+  SetMaterialInternal(const Material * mat_)
+  {
+    m_mat = dynamic_cast<const MaterialLinearElasticity *>(mat_);
+  }
+};
 
-};  // class Element2DStress
-
-}
-}  // end namespace itk::fem
+} // end namespace fem
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFEMElement2DStress.hxx"
+#  include "itkFEMElement2DStress.hxx"
 #endif
 
-#endif  // #ifndef itkFEMElement2DStress_h
+#endif // itkFEMElement2DStress_h

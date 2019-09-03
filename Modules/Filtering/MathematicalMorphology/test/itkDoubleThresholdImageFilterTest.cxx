@@ -20,129 +20,122 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkRescaleIntensityImageFilter.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
 
 #include "itkDoubleThresholdImageFilter.h"
+#include "itkTestingMacros.h"
 
 
-int itkDoubleThresholdImageFilterTest( int argc, char * argv[] )
+int
+itkDoubleThresholdImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 7 )
-    {
+  if (argc < 7)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputImageFile  ";
+    std::cerr << itkNameOfTestExecutableMacro(argv) << "  inputImageFile  ";
     std::cerr << " outputImageFile threshold1 threshold2 threshold3 threshold4 " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //
   //  The following code defines the input and output pixel types and their
   //  associated image types.
   //
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned char    InputPixelType;
-  typedef unsigned char    OutputPixelType;
-  typedef unsigned char    WritePixelType;
+  using InputPixelType = unsigned char;
+  using OutputPixelType = unsigned char;
+  using WritePixelType = unsigned char;
 
-  typedef itk::Image< InputPixelType,  Dimension >   InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension >   OutputImageType;
-  typedef itk::Image< WritePixelType, Dimension >    WriteImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
+  using WriteImageType = itk::Image<WritePixelType, Dimension>;
 
 
   // readers/writers
-  typedef itk::ImageFileReader< InputImageType  >  ReaderType;
-  typedef itk::ImageFileWriter< WriteImageType >   WriterType;
-  typedef itk::RescaleIntensityImageFilter<OutputImageType, WriteImageType>
-                                                   RescaleType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
+  using WriterType = itk::ImageFileWriter<WriteImageType>;
+  using RescaleType = itk::RescaleIntensityImageFilter<OutputImageType, WriteImageType>;
 
   // define the fillhole filter
-  typedef itk::DoubleThresholdImageFilter<
-                            InputImageType,
-                            OutputImageType >  DoubleThresholdFilterType;
+  using DoubleThresholdFilterType = itk::DoubleThresholdImageFilter<InputImageType, OutputImageType>;
 
 
   // Creation of Reader and Writer filters
-  ReaderType::Pointer reader = ReaderType::New();
-  WriterType::Pointer writer  = WriterType::New();
+  ReaderType::Pointer  reader = ReaderType::New();
+  WriterType::Pointer  writer = WriterType::New();
   RescaleType::Pointer rescaler = RescaleType::New();
 
   // Create the filter
-  DoubleThresholdFilterType::Pointer  threshold = DoubleThresholdFilterType::New();
-  FilterWatcher watcher(threshold, "threshold");
+  DoubleThresholdFilterType::Pointer threshold = DoubleThresholdFilterType::New();
+  itk::SimpleFilterWatcher           watcher(threshold, "threshold");
 
   // Setup the input and output files
-  reader->SetFileName( argv[1] );
-  writer->SetFileName(  argv[2] );
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
 
   // Setup the fillhole method
-  threshold->SetInput(  reader->GetOutput() );
+  threshold->SetInput(reader->GetOutput());
   const OutputPixelType InsideValue = threshold->GetInsideValue();
   const OutputPixelType OutsideValue = threshold->GetOutsideValue();
   if (InsideValue == 255)
   {
-    threshold->SetInsideValue( 255 );
+    threshold->SetInsideValue(255);
   }
   if (OutsideValue == 0)
   {
-    threshold->SetOutsideValue( 0 );
+    threshold->SetOutsideValue(0);
   }
 
   int thresholds[4];
-  for(unsigned i = 0; i < 4; ++i)
-    {
-    thresholds[i] = atoi(argv[i+3]);
-    }
-  threshold->SetThreshold1( thresholds[0] );
-  threshold->SetThreshold2( thresholds[1] );
-  threshold->SetThreshold3( thresholds[2] );
-  threshold->SetThreshold4( thresholds[3] );
+  for (unsigned i = 0; i < 4; ++i)
+  {
+    thresholds[i] = std::stoi(argv[i + 3]);
+  }
+  threshold->SetThreshold1(thresholds[0]);
+  threshold->SetThreshold2(thresholds[1]);
+  threshold->SetThreshold3(thresholds[2]);
+  threshold->SetThreshold4(thresholds[3]);
   unsigned error = EXIT_SUCCESS;
 
-  if(threshold->GetThreshold1() != thresholds[0])
-    {
-    std::cerr << "Expected " << thresholds[0] << "for threshold 1, found " <<
-      threshold->GetThreshold1() << std::endl;
+  if (threshold->GetThreshold1() != thresholds[0])
+  {
+    std::cerr << "Expected " << thresholds[0] << "for threshold 1, found " << threshold->GetThreshold1() << std::endl;
     error = EXIT_FAILURE;
-    }
-  if(threshold->GetThreshold2() != thresholds[1])
-    {
-    std::cerr << "Expected " << thresholds[1] << "for threshold 2, found " <<
-      threshold->GetThreshold2() << std::endl;
+  }
+  if (threshold->GetThreshold2() != thresholds[1])
+  {
+    std::cerr << "Expected " << thresholds[1] << "for threshold 2, found " << threshold->GetThreshold2() << std::endl;
     error = EXIT_FAILURE;
-    }
-  if(threshold->GetThreshold3() != thresholds[2])
-    {
-    std::cerr << "Expected " << thresholds[1] << "for threshold 3, found " <<
-      threshold->GetThreshold3() << std::endl;
+  }
+  if (threshold->GetThreshold3() != thresholds[2])
+  {
+    std::cerr << "Expected " << thresholds[1] << "for threshold 3, found " << threshold->GetThreshold3() << std::endl;
     error = EXIT_FAILURE;
-    }
-  if(threshold->GetThreshold4() != thresholds[3])
-    {
-    std::cerr << "Expected " << thresholds[1] << "for threshold 4, found " <<
-      threshold->GetThreshold4() << std::endl;
+  }
+  if (threshold->GetThreshold4() != thresholds[3])
+  {
+    std::cerr << "Expected " << thresholds[1] << "for threshold 4, found " << threshold->GetThreshold4() << std::endl;
     error = EXIT_FAILURE;
-    }
-  if (thresholds[0] <= thresholds[1] &&
-      thresholds[1] <= thresholds[2] &&
-      thresholds[2] <= thresholds[3])
-    {
-    std::cerr<<"Values inputed as Threshold meet the requirement"<<std::endl;
-    }
+  }
+  if (thresholds[0] <= thresholds[1] && thresholds[1] <= thresholds[2] && thresholds[2] <= thresholds[3])
+  {
+    std::cerr << "Values inputed as Threshold meet the requirement" << std::endl;
+  }
   else
-    {
+  {
     std::cerr << "Thresholds aren't monotonically ascending" << std::endl;
     error = EXIT_FAILURE;
-    }
+  }
 
   threshold->SetFullyConnected(false);
 
   // Run the filter
-  rescaler->SetInput( threshold->GetOutput() );
-  rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 255 );
-  writer->SetInput( rescaler->GetOutput() );
+  rescaler->SetInput(threshold->GetOutput());
+  rescaler->SetOutputMinimum(0);
+  rescaler->SetOutputMaximum(255);
+  writer->SetInput(rescaler->GetOutput());
   writer->Update();
 
   return error;

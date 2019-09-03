@@ -19,64 +19,64 @@
 #include "itkConvolutionImageFilter.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
+#include "itkTestingMacros.h"
 
-int itkConvolutionImageFilterDeltaFunctionTest(int argc, char * argv[])
+int
+itkConvolutionImageFilterDeltaFunctionTest(int argc, char * argv[])
 {
-  if ( argc < 3 )
-    {
-    std::cout << "Usage: " << argv[0] << " kernelImage outputImage" << std::endl;
+  if (argc < 3)
+  {
+    std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " kernelImage outputImage" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int ImageDimension = 2;
+  constexpr unsigned int ImageDimension = 2;
 
-  typedef unsigned char                            PixelType;
-  typedef itk::Image< PixelType, ImageDimension >  ImageType;
-  typedef itk::ImageFileReader< ImageType >        ReaderType;
+  using PixelType = unsigned char;
+  using ImageType = itk::Image<PixelType, ImageDimension>;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
   // Read kernel image.
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
   reader->Update();
 
   // Set up delta function image.
   ImageType::RegionType region = reader->GetOutput()->GetLargestPossibleRegion();
-  ImageType::Pointer deltaFunctionImage = ImageType::New();
-  deltaFunctionImage->SetRegions( region );
+  ImageType::Pointer    deltaFunctionImage = ImageType::New();
+  deltaFunctionImage->SetRegions(region);
   deltaFunctionImage->Allocate(true); // initialize
-                                                             // buffer
-                                                             // to zero
+                                      // buffer
+                                      // to zero
 
   // Set the middle pixel (rounded up) to 1.
   ImageType::IndexType middleIndex;
-  for ( unsigned int i = 0; i < ImageDimension; ++i )
-    {
+  for (unsigned int i = 0; i < ImageDimension; ++i)
+  {
     ImageType::SizeValueType sizeInDimension = region.GetSize()[i];
-    middleIndex[i] =
-      itk::Math::Floor< ImageType::IndexValueType >( 0.5 * sizeInDimension );
-    }
-  deltaFunctionImage->SetPixel( middleIndex, 1 );
+    middleIndex[i] = itk::Math::Floor<ImageType::IndexValueType>(0.5 * sizeInDimension);
+  }
+  deltaFunctionImage->SetPixel(middleIndex, 1);
 
-  typedef itk::ConvolutionImageFilter<ImageType> ConvolutionFilterType;
-  ConvolutionFilterType::Pointer convolver
-    = ConvolutionFilterType::New();
-  convolver->SetInput( deltaFunctionImage );
-  convolver->SetKernelImage( reader->GetOutput() );
+  using ConvolutionFilterType = itk::ConvolutionImageFilter<ImageType>;
+  ConvolutionFilterType::Pointer convolver = ConvolutionFilterType::New();
+  convolver->SetInput(deltaFunctionImage);
+  convolver->SetKernelImage(reader->GetOutput());
 
-  typedef itk::ImageFileWriter<ImageType> WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
-  writer->SetInput( convolver->GetOutput() );
+  writer->SetFileName(argv[2]);
+  writer->SetInput(convolver->GetOutput());
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

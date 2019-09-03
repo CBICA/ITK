@@ -19,11 +19,12 @@
 #include "itkMinimumDecisionRule.h"
 #include "itkObjectFactory.h"
 
-int itkMinimumDecisionRuleTest(int, char* [] )
+int
+itkMinimumDecisionRuleTest(int, char *[])
 {
-  typedef itk::Statistics::MinimumDecisionRule      MinimumDecisionRuleType;
+  using MinimumDecisionRuleType = itk::Statistics::MinimumDecisionRule;
 
-  typedef MinimumDecisionRuleType::MembershipVectorType MembershipVectorType;
+  using MembershipVectorType = MinimumDecisionRuleType::MembershipVectorType;
 
   MinimumDecisionRuleType::Pointer decisionRule = MinimumDecisionRuleType::New();
 
@@ -36,23 +37,23 @@ int itkMinimumDecisionRuleTest(int, char* [] )
 
   double membershipScore1;
   membershipScore1 = 1.1;
-  membershipScoreVector.push_back( membershipScore1 );
+  membershipScoreVector.push_back(membershipScore1);
 
   double membershipScore2;
   membershipScore2 = 0.5;
-  membershipScoreVector.push_back( membershipScore2 );
+  membershipScoreVector.push_back(membershipScore2);
 
   double membershipScore3;
   membershipScore3 = 1.9;
-  membershipScoreVector.push_back( membershipScore3 );
+  membershipScoreVector.push_back(membershipScore3);
 
   // the minimum score is the third component. The decision rule should
   // return index ( 2)
-  if( decisionRule->Evaluate( membershipScoreVector ) != 1 )
-    {
+  if (decisionRule->Evaluate(membershipScoreVector) != 1)
+  {
     std::cerr << "Decision rule computation is incorrect!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

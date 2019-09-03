@@ -18,9 +18,10 @@
 #ifndef itkImageToHistogramFilter_h
 #define itkImageToHistogramFilter_h
 
+#include <mutex>
+
 #include "itkHistogram.h"
-#include "itkImageTransformer.h"
-#include "itkBarrier.h"
+#include "itkImageSink.h"
 #include "itkSimpleDataObjectDecorator.h"
 #include "itkProgressReporter.h"
 
@@ -29,66 +30,71 @@ namespace itk
 namespace Statistics
 {
 /** \class ImageToHistogramFilter
- *  \brief This class generates an histogram from an image.
+ *  \brief This class generates a histogram from an image.
  *
  *  The concept of Histogram in ITK is quite generic. It has been designed to
  *  manage multiple components data. This class facilitates the computation of
- *  an histogram from an image. Internally it creates a List that is feed into
- *  the SampleToHistogramFilter.
+ *  an histogram from an image.
+ *
+ * This filter is automatically multi-threaded. When
+ * AutoMinimumMaximum is off and the NumberOfStreamDivisions is set to more than
+ * one, then this filter streams its input in a series of requested
+ * regions. A histogram is computed for each streamed and threaded
+ * region then merged.
  *
  * \ingroup ITKStatistics
  */
 
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ImageToHistogramFilter:public ImageTransformer<TImage>
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ImageToHistogramFilter : public ImageSink<TImage>
 {
 public:
-  /** Standard typedefs */
-  typedef ImageToHistogramFilter     Self;
-  typedef ImageTransformer<TImage>   Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToHistogramFilter);
+
+  /** Standard type alias */
+  using Self = ImageToHistogramFilter;
+  using Superclass = ImageSink<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ImageToHistogramFilter, ImageTransformer);
+  itkTypeMacro(ImageToHistogramFilter, ImageSink);
 
   /** standard New() method support */
   itkNewMacro(Self);
 
-  typedef TImage                                         ImageType;
-  typedef typename ImageType::PixelType                  PixelType;
-  typedef typename ImageType::RegionType                 RegionType;
-  typedef typename NumericTraits< PixelType >::ValueType ValueType;
-  typedef typename NumericTraits< ValueType >::RealType  ValueRealType;
+  using ImageType = TImage;
+  using PixelType = typename ImageType::PixelType;
+  using RegionType = typename ImageType::RegionType;
+  using ValueType = typename NumericTraits<PixelType>::ValueType;
+  using ValueRealType = typename NumericTraits<ValueType>::RealType;
 
-  typedef Histogram< ValueRealType >                    HistogramType;
-  typedef typename HistogramType::Pointer               HistogramPointer;
-  typedef typename HistogramType::ConstPointer          HistogramConstPointer;
-  typedef typename HistogramType::SizeType              HistogramSizeType;
-  typedef typename HistogramType::MeasurementType       HistogramMeasurementType;
-  typedef typename HistogramType::MeasurementVectorType HistogramMeasurementVectorType;
+  using HistogramType = Histogram<ValueRealType>;
+  using HistogramPointer = typename HistogramType::Pointer;
+  using HistogramConstPointer = typename HistogramType::ConstPointer;
+  using HistogramSizeType = typename HistogramType::SizeType;
+  using HistogramMeasurementType = typename HistogramType::MeasurementType;
+  using HistogramMeasurementVectorType = typename HistogramType::MeasurementVectorType;
 
 public:
-
   /** Return the output histogram. */
-  const HistogramType * GetOutput() const;
-  HistogramType * GetOutput();
+  const HistogramType *
+  GetOutput() const;
+  HistogramType *
+  GetOutput();
 
   /** Type of DataObjects to use for Size inputs */
-  typedef SimpleDataObjectDecorator<
-    HistogramSizeType > InputHistogramSizeObjectType;
+  using InputHistogramSizeObjectType = SimpleDataObjectDecorator<HistogramSizeType>;
 
   /** Type of DataObjects to use for Marginal Scale inputs */
-  typedef SimpleDataObjectDecorator<
-    HistogramMeasurementType > InputHistogramMeasurementObjectType;
+  using InputHistogramMeasurementObjectType = SimpleDataObjectDecorator<HistogramMeasurementType>;
 
   /** Type of DataObjects to use for Minimum and Maximums values of the
    * histogram bins. */
-  typedef SimpleDataObjectDecorator<
-    HistogramMeasurementVectorType > InputHistogramMeasurementVectorObjectType;
+  using InputHistogramMeasurementVectorObjectType = SimpleDataObjectDecorator<HistogramMeasurementVectorType>;
 
   /** Type of DataObjects to use for AutoMinimumMaximum input */
-  typedef SimpleDataObjectDecorator< bool > InputBooleanObjectType;
+  using InputBooleanObjectType = SimpleDataObjectDecorator<bool>;
 
   /** Methods for setting and getting the histogram size.  The histogram size
    * is encapsulated inside a decorator class. For this reason, it is possible
@@ -115,41 +121,62 @@ public:
 
   /** Method that facilitates the use of this filter in the internal
    * pipeline of another filter. */
-  virtual void GraftOutput(DataObject *output);
+  virtual void
+  GraftOutput(DataObject * output);
+
+
+  // Change the acces from protected to public to expose streaming option
+  using Superclass::SetNumberOfStreamDivisions;
+  using Superclass::GetNumberOfStreamDivisions;
 
 protected:
   ImageToHistogramFilter();
-  virtual ~ImageToHistogramFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ImageToHistogramFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void BeforeThreadedGenerateData(void) ITK_OVERRIDE;
-  void ThreadedGenerateData(const RegionType & inputRegionForThread, ThreadIdType threadId) ITK_OVERRIDE;
-  void AfterThreadedGenerateData(void) ITK_OVERRIDE;
+  void
+  BeforeStreamedGenerateData() override;
+  void
+  AfterStreamedGenerateData() override;
 
   /** Method that construct the outputs */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  DataObject::Pointer  MakeOutput(DataObjectPointerArraySizeType) ITK_OVERRIDE;
+  DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType) override;
 
-  virtual void ThreadedComputeMinimumAndMaximum( const RegionType & inputRegionForThread, ThreadIdType threadId, ProgressReporter & progress );
-  virtual void ThreadedComputeHistogram( const RegionType & inputRegionForThread, ThreadIdType threadId, ProgressReporter & progress );
+  /* Override method to disable streaming when the minimum and
+   * maximum need to be computed. */
+  unsigned int
+  GetNumberOfInputRequestedRegions() override;
 
-  std::vector< HistogramPointer >               m_Histograms;
-  std::vector< HistogramMeasurementVectorType > m_Minimums;
-  std::vector< HistogramMeasurementVectorType > m_Maximums;
+  virtual void
+  ThreadedStreamedGenerateData(const RegionType &) override;
+  virtual void
+  ThreadedComputeMinimumAndMaximum(const RegionType & inputRegionForThread);
+
+
+  virtual void
+  ThreadedMergeHistogram(HistogramPointer && histogram);
+
+  std::mutex m_Mutex;
+
+  HistogramPointer m_MergeHistogram;
+
+  HistogramMeasurementVectorType m_Minimum;
+  HistogramMeasurementVectorType m_Maximum;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToHistogramFilter);
-
-  void ApplyMarginalScale( HistogramMeasurementVectorType & min, HistogramMeasurementVectorType & max, HistogramSizeType & size );
-  typename Barrier::Pointer                     m_Barrier;
-
+  void
+  ApplyMarginalScale(HistogramMeasurementVectorType & min,
+                     HistogramMeasurementVectorType & max,
+                     HistogramSizeType &              size);
 };
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToHistogramFilter.hxx"
+#  include "itkImageToHistogramFilter.hxx"
 #endif
 
 #endif

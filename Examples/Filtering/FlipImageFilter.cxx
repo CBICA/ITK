@@ -60,14 +60,16 @@
 // Software Guide : EndCodeSnippet
 
 
-int main( int argc, char * argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 5 )
-    {
+  if (argc < 5)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputImageFile   outputImageFile   flipAxisX   flipAxisY" << std::endl;
+    std::cerr << argv[0] << "  inputImageFile   outputImageFile   flipAxisX   flipAxisY"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //  Software Guide : BeginLatex
@@ -78,20 +80,20 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef   unsigned char  PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType,  2 >   ImageType;
+  using ImageType = itk::Image<PixelType, 2>;
   // Software Guide : EndCodeSnippet
 
 
-  typedef itk::ImageFileReader< ImageType >  ReaderType;
-  typedef itk::ImageFileWriter< ImageType >  WriterType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   ReaderType::Pointer reader = ReaderType::New();
   WriterType::Pointer writer = WriterType::New();
 
-  reader->SetFileName( argv[1] );
-  writer->SetFileName( argv[2] );
+  reader->SetFileName(argv[1]);
+  writer->SetFileName(argv[2]);
 
   //  Software Guide : BeginLatex
   //
@@ -105,7 +107,7 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::FlipImageFilter< ImageType >  FilterType;
+  using FilterType = itk::FlipImageFilter<ImageType>;
 
   FilterType::Pointer filter = FilterType::New();
   // Software Guide : EndCodeSnippet
@@ -122,14 +124,14 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef FilterType::FlipAxesArrayType     FlipAxesArrayType;
+  using FlipAxesArrayType = FilterType::FlipAxesArrayType;
 
   FlipAxesArrayType flipArray;
 
-  flipArray[0] = atoi( argv[3] );
-  flipArray[1] = atoi( argv[4] );
+  flipArray[0] = std::stoi(argv[3]);
+  flipArray[1] = std::stoi(argv[4]);
 
-  filter->SetFlipAxes( flipArray );
+  filter->SetFlipAxes(flipArray);
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -146,8 +148,8 @@ int main( int argc, char * argv[] )
 
 
   // Software Guide : BeginCodeSnippet
-  filter->SetInput( reader->GetOutput() );
-  writer->SetInput( filter->GetOutput() );
+  filter->SetInput(reader->GetOutput());
+  writer->SetInput(filter->GetOutput());
   writer->Update();
   // Software Guide : EndCodeSnippet
 

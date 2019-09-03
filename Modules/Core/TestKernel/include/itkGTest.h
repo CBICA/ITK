@@ -28,13 +28,12 @@ namespace itk
 
 /** \namespace itk::GTest
  * \brief The GTest namespace contains GTest extensions for ITK, and
- * convenience typedefs, and functions to aid in analytic testing of
+ * convenience type alias, and functions to aid in analytic testing of
  * results and values.
  *
  */
 namespace GTest
-{
-} // end namespace GTest
+{} // end namespace GTest
 
 } // end namespace itk
 

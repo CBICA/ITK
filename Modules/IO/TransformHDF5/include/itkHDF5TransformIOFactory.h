@@ -25,23 +25,27 @@
 namespace itk
 {
 /** \class HDF5TransformIOFactory
-   * \brief Create instances of HDF5TransformIO objects using an object factory.
-   *
-   * \ingroup ITKIOTransformHDF5
-   */
-class ITKIOTransformHDF5_EXPORT HDF5TransformIOFactory:public ObjectFactoryBase
+ * \brief Create instances of HDF5TransformIO objects using an object factory.
+ *
+ * \ingroup ITKIOTransformHDF5
+ */
+class ITKIOTransformHDF5_EXPORT HDF5TransformIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef HDF5TransformIOFactory     Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(HDF5TransformIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = HDF5TransformIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -50,7 +54,8 @@ public:
   itkTypeMacro(HDF5TransformIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     HDF5TransformIOFactory::Pointer metaFactory = HDF5TransformIOFactory::New();
 
@@ -59,11 +64,9 @@ public:
 
 protected:
   HDF5TransformIOFactory();
-  ~HDF5TransformIOFactory() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HDF5TransformIOFactory);
+  ~HDF5TransformIOFactory() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 

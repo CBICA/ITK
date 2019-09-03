@@ -23,34 +23,35 @@
 #include "itkLabelMapOverlayImageFilter.h"
 
 
-int itkLabelMapOverlayImageFilterTest3(int argc, char * argv[])
+int
+itkLabelMapOverlayImageFilterTest3(int argc, char * argv[])
 {
-  if( argc != 5 )
-    {
+  if (argc != 5)
+  {
     std::cerr << "usage: " << argv[0] << " input input output opacity" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const int Dimension = 2;
+  constexpr int Dimension = 2;
 
-  typedef itk::Image< unsigned char, Dimension > ImageType;
+  using ImageType = itk::Image<unsigned char, Dimension>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::LabelImageToLabelMapFilter< ImageType > ConverterType;
+  using ConverterType = itk::LabelImageToLabelMapFilter<ImageType>;
   ConverterType::Pointer converter = ConverterType::New();
-  converter->SetInput( reader->GetOutput() );
+  converter->SetInput(reader->GetOutput());
 
   ReaderType::Pointer reader2 = ReaderType::New();
-  reader2->SetFileName( argv[2] );
+  reader2->SetFileName(argv[2]);
 
-  typedef itk::LabelMapOverlayImageFilter< ConverterType::OutputImageType, ImageType > ColorizerType;
+  using ColorizerType = itk::LabelMapOverlayImageFilter<ConverterType::OutputImageType, ImageType>;
   ColorizerType::Pointer colorizer = ColorizerType::New();
-  colorizer->SetInput( converter->GetOutput() );
-  colorizer->SetFeatureImage( reader2->GetOutput() );
-  colorizer->SetOpacity( atof(argv[4]) );
+  colorizer->SetInput(converter->GetOutput());
+  colorizer->SetFeatureImage(reader2->GetOutput());
+  colorizer->SetOpacity(std::stod(argv[4]));
 
   // Replace colormap with a custom one
   // Just cycle through three colors for this test
@@ -63,18 +64,18 @@ int itkLabelMapOverlayImageFilterTest3(int argc, char * argv[])
 
   itk::SimpleFilterWatcher watcher(colorizer, "filter");
 
-  typedef itk::ImageFileWriter< ColorizerType::OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ColorizerType::OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( colorizer->GetOutput() );
-  writer->SetFileName( argv[3] );
+  writer->SetInput(colorizer->GetOutput());
+  writer->SetFileName(argv[3]);
   try
-    {
+  {
     writer->Update();
-    }
-  catch(itk::ExceptionObject & err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "Unexpected exception." << std::endl;
     std::cerr << err << std::endl;
-    }
+  }
   return 0;
 }

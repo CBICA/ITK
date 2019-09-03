@@ -62,57 +62,64 @@ namespace itk
  * \sa MaskFeaturePointSelectionFilter
  *
  * \ingroup ITKRegistrationCommon
+ *
+ * \sphinx
+ * \sphinxexample{Registration/Common/MatchFeaturePoints,Match Feature Points}
+ * \endsphinx
  */
 
-template<
+template <
   typename TFixedImage,
   typename TMovingImage = TFixedImage,
-  typename TFeatures = PointSet< Matrix< SpacePrecisionType, TFixedImage::ImageDimension, TFixedImage::ImageDimension>, TFixedImage::ImageDimension >,
-  class TDisplacements = PointSet< Vector< typename TFeatures::PointType::ValueType, TFeatures::PointDimension >, TFeatures::PointDimension >,
-  class TSimilarities = PointSet< SpacePrecisionType, TDisplacements::PointDimension > >
-class ITK_TEMPLATE_EXPORT BlockMatchingImageFilter:
-public MeshToMeshFilter< TFeatures, TDisplacements>
+  typename TFeatures = PointSet<Matrix<SpacePrecisionType, TFixedImage::ImageDimension, TFixedImage::ImageDimension>,
+                                TFixedImage::ImageDimension>,
+  class TDisplacements =
+    PointSet<Vector<typename TFeatures::PointType::ValueType, TFeatures::PointDimension>, TFeatures::PointDimension>,
+  class TSimilarities = PointSet<SpacePrecisionType, TDisplacements::PointDimension>>
+class ITK_TEMPLATE_EXPORT BlockMatchingImageFilter : public MeshToMeshFilter<TFeatures, TDisplacements>
 {
 public:
-  itkStaticConstMacro(ImageDimension, unsigned, TFixedImage::ImageDimension);
+  ITK_DISALLOW_COPY_AND_ASSIGN(BlockMatchingImageFilter);
 
-  /** Not input specific typedefs */
-  typedef ImageRegion< ImageDimension >  ImageRegionType;
-  typedef Size< ImageDimension >         ImageSizeType;
-  typedef Index< ImageDimension >        ImageIndexType;
+  static constexpr unsigned ImageDimension = TFixedImage::ImageDimension;
 
-  /** Fixed image typedefs. */
-  typedef TFixedImage                            FixedImageType;
-  typedef typename FixedImageType::ConstPointer  FixedImageConstPointer;
-  typedef typename FixedImageType::PixelType     FixedImagePixelType;
+  /** Not input specific type alias */
+  using ImageRegionType = ImageRegion<ImageDimension>;
+  using ImageSizeType = Size<ImageDimension>;
+  using ImageIndexType = Index<ImageDimension>;
 
-  /** Moving image typedefs. */
-  typedef TMovingImage                            MovingImageType;
-  typedef typename MovingImageType::ConstPointer  MovingImageConstPointer;
+  /** Fixed image type alias. */
+  using FixedImageType = TFixedImage;
+  using FixedImageConstPointer = typename FixedImageType::ConstPointer;
+  using FixedImagePixelType = typename FixedImageType::PixelType;
 
-  /** Feature points pointset typedefs. */
-  typedef TFeatures                                 FeaturePointsType;
-  typedef typename FeaturePointsType::Pointer       FeaturePointsPointer;
-  typedef typename FeaturePointsType::ConstPointer  FeaturePointsConstPointer;
-  typedef typename FeaturePointsType::PointType     FeaturePointsPhysicalCoordinates;
+  /** Moving image type alias. */
+  using MovingImageType = TMovingImage;
+  using MovingImageConstPointer = typename MovingImageType::ConstPointer;
 
-  /** Displacement vectors typedefs. */
-  typedef TDisplacements                            DisplacementsType;
-  typedef typename DisplacementsType::Pointer       DisplacementsPointer;
-  typedef typename DisplacementsType::ConstPointer  DisplacementsConstPointer;
-  typedef typename DisplacementsType::PixelType     DisplacementsVector;
+  /** Feature points pointset type alias. */
+  using FeaturePointsType = TFeatures;
+  using FeaturePointsPointer = typename FeaturePointsType::Pointer;
+  using FeaturePointsConstPointer = typename FeaturePointsType::ConstPointer;
+  using FeaturePointsPhysicalCoordinates = typename FeaturePointsType::PointType;
 
-  /** Displacement similarities typedefs. */
-  typedef TSimilarities                            SimilaritiesType;
-  typedef typename SimilaritiesType::Pointer       SimilaritiesPointer;
-  typedef typename SimilaritiesType::ConstPointer  SimilaritiesConstPointer;
-  typedef typename SimilaritiesType::PixelType     SimilaritiesValue;
+  /** Displacement vectors type alias. */
+  using DisplacementsType = TDisplacements;
+  using DisplacementsPointer = typename DisplacementsType::Pointer;
+  using DisplacementsConstPointer = typename DisplacementsType::ConstPointer;
+  using DisplacementsVector = typename DisplacementsType::PixelType;
 
-  /** Standard class typedefs. */
-  typedef MeshToMeshFilter< FeaturePointsType, DisplacementsType >  Superclass;
-  typedef BlockMatchingImageFilter                                  Self;
-  typedef SmartPointer< Self >                                      Pointer;
-  typedef SmartPointer< const Self >                                ConstPointer;
+  /** Displacement similarities type alias. */
+  using SimilaritiesType = TSimilarities;
+  using SimilaritiesPointer = typename SimilaritiesType::Pointer;
+  using SimilaritiesConstPointer = typename SimilaritiesType::ConstPointer;
+  using SimilaritiesValue = typename SimilaritiesType::PixelType;
+
+  /** Standard class type aliases. */
+  using Superclass = MeshToMeshFilter<FeaturePointsType, DisplacementsType>;
+  using Self = BlockMatchingImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -140,74 +147,83 @@ public:
   itkSetInputMacro(FeaturePoints, FeaturePointsType);
   itkGetInputMacro(FeaturePoints, FeaturePointsType);
 
-  inline DisplacementsType * GetDisplacements()
-    {
-    return dynamic_cast< DisplacementsType * >( this->ProcessObject::GetOutput( 0 ) );
-    }
+  inline DisplacementsType *
+  GetDisplacements()
+  {
+    return dynamic_cast<DisplacementsType *>(this->ProcessObject::GetOutput(0));
+  }
 
-  inline SimilaritiesType * GetSimilarities()
-    {
-    return dynamic_cast< SimilaritiesType * >( this->ProcessObject::GetOutput( 1 ) );
-    }
+  inline SimilaritiesType *
+  GetSimilarities()
+  {
+    return dynamic_cast<SimilaritiesType *>(this->ProcessObject::GetOutput(1));
+  }
 
 protected:
   /** MakeOutput is provided for handling multiple outputs */
   using Superclass::MakeOutput;
-  virtual DataObject::Pointer MakeOutput( ProcessObject::DataObjectPointerArraySizeType idx ) ITK_OVERRIDE;
+  DataObject::Pointer
+  MakeOutput(ProcessObject::DataObjectPointerArraySizeType idx) override;
 
   /** We need to create our own GenerateOutputInformation because the the
    * default version from ProcessObject result in a dynamic_cast of the input
    * pointer to the output pointer type in PointSet::CopyInformation.  This does
    * not work since they are different types. */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
   /** We cannot stream (see comments in GenerateOutputInformation). */
-  virtual void EnlargeOutputRequestedRegion(DataObject * output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
   /** Generate temporary containers to be used by individual threads exclusively */
-  virtual void BeforeThreadedGenerateData();
+  virtual void
+  BeforeThreadedGenerateData();
 
-  virtual void ThreadedGenerateData( ThreadIdType threadId );
+  virtual void
+  ThreadedGenerateData(ThreadIdType threadId);
 
   /** Compose pieces computed by each thread into a single output */
-  virtual void AfterThreadedGenerateData();
+  virtual void
+  AfterThreadedGenerateData();
 
   /** Start multithreader here since MeshToMesh filter does not provide multithreaded support */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   BlockMatchingImageFilter();
-  ~BlockMatchingImageFilter() ITK_OVERRIDE;
+  ~BlockMatchingImageFilter() override = default;
 
-  void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  /** Static function used as a "callback" by the MultiThreader.  The threading
+  /** Static function used as a "callback" by the MultiThreaderBase.  The threading
    * library will call this routine for each thread, which will delegate the
-   * control to ThreadedGenerateData(). */
-  static ITK_THREAD_RETURN_TYPE ThreaderCallback(void *arg);
+   * control to DynamicThreadedGenerateData(). */
+  static ITK_THREAD_RETURN_FUNCTION_CALL_CONVENTION
+  ThreaderCallback(void * arg);
 
   /** Internal structure used for passing image data into the threading library
-    */
-  struct ThreadStruct {
+   */
+  struct ThreadStruct
+  {
     Pointer Filter;
   };
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BlockMatchingImageFilter);
-
   // algorithm parameters
-  ImageSizeType  m_BlockRadius;
-  ImageSizeType  m_SearchRadius;
+  ImageSizeType m_BlockRadius;
+  ImageSizeType m_SearchRadius;
 
   // temporary dynamic arrays for storing threads outputs
   SizeValueType         m_PointsCount;
-  DisplacementsVector  *m_DisplacementsVectorsArray;
-  SimilaritiesValue    *m_SimilaritiesValuesArray;
-
+  DisplacementsVector * m_DisplacementsVectorsArray;
+  SimilaritiesValue *   m_SimilaritiesValuesArray;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBlockMatchingImageFilter.hxx"
+#  include "itkBlockMatchingImageFilter.hxx"
 #endif
 
 #endif

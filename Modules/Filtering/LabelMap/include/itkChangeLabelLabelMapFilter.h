@@ -45,27 +45,28 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ChangeLabelLabelMapFilter:
-  public InPlaceLabelMapFilter< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ChangeLabelLabelMapFilter : public InPlaceLabelMapFilter<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ChangeLabelLabelMapFilter       Self;
-  typedef InPlaceLabelMapFilter< TImage > Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ChangeLabelLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                              ImageType;
-  typedef typename ImageType::Pointer         ImagePointer;
-  typedef typename ImageType::ConstPointer    ImageConstPointer;
-  typedef typename ImageType::PixelType       PixelType;
-  typedef typename ImageType::IndexType       IndexType;
-  typedef typename ImageType::LabelObjectType LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = ChangeLabelLabelMapFilter;
+  using Superclass = InPlaceLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -73,8 +74,8 @@ public:
   /** Runtime information support. */
   itkTypeMacro(ChangeLabelLabelMapFilter, InPlaceLabelMapFilter);
 
-  typedef typename std::map< PixelType, PixelType > ChangeMapType;
-  typedef typename ChangeMapType::const_iterator    ChangeMapIterator;
+  using ChangeMapType = typename std::map<PixelType, PixelType>;
+  using ChangeMapIterator = typename ChangeMapType::const_iterator;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
@@ -89,31 +90,34 @@ public:
 
   /**
    */
-  void SetChangeMap(const ChangeMapType & changeMap);
+  void
+  SetChangeMap(const ChangeMapType & changeMap);
 
-  const ChangeMapType & GetChangeMap() const;
+  const ChangeMapType &
+  GetChangeMap() const;
 
-  void SetChange(const PixelType & oldLabel, const PixelType & newLabel);
+  void
+  SetChange(const PixelType & oldLabel, const PixelType & newLabel);
 
-  void ClearChangeMap();
+  void
+  ClearChangeMap();
 
 protected:
-  ChangeLabelLabelMapFilter();
-  ~ChangeLabelLabelMapFilter() ITK_OVERRIDE {}
+  ChangeLabelLabelMapFilter() = default;
+  ~ChangeLabelLabelMapFilter() override = default;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   ChangeMapType m_MapOfLabelToBeReplaced;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ChangeLabelLabelMapFilter);
-};                                         // end of class
+}; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkChangeLabelLabelMapFilter.hxx"
+#  include "itkChangeLabelLabelMapFilter.hxx"
 #endif
 
 #endif

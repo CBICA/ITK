@@ -18,7 +18,7 @@
 #ifndef itkSquaredDifferenceImageFilter_h
 #define itkSquaredDifferenceImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 
 namespace itk
 {
@@ -46,87 +46,81 @@ namespace itk
  * \ingroup IntensityImageFilters MultiThreaded
  * \ingroup ITKImageCompare
  *
- * \wiki
- * \wikiexample{ImageProcessing/SquaredDifferenceImageFilter,Compute the squared difference of corresponding pixels in two images}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageCompare/SquaredDifferenceOfTwoImages,Squared Difference Of Two Images}
+ * \endsphinx
  */
 namespace Functor
 {
-template< typename TInput1, typename TInput2, typename TOutput >
+template <typename TInput1, typename TInput2, typename TOutput>
 class SquaredDifference2
 {
 public:
-  SquaredDifference2() {}
-  ~SquaredDifference2() {}
-  bool operator!=(const SquaredDifference2 &) const
+  SquaredDifference2() = default;
+  ~SquaredDifference2() = default;
+  bool
+  operator!=(const SquaredDifference2 &) const
   {
     return false;
   }
 
-  bool operator==(const SquaredDifference2 & other) const
+  bool
+  operator==(const SquaredDifference2 & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput1 & A,
-                            const TInput2 & B) const
+  inline TOutput
+  operator()(const TInput1 & A, const TInput2 & B) const
   {
-    const double dA = static_cast< double >( A );
-    const double dB = static_cast< double >( B );
+    const auto   dA = static_cast<double>(A);
+    const auto   dB = static_cast<double>(B);
     const double diff = dA - dB;
 
-    return static_cast< TOutput >( diff * diff );
+    return static_cast<TOutput>(diff * diff);
   }
 };
-}
+} // namespace Functor
 
-template< typename TInputImage1, typename TInputImage2, typename TOutputImage >
-class SquaredDifferenceImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::SquaredDifference2<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage1, typename TInputImage2, typename TOutputImage>
+class SquaredDifferenceImageFilter : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SquaredDifferenceImageFilter Self;
-  typedef BinaryFunctorImageFilter<
-    TInputImage1, TInputImage2, TOutputImage,
-    Functor::SquaredDifference2<
-      typename TInputImage1::PixelType,
-      typename TInputImage2::PixelType,
-      typename TOutputImage::PixelType >
-    >                                   Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SquaredDifferenceImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = SquaredDifferenceImageFilter;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using FunctorType = Functor::SquaredDifference2<typename TInputImage1::PixelType,
+                                                  typename TInputImage2::PixelType,
+                                                  typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(SquaredDifferenceImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(SquaredDifferenceImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( Input1ConvertibleToDoubleCheck,
-                   ( Concept::Convertible< typename TInputImage1::PixelType, double > ) );
-  itkConceptMacro( Input2ConvertibleToDoubleCheck,
-                   ( Concept::Convertible< typename TInputImage2::PixelType, double > ) );
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, typename TOutputImage::PixelType > ) );
+  itkConceptMacro(Input1ConvertibleToDoubleCheck, (Concept::Convertible<typename TInputImage1::PixelType, double>));
+  itkConceptMacro(Input2ConvertibleToDoubleCheck, (Concept::Convertible<typename TInputImage2::PixelType, double>));
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  SquaredDifferenceImageFilter() {}
-  virtual ~SquaredDifferenceImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SquaredDifferenceImageFilter);
+  SquaredDifferenceImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
+  ~SquaredDifferenceImageFilter() override = default;
 };
 } // end namespace itk
 

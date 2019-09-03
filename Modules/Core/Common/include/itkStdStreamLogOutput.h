@@ -21,7 +21,7 @@
 #include <iostream>
 #include <string>
 
-#include "itkSimpleFastMutexLock.h"
+#include <mutex>
 #include "itkLogOutput.h"
 
 namespace itk
@@ -39,18 +39,17 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-class ITKCommon_EXPORT StdStreamLogOutput:public LogOutput
+class ITKCommon_EXPORT StdStreamLogOutput : public LogOutput
 {
 public:
+  using Self = StdStreamLogOutput;
+  using Superclass = LogOutput;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef StdStreamLogOutput         Self;
-  typedef LogOutput                  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using StreamType = std::ostream;
 
-  typedef std::ostream StreamType;
-
-  typedef std::ostream *StreamPointerType;
+  using StreamPointerType = std::ostream *;
 
   itkTypeMacro(StdStreamLogOutput, LogOutput);
 
@@ -59,35 +58,40 @@ public:
   itkGetConstMacro(Stream, StreamPointerType);
 
   /** Set a standard stream pointer */
-  void SetStream(StreamType & Stream);
+  void
+  SetStream(StreamType & Stream);
 
   /** flush a buffer */
-  virtual void Flush() ITK_OVERRIDE;
+  void
+  Flush() override;
 
   /** Write to multiple outputs */
-  virtual void Write(double timestamp) ITK_OVERRIDE;
+  void
+  Write(double timestamp) override;
 
   /** Write to a buffer */
-  virtual void Write(std::string const & content) ITK_OVERRIDE;
+  void
+  Write(std::string const & content) override;
 
   /** Write to a buffer */
-  virtual void Write(std::string const & content, double timestamp) ITK_OVERRIDE;
+  void
+  Write(std::string const & content, double timestamp) override;
 
 protected:
   /** Constructor */
   StdStreamLogOutput();
 
   /** Destructor */
-  virtual ~StdStreamLogOutput() ITK_OVERRIDE;
+  ~StdStreamLogOutput() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-
   StreamPointerType m_Stream;
 
-  SimpleFastMutexLock m_Mutex;
+  std::mutex m_Mutex;
 };
-}
+} // namespace itk
 
-#endif //itkStdStreamLogOutput_h
+#endif // itkStdStreamLogOutput_h

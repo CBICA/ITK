@@ -18,9 +18,12 @@
 #ifndef itkSpatialObjectPoint_h
 #define itkSpatialObjectPoint_h
 
+#include "itkSpatialObject.h"
+
 #include "itkPoint.h"
 #include "vnl/vnl_vector_fixed.h"
 #include "itkRGBAPixel.h"
+
 
 namespace itk
 {
@@ -33,91 +36,197 @@ namespace itk
  * \ingroup ITKSpatialObjects
  */
 
-template< unsigned int TPointDimension = 3 >
+template <unsigned int TDimension, class TSpatialObjectPointType>
+class PointBasedSpatialObject;
+
+template <unsigned int TPointDimension = 3>
 class ITK_TEMPLATE_EXPORT SpatialObjectPoint
 {
 public:
-
-  /** Constructor. This one defines the number of dimensions in the
-   * SpatialObjectPoint */
+  /** Constructor. */
   SpatialObjectPoint();
 
   /** Default destructor. */
-  virtual ~SpatialObjectPoint();
+  virtual ~SpatialObjectPoint() = default;
 
-  typedef SpatialObjectPoint               Self;
-  typedef Point< double, TPointDimension > PointType;
-  typedef vnl_vector< double >             VectorType;
-  typedef RGBAPixel< float >               PixelType;
-  typedef PixelType                        ColorType;
+  virtual const char *
+  GetNameOfClass() const
+  {
+    return "SpatialObjectPoint";
+  };
 
-  /** Get the SpatialObjectPoint Id. */
-  int GetID() const;
+  using Self = SpatialObjectPoint;
+
+  using SpatialObjectType = SpatialObject<TPointDimension>;
+
+  using PointType = Point<double, TPointDimension>;
+  using VectorType = vnl_vector<double>;
+  using ColorType = RGBAPixel<double>;
 
   /** Set the SpatialObjectPoint Id. */
-  void SetID(const int newID);
+  void
+  SetId(int id)
+  {
+    m_Id = id;
+  }
+
+  /** Get the SpatialObjectPoint Id. */
+  int
+  GetId() const
+  {
+    return m_Id;
+  }
+
+  /** Set the point object. */
+  void
+  SetPositionInObjectSpace(const PointType & newPositionInObjectSpace)
+  {
+    m_PositionInObjectSpace = newPositionInObjectSpace;
+  }
+
+  template <typename... TCoordinate>
+  void
+  SetPositionInObjectSpace(const double firstCoordinate, const TCoordinate... otherCoordinate)
+  {
+    static_assert((1 + sizeof...(otherCoordinate)) == TPointDimension,
+                  "The number of coordinates must be equal to the dimensionality!");
+    const double coordinates[] = { firstCoordinate, static_cast<double>(otherCoordinate)... };
+    m_PositionInObjectSpace = coordinates;
+  }
 
   /** Return a pointer to the point object. */
-  const PointType & GetPosition() const;
+  const PointType &
+  GetPositionInObjectSpace() const
+  {
+    return m_PositionInObjectSpace;
+  }
 
-  /** Set the point object. Couldn't use macros for these methods. */
-  void SetPosition(const PointType & newX);
+  void
+  SetSpatialObject(SpatialObjectType * so)
+  {
+    m_SpatialObject = so;
+  }
 
-  void SetPosition(const double x0, const double x1);
+  SpatialObjectType *
+  GetSpatialObject() const
+  {
+    return m_SpatialObject;
+  }
 
-  void SetPosition(const double x0, const double x1, const double x2);
+  /** Set the position in world coordinates, using the
+   *    spatialObject's objectToWorld transform, inverse */
+  void
+  SetPositionInWorldSpace(const PointType & point);
+
+  /** Returns the position in world coordinates, using the
+   *    spatialObject's objectToWorld transform */
+  PointType
+  GetPositionInWorldSpace() const;
 
   /** Copy one SpatialObjectPoint to another */
-  Self & operator=(const SpatialObjectPoint & rhs);
+  Self &
+  operator=(const SpatialObjectPoint & rhs);
 
   /** Set/Get color of the point */
-  const PixelType & GetColor() const;
+  void
+  SetColor(ColorType color)
+  {
+    m_Color = color;
+  }
 
-  void SetColor(const PixelType & color);
+  ColorType
+  GetColor() const
+  {
+    return m_Color;
+  }
 
-  void SetColor(float r, float g, float b, float a = 1);
+  /** Set the color */
+  void
+  SetColor(double r, double g, double b, double a = 1);
 
   /** Set/Get red color of the point */
-  void SetRed(float r);
+  void
+  SetRed(double r)
+  {
+    m_Color.SetRed(r);
+  }
 
-  float GetRed() const;
+  double
+  GetRed() const
+  {
+    return m_Color.GetRed();
+  }
 
   /** Set/Get Green color of the point */
-  void SetGreen(float g);
+  void
+  SetGreen(double g)
+  {
+    m_Color.SetGreen(g);
+  }
 
-  float GetGreen() const;
+  double
+  GetGreen() const
+  {
+    return m_Color.GetGreen();
+  }
 
   /** Set/Get blue color of the point */
-  void SetBlue(float b);
+  void
+  SetBlue(double b)
+  {
+    m_Color.SetBlue(b);
+  }
 
-  float GetBlue() const;
+  double
+  GetBlue() const
+  {
+    return m_Color.GetBlue();
+  }
 
   /** Set/Get alpha value of the point */
-  void SetAlpha(float a);
+  void
+  SetAlpha(double a)
+  {
+    m_Color.SetAlpha(a);
+  }
 
-  float GetAlpha() const;
+  double
+  GetAlpha() const
+  {
+    return m_Color.GetAlpha();
+  }
 
   /** PrintSelf method */
-  void Print(std::ostream & os) const;
+  void
+  Print(std::ostream & os) const
+  {
+    this->PrintSelf(os, 3);
+  }
 
 protected:
-
   /** PrintSelf method */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const;
+  virtual void
+  PrintSelf(std::ostream & os, Indent indent) const;
 
   /** A unique ID assigned to this SpatialObjectPoint */
-  int m_ID;
+  int m_Id;
 
   /** Position of the point */
-  PointType m_X;
+  PointType m_PositionInObjectSpace;
 
   /** Color of the point */
-  PixelType m_Color;
+  ColorType m_Color;
+
+  // The SpatialObjectPoint keeps a reference to its owning parent
+  // spatial object for its spatial context. A WeakPointer is used to
+  // avoid a memory leak.
+  WeakPointer<SpatialObjectType> m_SpatialObject;
 };
+
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSpatialObjectPoint.hxx"
+#  include "itkSpatialObjectPoint.hxx"
 #endif
 
 #endif // itkSpatialObjectPoint_h

@@ -45,20 +45,23 @@ namespace itk
  *
  * \ingroup ITKIOMRC
  */
-class ITKIOMRC_EXPORT MRCImageIOFactory
-  : public ObjectFactoryBase
+class ITKIOMRC_EXPORT MRCImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef MRCImageIOFactory          Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MRCImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = MRCImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class Methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -67,7 +70,8 @@ public:
   itkTypeMacro(MRCImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     MRCImageIOFactory::Pointer vtkFactory = MRCImageIOFactory::New();
 
@@ -76,11 +80,7 @@ public:
 
 protected:
   MRCImageIOFactory();
-  ~MRCImageIOFactory() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MRCImageIOFactory);
-
+  ~MRCImageIOFactory() override;
 };
 } // end namespace itk
 

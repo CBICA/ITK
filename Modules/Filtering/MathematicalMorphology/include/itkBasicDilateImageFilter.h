@@ -44,68 +44,60 @@ namespace itk
  * \ingroup ITKMathematicalMorphology
  */
 
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT BasicDilateImageFilter:
-  public MorphologyImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT BasicDilateImageFilter : public MorphologyImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BasicDilateImageFilter                                      Self;
-  typedef MorphologyImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BasicDilateImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BasicDilateImageFilter;
+  using Superclass = MorphologyImageFilter<TInputImage, TOutputImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BasicDilateImageFilter,
-               MorphologyImageFilter);
+  itkTypeMacro(BasicDilateImageFilter, MorphologyImageFilter);
 
   /** Declaration of pixel type. */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** Kernel (structuring element) iterator. */
-  typedef typename Superclass::KernelIteratorType KernelIteratorType;
+  using KernelIteratorType = typename Superclass::KernelIteratorType;
 
   /** Neighborhood iterator type. */
-  typedef typename Superclass::NeighborhoodIteratorType NeighborhoodIteratorType;
+  using NeighborhoodIteratorType = typename Superclass::NeighborhoodIteratorType;
 
-  /** Kernel typedef. */
-  typedef typename Superclass::KernelType KernelType;
+  /** Kernel type alias. */
+  using KernelType = typename Superclass::KernelType;
 
   /** Default boundary condition type */
-  typedef typename Superclass::DefaultBoundaryConditionType DefaultBoundaryConditionType;
+  using DefaultBoundaryConditionType = typename Superclass::DefaultBoundaryConditionType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
-  itkStaticConstMacro(KernelDimension, unsigned int,
-                      TKernel::NeighborhoodDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
+  static constexpr unsigned int KernelDimension = TKernel::NeighborhoodDimension;
 
   /** Type of the pixels in the Kernel. */
-  typedef typename TKernel::PixelType KernelPixelType;
+  using KernelPixelType = typename TKernel::PixelType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< PixelType, typename TOutputImage::PixelType > ) );
-  itkConceptMacro( SameDimensionCheck1,
-                   ( Concept::SameDimension< InputImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( SameDimensionCheck2,
-                   ( Concept::SameDimension< InputImageDimension, KernelDimension > ) );
-  itkConceptMacro( InputGreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< PixelType > ) );
-  itkConceptMacro( KernelGreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< KernelPixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<PixelType, typename TOutputImage::PixelType>));
+  itkConceptMacro(SameDimensionCheck1, (Concept::SameDimension<InputImageDimension, OutputImageDimension>));
+  itkConceptMacro(SameDimensionCheck2, (Concept::SameDimension<InputImageDimension, KernelDimension>));
+  itkConceptMacro(InputGreaterThanComparableCheck, (Concept::GreaterThanComparable<PixelType>));
+  itkConceptMacro(KernelGreaterThanComparableCheck, (Concept::GreaterThanComparable<KernelPixelType>));
   // End concept checking
 #endif
 
 protected:
   BasicDilateImageFilter();
-  ~BasicDilateImageFilter() ITK_OVERRIDE {}
+  ~BasicDilateImageFilter() override = default;
 
   /** Evaluate image neighborhood with kernel to find the new value
    * for the center pixel value
@@ -113,13 +105,12 @@ protected:
    * It will return the maximum value of the image pixels whose corresponding
    * element in the structuring element is positive. This version of
    * Evaluate is used for non-boundary pixels. */
-  PixelType Evaluate(const NeighborhoodIteratorType & nit,
-                     const KernelIteratorType kernelBegin,
-                     const KernelIteratorType kernelEnd) ITK_OVERRIDE;
+  PixelType
+  Evaluate(const NeighborhoodIteratorType & nit,
+           const KernelIteratorType         kernelBegin,
+           const KernelIteratorType         kernelEnd) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BasicDilateImageFilter);
-
   // Default boundary condition for dilation filter, defaults to
   // NumericTraits<PixelType>::NonpositiveMin()
   DefaultBoundaryConditionType m_DilateBoundaryCondition;
@@ -127,7 +118,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBasicDilateImageFilter.hxx"
+#  include "itkBasicDilateImageFilter.hxx"
 #endif
 
 #endif

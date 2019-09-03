@@ -35,118 +35,124 @@ namespace itk
  * the two indices is closed.  So, a line iterator specified with
  * the same start and end index will visit exactly one pixel.
  *
- * \code
- * LineConstIterator<ImageType> it(image, I1, I2);
- * while (!it.IsAtEnd())
- * {
- *    // visits at least 1 pixel
- * }
- * \endcode
+   \code
+   LineConstIterator<ImageType> it(image, I1, I2);
+   while (!it.IsAtEnd())
+   {
+      // visits at least 1 pixel
+   }
+   \endcode
  *
  * \author Benjamin King, Experimentelle Radiologie, Medizinische
  * Hochschule Hannover.
  *
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Iterators/LineConstIterator,Iterate over a line through an image without write access}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/IterateLineThroughImageWithoutWriteAccess,Iterate Line Through Image Without Write Access}
+ * \endsphinx
  */
-template< typename TImage >
+template <typename TImage>
 class ITK_TEMPLATE_EXPORT LineConstIterator
 {
 public:
-  /** Standard class typedefs. */
-  typedef LineConstIterator Self;
+  /** Standard class type aliases. */
+  using Self = LineConstIterator;
 
   /** Dimension of the image that the iterator walks.  This constant is needed so
    * that functions that are templated over image iterator type (as opposed to
    * being templated over pixel type and dimension) can have compile time
    * access to the dimension of the image that the iterator walks. */
-  itkStaticConstMacro(ImageIteratorDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageIteratorDimension = TImage::ImageDimension;
 
-  /** Index typedef support. */
-  typedef typename TImage::IndexType      IndexType;
+  /** Index type alias support */
+  using IndexType = typename TImage::IndexType;
 
-  /** Offset typedef support. */
-  typedef typename TImage::OffsetType      OffsetType;
+  /** Offset type alias support */
+  using OffsetType = typename TImage::OffsetType;
 
-  /** Size typedef support. */
-  typedef typename TImage::SizeType      SizeType;
+  /** Size type alias support */
+  using SizeType = typename TImage::SizeType;
 
-  /** Region typedef support */
-  typedef typename TImage::RegionType RegionType;
+  /** Region type alias support */
+  using RegionType = typename TImage::RegionType;
 
-  /** Spacing typedef support */
-  typedef typename TImage::SpacingType SpacingType;
+  /** Spacing type alias support */
+  using SpacingType = typename TImage::SpacingType;
 
-  /** Origin typedef support */
-  typedef typename TImage::PointType PointType;
+  /** Origin type alias support */
+  using PointType = typename TImage::PointType;
 
-  /** Image typedef support. */
-  typedef TImage ImageType;
+  /** Image type alias support */
+  using ImageType = TImage;
 
-  /** PixelContainer typedef support. Used to refer to the container for
+  /** PixelContainer type alias support Used to refer to the container for
    * the pixel data. While this was already typdef'ed in the superclass,
    * it needs to be redone here for this subclass to compile properly with gcc. */
-  typedef typename TImage::PixelContainer  PixelContainer;
-  typedef typename PixelContainer::Pointer PixelContainerPointer;
+  using PixelContainer = typename TImage::PixelContainer;
+  using PixelContainerPointer = typename PixelContainer::Pointer;
 
   /** Internal Pixel Type */
-  typedef typename TImage::InternalPixelType InternalPixelType;
+  using InternalPixelType = typename TImage::InternalPixelType;
 
   /** External Pixel Type */
-  typedef typename TImage::PixelType PixelType;
+  using PixelType = typename TImage::PixelType;
 
   /**  Accessor type that convert data between internal and external
    *  representations. */
-  typedef typename TImage::AccessorType AccessorType;
+  using AccessorType = typename TImage::AccessorType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacroNoParent(LineConstIterator);
 
   /** Get the dimension (size) of the index. */
-  static unsigned int GetImageIteratorDimension()
+  static unsigned int
+  GetImageIteratorDimension()
   {
     return TImage::ImageDimension;
   }
 
   /** Get the index. This provides a read only reference to the index. */
-  const IndexType GetIndex()
+  const IndexType
+  GetIndex()
   {
     return m_CurrentImageIndex;
   }
 
   /** Get the pixel value */
-  const PixelType Get(void) const
+  const PixelType
+  Get() const
   {
     return m_Image->GetPixel(m_CurrentImageIndex);
   }
 
   /** Is the iterator at the end of the line? */
-  bool IsAtEnd()
+  bool
+  IsAtEnd() const
   {
     return m_IsAtEnd;
   }
 
   /** Move an iterator to the beginning of the line. */
-  void GoToBegin();
+  void
+  GoToBegin();
 
   /** Walk forward along the line to the next index in the image. */
-  void operator++();
+  void
+  operator++();
 
   /** operator= is provided to make sure the handle to the image is properly
    * reference counted. */
-  Self & operator=(const Self & it);
+  Self &
+  operator=(const Self & it);
 
   /** Constructor establishes an iterator to walk along a line */
-  LineConstIterator(const ImageType *imagePtr, const IndexType & firstIndex, const IndexType & lastIndex);
+  LineConstIterator(const ImageType * imagePtr, const IndexType & firstIndex, const IndexType & lastIndex);
 
   /** Default Destructor. */
-  virtual ~LineConstIterator() {}
+  virtual ~LineConstIterator() = default;
 
-protected: //made protected so other iterators can access
+protected: // made protected so other iterators can access
   /** Smart pointer to the source image. */
   typename ImageType::ConstWeakPointer m_Image;
 
@@ -160,7 +166,7 @@ protected: //made protected so other iterators can access
   IndexType m_CurrentImageIndex;
   IndexType m_StartIndex;
   IndexType m_LastIndex;
-  IndexType m_EndIndex;  // one past the end of the line in the m_MainDirection
+  IndexType m_EndIndex; // one past the end of the line in the m_MainDirection
 
   /** Variables that drive the Bresenham-Algorithm */
   // The dimension with the largest difference between start and end
@@ -187,7 +193,7 @@ protected: //made protected so other iterators can access
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLineConstIterator.hxx"
+#  include "itkLineConstIterator.hxx"
 #endif
 
 #endif

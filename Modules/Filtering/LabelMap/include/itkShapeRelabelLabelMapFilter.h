@@ -41,29 +41,30 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT ShapeRelabelLabelMapFilter:
-  public InPlaceLabelMapFilter< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT ShapeRelabelLabelMapFilter : public InPlaceLabelMapFilter<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ShapeRelabelLabelMapFilter      Self;
-  typedef InPlaceLabelMapFilter< TImage > Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ShapeRelabelLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                              ImageType;
-  typedef typename ImageType::Pointer         ImagePointer;
-  typedef typename ImageType::ConstPointer    ImageConstPointer;
-  typedef typename ImageType::PixelType       PixelType;
-  typedef typename ImageType::IndexType       IndexType;
-  typedef typename ImageType::LabelObjectType LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = ShapeRelabelLabelMapFilter;
+  using Superclass = InPlaceLabelMapFilter<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename LabelObjectType::AttributeType AttributeType;
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
+
+  using AttributeType = typename LabelObjectType::AttributeType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -97,66 +98,69 @@ public:
    */
   itkGetConstMacro(Attribute, AttributeType);
   itkSetMacro(Attribute, AttributeType);
-  void SetAttribute(const std::string & s)
+  void
+  SetAttribute(const std::string & s)
   {
-    this->SetAttribute( LabelObjectType::GetAttributeFromName(s) );
+    this->SetAttribute(LabelObjectType::GetAttributeFromName(s));
   }
 
 protected:
   ShapeRelabelLabelMapFilter();
-  ~ShapeRelabelLabelMapFilter() ITK_OVERRIDE {}
+  ~ShapeRelabelLabelMapFilter() override = default;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  template< typename TAttributeAccessor >
-  void TemplatedGenerateData(const TAttributeAccessor &)
+  template <typename TAttributeAccessor>
+  void
+  TemplatedGenerateData(const TAttributeAccessor &)
   {
     // Allocate the output
     this->AllocateOutputs();
 
-    ImageType *output = this->GetOutput();
+    ImageType * output = this->GetOutput();
 
-    typedef typename LabelObjectType::Pointer LabelObjectPointer;
-    typedef std::vector< LabelObjectPointer > VectorType;
+    using LabelObjectPointer = typename LabelObjectType::Pointer;
+    using VectorType = std::vector<LabelObjectPointer>;
 
-    ProgressReporter progress( this, 0, 2 * output->GetNumberOfLabelObjects() );
+    ProgressReporter progress(this, 0, 2 * output->GetNumberOfLabelObjects());
 
     // Get the label objects in a vector, so they can be sorted
     VectorType labelObjects;
-    labelObjects.reserve( output->GetNumberOfLabelObjects() );
-    for ( typename ImageType::Iterator it( output );
-          ! it.IsAtEnd();
-          ++it )
-      {
+    labelObjects.reserve(output->GetNumberOfLabelObjects());
+    for (typename ImageType::Iterator it(output); !it.IsAtEnd(); ++it)
+    {
       labelObjects.push_back(it.GetLabelObject());
       progress.CompletedPixel();
-      }
+    }
 
     // Instantiate the comparator and sort the vector
-    if ( m_ReverseOrdering )
-      {
-      std::sort( labelObjects.begin(), labelObjects.end(),
-                 Functor::LabelObjectReverseComparator< LabelObjectType, TAttributeAccessor >() );
-      }
+    if (m_ReverseOrdering)
+    {
+      std::sort(labelObjects.begin(),
+                labelObjects.end(),
+                Functor::LabelObjectReverseComparator<LabelObjectType, TAttributeAccessor>());
+    }
     else
-      {
-      std::sort( labelObjects.begin(), labelObjects.end(),
-                 Functor::LabelObjectComparator< LabelObjectType, TAttributeAccessor >() );
-      }
+    {
+      std::sort(labelObjects.begin(),
+                labelObjects.end(),
+                Functor::LabelObjectComparator<LabelObjectType, TAttributeAccessor>());
+    }
     //   progress.CompletedPixel();
 
     // and put back the objects in the map
     output->ClearLabels();
-    PixelType label = NumericTraits<PixelType>::ZeroValue();
+    PixelType                           label = NumericTraits<PixelType>::ZeroValue();
     typename VectorType::const_iterator it2 = labelObjects.begin();
-    while ( it2 != labelObjects.end() )
-      {
+    while (it2 != labelObjects.end())
+    {
       // Avoid the background label if it is used
-      if ( label == output->GetBackgroundValue() )
-        {
+      if (label == output->GetBackgroundValue())
+      {
         label++;
-        }
-      ( *it2 )->SetLabel(label);
+      }
+      (*it2)->SetLabel(label);
       output->AddLabelObject(*it2);
 
       // Go to the next label
@@ -164,22 +168,20 @@ protected:
       progress.CompletedPixel();
 
       ++it2;
-      }
+    }
   }
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   bool m_ReverseOrdering;
 
   AttributeType m_Attribute;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ShapeRelabelLabelMapFilter);
-};                                          // end of class
+}; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkShapeRelabelLabelMapFilter.hxx"
+#  include "itkShapeRelabelLabelMapFilter.hxx"
 #endif
 
 #endif

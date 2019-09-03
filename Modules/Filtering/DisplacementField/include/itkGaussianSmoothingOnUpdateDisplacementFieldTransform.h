@@ -42,47 +42,48 @@ namespace itk
  *
  * \ingroup ITKDisplacementField
  */
-template<typename TParametersValueType, unsigned int NDimensions>
-class ITK_TEMPLATE_EXPORT GaussianSmoothingOnUpdateDisplacementFieldTransform :
-  public DisplacementFieldTransform<TParametersValueType, NDimensions>
+template <typename TParametersValueType, unsigned int NDimensions>
+class ITK_TEMPLATE_EXPORT GaussianSmoothingOnUpdateDisplacementFieldTransform
+  : public DisplacementFieldTransform<TParametersValueType, NDimensions>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GaussianSmoothingOnUpdateDisplacementFieldTransform           Self;
-  typedef DisplacementFieldTransform<TParametersValueType, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                            Pointer;
-  typedef SmartPointer<const Self>                                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSmoothingOnUpdateDisplacementFieldTransform);
+
+  /** Standard class type aliases. */
+  using Self = GaussianSmoothingOnUpdateDisplacementFieldTransform;
+  using Superclass = DisplacementFieldTransform<TParametersValueType, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( GaussianSmoothingOnUpdateDisplacementFieldTransform,
-                                                DisplacementFieldTransform );
+  itkTypeMacro(GaussianSmoothingOnUpdateDisplacementFieldTransform, DisplacementFieldTransform);
 
   /** New macro for creation of through a Smart Pointer */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Types from superclass */
-  typedef typename Superclass::ScalarType               ScalarType;
-  typedef typename Superclass::DerivativeType           DerivativeType;
-  typedef typename DerivativeType::ValueType            DerivativeValueType;
-  typedef typename Superclass::DisplacementFieldType    DisplacementFieldType;
-  typedef typename Superclass::DisplacementFieldPointer DisplacementFieldPointer;
-  typedef typename DisplacementFieldType::PixelType     DisplacementVectorType;
+  using ScalarType = typename Superclass::ScalarType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using DerivativeValueType = typename DerivativeType::ValueType;
+  using DisplacementFieldType = typename Superclass::DisplacementFieldType;
+  using DisplacementFieldPointer = typename Superclass::DisplacementFieldPointer;
+  using DisplacementVectorType = typename DisplacementFieldType::PixelType;
 
-  typedef typename Transform<TParametersValueType,NDimensions, NDimensions>::Pointer TransformPointer;
+  using TransformPointer = typename Transform<TParametersValueType, NDimensions, NDimensions>::Pointer;
 
   /**
    * Get/Set the Gaussian smoothing standard deviation for the update field.
    * Default = 1.75.
    */
-  itkSetMacro( GaussianSmoothingVarianceForTheUpdateField, ScalarType );
-  itkGetConstReferenceMacro( GaussianSmoothingVarianceForTheUpdateField, ScalarType );
+  itkSetMacro(GaussianSmoothingVarianceForTheUpdateField, ScalarType);
+  itkGetConstReferenceMacro(GaussianSmoothingVarianceForTheUpdateField, ScalarType);
 
   /**
    * Get/Set the Gaussian smoothing standard deviation for the total field.
    * Default = 0.5.
    */
-  itkSetMacro( GaussianSmoothingVarianceForTheTotalField, ScalarType );
-  itkGetConstReferenceMacro( GaussianSmoothingVarianceForTheTotalField, ScalarType );
+  itkSetMacro(GaussianSmoothingVarianceForTheTotalField, ScalarType);
+  itkGetConstReferenceMacro(GaussianSmoothingVarianceForTheTotalField, ScalarType);
 
   /** Update the transform's parameters by the values in \c update.
    * We assume \c update is of the same length as Parameters. Throw
@@ -92,45 +93,43 @@ public:
    * added to the field.
    * See base class for more details.
    */
-  virtual void UpdateTransformParameters( const DerivativeType & update, ScalarType factor = 1.0 ) ITK_OVERRIDE;
+  void
+  UpdateTransformParameters(const DerivativeType & update, ScalarType factor = 1.0) override;
 
   /** Smooth the displacement field in-place.
    * Uses m_GaussSmoothSigma to change the variance for the GaussianOperator.
    * \warning Not thread safe. Does its own threading.
    */
-  virtual DisplacementFieldPointer GaussianSmoothDisplacementField( DisplacementFieldType *, ScalarType );
+  virtual DisplacementFieldPointer
+  GaussianSmoothDisplacementField(DisplacementFieldType *, ScalarType);
 
 protected:
   GaussianSmoothingOnUpdateDisplacementFieldTransform();
-  virtual ~GaussianSmoothingOnUpdateDisplacementFieldTransform() ITK_OVERRIDE;
-  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  ~GaussianSmoothingOnUpdateDisplacementFieldTransform() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Clone the current transform */
-  virtual typename LightObject::Pointer InternalClone() const ITK_OVERRIDE;
+  typename LightObject::Pointer
+  InternalClone() const override;
 
   /** Used in GaussianSmoothDisplacementField as variance for the
    * GaussianOperator */
-  ScalarType                        m_GaussianSmoothingVarianceForTheUpdateField;
-  ScalarType                        m_GaussianSmoothingVarianceForTheTotalField;
+  ScalarType m_GaussianSmoothingVarianceForTheUpdateField;
+  ScalarType m_GaussianSmoothingVarianceForTheTotalField;
 
   /** Type of Gaussian Operator used during smoothing. Define here
    * so we can use a member var during the operation. */
-  typedef GaussianOperator<ScalarType, Superclass::Dimension>
-                                                  GaussianSmoothingOperatorType;
-  typedef VectorNeighborhoodOperatorImageFilter< DisplacementFieldType,
-                                                 DisplacementFieldType >
-                                                  GaussianSmoothingSmootherType;
-  GaussianSmoothingOperatorType                    m_GaussianSmoothingOperator;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSmoothingOnUpdateDisplacementFieldTransform);
-
+  using GaussianSmoothingOperatorType = GaussianOperator<ScalarType, Superclass::Dimension>;
+  using GaussianSmoothingSmootherType =
+    VectorNeighborhoodOperatorImageFilter<DisplacementFieldType, DisplacementFieldType>;
+  GaussianSmoothingOperatorType m_GaussianSmoothingOperator;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkGaussianSmoothingOnUpdateDisplacementFieldTransform.hxx"
+#  include "itkGaussianSmoothingOnUpdateDisplacementFieldTransform.hxx"
 #endif
 
 #endif // itkGaussianSmoothingOnUpdateDisplacementFieldTransform_h

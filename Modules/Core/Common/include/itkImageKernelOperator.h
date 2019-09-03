@@ -43,32 +43,31 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKCommon
  */
-template< typename TPixel, unsigned int VDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT ImageKernelOperator :
-  public NeighborhoodOperator< TPixel, VDimension, TAllocator >
+template <typename TPixel, unsigned int VDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT ImageKernelOperator : public NeighborhoodOperator<TPixel, VDimension, TAllocator>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageKernelOperator                                    Self;
-  typedef NeighborhoodOperator< TPixel, VDimension, TAllocator > Superclass;
+  /** Standard class type aliases. */
+  using Self = ImageKernelOperator;
+  using Superclass = NeighborhoodOperator<TPixel, VDimension, TAllocator>;
 
-  typedef Image< TPixel, VDimension >            ImageType;
-  typedef typename Superclass::SizeType          SizeType;
-  typedef typename Superclass::CoefficientVector CoefficientVector;
+  using ImageType = Image<TPixel, VDimension>;
+  using SizeType = typename Superclass::SizeType;
+  using CoefficientVector = typename Superclass::CoefficientVector;
 
   itkTypeMacro(ImageKernelOperator, NeighborhoodOperator);
 
   /** Constructor. */
-  ImageKernelOperator() {}
+  ImageKernelOperator() = default;
 
   /** Copy constructor */
-  ImageKernelOperator(const Self & orig):
-    Neighborhood< TPixel, VDimension, TAllocator >(orig)
+  ImageKernelOperator(const Self & orig)
+    : Neighborhood<TPixel, VDimension, TAllocator>(orig)
   {}
 
   /** Assignment operator. */
-  Self & operator=(const Self & orig)
+  Self &
+  operator=(const Self & orig)
   {
     Superclass::operator=(orig);
     return *this;
@@ -77,34 +76,37 @@ public:
   /** Set the image kernel. Only images with odd size in all
    * dimensions are allowed. If an image with an even size is passed
    * as an argument, an exception will be thrown. */
-  void SetImageKernel(const ImageType *kernel);
+  void
+  SetImageKernel(const ImageType * kernel);
 
   /** Get the image kernel. */
-  const ImageType * GetImageKernel() const;
+  const ImageType *
+  GetImageKernel() const;
 
   /** Prints information about the object. */
-  virtual void PrintSelf(std::ostream & os, Indent i) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent i) const override
   {
-    os << i << "ImageKernelOperator { this=" << this
-       << "} "  << std::endl;
-    Superclass::PrintSelf( os, i.GetNextIndent() );
+    os << i << "ImageKernelOperator { this=" << this << "} " << std::endl;
+    Superclass::PrintSelf(os, i.GetNextIndent());
   }
 
 protected:
   /** Calculates operator coefficients. */
-  CoefficientVector GenerateCoefficients() ITK_OVERRIDE;
+  CoefficientVector
+  GenerateCoefficients() override;
 
   /** Arranges coefficients spatially in the memory buffer. */
-  void Fill(const CoefficientVector & coeff) ITK_OVERRIDE;
+  void
+  Fill(const CoefficientVector & coeff) override;
 
 private:
   typename ImageType::ConstPointer m_ImageKernel;
-
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageKernelOperator.hxx"
+#  include "itkImageKernelOperator.hxx"
 #endif
 
 #endif

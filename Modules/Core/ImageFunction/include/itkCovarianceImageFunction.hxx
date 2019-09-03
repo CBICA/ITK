@@ -25,95 +25,88 @@
 namespace itk
 {
 
-template< typename TInputImage, typename TCoordRep >
-CovarianceImageFunction< TInputImage, TCoordRep >
-::CovarianceImageFunction() :
-  m_NeighborhoodRadius( 1 )
+template <typename TInputImage, typename TCoordRep>
+CovarianceImageFunction<TInputImage, TCoordRep>::CovarianceImageFunction()
+
+{}
+
+template <typename TInputImage, typename TCoordRep>
+typename CovarianceImageFunction<TInputImage, TCoordRep>::RealType
+CovarianceImageFunction<TInputImage, TCoordRep>::EvaluateAtIndex(const IndexType & index) const
 {
-}
+  using PixelType = typename TInputImage::PixelType;
+  using PixelComponentType = typename PixelType::ValueType;
 
-template< typename TInputImage, typename TCoordRep >
-typename CovarianceImageFunction< TInputImage, TCoordRep >
-::RealType
-CovarianceImageFunction< TInputImage, TCoordRep >
-::EvaluateAtIndex(const IndexType & index) const
-{
-  typedef  typename TInputImage::PixelType PixelType;
-  typedef  typename PixelType::ValueType   PixelComponentType;
-
-  typedef  typename NumericTraits< PixelComponentType >::RealType PixelComponentRealType;
+  using PixelComponentRealType = typename NumericTraits<PixelComponentType>::RealType;
 
 
-  if ( !this->GetInputImage() )
-    {
+  if (!this->GetInputImage())
+  {
     itkExceptionMacro(<< "No image connected to CovarianceImageFunction");
-    }
+  }
 
   const unsigned int VectorDimension = this->GetInputImage()->GetNumberOfComponentsPerPixel();
-  RealType covariance = RealType(VectorDimension, VectorDimension);
+  RealType           covariance = RealType(VectorDimension, VectorDimension);
 
-  if ( !this->IsInsideBuffer(index) )
-    {
-    covariance.fill( NumericTraits< PixelComponentRealType >::max() );
+  if (!this->IsInsideBuffer(index))
+  {
+    covariance.fill(NumericTraits<PixelComponentRealType>::max());
     return covariance;
-    }
+  }
 
 
-  covariance.fill(NumericTraits< PixelComponentRealType >::ZeroValue());
+  covariance.fill(NumericTraits<PixelComponentRealType>::ZeroValue());
 
-  typedef vnl_vector< PixelComponentRealType > MeanVectorType;
+  using MeanVectorType = vnl_vector<PixelComponentRealType>;
   MeanVectorType mean = MeanVectorType(VectorDimension);
-  mean.fill(NumericTraits< PixelComponentRealType >::ZeroValue());
+  mean.fill(NumericTraits<PixelComponentRealType>::ZeroValue());
 
   // Create an N-d neighborhood kernel, using a zeroflux boundary condition
   typename InputImageType::SizeType kernelSize;
   kernelSize.Fill(m_NeighborhoodRadius);
 
-  ConstNeighborhoodIterator< InputImageType >
-  it( kernelSize, this->GetInputImage(), this->GetInputImage()->GetBufferedRegion() );
+  ConstNeighborhoodIterator<InputImageType> it(
+    kernelSize, this->GetInputImage(), this->GetInputImage()->GetBufferedRegion());
 
   // Set the iterator at the desired location
   it.SetLocation(index);
 
   // Walk the neighborhood
   const unsigned int size = it.Size();
-  for ( unsigned int i = 0; i < size; ++i )
-    {
+  for (unsigned int i = 0; i < size; ++i)
+  {
     const PixelType pixel = it.GetPixel(i);
 
-    for ( unsigned int dimx = 0; dimx < VectorDimension; dimx++ )
-      {
+    for (unsigned int dimx = 0; dimx < VectorDimension; dimx++)
+    {
       mean[dimx] += pixel[dimx];
-      for ( unsigned int dimy = 0; dimy < VectorDimension; dimy++ )
-        {
+      for (unsigned int dimy = 0; dimy < VectorDimension; dimy++)
+      {
         covariance[dimx][dimy] +=
-          static_cast< PixelComponentRealType >( pixel[dimx] )
-          * static_cast< PixelComponentRealType >( pixel[dimy] );
-        }
+          static_cast<PixelComponentRealType>(pixel[dimx]) * static_cast<PixelComponentRealType>(pixel[dimy]);
       }
     }
+  }
 
-  const PixelComponentRealType rsize =
-    static_cast< PixelComponentRealType >( size );
+  const auto rsize = static_cast<PixelComponentRealType>(size);
 
   mean /= rsize;
 
-  for ( unsigned int dimx = 0; dimx < VectorDimension; dimx++ )
+  for (unsigned int dimx = 0; dimx < VectorDimension; dimx++)
+  {
+    for (unsigned int dimy = 0; dimy < VectorDimension; dimy++)
     {
-    for ( unsigned int dimy = 0; dimy < VectorDimension; dimy++ )
-      {
       covariance[dimx][dimy] /= rsize;
       covariance[dimx][dimy] -= mean[dimx] * mean[dimy];
-      }
     }
+  }
 
-  return ( covariance );
+  return (covariance);
 }
 
-template< typename TInputImage, typename TCoordRep >
+template <typename TInputImage, typename TCoordRep>
 void
-CovarianceImageFunction< TInputImage, TCoordRep >
-::PrintSelf(std::ostream & os, Indent indent) const
+CovarianceImageFunction<TInputImage, TCoordRep>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 

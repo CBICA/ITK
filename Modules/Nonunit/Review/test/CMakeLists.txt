@@ -4,35 +4,22 @@ itkAreaClosingImageFilterTest.cxx
 itkAreaOpeningImageFilterTest.cxx
 itkConformalFlatteningMeshFilterTest.cxx
 itkConformalFlatteningQuadEdgeMeshFilterTest.cxx
-itkContourExtractor2DImageFilterTest.cxx
 itkDirectFourierReconstructionImageToImageFilterTest.cxx
-itkDiscreteGaussianDerivativeImageFilterScaleSpaceTest.cxx
-itkDiscreteGaussianDerivativeImageFilterTest.cxx
 itkDiscreteGaussianDerivativeImageFunctionTest.cxx
 itkDiscreteGradientMagnitudeGaussianImageFunctionTest.cxx
 itkDiscreteHessianGaussianImageFunctionTest.cxx
 itkFastApproximateRankImageFilterTest.cxx
 itkGridForwardWarpImageFilterTest.cxx
 itkImageFunctionTest.cxx
-itkJPEG2000ImageIOFactoryTest01.cxx
-itkJPEG2000ImageIORegionOfInterest.cxx
-itkJPEG2000ImageIOTest00.cxx
-itkJPEG2000ImageIOTest01.cxx
-itkJPEG2000ImageIOTest02.cxx
-itkJPEG2000ImageIOTest03.cxx
-itkJPEG2000ImageIOTest04.cxx
-itkJPEG2000ImageIOTest05.cxx
-itkJPEG2000ImageIOTest06.cxx
 itkLabelGeometryImageFilterTest.cxx
 itkMultiphaseDenseFiniteDifferenceImageFilterTest.cxx
 itkMultiphaseFiniteDifferenceImageFilterTest.cxx
 itkMultiphaseSparseFiniteDifferenceImageFilterTest.cxx
-itkMultiScaleHessianBasedMeasureImageFilterTest.cxx
-itkNeuralNetworkIOTest.cxx
 itkOptImageToImageMetricsTest.cxx
 itkOptImageToImageMetricsTest2.cxx
 itkOptMattesMutualInformationImageToImageMetricThreadsTest1.cxx
 itkRegionBasedLevelSetFunctionTest.cxx
+itkReviewPrintTest.cxx
 itkRobustAutomaticThresholdCalculatorTest.cxx
 itkRobustAutomaticThresholdImageFilterTest.cxx
 itkScalarChanAndVeseDenseLevelSetImageFilterTest1.cxx
@@ -49,7 +36,6 @@ itkShapedFloodFilledImageFunctionConditionalConstIteratorTest2.cxx
 itkShapedFloodFilledImageFunctionConditionalConstIteratorTest3.cxx
 itkStochasticFractalDimensionImageFilterTest.cxx
 itkTimeAndMemoryProbeTest.cxx
-itkVectorCentralDifferenceImageFunctionTest.cxx
 itkVoxBoCUBImageIOTest.cxx
 itkWarpHarmonicEnergyCalculatorTest.cxx
 itkWarpJacobianDeterminantFilterTest.cxx
@@ -62,6 +48,8 @@ set(TEMP ${ITK_TEST_OUTPUT_DIR})
 
 
 CreateTestDriver_SupportBuildInIOFactories(ITKReview  "${ITKReview-Test_LIBRARIES}" "${ITKReviewTests}")
+
+itk_add_test(NAME itkReviewPrintTest COMMAND ITKReviewTestDriver itkReviewPrintTest)
 
 itk_add_test(NAME itkAreaClosingImageFilterTest0
       COMMAND ITKReviewTestDriver
@@ -85,61 +73,11 @@ itk_add_test(NAME itkConformalFlatteningQuadEdgeMeshFilterTest1
 itk_add_test(NAME itkConformalFlatteningQuadEdgeMeshFilterTest2
       COMMAND ITKReviewTestDriver itkConformalFlatteningQuadEdgeMeshFilterTest
               DATA{${ITK_DATA_ROOT}/Input/genusZeroSurface01.vtk} ${ITK_TEST_OUTPUT_DIR}/genusZeroQuadEdgeMesh01ConformalFlattenedToPlane.vtk 3 100.0 0)
-itk_add_test(NAME itkContourExtractor2DImageFilterTest
-      COMMAND ITKReviewTestDriver itkContourExtractor2DImageFilterTest
-              DATA{${ITK_DATA_ROOT}/Input/ContourExtractor2DTest.tif})
 itk_add_test(NAME itkDirectFourierReconstructionImageToImageFilterTest
       COMMAND ITKReviewTestDriver
     --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/reconstruct.mha}
               ${ITK_TEST_OUTPUT_DIR}/reconstruct.mha
     itkDirectFourierReconstructionImageToImageFilterTest DATA{${ITK_DATA_ROOT}/Input/sinogram-small.mha} ${ITK_TEST_OUTPUT_DIR}/reconstruct.mha 1 2 0 2 2 1 3 180 0 0 0 64 64 2 0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterScaleSpaceTest
-      COMMAND ITKReviewTestDriver itkDiscreteGaussianDerivativeImageFilterScaleSpaceTest)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest01
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest01.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest01.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest01.png 0 1 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest10
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest10.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest10.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest10.png 1 0 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest11
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest11.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest11.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest11.png 1 1 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest20
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest20.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest20.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest20.png 2 0 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest02
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest02.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest02.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest02.png 0 2 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest21
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest21.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest21.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest21.png 2 1 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest12
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest12.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest12.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest12.png 1 2 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest30
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest30.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest30.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest30.png 3 0 3.0)
-itk_add_test(NAME itkDiscreteGaussianDerivativeImageFilterTest03
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFilterTest03.png}
-              ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest03.png
-    itkDiscreteGaussianDerivativeImageFilterTest DATA{${ITK_DATA_ROOT}/Input/whiteSpot.png} ${ITK_TEST_OUTPUT_DIR}/itkDiscreteGaussianDerivativeImageFilterTest03.png 0 3 3.0)
 itk_add_test(NAME itkDiscreteGaussianDerivativeImageFunctionTest01
       COMMAND ITKReviewTestDriver
     --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkDiscreteGaussianDerivativeImageFunctionTest01.png}
@@ -187,30 +125,6 @@ itk_add_test(NAME itkGridForwardWarpImageFilterTest
      itkGridForwardWarpImageFilterTest ${ITK_TEST_OUTPUT_DIR}/itkGridForwardWarpImageFilterTest.mha )
 itk_add_test(NAME itkImageFunctionTest
       COMMAND ITKReviewTestDriver itkImageFunctionTest)
-itk_add_test(NAME itkJPEG2000Test00
-      COMMAND ITKReviewTestDriver itkJPEG2000ImageIORegionOfInterest
-              DATA{${ITK_DATA_ROOT}/Input/Bretagne1.j2k} ${ITK_TEST_OUTPUT_DIR}/Bretagne1_RegionTest01.tif 160 120 320 240)
-itk_add_test(NAME itkJPEG2000Test01
-      COMMAND ITKReviewTestDriver itkJPEG2000ImageIOTest03
-              DATA{${ITK_DATA_ROOT}/Input/Bretagne1.j2k} ${ITK_TEST_OUTPUT_DIR}/Bretagne1_01.png)
-itk_add_test(NAME itkJPEG2000Test02
-      COMMAND ITKReviewTestDriver itkJPEG2000ImageIOTest03
-              DATA{${ITK_DATA_ROOT}/Input/Cevennes2.jp2} ${ITK_TEST_OUTPUT_DIR}/Cevennes2_01.png)
-itk_add_test(NAME itkJPEG2000Test03
-      COMMAND ITKReviewTestDriver itkJPEG2000ImageIOTest03
-              ${ITK_TEST_OUTPUT_DIR}/Bretagne1_RegionTest01.tif ${ITK_TEST_OUTPUT_DIR}/Bretagne1_02.j2k)
-set_tests_properties( itkJPEG2000Test03 PROPERTIES
-  DEPENDS itkJPEG2000Test00
-  REQUIRED_FILES ${ITK_TEST_OUTPUT_DIR}/Bretagne1_RegionTest01.tif )
-
-itk_add_test(NAME itkJPEG2000Test05
-      COMMAND ITKReviewTestDriver itkJPEG2000ImageIOTest05
-              DATA{${ITK_DATA_ROOT}/Input/HeadMRVolume.mhd,HeadMRVolume.raw} ${ITK_TEST_OUTPUT_DIR} jp2)
-itk_add_test(NAME itkJPEG2000Test06
-      COMMAND ITKReviewTestDriver
-    --compare DATA{${ITK_DATA_ROOT}/Baseline/IO/cthead1-unitspacing.tif}
-              ${ITK_TEST_OUTPUT_DIR}/cthead1.tif
-    itkJPEG2000ImageIOTest06 DATA{${ITK_DATA_ROOT}/Input/cthead1.j2k} ${ITK_TEST_OUTPUT_DIR}/cthead1.tif)
 itk_add_test(NAME itkLabelGeometryImageFilterTest
       COMMAND ITKReviewTestDriver
     --compare DATA{${BASELINE}/itkLabelGeometryImageFilterTest.png}
@@ -227,14 +141,6 @@ itk_add_test(NAME itkMultiphaseFiniteDifferenceImageFilterTest
       COMMAND ITKReviewTestDriver itkMultiphaseFiniteDifferenceImageFilterTest)
 itk_add_test(NAME itkMultiphaseSparseFiniteDifferenceImageFilterTest
       COMMAND ITKReviewTestDriver itkMultiphaseSparseFiniteDifferenceImageFilterTest)
-itk_add_test(NAME itkMultiScaleHessianBasedMeasureImageFilterTest
-      COMMAND ITKReviewTestDriver
-          --compare DATA{${ITK_DATA_ROOT}/Baseline/Review/itkMultiScaleHessianBasedMeasureImageFilterTestEnhancedOutput.mha}
-              ${ITK_TEST_OUTPUT_DIR}/itkMultiScaleHessianBasedMeasureImageFilterTestEnhancedOutput.mha
-              itkMultiScaleHessianBasedMeasureImageFilterTest DATA{${ITK_DATA_ROOT}/Input/DSA.png} ${ITK_TEST_OUTPUT_DIR}/itkMultiScaleHessianBasedMeasureImageFilterTestEnhancedOutput.mha ${ITK_TEST_OUTPUT_DIR}/itkMultiScaleHessianBasedMeasureImageFilterTestScalesOutput.mha 5 10 10 1 0 ${ITK_TEST_OUTPUT_DIR}/itkMultiScaleHessianBasedMeasureImageFilterTestEnhancedOutput2.mha)
-itk_add_test(NAME itkNeuralNetworkIOTest
-      COMMAND ITKReviewTestDriver itkNeuralNetworkIOTest
-              DATA{${ITK_DATA_ROOT}/Input/xornet.txt} DATA{${ITK_DATA_ROOT}/Input/xortest.txt} ${ITK_TEST_OUTPUT_DIR})
 
 itk_add_test(NAME itkOptImageToImageMetricsTest01
       COMMAND ITKReviewTestDriver --redirectOutput ${TEMP}/itkOptImageToImageMetricsTest01.txt
@@ -332,8 +238,6 @@ itk_add_test(NAME itkStochasticFractalDimensionImageFilterTest2
     itkStochasticFractalDimensionImageFilterTest 2 DATA{${ITK_DATA_ROOT}/Input/TreeBarkTexture.png} ${ITK_TEST_OUTPUT_DIR}/itkStochasticFractalDimensionImageFilterTest2.mha 2 DATA{${ITK_DATA_ROOT}/Input/circle100.png} 255)
 itk_add_test(NAME itkTimeAndMemoryProbeTest1
       COMMAND ITKReviewTestDriver itkTimeAndMemoryProbeTest)
-itk_add_test(NAME itkVectorCentralDifferenceImageFunctionTest
-      COMMAND ITKReviewTestDriver itkVectorCentralDifferenceImageFunctionTest)
 itk_add_test(NAME itkVoxBoCUBImageIOTest1
       COMMAND ITKReviewTestDriver itkVoxBoCUBImageIOTest
               DATA{${ITK_DATA_ROOT}/Input/HeadMRVolume.mhd,HeadMRVolume.raw} ${ITK_TEST_OUTPUT_DIR}/HeadMRVolume.cub)

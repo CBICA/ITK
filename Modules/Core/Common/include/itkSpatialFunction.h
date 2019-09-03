@@ -41,46 +41,45 @@ namespace itk
  * \ingroup SpatialFunctions
  * \ingroup ITKCommon
  */
-template< typename TOutput,
-          unsigned int VImageDimension = 3,
-          typename TInput = Point< double, VImageDimension > >
-class ITK_TEMPLATE_EXPORT SpatialFunction:public FunctionBase< TInput, TOutput >
+template <typename TOutput, unsigned int VImageDimension = 3, typename TInput = Point<double, VImageDimension>>
+class ITK_TEMPLATE_EXPORT SpatialFunction : public FunctionBase<TInput, TOutput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SpatialFunction                 Self;
-  typedef FunctionBase< TInput, TOutput > Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialFunction);
+
+  /** Standard class type aliases. */
+  using Self = SpatialFunction;
+  using Superclass = FunctionBase<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(SpatialFunction, FunctionBase);
 
   /** Input type for the function. */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Spatial dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int, VImageDimension);
+  static constexpr unsigned int ImageDimension = VImageDimension;
 
   /** Evaluate the function at a given position. Remember, position is
-  * represented by an n-d itk::Point object with data type double. */
-  virtual OutputType Evaluate(const InputType & input) const ITK_OVERRIDE = 0;
+   * represented by an n-d itk::Point object with data type double. */
+  OutputType
+  Evaluate(const InputType & input) const override = 0;
 
 protected:
-  SpatialFunction();
-  virtual ~SpatialFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialFunction);
+  SpatialFunction() = default;
+  ~SpatialFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSpatialFunction.hxx"
+#  include "itkSpatialFunction.hxx"
 #endif
 
 #endif

@@ -35,18 +35,17 @@ namespace itk
  * the ellipsoid's major axis is oriented along a singles orientation vector.
  * \ingroup ITKCommon
  */
-template< unsigned int VDimension = 3,
-          typename TInput = Point< double, VDimension > >
-class ITK_TEMPLATE_EXPORT SymmetricEllipsoidInteriorExteriorSpatialFunction:
-  public InteriorExteriorSpatialFunction< VDimension, TInput >
+template <unsigned int VDimension = 3, typename TInput = Point<double, VDimension>>
+class ITK_TEMPLATE_EXPORT SymmetricEllipsoidInteriorExteriorSpatialFunction
+  : public InteriorExteriorSpatialFunction<VDimension, TInput>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SymmetricEllipsoidInteriorExteriorSpatialFunction Self;
-  typedef InteriorExteriorSpatialFunction< VDimension >     Superclass;
-  typedef SmartPointer< Self >                              Pointer;
-  typedef SmartPointer< const Self >                        ConstPointer;
-  typedef Vector< double, VDimension >                      VectorType;
+  /** Standard class type aliases. */
+  using Self = SymmetricEllipsoidInteriorExteriorSpatialFunction;
+  using Superclass = InteriorExteriorSpatialFunction<VDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using VectorType = Vector<double, VDimension>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -55,13 +54,14 @@ public:
   itkTypeMacro(SymmetricEllipsoidInteriorExteriorSpatialFunction, InteriorExteriorSpatialFunction);
 
   /** Input type for the function. */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Evaluates the function at a given position. */
-  OutputType Evaluate(const InputType & position) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & position) const override;
 
   /** Get and set the center of the ellipsoid. */
   itkGetConstMacro(Center, InputType);
@@ -69,41 +69,40 @@ public:
 
   /** Set the orientation vector of the ellipsoid's unique axis and axes lengths.
    * Must be normalized!!!!! */
-  void SetOrientation(VectorType orientation, double uniqueAxis, double symmetricAxes);
+  void
+  SetOrientation(VectorType orientation, double uniqueAxis, double symmetricAxes);
 
 protected:
   SymmetricEllipsoidInteriorExteriorSpatialFunction();
-  virtual ~SymmetricEllipsoidInteriorExteriorSpatialFunction() ITK_OVERRIDE;
+  ~SymmetricEllipsoidInteriorExteriorSpatialFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  SymmetricEllipsoidInteriorExteriorSpatialFunction(const Self &); //purposely
-                                                                   // not
-                                                                   // implemented
-  void operator=(const Self &);                                    //purposely
-                                                                   // not
-                                                                   // implemented
+  SymmetricEllipsoidInteriorExteriorSpatialFunction(const Self &) = delete;
+  void
+  operator=(const Self &) = delete;
 
   /** The center of the ellipsoid. */
   InputType m_Center;
 
   /** The unique axis length of the ellipsoid. */
-  double m_UniqueAxis;
+  double m_UniqueAxis{ 10 };
 
   /** The symmetric axes lengths of the ellipsoid. */
-  double m_SymmetricAxes;
+  double m_SymmetricAxes{ 5 };
 
   /** The orientation vector of the ellipsoid's unique axis. */
-  Vector< double, VDimension > m_Orientation;
+  Vector<double, VDimension> m_Orientation;
 
   /** The vector ratio. */
-  double m_VectorRatio;
+  double m_VectorRatio{ 0.0 };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSymmetricEllipsoidInteriorExteriorSpatialFunction.hxx"
+#  include "itkSymmetricEllipsoidInteriorExteriorSpatialFunction.hxx"
 #endif
 
 #endif

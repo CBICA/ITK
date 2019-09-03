@@ -91,17 +91,18 @@ namespace itk
  * \ingroup ImageObjects
  * \ingroup ITKCommon
  */
-template< typename TPixel >
-class ITK_TEMPLATE_EXPORT PhasedArray3DSpecialCoordinatesImage:
-  public SpecialCoordinatesImage< TPixel, 3 >
+template <typename TPixel>
+class ITK_TEMPLATE_EXPORT PhasedArray3DSpecialCoordinatesImage : public SpecialCoordinatesImage<TPixel, 3>
 {
 public:
-  /** Standard class typedefs */
-  typedef PhasedArray3DSpecialCoordinatesImage Self;
-  typedef SpecialCoordinatesImage< TPixel, 3 > Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
-  typedef WeakPointer< const Self >            ConstWeakPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PhasedArray3DSpecialCoordinatesImage);
+
+  /** Standard class type aliases */
+  using Self = PhasedArray3DSpecialCoordinatesImage;
+  using Superclass = SpecialCoordinatesImage<TPixel, 3>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ConstWeakPointer = WeakPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -109,109 +110,104 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(PhasedArray3DSpecialCoordinatesImage, SpecialCoordinatesImage);
 
-  /** Pixel typedef support. Used to declare pixel type in filters
+  /** Pixel type alias support Used to declare pixel type in filters
    * or other operations. */
-  typedef TPixel PixelType;
+  using PixelType = TPixel;
 
   /** Typedef alias for PixelType */
-  typedef TPixel ValueType;
+  using ValueType = TPixel;
 
   /** Internal Pixel representation. Used to maintain a uniform API
    * with Image Adaptors and allow to keep a particular internal
    * representation of data while showing a different external
    * representation. */
-  typedef TPixel InternalPixelType;
+  using InternalPixelType = TPixel;
 
-  typedef typename Superclass::IOPixelType IOPixelType;
+  using IOPixelType = typename Superclass::IOPixelType;
 
   /** Accessor type that convert data between internal and external
    *  representations.  */
-  typedef DefaultPixelAccessor< PixelType > AccessorType;
+  using AccessorType = DefaultPixelAccessor<PixelType>;
 
   /** Accessor functor to choose between accessors: DefaultPixelAccessor for
    * the Image, and DefaultVectorPixelAccessor for the vector image. The
    * functor provides a generic API between the two accessors. */
-  typedef DefaultPixelAccessorFunctor< Self > AccessorFunctorType;
+  using AccessorFunctorType = DefaultPixelAccessorFunctor<Self>;
 
   /** Typedef for the functor used to access a neighborhood of pixel
    * pointers. */
-  typedef NeighborhoodAccessorFunctor< Self > NeighborhoodAccessorFunctorType;
+  using NeighborhoodAccessorFunctorType = NeighborhoodAccessorFunctor<Self>;
 
   /** Dimension of the image.  This constant is used by functions that are
    * templated over image type (as opposed to being templated over pixel type
    * and dimension) when they need compile time access to the dimension of
    * the image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, 3);
+  static constexpr unsigned int ImageDimension = 3;
 
-  /** Index typedef support. An index is used to access pixel values. */
-  typedef typename Superclass::IndexType      IndexType;
-  typedef typename Superclass::IndexValueType IndexValueType;
+  /** Index type alias support An index is used to access pixel values. */
+  using IndexType = typename Superclass::IndexType;
+  using IndexValueType = typename Superclass::IndexValueType;
 
-  /** Offset typedef support. An offset is used to access pixel values. */
-  typedef typename Superclass::OffsetType OffsetType;
+  /** Offset type alias support An offset is used to access pixel values. */
+  using OffsetType = typename Superclass::OffsetType;
 
-  /** Size typedef support. A size is used to define region bounds. */
-  typedef typename Superclass::SizeType      SizeType;
-  typedef typename Superclass::SizeValueType SizeValueType;
+  /** Size type alias support A size is used to define region bounds. */
+  using SizeType = typename Superclass::SizeType;
+  using SizeValueType = typename Superclass::SizeValueType;
 
   /** Container used to store pixels in the image. */
-  typedef ImportImageContainer< SizeValueType, PixelType > PixelContainer;
+  using PixelContainer = ImportImageContainer<SizeValueType, PixelType>;
 
-  /** Region typedef support. A region is used to specify a subset of
+  /** Region type alias support A region is used to specify a subset of
    *  an image.
    */
-  typedef typename Superclass::RegionType RegionType;
+  using RegionType = typename Superclass::RegionType;
 
-  /** Spacing typedef support.  Spacing holds the "fake" size of a
+  /** Spacing type alias support  Spacing holds the "fake" size of a
    *  pixel, making each pixel look like a 1 unit hyper-cube to filters
    *  that were designed for normal images and that therefore use
    *  m_Spacing.  The spacing is the geometric distance between image
    *  samples.
    */
-  typedef typename Superclass::SpacingType SpacingType;
+  using SpacingType = typename Superclass::SpacingType;
 
-  /** Origin typedef support.  The origin is the "fake" geometric
+  /** Origin type alias support  The origin is the "fake" geometric
    *  coordinates of the index (0,0).  Also for use w/ filters designed
    *  for normal images.
    */
-  typedef typename Superclass::PointType PointType;
+  using PointType = typename Superclass::PointType;
 
   /** A pointer to the pixel container. */
-  typedef typename PixelContainer::Pointer      PixelContainerPointer;
-  typedef typename PixelContainer::ConstPointer PixelContainerConstPointer;
+  using PixelContainerPointer = typename PixelContainer::Pointer;
+  using PixelContainerConstPointer = typename PixelContainer::ConstPointer;
 
   /** \brief Get the continuous index from a physical point
    *
    * Returns true if the resulting index is within the image, false otherwise.
    * \sa Transform */
-  template< typename TCoordRep, typename TIndexRep >
-  bool TransformPhysicalPointToContinuousIndex(
-    const Point< TCoordRep, 3 > & point,
-    ContinuousIndex< TIndexRep, 3 > & index) const
+  template <typename TCoordRep, typename TIndexRep>
+  bool
+  TransformPhysicalPointToContinuousIndex(const Point<TCoordRep, 3> &     point,
+                                          ContinuousIndex<TIndexRep, 3> & index) const
   {
     const RegionType region = this->GetLargestPossibleRegion();
-    const double maxAzimuth = region.GetSize(0) - 1;
-    const double maxElevation = region.GetSize(1) - 1;
+    const double     maxAzimuth = region.GetSize(0) - 1;
+    const double     maxElevation = region.GetSize(1) - 1;
 
     // Convert Cartesian coordinates into angular coordinates
-    TCoordRep azimuth   = Math::pi_over_2;
+    TCoordRep azimuth = Math::pi_over_2;
     TCoordRep elevation = Math::pi_over_2;
-    if( point[2] != 0.0 )
-      {
-      azimuth   = std::atan(point[0] / point[2]);
+    if (point[2] != 0.0)
+    {
+      azimuth = std::atan(point[0] / point[2]);
       elevation = std::atan(point[1] / point[2]);
-      }
-    const TCoordRep radius  = std::sqrt(point[0] * point[0]
-                                   + point[1] * point[1]
-                                   + point[2] * point[2]);
+    }
+    const TCoordRep radius = std::sqrt(point[0] * point[0] + point[1] * point[1] + point[2] * point[2]);
 
     // Convert the "proper" angular coordinates into index format
-    index[0] = static_cast< TCoordRep >( ( azimuth / m_AzimuthAngularSeparation )
-                                         + ( maxAzimuth / 2.0 ) );
-    index[1] = static_cast< TCoordRep >( ( elevation / m_ElevationAngularSeparation )
-                                         + ( maxElevation / 2.0 ) );
-    index[2] = static_cast< TCoordRep >( ( ( radius - m_FirstSampleDistance )
-                                           / m_RadiusSampleSize ) );
+    index[0] = static_cast<TCoordRep>((azimuth / m_AzimuthAngularSeparation) + (maxAzimuth / 2.0));
+    index[1] = static_cast<TCoordRep>((elevation / m_ElevationAngularSeparation) + (maxElevation / 2.0));
+    index[2] = static_cast<TCoordRep>(((radius - m_FirstSampleDistance) / m_RadiusSampleSize));
 
     // Now, check to see if the index is within allowed bounds
     const bool isInside = region.IsInside(index);
@@ -223,37 +219,28 @@ public:
    * Floating point index results are truncated to integers.
    * Returns true if the resulting index is within the image, false otherwise
    * \sa Transform */
-  template< typename TCoordRep >
-  bool TransformPhysicalPointToIndex(
-    const Point< TCoordRep, 3 > & point,
-    IndexType & index) const
+  template <typename TCoordRep>
+  bool
+  TransformPhysicalPointToIndex(const Point<TCoordRep, 3> & point, IndexType & index) const
   {
     const RegionType region = this->GetLargestPossibleRegion();
-    const double maxAzimuth   = region.GetSize(0) - 1;
-    const double maxElevation = region.GetSize(1) - 1;
+    const double     maxAzimuth = region.GetSize(0) - 1;
+    const double     maxElevation = region.GetSize(1) - 1;
 
     // Convert Cartesian coordinates into angular coordinates
-    TCoordRep azimuth   = Math::pi_over_2;
+    TCoordRep azimuth = Math::pi_over_2;
     TCoordRep elevation = Math::pi_over_2;
-    if( point[2] != 0.0 )
-      {
-      azimuth   = std::atan(point[0] / point[2]);
+    if (point[2] != 0.0)
+    {
+      azimuth = std::atan(point[0] / point[2]);
       elevation = std::atan(point[1] / point[2]);
-      }
-    const TCoordRep radius = std::sqrt(point[0] * point[0]
-                                   + point[1] * point[1]
-                                   + point[2] * point[2]);
+    }
+    const TCoordRep radius = std::sqrt(point[0] * point[0] + point[1] * point[1] + point[2] * point[2]);
 
     // Convert the "proper" angular coordinates into index format
-    index[0] = static_cast< IndexValueType >(
-      ( azimuth / m_AzimuthAngularSeparation )
-      + ( maxAzimuth / 2.0 ) );
-    index[1] = static_cast< IndexValueType >(
-      ( elevation / m_ElevationAngularSeparation )
-      + ( maxElevation / 2.0 ) );
-    index[2] = static_cast< IndexValueType >(
-      ( ( radius - m_FirstSampleDistance )
-        / m_RadiusSampleSize ) );
+    index[0] = static_cast<IndexValueType>((azimuth / m_AzimuthAngularSeparation) + (maxAzimuth / 2.0));
+    index[1] = static_cast<IndexValueType>((elevation / m_ElevationAngularSeparation) + (maxElevation / 2.0));
+    index[2] = static_cast<IndexValueType>(((radius - m_FirstSampleDistance) / m_RadiusSampleSize));
 
     // Now, check to see if the index is within allowed bounds
     const bool isInside = region.IsInside(index);
@@ -265,32 +252,28 @@ public:
    * the origin and spacing information comes from)
    * from a continuous index (in the index space)
    * \sa Transform */
-  template< typename TCoordRep, typename TIndexRep >
-  void TransformContinuousIndexToPhysicalPoint(
-    const ContinuousIndex< TIndexRep, 3 > & index,
-    Point< TCoordRep, 3 > & point) const
+  template <typename TCoordRep, typename TIndexRep>
+  void
+  TransformContinuousIndexToPhysicalPoint(const ContinuousIndex<TIndexRep, 3> & index,
+                                          Point<TCoordRep, 3> &                 point) const
   {
     const RegionType region = this->GetLargestPossibleRegion();
-    const double maxAzimuth   = region.GetSize(0) - 1;
-    const double maxElevation = region.GetSize(1) - 1;
+    const double     maxAzimuth = region.GetSize(0) - 1;
+    const double     maxElevation = region.GetSize(1) - 1;
 
     // Convert the index into proper angular coordinates
-    const TCoordRep azimuth   = ( index[0] - ( maxAzimuth / 2.0 ) )
-                          * m_AzimuthAngularSeparation;
-    const TCoordRep elevation = ( index[1] - ( maxElevation / 2.0 ) )
-                          * m_ElevationAngularSeparation;
-    const TCoordRep radius    = ( index[2] * m_RadiusSampleSize ) + m_FirstSampleDistance;
+    const TCoordRep azimuth = (index[0] - (maxAzimuth / 2.0)) * m_AzimuthAngularSeparation;
+    const TCoordRep elevation = (index[1] - (maxElevation / 2.0)) * m_ElevationAngularSeparation;
+    const TCoordRep radius = (index[2] * m_RadiusSampleSize) + m_FirstSampleDistance;
 
     // Convert the angular coordinates into Cartesian coordinates
-    const TCoordRep tanOfAzimuth   = std::tan(azimuth);
+    const TCoordRep tanOfAzimuth = std::tan(azimuth);
     const TCoordRep tanOfElevation = std::tan(elevation);
 
-    point[2] = static_cast< TCoordRep >( radius
-                                         / std::sqrt(1
-                                                    + tanOfAzimuth * tanOfAzimuth
-                                                    + tanOfElevation * tanOfElevation) );
-    point[1] = static_cast< TCoordRep >( point[2] * tanOfElevation );
-    point[0] = static_cast< TCoordRep >( point[2] * tanOfAzimuth );
+    point[2] =
+      static_cast<TCoordRep>(radius / std::sqrt(1 + tanOfAzimuth * tanOfAzimuth + tanOfElevation * tanOfElevation));
+    point[1] = static_cast<TCoordRep>(point[2] * tanOfElevation);
+    point[0] = static_cast<TCoordRep>(point[2] * tanOfAzimuth);
   }
 
   /** Get a physical point (in the space which
@@ -298,35 +281,27 @@ public:
    * from a discrete index (in the index space)
    *
    * \sa Transform */
-  template< typename TCoordRep >
-  void TransformIndexToPhysicalPoint(
-    const IndexType & index,
-    Point< TCoordRep, 3 > & point) const
+  template <typename TCoordRep>
+  void
+  TransformIndexToPhysicalPoint(const IndexType & index, Point<TCoordRep, 3> & point) const
   {
     const RegionType region = this->GetLargestPossibleRegion();
-    const double maxAzimuth   = region.GetSize(0) - 1;
-    const double maxElevation = region.GetSize(1) - 1;
+    const double     maxAzimuth = region.GetSize(0) - 1;
+    const double     maxElevation = region.GetSize(1) - 1;
 
     // Convert the index into proper angular coordinates
-    const TCoordRep azimuth =
-      ( static_cast< double >( index[0] ) - ( maxAzimuth / 2.0 ) )
-      * m_AzimuthAngularSeparation;
-    const TCoordRep elevation =
-      ( static_cast< double >( index[1] ) - ( maxElevation / 2.0 ) )
-      * m_ElevationAngularSeparation;
-    const TCoordRep radius =
-      ( static_cast< double >( index[2] ) * m_RadiusSampleSize )
-      + m_FirstSampleDistance;
+    const TCoordRep azimuth = (static_cast<double>(index[0]) - (maxAzimuth / 2.0)) * m_AzimuthAngularSeparation;
+    const TCoordRep elevation = (static_cast<double>(index[1]) - (maxElevation / 2.0)) * m_ElevationAngularSeparation;
+    const TCoordRep radius = (static_cast<double>(index[2]) * m_RadiusSampleSize) + m_FirstSampleDistance;
 
     // Convert the angular coordinates into Cartesian coordinates
-    const TCoordRep tanOfAzimuth   = std::tan(azimuth);
+    const TCoordRep tanOfAzimuth = std::tan(azimuth);
     const TCoordRep tanOfElevation = std::tan(elevation);
 
-    point[2] = static_cast< TCoordRep >(
-      radius / std::sqrt(
-        1.0 + tanOfAzimuth * tanOfAzimuth + tanOfElevation * tanOfElevation) );
-    point[1] = static_cast< TCoordRep >( point[2] * tanOfElevation );
-    point[0] = static_cast< TCoordRep >( point[2] * tanOfAzimuth );
+    point[2] =
+      static_cast<TCoordRep>(radius / std::sqrt(1.0 + tanOfAzimuth * tanOfAzimuth + tanOfElevation * tanOfElevation));
+    point[1] = static_cast<TCoordRep>(point[2] * tanOfElevation);
+    point[0] = static_cast<TCoordRep>(point[2] * tanOfAzimuth);
   }
 
   /**  Set the number of radians between each azimuth unit.   */
@@ -341,59 +316,68 @@ public:
   /**  Set the distance to add to the radius. */
   itkSetMacro(FirstSampleDistance, double);
 
-  template< typename TCoordRep >
-  void TransformLocalVectorToPhysicalVector(
-    FixedArray< TCoordRep, 3 > & ) const
-    {}
+  template <typename TCoordRep>
+  void TransformLocalVectorToPhysicalVector(FixedArray<TCoordRep, 3> &) const
+  {}
 
-  template< typename TCoordRep >
-  void TransformPhysicalVectorToLocalVector(
-    const FixedArray< TCoordRep, 3 > & ,
-    FixedArray< TCoordRep, 3 > & ) const
-    {}
+  template <typename TCoordRep>
+  void
+  TransformPhysicalVectorToLocalVector(const FixedArray<TCoordRep, 3> &, FixedArray<TCoordRep, 3> &) const
+  {}
 
   /** Return the Pixel Accessor object */
-  AccessorType GetPixelAccessor(void)
-  { return AccessorType(); }
+  AccessorType
+  GetPixelAccessor()
+  {
+    return AccessorType();
+  }
 
   /** Return the Pixel Accesor object */
-  const AccessorType GetPixelAccessor(void) const
-  { return AccessorType(); }
+  const AccessorType
+  GetPixelAccessor() const
+  {
+    return AccessorType();
+  }
 
   /** Return the NeighborhoodAccessor functor */
-  NeighborhoodAccessorFunctorType GetNeighborhoodAccessor()
-  { return NeighborhoodAccessorFunctorType(); }
+  NeighborhoodAccessorFunctorType
+  GetNeighborhoodAccessor()
+  {
+    return NeighborhoodAccessorFunctorType();
+  }
 
   /** Return the NeighborhoodAccessor functor */
-  const NeighborhoodAccessorFunctorType GetNeighborhoodAccessor() const
-  { return NeighborhoodAccessorFunctorType(); }
+  const NeighborhoodAccessorFunctorType
+  GetNeighborhoodAccessor() const
+  {
+    return NeighborhoodAccessorFunctorType();
+  }
 
 protected:
   PhasedArray3DSpecialCoordinatesImage()
   {
     m_RadiusSampleSize = 1;
-    m_AzimuthAngularSeparation   =  1 * ( 2.0 * itk::Math::pi / 360.0 ); // 1
-                                                                        // degree
-    m_ElevationAngularSeparation =  1 * ( 2.0 * itk::Math::pi / 360.0 ); // 1
-                                                                        // degree
+    m_AzimuthAngularSeparation = 1 * (2.0 * itk::Math::pi / 360.0);   // 1
+                                                                      // degree
+    m_ElevationAngularSeparation = 1 * (2.0 * itk::Math::pi / 360.0); // 1
+                                                                      // degree
     m_FirstSampleDistance = 0;
   }
 
-  virtual ~PhasedArray3DSpecialCoordinatesImage() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~PhasedArray3DSpecialCoordinatesImage() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PhasedArray3DSpecialCoordinatesImage);
-
-  double m_AzimuthAngularSeparation;    // in radians
-  double m_ElevationAngularSeparation;  // in radians
+  double m_AzimuthAngularSeparation;   // in radians
+  double m_ElevationAngularSeparation; // in radians
   double m_RadiusSampleSize;
   double m_FirstSampleDistance;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPhasedArray3DSpecialCoordinatesImage.hxx"
+#  include "itkPhasedArray3DSpecialCoordinatesImage.hxx"
 #endif
 
 #endif

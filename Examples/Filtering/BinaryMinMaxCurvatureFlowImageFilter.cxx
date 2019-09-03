@@ -74,17 +74,18 @@
 #include "itkBinaryMinMaxCurvatureFlowImageFilter.h"
 // Software Guide : EndCodeSnippet
 
-int main( int argc, char * argv[] )
+int
+main(int argc, char * argv[])
 {
 
 
-  if( argc < 7 )
-    {
+  if (argc < 7)
+  {
     std::cerr << "Usage: " << std::endl;
     std::cerr << argv[0] << "  inputImageFile  outputImageFile  ";
     std::cerr << "numberOfIterations  timeStep  stencilRadius  threshold" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   //  Software Guide : BeginLatex
@@ -95,14 +96,14 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef    float    InputPixelType;
-  typedef    float    OutputPixelType;
+  using InputPixelType = float;
+  using OutputPixelType = float;
 
-  typedef itk::Image< InputPixelType,  2 >   InputImageType;
-  typedef itk::Image< OutputPixelType, 2 >   OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, 2>;
+  using OutputImageType = itk::Image<OutputPixelType, 2>;
   // Software Guide : EndCodeSnippet
 
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
 
 
   //  Software Guide : BeginLatex
@@ -118,15 +119,15 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::BinaryMinMaxCurvatureFlowImageFilter<
-               InputImageType, OutputImageType >  FilterType;
+  using FilterType =
+    itk::BinaryMinMaxCurvatureFlowImageFilter<InputImageType, OutputImageType>;
 
   FilterType::Pointer filter = FilterType::New();
   // Software Guide : EndCodeSnippet
 
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
 
   //  Software Guide : BeginLatex
@@ -137,19 +138,19 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  filter->SetInput( reader->GetOutput() );
+  filter->SetInput(reader->GetOutput());
   // Software Guide : EndCodeSnippet
 
 
-  const unsigned int numberOfIterations = atoi( argv[3] );
+  const unsigned int numberOfIterations = std::stoi(argv[3]);
 
-  const double       timeStep = atof( argv[4] );
+  const double timeStep = std::stod(argv[4]);
 
-  typedef FilterType::RadiusValueType RadiusType;
+  using RadiusType = FilterType::RadiusValueType;
 
-  const RadiusType radius = atol( argv[5] );
+  const RadiusType radius = atol(argv[5]);
 
-  const double threshold = atof( argv[6] );
+  const double threshold = std::stod(argv[6]);
 
 
   //  Software Guide : BeginLatex
@@ -173,11 +174,11 @@ int main( int argc, char * argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  filter->SetTimeStep( timeStep );
-  filter->SetNumberOfIterations( numberOfIterations );
+  filter->SetTimeStep(timeStep);
+  filter->SetNumberOfIterations(numberOfIterations);
 
-  filter->SetStencilRadius( radius );
-  filter->SetThreshold( threshold );
+  filter->SetStencilRadius(radius);
+  filter->SetThreshold(threshold);
 
   filter->Update();
   // Software Guide : EndCodeSnippet
@@ -194,28 +195,28 @@ int main( int argc, char * argv[] )
   //
   //  Software Guide : EndLatex
 
-  typedef unsigned char WritePixelType;
+  using WritePixelType = unsigned char;
 
-  typedef itk::Image< WritePixelType, 2 > WriteImageType;
+  using WriteImageType = itk::Image<WritePixelType, 2>;
 
-  typedef itk::RescaleIntensityImageFilter<
-               OutputImageType, WriteImageType > RescaleFilterType;
+  using RescaleFilterType =
+    itk::RescaleIntensityImageFilter<OutputImageType, WriteImageType>;
 
   RescaleFilterType::Pointer rescaler = RescaleFilterType::New();
 
-  rescaler->SetOutputMinimum(   0 );
-  rescaler->SetOutputMaximum( 255 );
+  rescaler->SetOutputMinimum(0);
+  rescaler->SetOutputMaximum(255);
 
 
-  typedef itk::ImageFileWriter< WriteImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<WriteImageType>;
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetFileName( argv[2] );
+  writer->SetFileName(argv[2]);
 
 
-  rescaler->SetInput( filter->GetOutput() );
-  writer->SetInput( rescaler->GetOutput() );
+  rescaler->SetInput(filter->GetOutput());
+  writer->SetInput(rescaler->GetOutput());
   writer->Update();
 
 
@@ -240,5 +241,4 @@ int main( int argc, char * argv[] )
 
 
   return EXIT_SUCCESS;
-
 }

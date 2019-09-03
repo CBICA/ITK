@@ -22,28 +22,28 @@
 
 namespace itk
 {
-void MatlabTransformIOFactory::PrintSelf(std::ostream &, Indent) const
+void
+MatlabTransformIOFactory::PrintSelf(std::ostream &, Indent) const
 {}
 
 MatlabTransformIOFactory::MatlabTransformIOFactory()
 {
-  this->RegisterOverride( "itkTransformIOBaseTemplate",
-                          "itkMatlabTransformIO",
-                          "Matlab Transform float IO",
-                          1,
-                          CreateObjectFunction< MatlabTransformIOTemplate< float > >::New() );
-  this->RegisterOverride( "itkTransformIOBaseTemplate",
-                          "itkMatlabTransformIO",
-                          "Matlab Transform double IO",
-                          1,
-                          CreateObjectFunction< MatlabTransformIOTemplate< double >  >::New() );
+  this->RegisterOverride("itkTransformIOBaseTemplate",
+                         "itkMatlabTransformIO",
+                         "Matlab Transform float IO",
+                         true,
+                         CreateObjectFunction<MatlabTransformIOTemplate<float>>::New());
+  this->RegisterOverride("itkTransformIOBaseTemplate",
+                         "itkMatlabTransformIO",
+                         "Matlab Transform double IO",
+                         true,
+                         CreateObjectFunction<MatlabTransformIOTemplate<double>>::New());
 }
 
-MatlabTransformIOFactory::~MatlabTransformIOFactory()
-{}
+MatlabTransformIOFactory::~MatlabTransformIOFactory() = default;
 
 const char *
-MatlabTransformIOFactory::GetITKSourceVersion(void) const
+MatlabTransformIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
@@ -59,12 +59,13 @@ MatlabTransformIOFactory::GetDescription() const
 // DO NOT CALL DIRECTLY.
 static bool MatlabTransformIOFactoryHasBeenRegistered;
 
-void ITKIOTransformMatlab_EXPORT MatlabTransformIOFactoryRegister__Private(void)
+void ITKIOTransformMatlab_EXPORT
+     MatlabTransformIOFactoryRegister__Private()
 {
-  if( ! MatlabTransformIOFactoryHasBeenRegistered )
-    {
+  if (!MatlabTransformIOFactoryHasBeenRegistered)
+  {
     MatlabTransformIOFactoryHasBeenRegistered = true;
     MatlabTransformIOFactory::RegisterOneFactory();
-    }
+  }
 }
 } // end namespace itk

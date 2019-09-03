@@ -33,43 +33,48 @@ namespace itk
  *
  * \ingroup ITKGPUCommon
  */
-template< typename TInputImage, typename TOutputImage = TInputImage, typename TParentImageFilter =
-            InPlaceImageFilter< TInputImage, TOutputImage > >
-class ITK_TEMPLATE_EXPORT GPUInPlaceImageFilter : public GPUImageToImageFilter< TInputImage, TOutputImage, TParentImageFilter >
+template <typename TInputImage,
+          typename TOutputImage = TInputImage,
+          typename TParentImageFilter = InPlaceImageFilter<TInputImage, TOutputImage>>
+class ITK_TEMPLATE_EXPORT GPUInPlaceImageFilter
+  : public GPUImageToImageFilter<TInputImage, TOutputImage, TParentImageFilter>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUInPlaceImageFilter                                                  Self;
-  typedef GPUImageToImageFilter< TInputImage, TOutputImage, TParentImageFilter > GPUSuperclass;
-  typedef TParentImageFilter                                                     CPUSuperclass;
-  typedef SmartPointer< Self >                                                   Pointer;
-  typedef SmartPointer< const Self >                                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUInPlaceImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GPUInPlaceImageFilter;
+  using GPUSuperclass = GPUImageToImageFilter<TInputImage, TOutputImage, TParentImageFilter>;
+  using CPUSuperclass = TParentImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(GPUInPlaceImageFilter, GPUImageToImageFilter);
 
-  /** Superclass typedefs. */
-  typedef typename GPUSuperclass::OutputImageType       OutputImageType;
-  typedef typename GPUSuperclass::OutputImagePointer    OutputImagePointer;
-  typedef typename GPUSuperclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename GPUSuperclass::OutputImagePixelType  OutputImagePixelType;
+  /** Superclass type alias. */
+  using OutputImageType = typename GPUSuperclass::OutputImageType;
+  using OutputImagePointer = typename GPUSuperclass::OutputImagePointer;
+  using OutputImageRegionType = typename GPUSuperclass::OutputImageRegionType;
+  using OutputImagePixelType = typename GPUSuperclass::OutputImagePixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int, TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                           InputImageType;
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename InputImageType::RegionType   InputImageRegionType;
-  typedef typename InputImageType::PixelType    InputImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
 protected:
   GPUInPlaceImageFilter();
-  ~GPUInPlaceImageFilter() ITK_OVERRIDE;
+  ~GPUInPlaceImageFilter() override;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** The GenerateData method normally allocates the buffers for all
    * of the outputs of a filter. Since InPlaceImageFilter's can use an
@@ -83,7 +88,8 @@ protected:
    * an InPlaceFilter is not threaded (i.e. it provides an
    * implementation of GenerateData()), then this method (or
    * equivalent) must be called in GenerateData(). */
-  virtual void AllocateOutputs() ITK_OVERRIDE;
+  void
+  AllocateOutputs() override;
 
   /** InPlaceImageFilter may transfer ownership of the input bulk data
    * to the output object.  Once the output object owns the bulk data
@@ -94,17 +100,14 @@ protected:
    * releases the input that it has overwritten.
    *
    * \sa ProcessObject::ReleaseInputs() */
-  virtual void ReleaseInputs() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUInPlaceImageFilter);
-
+  void
+  ReleaseInputs() override;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGPUInPlaceImageFilter.hxx"
+#  include "itkGPUInPlaceImageFilter.hxx"
 #endif
 
 #endif

@@ -26,12 +26,7 @@
 #include "itkVectorContainer.h"
 
 #include "vxl_version.h"
-#if VXL_VERSION_DATE_FULL > 20040406
 #include "vnl/vnl_cross.h"
-#define itk_cross_3d vnl_cross_3d
-#else
-#define itk_cross_3d cross_3d
-#endif
 
 namespace itk
 {
@@ -46,21 +41,23 @@ namespace itk
  *
  * \ingroup ITKMesh
  */
-template< typename TInputMesh, typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT SimplexMeshAdaptTopologyFilter:public MeshToMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT SimplexMeshAdaptTopologyFilter : public MeshToMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef SimplexMeshAdaptTopologyFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SimplexMeshAdaptTopologyFilter);
 
-  /** Standard "Superclass" typedef. */
-  typedef MeshToMeshFilter< TInputMesh, TOutputMesh > Superclass;
+  /** Standard "Self" type alias. */
+  using Self = SimplexMeshAdaptTopologyFilter;
 
-  /** Smart pointer typedef support */
-  typedef SmartPointer< Self > Pointer;
+  /** Standard "Superclass" type alias. */
+  using Superclass = MeshToMeshFilter<TInputMesh, TOutputMesh>;
 
-  /** Smart pointer typedef support */
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Smart pointer type alias support */
+  using Pointer = SmartPointer<Self>;
+
+  /** Smart pointer type alias support */
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method of creation through the object factory. */
   itkNewMacro(Self);
@@ -68,28 +65,28 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(SimplexMeshAdaptTopologyFilter, MeshToMeshFilter);
 
-  typedef TInputMesh                                                InputMeshType;
-  typedef typename InputMeshType::Pointer                           InputMeshPointer;
-  typedef typename InputMeshType::PointType                         InputPointType;
-  typedef typename InputMeshType::VectorType                        InputVectorType;
-  typedef typename InputMeshType::PixelType                         InputPixelType;
-  typedef typename InputMeshType::MeshTraits::CellTraits            InputCellTraitsType;
-  typedef typename InputMeshType::CellType                          InputCellType;
-  typedef typename InputMeshType::PointIdentifier                   PointIdentifier;
-  typedef typename InputMeshType::CellIdentifier                    CellIdentifier;
-  typedef typename InputCellType::PointIdIterator                   InputCellPointIdIterator;
-  typedef typename InputCellType::CellAutoPointer                   InputCellAutoPointer;
-  typedef typename InputMeshType::CellAutoPointer                   CellAutoPointer;
-  typedef          itk::PolygonCell< InputCellType >                InputPolygonType;
-  typedef typename InputPolygonType::PointIdIterator                InputPolygonPointIdIterator;
-  typedef CovariantVector< typename InputVectorType::ValueType, 3 > CovariantVectorType;
-  typedef  TOutputMesh                                              OutputMeshType;
-  typedef typename OutputMeshType::Pointer                          OutputMeshPointer;
-  typedef typename OutputMeshType::CellType                         OutputCellType;
-  typedef          itk::PolygonCell< OutputCellType >               OutputPolygonType;
+  using InputMeshType = TInputMesh;
+  using InputMeshPointer = typename InputMeshType::Pointer;
+  using InputPointType = typename InputMeshType::PointType;
+  using InputVectorType = typename InputMeshType::VectorType;
+  using InputPixelType = typename InputMeshType::PixelType;
+  using InputCellTraitsType = typename InputMeshType::MeshTraits::CellTraits;
+  using InputCellType = typename InputMeshType::CellType;
+  using PointIdentifier = typename InputMeshType::PointIdentifier;
+  using CellIdentifier = typename InputMeshType::CellIdentifier;
+  using InputCellPointIdIterator = typename InputCellType::PointIdIterator;
+  using InputCellAutoPointer = typename InputCellType::CellAutoPointer;
+  using CellAutoPointer = typename InputMeshType::CellAutoPointer;
+  using InputPolygonType = itk::PolygonCell<InputCellType>;
+  using InputPolygonPointIdIterator = typename InputPolygonType::PointIdIterator;
+  using CovariantVectorType = CovariantVector<typename InputVectorType::ValueType, 3>;
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
+  using OutputCellType = typename OutputMeshType::CellType;
+  using OutputPolygonType = itk::PolygonCell<OutputCellType>;
 
-  typedef typename itk::MapContainer< CellIdentifier, double > DoubleValueMapType;
-  typedef typename DoubleValueMapType::Iterator                DoubleContainerIterator;
+  using DoubleValueMapType = typename itk::MapContainer<CellIdentifier, double>;
+  using DoubleContainerIterator = typename DoubleValueMapType::Iterator;
 
   /** \class SimplexCellVisitor
    * class for visiting all polygonal cells.
@@ -100,12 +97,12 @@ public:
    */
   class SimplexCellVisitor
   {
-public:
-    InputMeshPointer            mesh;
-    double                      totalArea;
-    double                      totalCurvature;
-    double                      minCellSize;
-    double                      maxCellSize;
+  public:
+    InputMeshPointer                     mesh;
+    double                               totalArea;
+    double                               totalCurvature;
+    double                               minCellSize;
+    double                               maxCellSize;
     typename DoubleValueMapType::Pointer areaMap;
     typename DoubleValueMapType::Pointer curvatureMap;
 
@@ -118,22 +115,23 @@ public:
       curvatureMap = DoubleValueMapType::New();
       totalArea = 0;
       totalCurvature = 0;
-      minCellSize = NumericTraits< double >::max();
+      minCellSize = NumericTraits<double>::max();
       maxCellSize = 0;
-      minCurvature = NumericTraits< double >::max();
+      minCurvature = NumericTraits<double>::max();
       maxCurvature = 0;
     }
 
     /** \brief visits all polygon cells and computes the area,
      *  NOTE: works for convex polygons only!!!
      */
-    void Visit(CellIdentifier cellId, InputPolygonType *poly)
+    void
+    Visit(CellIdentifier cellId, InputPolygonType * poly)
     {
-      typename InputPolygonType::PointIdIterator it =  poly->PointIdsBegin();
+      typename InputPolygonType::PointIdIterator it = poly->PointIdsBegin();
 
-      double        meanCurvature = 0;
+      double          meanCurvature = 0;
       PointIdentifier refPoint = *it;
-      double        val = mesh->GetMeanCurvature(*it++);
+      double          val = mesh->GetMeanCurvature(*it++);
       meanCurvature += std::abs(val);
 
       PointIdentifier id1 = *it;
@@ -146,8 +144,8 @@ public:
 
       int cnt = 0;
 
-      while ( it != poly->PointIdsEnd() )
-        {
+      while (it != poly->PointIdsEnd())
+      {
         id2 = *it;
         area += ComputeArea(refPoint, id1, id2);
         id1 = id2;
@@ -155,7 +153,7 @@ public:
         meanCurvature += std::abs(val);
         cnt++;
         it++;
-        }
+      }
 
       meanCurvature /= (double)cnt;
       totalArea += area;
@@ -164,13 +162,26 @@ public:
       areaMap->InsertElement(cellId, area);
       curvatureMap->InsertElement(cellId, meanCurvature);
 
-      if ( area > maxCellSize ) { maxCellSize = area; }
-      if ( area < minCellSize ) { minCellSize = area; }
-      if ( meanCurvature > maxCurvature ) { maxCurvature = meanCurvature; }
-      if ( meanCurvature < minCurvature ) { minCurvature = meanCurvature; }
+      if (area > maxCellSize)
+      {
+        maxCellSize = area;
+      }
+      if (area < minCellSize)
+      {
+        minCellSize = area;
+      }
+      if (meanCurvature > maxCurvature)
+      {
+        maxCurvature = meanCurvature;
+      }
+      if (meanCurvature < minCurvature)
+      {
+        minCurvature = meanCurvature;
+      }
     }
 
-    double ComputeArea(PointIdentifier p1, PointIdentifier p2, PointIdentifier p3)
+    double
+    ComputeArea(PointIdentifier p1, PointIdentifier p2, PointIdentifier p3)
     {
       InputPointType v1, v2, v3;
 
@@ -181,60 +192,65 @@ public:
       mesh->GetPoint(p1, &v1);
       mesh->GetPoint(p2, &v2);
       mesh->GetPoint(p3, &v3);
-      return std::abs (itk_cross_3d( ( v2 - v1 ).GetVnlVector(), ( v3 - v1 ).GetVnlVector() ).two_norm() / 2.0);
+      return std::abs(vnl_cross_3d((v2 - v1).GetVnlVector(), (v3 - v1).GetVnlVector()).two_norm() / 2.0);
     }
 
-    typename DoubleValueMapType::Pointer GetAreaMap()
+    typename DoubleValueMapType::Pointer
+    GetAreaMap()
     {
       return areaMap;
     }
 
-    typename DoubleValueMapType::Pointer GetCurvatureMap()
+    typename DoubleValueMapType::Pointer
+    GetCurvatureMap()
     {
       return curvatureMap;
     }
 
-    double GetTotalMeshArea()
+    double
+    GetTotalMeshArea()
     {
       return totalArea;
     }
 
-    double GetTotalMeanCurvature()
+    double
+    GetTotalMeanCurvature()
     {
-      return totalCurvature / ( curvatureMap->Size() );
+      return totalCurvature / (curvatureMap->Size());
     }
 
-    double GetMaximumCellSize()
+    double
+    GetMaximumCellSize()
     {
       return maxCellSize;
     }
 
-    double GetMinimumCellSize()
+    double
+    GetMinimumCellSize()
     {
       return minCellSize;
     }
 
-    double GetMaximumCurvature()
+    double
+    GetMaximumCurvature()
     {
       return maxCurvature;
     }
 
-    double GetMinimumCurvature()
+    double
+    GetMinimumCurvature()
     {
       return minCurvature;
     }
   };
 
   // cell visitor stuff
-  typedef itk::CellInterfaceVisitorImplementation< InputPixelType,
-                                                   InputCellTraitsType,
-                                                   InputPolygonType,
-                                                   SimplexCellVisitor >
-  SimplexVisitorInterfaceType;
+  using SimplexVisitorInterfaceType =
+    itk::CellInterfaceVisitorImplementation<InputPixelType, InputCellTraitsType, InputPolygonType, SimplexCellVisitor>;
 
-  typedef typename SimplexVisitorInterfaceType::Pointer SimplexVisitorInterfacePointer;
-  typedef typename InputCellType::MultiVisitor          CellMultiVisitorType;
-  typedef typename CellMultiVisitorType::Pointer        CellMultiVisitorPointer;
+  using SimplexVisitorInterfacePointer = typename SimplexVisitorInterfaceType::Pointer;
+  using CellMultiVisitorType = typename InputCellType::MultiVisitor;
+  using CellMultiVisitorPointer = typename CellMultiVisitorType::Pointer;
 
   itkSetMacro(Threshold, double);
   itkGetConstMacro(Threshold, double);
@@ -245,43 +261,46 @@ public:
   itkGetConstMacro(ModifiedCount, int);
 
 protected:
-
   SimplexMeshAdaptTopologyFilter();
-  ~SimplexMeshAdaptTopologyFilter() ITK_OVERRIDE;
-  SimplexMeshAdaptTopologyFilter(const Self &) {}
+  ~SimplexMeshAdaptTopologyFilter() override = default;
 
-  void operator=(const Self &) {}
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /**
    * Initialize this filters containers
    */
-  void Initialize();
+  void
+  Initialize();
 
   /**
    * Method computes and evaluates cell propeties,
    * like area and curvature and determines whether
    * a cell should be refined or not.
    */
-  void ComputeCellParameters();
+  void
+  ComputeCellParameters();
 
   /** Copy Geometry data from the input mesh to the output mesh. */
-  void CopyInputMeshToOutputMeshGeometryData();
+  void
+  CopyInputMeshToOutputMeshGeometryData();
 
   /**
    * Update topology neighbor relations for all cells
    * which are were influenced by he insertion of new
    * points.
    */
-  void ModifyNeighborCells(CellIdentifier id1, CellIdentifier id2, PointIdentifier insertPointId);
+  void
+  ModifyNeighborCells(CellIdentifier id1, CellIdentifier id2, PointIdentifier insertPointId);
 
   /**
    * Compute the center of a cell
    */
-  InputPointType ComputeCellCenter(InputCellAutoPointer & simplexCell);
+  InputPointType
+  ComputeCellCenter(InputCellAutoPointer & simplexCell);
 
   /**
    * class member storing cell id offset
@@ -292,18 +311,18 @@ protected:
    * threshold controls the percentage of cells
    * to satify the selection criteria
    */
-  double m_Threshold;
+  double m_Threshold{ 0.5 };
 
   /**
    * different criteria for cell refinement selection
    */
-  int m_SelectionMethod;
+  int m_SelectionMethod{ 0 };
 
   /**
    * atttribute contains the number of cells
    * which were modified during the last Update()
    */
-  int m_ModifiedCount;
+  int m_ModifiedCount{ 0 };
 
   /**
    * \brief member for accessing the filter result during
@@ -313,10 +332,10 @@ protected:
 
   InputCellAutoPointer m_NewSimplexCellPointer;
 };
-} //end of namespace
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSimplexMeshAdaptTopologyFilter.hxx"
+#  include "itkSimplexMeshAdaptTopologyFilter.hxx"
 #endif
 
 #endif // itkSimplexMeshAdaptTopologyFilter_h

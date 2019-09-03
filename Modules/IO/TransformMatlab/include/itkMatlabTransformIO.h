@@ -28,20 +28,18 @@ namespace itk
  *  \brief Create instances of MatlabTransformIOTemplate objects.
  * \ingroup ITKIOTransformMatlab
  */
-template<typename ParametersValueType>
-class ITK_TEMPLATE_EXPORT MatlabTransformIOTemplate:public TransformIOBaseTemplate<ParametersValueType>
+template <typename ParametersValueType>
+class ITK_TEMPLATE_EXPORT MatlabTransformIOTemplate : public TransformIOBaseTemplate<ParametersValueType>
 {
 public:
-  typedef MatlabTransformIOTemplate                       Self;
-  typedef TransformIOBaseTemplate<ParametersValueType>    Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef typename Superclass::TransformType              TransformType;
-  typedef typename Superclass::TransformPointer           TransformPointer;
-  typedef typename Superclass::TransformListType          TransformListType;
+  using Self = MatlabTransformIOTemplate;
+  using Superclass = TransformIOBaseTemplate<ParametersValueType>;
+  using Pointer = SmartPointer<Self>;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformListType = typename Superclass::TransformListType;
 
-  typedef typename TransformIOBaseTemplate
-                      <ParametersValueType>::ConstTransformListType
-                                                          ConstTransformListType;
+  using ConstTransformListType = typename TransformIOBaseTemplate<ParametersValueType>::ConstTransformListType;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(MatlabTransformIOTemplate, Superclass);
@@ -49,29 +47,33 @@ public:
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanReadFile(const char *) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char *) override;
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanWriteFile(const char *) ITK_OVERRIDE;
+  bool
+  CanWriteFile(const char *) override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read() ITK_OVERRIDE;
+  void
+  Read() override;
 
   /** Writes the data to disk from the memory buffer provided. Make sure
    * that the IORegions has been set properly. The buffer is cast to a
    * pointer to the beginning of the image data. */
-  virtual void Write() ITK_OVERRIDE;
+  void
+  Write() override;
 
 protected:
   MatlabTransformIOTemplate();
-  virtual ~MatlabTransformIOTemplate() ITK_OVERRIDE;
+  ~MatlabTransformIOTemplate() override;
 };
 
 /** This helps to meet backward compatibility */
-typedef MatlabTransformIOTemplate<double> MatlabTransformIO;
+using MatlabTransformIO = MatlabTransformIOTemplate<double>;
 
-}
+} // namespace itk
 
 // Note: Explicit instantiation is done in itkMatlabTransformIO.cxx
 
@@ -87,26 +89,20 @@ typedef MatlabTransformIOTemplate<double> MatlabTransformIO;
 //            need to be considered. This code *MUST* be *OUTSIDE* the header
 //            guards.
 //
-#  if defined( ITKIOTransformMatlab_EXPORTS )
+#if defined(ITKIOTransformMatlab_EXPORTS)
 //   We are building this library
-#    define ITKIOTransformMatlab_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
-#  else
+#  define ITKIOTransformMatlab_EXPORT_EXPLICIT ITK_FORWARD_EXPORT
+#else
 //   We are using this library
-#    define ITKIOTransformMatlab_EXPORT_EXPLICIT ITKIOTransformMatlab_EXPORT
-#  endif
+#  define ITKIOTransformMatlab_EXPORT_EXPLICIT ITKIOTransformMatlab_EXPORT
+#endif
 namespace itk
 {
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_PUSH()
-#endif
+ITK_GCC_PRAGMA_DIAG_PUSH()
 ITK_GCC_PRAGMA_DIAG(ignored "-Wattributes")
-extern template class ITKIOTransformMatlab_EXPORT_EXPLICIT MatlabTransformIOTemplate< double >;
-extern template class ITKIOTransformMatlab_EXPORT_EXPLICIT MatlabTransformIOTemplate< float >;
-#ifdef ITK_HAS_GCC_PRAGMA_DIAG_PUSHPOP
-  ITK_GCC_PRAGMA_DIAG_POP()
-#else
-  ITK_GCC_PRAGMA_DIAG(warning "-Wattributes")
-#endif
+extern template class ITKIOTransformMatlab_EXPORT_EXPLICIT MatlabTransformIOTemplate<double>;
+extern template class ITKIOTransformMatlab_EXPORT_EXPLICIT MatlabTransformIOTemplate<float>;
+ITK_GCC_PRAGMA_DIAG_POP()
 } // end namespace itk
-#  undef ITKIOTransformMatlab_EXPORT_EXPLICIT
+#undef ITKIOTransformMatlab_EXPORT_EXPLICIT
 #endif

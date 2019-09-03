@@ -42,93 +42,95 @@ namespace itk
  *  \tparam TLevelSetContainer Level set function container type
  *  \ingroup ITKLevelSetsv4
  */
-template< typename TInput, // Input image or mesh
-          typename TLevelSetContainer >
-class ITK_TEMPLATE_EXPORT LevelSetEquationLaplacianTerm :
-    public LevelSetEquationTermBase< TInput, TLevelSetContainer >
+template <typename TInput, // Input image or mesh
+          typename TLevelSetContainer>
+class ITK_TEMPLATE_EXPORT LevelSetEquationLaplacianTerm : public LevelSetEquationTermBase<TInput, TLevelSetContainer>
 {
 public:
-  typedef LevelSetEquationLaplacianTerm         Self;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
-  typedef LevelSetEquationTermBase< TInput, TLevelSetContainer >
-                                                Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationLaplacianTerm);
+
+  using Self = LevelSetEquationLaplacianTerm;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using Superclass = LevelSetEquationTermBase<TInput, TLevelSetContainer>;
 
   /** Method for creation through object factory */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information */
-  itkTypeMacro( LevelSetEquationLaplacianTerm,
-                LevelSetEquationTermBase );
+  itkTypeMacro(LevelSetEquationLaplacianTerm, LevelSetEquationTermBase);
 
-  typedef typename Superclass::InputImageType     InputImageType;
-  typedef typename Superclass::InputImagePointer  InputImagePointer;
-  typedef typename Superclass::InputPixelType     InputPixelType;
-  typedef typename Superclass::InputPixelRealType InputPixelRealType;
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputPixelType = typename Superclass::InputPixelType;
+  using InputPixelRealType = typename Superclass::InputPixelRealType;
 
-  typedef typename Superclass::LevelSetContainerType      LevelSetContainerType;
-  typedef typename Superclass::LevelSetContainerPointer   LevelSetContainerPointer;
-  typedef typename Superclass::LevelSetType               LevelSetType;
-  typedef typename Superclass::LevelSetPointer            LevelSetPointer;
-  typedef typename Superclass::LevelSetOutputPixelType    LevelSetOutputPixelType;
-  typedef typename Superclass::LevelSetOutputRealType     LevelSetOutputRealType;
-  typedef typename Superclass::LevelSetInputIndexType     LevelSetInputIndexType;
-  typedef typename Superclass::LevelSetGradientType       LevelSetGradientType;
-  typedef typename Superclass::LevelSetHessianType        LevelSetHessianType;
-  typedef typename Superclass::LevelSetIdentifierType     LevelSetIdentifierType;
+  using LevelSetContainerType = typename Superclass::LevelSetContainerType;
+  using LevelSetContainerPointer = typename Superclass::LevelSetContainerPointer;
+  using LevelSetType = typename Superclass::LevelSetType;
+  using LevelSetPointer = typename Superclass::LevelSetPointer;
+  using LevelSetOutputPixelType = typename Superclass::LevelSetOutputPixelType;
+  using LevelSetOutputRealType = typename Superclass::LevelSetOutputRealType;
+  using LevelSetInputIndexType = typename Superclass::LevelSetInputIndexType;
+  using LevelSetGradientType = typename Superclass::LevelSetGradientType;
+  using LevelSetHessianType = typename Superclass::LevelSetHessianType;
+  using LevelSetIdentifierType = typename Superclass::LevelSetIdentifierType;
 
-  typedef typename Superclass::HeavisideType         HeavisideType;
-  typedef typename Superclass::HeavisideConstPointer HeavisideConstPointer;
+  using HeavisideType = typename Superclass::HeavisideType;
+  using HeavisideConstPointer = typename Superclass::HeavisideConstPointer;
 
-  typedef typename Superclass::LevelSetDataType LevelSetDataType;
+  using LevelSetDataType = typename Superclass::LevelSetDataType;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
   /** Neighborhood radius type */
-  typedef ZeroFluxNeumannBoundaryCondition< InputImageType > DefaultBoundaryConditionType;
-  typedef typename ConstNeighborhoodIterator< InputImageType >::RadiusType RadiusType;
-  typedef ConstNeighborhoodIterator< InputImageType, DefaultBoundaryConditionType > NeighborhoodType;
+  using DefaultBoundaryConditionType = ZeroFluxNeumannBoundaryCondition<InputImageType>;
+  using RadiusType = typename ConstNeighborhoodIterator<InputImageType>::RadiusType;
+  using NeighborhoodType = ConstNeighborhoodIterator<InputImageType, DefaultBoundaryConditionType>;
 
-  typedef Vector< LevelSetOutputRealType, itkGetStaticConstMacro(ImageDimension) > NeighborhoodScalesType;
+  using NeighborhoodScalesType = Vector<LevelSetOutputRealType, Self::ImageDimension>;
 
   /** Update the term parameter values at end of iteration */
-  virtual void Update() ITK_OVERRIDE;
+  void
+  Update() override;
 
   /** Initialize the parameters in the terms prior to an iteration */
-  virtual void InitializeParameters() ITK_OVERRIDE;
+  void
+  InitializeParameters() override;
 
   /** \todo to be documented. */
-  virtual void Initialize( const LevelSetInputIndexType& ) ITK_OVERRIDE;
+  void
+  Initialize(const LevelSetInputIndexType &) override;
 
   /** Supply updates at pixels to keep the term parameters always updated */
-  virtual void UpdatePixel( const LevelSetInputIndexType& iP,
-                            const LevelSetOutputRealType& oldValue,
-                            const LevelSetOutputRealType& newValue ) ITK_OVERRIDE;
+  void
+  UpdatePixel(const LevelSetInputIndexType & iP,
+              const LevelSetOutputRealType & oldValue,
+              const LevelSetOutputRealType & newValue) override;
 
 protected:
   LevelSetEquationLaplacianTerm();
 
-  virtual ~LevelSetEquationLaplacianTerm() ITK_OVERRIDE;
+  ~LevelSetEquationLaplacianTerm() override = default;
 
   /** Return the spatial speed dependence a given pixel location
    * Usually, it is constant across the image domain */
-  LevelSetOutputRealType LaplacianSpeed( const LevelSetInputIndexType& iP ) const;
+  LevelSetOutputRealType
+  LaplacianSpeed(const LevelSetInputIndexType & iP) const;
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP ) ITK_OVERRIDE;
+  LevelSetOutputRealType
+  Value(const LevelSetInputIndexType & iP) override;
 
   /** Returns the term contribution for a given location iP, i.e.
    *  \f$ \omega_i( p ) \f$. */
-  virtual LevelSetOutputRealType Value( const LevelSetInputIndexType& iP,
-                                        const LevelSetDataType& iData ) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetEquationLaplacianTerm);
+  LevelSetOutputRealType
+  Value(const LevelSetInputIndexType & iP, const LevelSetDataType & iData) override;
 };
 
-}
+} // namespace itk
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetEquationLaplacianTerm.hxx"
+#  include "itkLevelSetEquationLaplacianTerm.hxx"
 #endif
 #endif

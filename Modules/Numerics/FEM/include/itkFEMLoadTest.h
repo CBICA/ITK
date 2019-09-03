@@ -38,11 +38,11 @@ template <typename TClass>
 class LoadTest : public LoadElement
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoadTest                 Self;
-  typedef LoadElement              Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoadTest;
+  using Superclass = LoadElement;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
@@ -52,15 +52,16 @@ public:
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const
+  ::itk::LightObject::Pointer
+  CreateAnother() const override
   {
     ::itk::LightObject::Pointer smartPtr;
-    Pointer copyPtr = Self::New();
-    for( unsigned int i = 0; i < this->m_Element.size(); i++ )
-      {
-      copyPtr->AddNextElement( this->m_Element[i] );
-      }
-    copyPtr->SetGlobalNumber( this->GetGlobalNumber() );
+    Pointer                     copyPtr = Self::New();
+    for (unsigned int i = 0; i < this->m_Element.size(); i++)
+    {
+      copyPtr->AddNextElement(this->m_Element[i]);
+    }
+    copyPtr->SetGlobalNumber(this->GetGlobalNumber());
 
     smartPtr = static_cast<Pointer>(copyPtr);
 
@@ -70,9 +71,7 @@ public:
   /**
    * Default constructor
    */
-  LoadTest()
-  {
-  }
+  LoadTest() {}
 
   /**
    * Some data that this load defines.
@@ -80,10 +79,8 @@ public:
   TClass data;
 
 private:
-
 };
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif // #ifndef itkFEMLoadTest_h
+#endif // itkFEMLoadTest_h

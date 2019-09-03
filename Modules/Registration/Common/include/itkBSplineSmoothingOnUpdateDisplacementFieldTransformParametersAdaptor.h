@@ -29,32 +29,33 @@ namespace itk
  *
  * \ingroup ITKRegistrationCommon
  */
-template<typename TTransform>
+template <typename TTransform>
 class ITK_TEMPLATE_EXPORT BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor
-: public DisplacementFieldTransformParametersAdaptor<TTransform>
+  : public DisplacementFieldTransformParametersAdaptor<TTransform>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor);
 
-  /** Standard class typedefs. */
-  typedef BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor          Self;
-  typedef DisplacementFieldTransformParametersAdaptor<TTransform>                      Superclass;
-  typedef SmartPointer<Self>                                                           Pointer;
-  typedef SmartPointer<const Self>                                                     ConstPointer;
+  /** Standard class type aliases. */
+  using Self = BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor;
+  using Superclass = DisplacementFieldTransformParametersAdaptor<TTransform>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor,
-    DisplacementFieldTransformParametersAdaptor );
+  itkTypeMacro(BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor,
+               DisplacementFieldTransformParametersAdaptor);
 
-  typedef TTransform                               TransformType;
-  typedef typename TransformType::ScalarType       ScalarType;
-  typedef typename TransformType::SplineOrderType  SplineOrderType;
-  typedef typename TransformType::ArrayType        ArrayType;
+  using TransformType = TTransform;
+  using ScalarType = typename TransformType::ScalarType;
+  using SplineOrderType = typename TransformType::SplineOrderType;
+  using ArrayType = typename TransformType::ArrayType;
 
   /** Dimension of parameters. */
-  itkStaticConstMacro( SpaceDimension, unsigned int, TransformType::Dimension );
+  static constexpr unsigned int SpaceDimension = TransformType::Dimension;
 
   /**
    * Set the control point grid size defining the B-spline estimate of the
@@ -63,7 +64,8 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  virtual void SetNumberOfControlPointsForTheUpdateField( const ArrayType & );
+  virtual void
+  SetNumberOfControlPointsForTheUpdateField(const ArrayType &);
 
   /**
    * Get the control point grid size defining the B-spline estimate of the
@@ -72,7 +74,7 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  itkGetConstMacro( NumberOfControlPointsForTheUpdateField, ArrayType );
+  itkGetConstMacro(NumberOfControlPointsForTheUpdateField, ArrayType);
 
   /**
    * Set the update field mesh size which is used to specify the control point
@@ -80,7 +82,8 @@ public:
    * difference between the control point grid size and the spline order, i.e.
    * meshSize = controlPointGridSize - SplineOrder.
    */
-  void SetMeshSizeForTheUpdateField( const ArrayType & );
+  void
+  SetMeshSizeForTheUpdateField(const ArrayType &);
 
   /**
    * Set the control point grid size defining the B-spline estimate of the
@@ -89,7 +92,8 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  virtual void SetNumberOfControlPointsForTheTotalField( const ArrayType & );
+  virtual void
+  SetNumberOfControlPointsForTheTotalField(const ArrayType &);
 
   /**
    * Get the control point grid size defining the B-spline estimate of the
@@ -98,7 +102,7 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  itkGetConstMacro( NumberOfControlPointsForTheTotalField, ArrayType );
+  itkGetConstMacro(NumberOfControlPointsForTheTotalField, ArrayType);
 
   /**
    * Set the total field mesh size which is used to specify the control point
@@ -106,33 +110,34 @@ public:
    * difference between the control point grid size and the spline order, i.e.
    * meshSize = controlPointGridSize - SplineOrder.
    */
-  void SetMeshSizeForTheTotalField( const ArrayType & );
+  void
+  SetMeshSizeForTheTotalField(const ArrayType &);
 
   /**
    * Change the displacement field fixed parameters
    */
-  virtual void AdaptTransformParameters() ITK_OVERRIDE;
+  void
+  AdaptTransformParameters() override;
 
 protected:
   BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor();
-  ~BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor() ITK_OVERRIDE;
+  ~BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor() override = default;
 
-  void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor);
-
-  ArrayType                   m_NumberOfControlPointsForTheUpdateField;
-  ArrayType                   m_NumberOfControlPointsForTheTotalField;
-  ModifiedTimeType            m_NumberOfControlPointsForTheUpdateFieldSetTime;
-  ModifiedTimeType            m_NumberOfControlPointsForTheTotalFieldSetTime;
+  ArrayType        m_NumberOfControlPointsForTheUpdateField;
+  ArrayType        m_NumberOfControlPointsForTheTotalField;
+  ModifiedTimeType m_NumberOfControlPointsForTheUpdateFieldSetTime;
+  ModifiedTimeType m_NumberOfControlPointsForTheTotalFieldSetTime;
 
 
-}; //class BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor
-}  // namespace itk
+}; // class BSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.hxx"
+#  include "itkBSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor.hxx"
 #endif
 
 #endif /* itkBSplineSmoothingOnUpdateDisplacementFieldTransformParametersAdaptor_h */

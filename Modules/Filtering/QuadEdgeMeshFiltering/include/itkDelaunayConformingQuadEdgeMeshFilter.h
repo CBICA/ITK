@@ -33,61 +33,60 @@ namespace itk
  *
  * \ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TInputMesh, typename TOutputMesh=TInputMesh >
-class ITK_TEMPLATE_EXPORT DelaunayConformingQuadEdgeMeshFilter:
-  public QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+template <typename TInputMesh, typename TOutputMesh = TInputMesh>
+class ITK_TEMPLATE_EXPORT DelaunayConformingQuadEdgeMeshFilter
+  : public QuadEdgeMeshToQuadEdgeMeshFilter<TInputMesh, TOutputMesh>
 {
 public:
   /** Basic types. */
-  typedef DelaunayConformingQuadEdgeMeshFilter Self;
-  typedef QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh,
-                                            TOutputMesh >                                           Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = DelaunayConformingQuadEdgeMeshFilter;
+  using Superclass = QuadEdgeMeshToQuadEdgeMeshFilter<TInputMesh, TOutputMesh>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Input types. */
-  typedef TInputMesh                              InputMeshType;
-  typedef typename InputMeshType::Pointer         InputMeshPointer;
-  typedef typename InputMeshType::CoordRepType    InputCoordRepType;
-  typedef typename InputMeshType::PointType       InputPointType;
-  typedef typename InputPointType::VectorType     InputPointVectorType;
-  typedef typename InputMeshType::PointIdentifier InputPointIdentifier;
-  typedef typename InputMeshType::QEType          InputQEType;
-  typedef typename InputMeshType::VectorType      InputVectorType;
-  typedef typename InputMeshType::EdgeListType    InputEdgeListType;
-  typedef typename InputMeshType::PixelType       InputPixelType;
-  typedef typename InputMeshType::Traits          InputTraits;
+  using InputMeshType = TInputMesh;
+  using InputMeshPointer = typename InputMeshType::Pointer;
+  using InputCoordRepType = typename InputMeshType::CoordRepType;
+  using InputPointType = typename InputMeshType::PointType;
+  using InputPointVectorType = typename InputPointType::VectorType;
+  using InputPointIdentifier = typename InputMeshType::PointIdentifier;
+  using InputQEType = typename InputMeshType::QEType;
+  using InputVectorType = typename InputMeshType::VectorType;
+  using InputEdgeListType = typename InputMeshType::EdgeListType;
+  using InputPixelType = typename InputMeshType::PixelType;
+  using InputTraits = typename InputMeshType::Traits;
 
-  itkStaticConstMacro(InputVDimension, unsigned int, InputMeshType::PointDimension);
+  static constexpr unsigned int InputVDimension = InputMeshType::PointDimension;
 
-  typedef typename InputMeshType::PointsContainer              InputPointsContainer;
-  typedef typename InputMeshType::PointsContainerConstIterator InputPointsContainerConstIterator;
-  typedef typename InputMeshType::CellsContainerConstIterator  InputCellsContainerConstIterator;
-  typedef typename InputMeshType::EdgeCellType                 InputEdgeCellType;
-  typedef typename InputMeshType::PolygonCellType              InputPolygonCellType;
-  typedef typename InputMeshType::PointIdList                  InputPointIdList;
+  using InputPointsContainer = typename InputMeshType::PointsContainer;
+  using InputPointsContainerConstIterator = typename InputMeshType::PointsContainerConstIterator;
+  using InputCellsContainerConstIterator = typename InputMeshType::CellsContainerConstIterator;
+  using InputEdgeCellType = typename InputMeshType::EdgeCellType;
+  using InputPolygonCellType = typename InputMeshType::PolygonCellType;
+  using InputPointIdList = typename InputMeshType::PointIdList;
 
-  typedef typename InputQEType::IteratorGeom InputQEIterator;
+  using InputQEIterator = typename InputQEType::IteratorGeom;
 
   /** Output types. */
-  typedef TOutputMesh                                      OutputMeshType;
-  typedef typename OutputMeshType::Pointer                 OutputMeshPointer;
-  typedef typename OutputMeshType::CoordRepType            OutputCoordRepType;
-  typedef typename OutputMeshType::PointType               OutputPointType;
-  typedef typename OutputMeshType::PointIdentifier         OutputPointIdentifier;
-  typedef typename OutputMeshType::CellType                OutputCellType;
-  typedef typename OutputMeshType::CellIdentifier          OutputCellIdentifier;
-  typedef typename OutputMeshType::EdgeCellType            OutputEdgeCellType;
-  typedef typename OutputMeshType::QEType                  OutputQEType;
-  typedef typename OutputQEType::LineCellIdentifier        OutputLineCellIdentifier;
-  typedef typename OutputMeshType::VectorType              OutputVectorType;
-  typedef typename OutputQEType::IteratorGeom              OutputQEIterator;
-  typedef typename OutputMeshType::PointsContainerPointer  OutputPointsContainerPointer;
-  typedef typename OutputMeshType::PointsContainerIterator OutputPointsContainerIterator;
-  typedef typename OutputMeshType::CellsContainer          OutputCellsContainer;
-  typedef typename OutputMeshType::CellsContainerIterator  OutputCellsContainerIterator;
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
+  using OutputCoordRepType = typename OutputMeshType::CoordRepType;
+  using OutputPointType = typename OutputMeshType::PointType;
+  using OutputPointIdentifier = typename OutputMeshType::PointIdentifier;
+  using OutputCellType = typename OutputMeshType::CellType;
+  using OutputCellIdentifier = typename OutputMeshType::CellIdentifier;
+  using OutputEdgeCellType = typename OutputMeshType::EdgeCellType;
+  using OutputQEType = typename OutputMeshType::QEType;
+  using OutputLineCellIdentifier = typename OutputQEType::LineCellIdentifier;
+  using OutputVectorType = typename OutputMeshType::VectorType;
+  using OutputQEIterator = typename OutputQEType::IteratorGeom;
+  using OutputPointsContainerPointer = typename OutputMeshType::PointsContainerPointer;
+  using OutputPointsContainerIterator = typename OutputMeshType::PointsContainerIterator;
+  using OutputCellsContainer = typename OutputMeshType::CellsContainer;
+  using OutputCellsContainerIterator = typename OutputMeshType::CellsContainerIterator;
 
-  itkStaticConstMacro(OutputVDimension, unsigned int, OutputMeshType::PointDimension);
+  static constexpr unsigned int OutputVDimension = OutputMeshType::PointDimension;
 
   itkNewMacro(Self);
   itkTypeMacro(DelaunayConformingQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter);
@@ -95,37 +94,37 @@ public:
   itkGetConstMacro(NumberOfEdgeFlips, SizeValueType);
 
 public:
-  typedef std::list< OutputEdgeCellType * >         OutputEdgeCellListType;
-  typedef typename OutputEdgeCellListType::iterator OutputEdgeCellListIterator;
+  using OutputEdgeCellListType = std::list<OutputEdgeCellType *>;
+  using OutputEdgeCellListIterator = typename OutputEdgeCellListType::iterator;
 
-  typedef double                                CriterionValueType;
-  typedef std::pair< bool, CriterionValueType > PriorityType;
+  using CriterionValueType = double;
+  using PriorityType = std::pair<bool, CriterionValueType>;
 
-  typedef MaxPriorityQueueElementWrapper<
-    OutputEdgeCellType *, PriorityType, long >            PriorityQueueItemType;
+  using PriorityQueueItemType = MaxPriorityQueueElementWrapper<OutputEdgeCellType *, PriorityType, long>;
 
-  typedef PriorityQueueContainer< PriorityQueueItemType *,
-                                  ElementWrapperPointerInterface< PriorityQueueItemType * >,
-                                  PriorityType,
-                                  long >   PriorityQueueType;
+  using PriorityQueueType = PriorityQueueContainer<PriorityQueueItemType *,
+                                                   ElementWrapperPointerInterface<PriorityQueueItemType *>,
+                                                   PriorityType,
+                                                   long>;
 
-  typedef typename PriorityQueueType::Pointer                       PriorityQueuePointer;
-  typedef std::map< OutputEdgeCellType *, PriorityQueueItemType * > QueueMapType;
-  typedef typename QueueMapType::iterator                           QueueMapIterator;
+  using PriorityQueuePointer = typename PriorityQueueType::Pointer;
+  using QueueMapType = std::map<OutputEdgeCellType *, PriorityQueueItemType *>;
+  using QueueMapIterator = typename QueueMapType::iterator;
 
-  typedef QuadEdgeMeshEulerOperatorFlipEdgeFunction<
-    OutputMeshType, OutputQEType >                                  FlipEdgeFunctionType;
-  typedef typename FlipEdgeFunctionType::Pointer FlipEdgeFunctionPointer;
+  using FlipEdgeFunctionType = QuadEdgeMeshEulerOperatorFlipEdgeFunction<OutputMeshType, OutputQEType>;
+  using FlipEdgeFunctionPointer = typename FlipEdgeFunctionType::Pointer;
 
-  void SetListOfConstrainedEdges(const OutputEdgeCellListType & iList)
+  void
+  SetListOfConstrainedEdges(const OutputEdgeCellListType & iList)
   {
     m_ListOfConstrainedEdges = iList;
   }
 
 protected:
   DelaunayConformingQuadEdgeMeshFilter();
-  virtual ~DelaunayConformingQuadEdgeMeshFilter() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~DelaunayConformingQuadEdgeMeshFilter() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   OutputEdgeCellListType m_ListOfConstrainedEdges;
   PriorityQueuePointer   m_PriorityQueue;
@@ -134,14 +133,17 @@ protected:
   SizeValueType           m_NumberOfEdgeFlips;
   FlipEdgeFunctionPointer m_FlipEdge;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  void InitializePriorityQueue();
+  void
+  InitializePriorityQueue();
 
-  void Process();
+  void
+  Process();
 
   inline CriterionValueType
-  Dyer07Criterion(OutputMeshType *iMesh, OutputQEType *iEdge) const
+  Dyer07Criterion(OutputMeshType * iMesh, OutputQEType * iEdge) const
   {
     OutputPointIdentifier id1 = iEdge->GetOrigin();
     OutputPointIdentifier id2 = iEdge->GetDestination();
@@ -164,52 +166,50 @@ protected:
     OutputCoordRepType sq_norm2A = v2A * v2A;
     OutputCoordRepType sq_norm2B = v2B * v2B;
 
-    CriterionValueType dotA = static_cast< CriterionValueType >( v1A * v2A );
-    CriterionValueType dotB = static_cast< CriterionValueType >( v1B * v2B );
-    CriterionValueType den  = static_cast< CriterionValueType >( sq_norm1A * sq_norm2A );
+    auto dotA = static_cast<CriterionValueType>(v1A * v2A);
+    auto dotB = static_cast<CriterionValueType>(v1B * v2B);
+    auto den = static_cast<CriterionValueType>(sq_norm1A * sq_norm2A);
 
-    if ( den != 0. )
-      {
+    if (den != 0.)
+    {
       dotA /= std::sqrt(den);
-      }
+    }
 
-    if ( dotA > 1. )
-      {
+    if (dotA > 1.)
+    {
       dotA = 1.;
-      }
+    }
 
-    if ( dotA < -1. )
-      {
+    if (dotA < -1.)
+    {
       dotA = -1.;
-      }
+    }
 
-    den = static_cast< CriterionValueType >( sq_norm1B * sq_norm2B );
+    den = static_cast<CriterionValueType>(sq_norm1B * sq_norm2B);
 
-    if ( den != 0. )
-      {
+    if (den != 0.)
+    {
       dotB /= std::sqrt(den);
-      }
+    }
 
-    if ( dotB > 1. )
-      {
+    if (dotB > 1.)
+    {
       dotB = 1.;
-      }
+    }
 
-    if ( dotB < -1. )
-      {
+    if (dotB < -1.)
+    {
       dotB = -1.;
-      }
+    }
 
-    return ( std::acos(dotA) + std::acos(dotB) - itk::Math::pi );
+    return (std::acos(dotA) + std::acos(dotB) - itk::Math::pi);
   }
 
 private:
-
-  DelaunayConformingQuadEdgeMeshFilter(const Self &); // Purposely not
-                                                      // implemented
-  void operator=(const Self &);                       // Purposely not
-                                                      // implemented
-};                                                    //
+  DelaunayConformingQuadEdgeMeshFilter(const Self &) = delete;
+  void
+  operator=(const Self &) = delete;
+};
 } // end namespace itk
 
 #include "itkDelaunayConformingQuadEdgeMeshFilter.hxx"

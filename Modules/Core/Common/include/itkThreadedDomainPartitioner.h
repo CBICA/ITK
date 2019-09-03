@@ -19,7 +19,7 @@
 #define itkThreadedDomainPartitioner_h
 
 #include "itkIntTypes.h"
-#include "itkMultiThreader.h"
+#include "itkMultiThreaderBase.h"
 #include "itkObject.h"
 
 namespace itk
@@ -43,21 +43,23 @@ namespace itk
  * \ingroup DataProcessing
  * \ingroup ITKCommon
  */
-template <typename TDomain >
+template <typename TDomain>
 class ITK_TEMPLATE_EXPORT ThreadedDomainPartitioner : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef ThreadedDomainPartitioner Self;
-  typedef Object                    Superclass;
-  typedef SmartPointer<Self>        Pointer;
-  typedef SmartPointer<const Self>  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedDomainPartitioner);
+
+  /** Standard class type aliases. */
+  using Self = ThreadedDomainPartitioner;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ThreadedDomainPartitioner, Object);
 
   /** Type of the input object that's split for threading */
-  typedef TDomain                   DomainType;
+  using DomainType = TDomain;
 
   /** Split the domain \c completeDomain into up to \c requestedTotal
    * non-overlapping subdomains, setting subdomain number \c threadId as
@@ -70,18 +72,15 @@ public:
    * This method should be called repeatedly for each value of \c threadId, from 0 up
    * to the return value (which is always less than or equal to \c requestedTotal).
    */
-  virtual
-  ThreadIdType PartitionDomain(const ThreadIdType threadId,
-                           const ThreadIdType requestedTotal,
-                           const DomainType& completeDomain,
-                           DomainType& subDomain) const = 0;
+  virtual ThreadIdType
+  PartitionDomain(const ThreadIdType threadId,
+                  const ThreadIdType requestedTotal,
+                  const DomainType & completeDomain,
+                  DomainType &       subDomain) const = 0;
 
 protected:
-  ThreadedDomainPartitioner(){}
-  ~ThreadedDomainPartitioner() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedDomainPartitioner);
+  ThreadedDomainPartitioner() = default;
+  ~ThreadedDomainPartitioner() override = default;
 };
 
 } // end namespace itk

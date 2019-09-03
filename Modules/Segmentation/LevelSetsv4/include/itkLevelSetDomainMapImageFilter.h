@@ -23,6 +23,7 @@
 #include "itkImageRegionIterator.h"
 #include "itkImageRegionIteratorWithIndex.h"
 #include <list>
+#include <utility>
 #include <vector>
 
 namespace itk
@@ -35,109 +36,116 @@ namespace itk
   Every subdomain (image region) has a consistent set of level sets ids associated with every pixel.
   \ingroup ITKLevelSetsv4
 */
-template < typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LevelSetDomainMapImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
+public:
+  using Self = LevelSetDomainMapImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
+
+  /** Method for creation through object factory */
+  itkNewMacro(Self);
+
+  /** Run-time type information */
+  itkTypeMacro(LevelSetDomainMapImageFilter, ImageToImageFilter);
+
+  using InputImageType = TInputImage;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImageSizeType = typename InputImageType::SizeType;
+  using InputImageSizeValueType = typename InputImageSizeType::SizeValueType;
+  using InputImageIndexType = typename InputImageType::IndexType;
+
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageIndexType = typename OutputImageType::IndexType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+
+  using InputConstIteratorType = ImageRegionConstIteratorWithIndex<InputImageType>;
+  using InputIndexIteratorType = ImageRegionIteratorWithIndex<InputImageType>;
+  using InputIteratorType = ImageRegionIterator<InputImageType>;
+
+  using OutputConstIteratorType = ImageRegionConstIteratorWithIndex<OutputImageType>;
+  using OutputIndexIteratorType = ImageRegionIteratorWithIndex<OutputImageType>;
+  using OutputIteratorType = ImageRegionIterator<OutputImageType>;
+
+  /** \class LevelSetDomain
+   * \brief Specifies an image region where an unique std::list of level sets Id's are defined.
+   * \ingroup ITKLevelSetsv4 */
+  class LevelSetDomain
+  {
   public:
-    typedef LevelSetDomainMapImageFilter                      Self;
-    typedef ImageToImageFilter< TInputImage,TOutputImage >    Superclass;
-    typedef SmartPointer< Self >                              Pointer;
-    typedef SmartPointer< const Self >                        ConstPointer;
+    LevelSetDomain() = default;
 
-    itkStaticConstMacro ( ImageDimension, unsigned int,
-                          TInputImage::ImageDimension );
+    LevelSetDomain(const InputImageRegionType & reg, InputImagePixelType iList)
+      : m_Region(reg)
+      , m_IdList(std::move(iList))
+    {}
 
-    /** Method for creation through object factory */
-    itkNewMacro ( Self );
+    const InputImageRegionType *
+    GetRegion() const
+    {
+      return &(this->m_Region);
+    }
 
-    /** Run-time type information */
-    itkTypeMacro ( LevelSetDomainMapImageFilter, ImageToImageFilter );
-
-    typedef TInputImage                                 InputImageType;
-    typedef typename InputImageType::ConstPointer       InputImageConstPointer;
-    typedef typename InputImageType::PixelType          InputImagePixelType;
-    typedef typename InputImageType::RegionType         InputImageRegionType;
-    typedef typename InputImageType::SizeType           InputImageSizeType;
-    typedef typename InputImageSizeType::SizeValueType  InputImageSizeValueType;
-    typedef typename InputImageType::IndexType          InputImageIndexType;
-
-    typedef TOutputImage                           OutputImageType;
-    typedef typename OutputImageType::Pointer      OutputImagePointer;
-    typedef typename OutputImageType::IndexType    OutputImageIndexType;
-    typedef typename OutputImageType::PixelType    OutputImagePixelType;
-
-    typedef ImageRegionConstIteratorWithIndex< InputImageType >   InputConstIteratorType;
-    typedef ImageRegionIteratorWithIndex< InputImageType >        InputIndexIteratorType;
-    typedef ImageRegionIterator< InputImageType >                 InputIteratorType;
-
-    typedef ImageRegionConstIteratorWithIndex< OutputImageType >  OutputConstIteratorType;
-    typedef ImageRegionIteratorWithIndex< OutputImageType >       OutputIndexIteratorType;
-    typedef ImageRegionIterator< OutputImageType >                OutputIteratorType;
-
-    /** \class LevelSetDomain
-     * \brief Specifies an image region where an unique std::list of level sets Id's are defined.
-     * \ingroup ITKLevelSetsv4 */
-    class LevelSetDomain
-      {
-      public:
-        LevelSetDomain() {}
-
-        LevelSetDomain( const InputImageRegionType& reg,
-                        const InputImagePixelType& iList ) :
-          m_Region( reg ), m_IdList( iList ) {}
-
-        const InputImageRegionType * GetRegion() const
-          {
-          return &(this->m_Region);
-          }
-
-        const InputImagePixelType * GetIdList() const
-          {
-          return &(this->m_IdList);
-          }
-
-      private:
-        InputImageRegionType m_Region;
-        InputImagePixelType m_IdList;
-      };
-
-    /** Map from a integer identifier to the level set list image domain. */
-    typedef std::map< IdentifierType, LevelSetDomain > DomainMapType;
-
-    /** Get a map from the identifier for the domains with consistent level set ids
-     * * struct containing an (int, string, etc) identifier and the ImageRegion that
-     * specifies the domain. */
-    const DomainMapType & GetDomainMap() const;
-
-  protected:
-    LevelSetDomainMapImageFilter();
-    ~LevelSetDomainMapImageFilter() ITK_OVERRIDE;
-
-    /** Computes a consistent region for the same set of overlapping
-     * level set support. */
-    InputImageRegionType ComputeConsistentRegion( const InputImageRegionType & subRegion ) const;
-
-    /** Identify image partitions where each partition has the same overlapping
-     *  level set support */
-    virtual void GenerateData() ITK_OVERRIDE;
-
-    /** Display */
-    virtual void PrintSelf ( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+    const InputImagePixelType *
+    GetIdList() const
+    {
+      return &(this->m_IdList);
+    }
 
   private:
-    DomainMapType m_DomainMap;
-
-    LevelSetDomainMapImageFilter ( Self& );   // intentionally not implemented
-    void operator= ( const Self& );   // intentionally not implemented
-
-    const InputImageType *m_InputImage;
-    OutputImageType      *m_OutputImage;
+    InputImageRegionType m_Region;
+    InputImagePixelType  m_IdList;
   };
+
+  /** Map from a integer identifier to the level set list image domain. */
+  using DomainMapType = std::map<IdentifierType, LevelSetDomain>;
+
+  /** Get a map from the identifier for the domains with consistent level set ids
+   * * struct containing an (int, string, etc) identifier and the ImageRegion that
+   * specifies the domain. */
+  const DomainMapType &
+  GetDomainMap() const;
+
+protected:
+  LevelSetDomainMapImageFilter();
+  ~LevelSetDomainMapImageFilter() override = default;
+
+  /** Computes a consistent region for the same set of overlapping
+   * level set support. */
+  InputImageRegionType
+  ComputeConsistentRegion(const InputImageRegionType & subRegion) const;
+
+  /** Identify image partitions where each partition has the same overlapping
+   *  level set support */
+  void
+  GenerateData() override;
+
+  /** Display */
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+private:
+  DomainMapType m_DomainMap;
+
+  LevelSetDomainMapImageFilter(Self &) = delete;
+  void
+  operator=(const Self &) = delete;
+
+  const InputImageType * m_InputImage;
+  OutputImageType *      m_OutputImage;
+};
 
 } /* namespace itk */
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetDomainMapImageFilter.hxx"
+#  include "itkLevelSetDomainMapImageFilter.hxx"
 #endif
 
 #endif

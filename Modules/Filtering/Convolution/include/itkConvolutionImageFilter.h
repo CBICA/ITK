@@ -57,19 +57,21 @@ namespace itk
  * \author James C. Gee
  * \ingroup ITKConvolution
  *
- * \wiki
- * \wikiexample{ImageProcessing/ConvolutionImageFilter,Convolve an image with a kernel}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/Convolution/ConvolveImageWithKernel,Convolve Image With Kernel}
+ * \endsphinx
  */
-template< typename TInputImage, typename TKernelImage = TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT ConvolutionImageFilter :
-  public ConvolutionImageFilterBase< TInputImage, TKernelImage, TOutputImage >
+template <typename TInputImage, typename TKernelImage = TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT ConvolutionImageFilter
+  : public ConvolutionImageFilterBase<TInputImage, TKernelImage, TOutputImage>
 {
 public:
-  typedef ConvolutionImageFilter                                  Self;
-  typedef ConvolutionImageFilterBase< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                    Pointer;
-  typedef SmartPointer< const Self >                              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ConvolutionImageFilter);
+
+  using Self = ConvolutionImageFilter;
+  using Superclass = ConvolutionImageFilterBase<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -78,28 +80,27 @@ public:
   itkTypeMacro(ConvolutionImageFilter, ConvolutionImageFilterBase);
 
   /** Dimensionality of input and output data is assumed to be the same. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef TInputImage                          InputImageType;
-  typedef TOutputImage                         OutputImageType;
-  typedef TKernelImage                         KernelImageType;
-  typedef typename InputImageType::PixelType   InputPixelType;
-  typedef typename OutputImageType::PixelType  OutputPixelType;
-  typedef typename KernelImageType::PixelType  KernelPixelType;
-  typedef typename InputImageType::IndexType   InputIndexType;
-  typedef typename OutputImageType::IndexType  OutputIndexType;
-  typedef typename KernelImageType::IndexType  KernelIndexType;
-  typedef typename InputImageType::SizeType    InputSizeType;
-  typedef typename OutputImageType::SizeType   OutputSizeType;
-  typedef typename KernelImageType::SizeType   KernelSizeType;
-  typedef typename InputImageType::RegionType  InputRegionType;
-  typedef typename OutputImageType::RegionType OutputRegionType;
-  typedef typename KernelImageType::RegionType KernelRegionType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using KernelImageType = TKernelImage;
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using KernelPixelType = typename KernelImageType::PixelType;
+  using InputIndexType = typename InputImageType::IndexType;
+  using OutputIndexType = typename OutputImageType::IndexType;
+  using KernelIndexType = typename KernelImageType::IndexType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+  using KernelSizeType = typename KernelImageType::SizeType;
+  using InputRegionType = typename InputImageType::RegionType;
+  using OutputRegionType = typename OutputImageType::RegionType;
+  using KernelRegionType = typename KernelImageType::RegionType;
 
 protected:
-  ConvolutionImageFilter();
-  ~ConvolutionImageFilter() ITK_OVERRIDE {}
+  ConvolutionImageFilter() = default;
+  ~ConvolutionImageFilter() override = default;
 
   /** ConvolutionImageFilter needs the entire image kernel, which in
    * general is going to be a different size then the output requested
@@ -108,33 +109,36 @@ protected:
    * pipeline execution model.
    *
    * \sa ProcessObject::GenerateInputRequestedRegion()  */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** This filter uses a minipipeline to compute the output. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** The kernel needs padding if any of the sizes of its dimensions is
    * even. This method checks for this condition. */
-  bool GetKernelNeedsPadding() const;
+  bool
+  GetKernelNeedsPadding() const;
 
   /** Calculates the padding width needed to make each dimension odd. */
-  KernelSizeType GetKernelPadSize() const;
+  KernelSizeType
+  GetKernelPadSize() const;
 
   /** Calculates the radius of the kernel. */
-  template< typename TImage >
-  KernelSizeType GetKernelRadius(const TImage *kernelImage) const;
+  template <typename TImage>
+  KernelSizeType
+  GetKernelRadius(const TImage * kernelImage) const;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ConvolutionImageFilter);
-
-  template< typename TImage >
-  void ComputeConvolution( const TImage *kernelImage,
-                           ProgressAccumulator *progress );
+  template <typename TImage>
+  void
+  ComputeConvolution(const TImage * kernelImage, ProgressAccumulator * progress);
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConvolutionImageFilter.hxx"
+#  include "itkConvolutionImageFilter.hxx"
 #endif
 
 #endif

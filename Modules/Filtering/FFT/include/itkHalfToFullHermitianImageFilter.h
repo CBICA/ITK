@@ -41,42 +41,41 @@ namespace itk
  * \sa RealToHalfHermitianForwardFFTImageFilter
  * \ingroup ITKFFT
  */
-template< typename TInputImage >
-class ITK_TEMPLATE_EXPORT HalfToFullHermitianImageFilter :
-    public ImageToImageFilter< TInputImage, TInputImage >
+template <typename TInputImage>
+class ITK_TEMPLATE_EXPORT HalfToFullHermitianImageFilter : public ImageToImageFilter<TInputImage, TInputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TInputImage                              InputImageType;
-  typedef typename InputImageType::PixelType       InputImagePixelType;
-  typedef typename InputImageType::IndexType       InputImageIndexType;
-  typedef typename InputImageType::IndexValueType  InputImageIndexValueType;
-  typedef typename InputImageType::SizeType        InputImageSizeType;
-  typedef typename InputImageType::SizeValueType   InputImageSizeValueType;
-  typedef typename InputImageType::RegionType      InputImageRegionType;
-  typedef TInputImage                              OutputImageType;
-  typedef typename OutputImageType::PixelType      OutputImagePixelType;
-  typedef typename OutputImageType::IndexType      OutputImageIndexType;
-  typedef typename OutputImageType::IndexValueType OutputImageIndexValueType;
-  typedef typename OutputImageType::SizeType       OutputImageSizeType;
-  typedef typename OutputImageType::SizeValueType  OutputImageSizeValueType;
-  typedef typename OutputImageType::RegionType     OutputImageRegionType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(HalfToFullHermitianImageFilter);
 
-  typedef HalfToFullHermitianImageFilter                 Self;
-  typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  /** Standard class type aliases. */
+  using InputImageType = TInputImage;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using InputImageIndexType = typename InputImageType::IndexType;
+  using InputImageIndexValueType = typename InputImageType::IndexValueType;
+  using InputImageSizeType = typename InputImageType::SizeType;
+  using InputImageSizeValueType = typename InputImageType::SizeValueType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using OutputImageType = TInputImage;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+  using OutputImageIndexType = typename OutputImageType::IndexType;
+  using OutputImageIndexValueType = typename OutputImageType::IndexValueType;
+  using OutputImageSizeType = typename OutputImageType::SizeType;
+  using OutputImageSizeValueType = typename OutputImageType::SizeValueType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+
+  using Self = HalfToFullHermitianImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TInputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(HalfToFullHermitianImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(HalfToFullHermitianImageFilter, ImageToImageFilter);
 
   /** Extract the dimensionality of the input and output images. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Was the original truncated dimension size in the x-dimension odd? */
   itkSetGetDecoratedInputMacro(ActualXDimensionIsOdd, bool);
@@ -84,24 +83,24 @@ public:
 
 protected:
   HalfToFullHermitianImageFilter();
-  ~HalfToFullHermitianImageFilter() ITK_OVERRIDE {}
+  ~HalfToFullHermitianImageFilter() override = default;
 
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
   /** The output is a different size from the input. */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
   /** This class requires the entire input. */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HalfToFullHermitianImageFilter);
+  void
+  GenerateInputRequestedRegion() override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHalfToFullHermitianImageFilter.hxx"
+#  include "itkHalfToFullHermitianImageFilter.hxx"
 #endif
 
 #endif // itkHalfToFullHermitianImageFilter_h

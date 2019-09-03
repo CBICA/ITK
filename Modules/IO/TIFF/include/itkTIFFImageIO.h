@@ -24,32 +24,38 @@
 
 namespace itk
 {
-//BTX
+// BTX
 class TIFFReaderInternal;
-//ETX
+// ETX
 
 /** \class TIFFImageIO
  *
  * \brief ImageIO object for reading and writing TIFF images
  *
- * \ingroup IOFilters
+ * The compressors supported include "PackBits" (default), "JPEG",
+ * "DEFLATE" and may also include "LZW". Only the "JPEG" compressor
+ * supports the compression level for JPEG quality parameter in the
+ * range 0-100.
  *
+ * \ingroup IOFilters
  * \ingroup ITKIOTIFF
  *
- * \wiki
- * \wikiexample{IO/TIFFImageIO,Write a TIFF image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{IO/TIFF/WriteATIFFImage,Write A TIFF Image}
+ * \endsphinx
  */
-class ITKIOTIFF_EXPORT TIFFImageIO:public ImageIOBase
+class ITKIOTIFF_EXPORT TIFFImageIO : public ImageIOBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef TIFFImageIO          Self;
-  typedef ImageIOBase          Superclass;
-  typedef SmartPointer< Self > Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TIFFImageIO);
 
-  typedef RGBPixel< unsigned short  > RGBPixelType;
-  typedef std::vector< RGBPixelType > PaletteType;
+  /** Standard class type aliases. */
+  using Self = TIFFImageIO;
+  using Superclass = ImageIOBase;
+  using Pointer = SmartPointer<Self>;
+
+  using RGBPixelType = RGBPixel<unsigned short>;
+  using PaletteType = std::vector<RGBPixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,168 +67,232 @@ public:
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanReadFile(const char *) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char *) override;
 
   /** Set the spacing and dimension information for the set filename. */
-  virtual void ReadImageInformation() ITK_OVERRIDE;
+  void
+  ReadImageInformation() override;
 
   /** Reads the data from disk into the memory buffer provided. */
-  virtual void Read(void *buffer) ITK_OVERRIDE;
+  void
+  Read(void * buffer) override;
 
   /** Reads 3D data from multi-pages tiff. */
-  virtual void ReadVolume(void *buffer);
+  virtual void
+  ReadVolume(void * buffer);
 
   /*-------- This part of the interfaces deals with writing data. ----- */
 
   /** Determine the file type. Returns true if this ImageIO can read the
    * file specified. */
-  virtual bool CanWriteFile(const char *) ITK_OVERRIDE;
+  bool
+  CanWriteFile(const char *) override;
 
   /** Writes the spacing and dimensions of the image.
    * Assumes SetFileName has been called with a valid file name. */
-  virtual void WriteImageInformation() ITK_OVERRIDE;
+  void
+  WriteImageInformation() override;
 
   /** Writes the data to disk from the memory buffer provided. Make sure
    * that the IORegion has been set properly. */
-  virtual void Write(const void *buffer) ITK_OVERRIDE;
+  void
+  Write(const void * buffer) override;
 
-  enum { NOFORMAT, RGB_, GRAYSCALE, PALETTE_RGB, PALETTE_GRAYSCALE, OTHER };
+  enum
+  {
+    NOFORMAT,
+    RGB_,
+    GRAYSCALE,
+    PALETTE_RGB,
+    PALETTE_GRAYSCALE,
+    OTHER
+  };
 
-  //BTX
-  enum { // Compression types
+  // BTX
+  enum
+  { // Compression types
     NoCompression,
     PackBits,
     JPEG,
     Deflate,
     LZW
-    };
-  //ETX
+  };
+  // ETX
 
-  // Description:
-  // Set compression type. Sinze LZW compression is patented outside US, the
-  // additional work steps have to be taken in order to use that compression.
-  void SetCompressionToNoCompression() { this->SetCompression(NoCompression); }
-  void SetCompressionToPackBits()      { this->SetCompression(PackBits); }
-  void SetCompressionToJPEG()          { this->SetCompression(JPEG); }
-  void SetCompressionToDeflate()       { this->SetCompression(Deflate); }
-  void SetCompressionToLZW()           { this->SetCompression(LZW); }
-
-  void SetCompression(int compression)
+  /** \brief Set type and automatically enable/disable compression.
+   *
+   * Since LZW compression is patented outside US, the additional work
+   * steps have to be taken in order to use that compression.  */
+  void
+  SetCompressionToNoCompression()
   {
-    m_Compression = compression;
-
-    // This If block isn't strictly necessary:
-    // SetCompression(true); would be sufficient.  However, it reads strangely
-    // for SetCompression(NoCompression) to then set SetCompression(true).
-    // Doing it this way is probably also less likely to break in the future.
-    if ( compression == NoCompression )
-      {
-      this->SetUseCompression(false); // this is for the ImageIOBase class
-      }
-    else
-      {
-      this->SetUseCompression(true);  // this is for the ImageIOBase class
-      }
+    this->UseCompressionOff();
+    this->SetCompressor("NoCompression");
+  }
+  void
+  SetCompressionToPackBits()
+  {
+    this->UseCompressionOn();
+    this->SetCompressor("PackBits");
+  }
+  void
+  SetCompressionToJPEG()
+  {
+    this->UseCompressionOn();
+    this->SetCompressor("JPEG");
+  }
+  void
+  SetCompressionToDeflate()
+  {
+    this->UseCompressionOn();
+    this->SetCompressor("Deflate");
+  }
+  void
+  SetCompressionToLZW()
+  {
+    this->UseCompressionOn();
+    this->SetCompressor("LZW");
   }
 
+
   /** Set/Get the level of quality for the output images if
-    * Compression is JPEG. Settings vary from 1 to 100.
-    * 100 is the highest quality. Default is 75 */
-  itkSetClampMacro(JPEGQuality, int, 1, 100);
-  itkGetConstMacro(JPEGQuality, int);
+   * Compression is JPEG. Settings vary from 1 to 100.
+   * 100 is the highest quality. Default is 75 */
+  virtual void
+  SetJPEGQuality(int _JPEGQuality)
+  {
+    this->SetCompressionLevel(_JPEGQuality);
+  }
+  virtual int
+  GetJPEGQuality() const
+  {
+    return this->GetCompressionLevel();
+  }
+
 
   /** Get a const ref to the palette of the image. In the case of non palette
-    * image or ExpandRGBPalette set to true, a vector of size
-    * 0 is returned.
-    * For multipage Images, only the palette of the first page is read */
+   * image or ExpandRGBPalette set to true, a vector of size
+   * 0 is returned.
+   * For multipage Images, only the palette of the first page is read */
   itkGetConstReferenceMacro(ColorPalette, PaletteType);
 
 protected:
   TIFFImageIO();
-  ~TIFFImageIO() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~TIFFImageIO() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void InternalWrite(const void *buffer);
+  void
+  InternalSetCompressor(const std::string & _compressor) override;
 
-  void InitializeColors();
+  // This method is protected because it does not keep
+  // ImageIO::m_Compressor and TIFFImageIO::m_Compression in sync.
+  void
+  SetCompression(int compression)
+  {
+    m_Compression = compression;
+  }
 
-  void ReadGenericImage(void *out,
-                        unsigned int width,
-                        unsigned int height);
+  void
+  InternalWrite(const void * buffer);
+
+  void
+  InitializeColors();
+
+  void
+  ReadGenericImage(void * out, unsigned int width, unsigned int height);
 
   // To support Zeiss images
-  void ReadTwoSamplesPerPixelImage(void *out,
-                                   unsigned int width,
-                                   unsigned int height);
+  void
+  ReadTwoSamplesPerPixelImage(void * out, unsigned int width, unsigned int height);
 
-  unsigned int  GetFormat();
+  unsigned int
+  GetFormat();
 
-  void GetColor(unsigned int index, unsigned short *red,
-                unsigned short *green, unsigned short *blue);
+  void
+  GetColor(unsigned int index, unsigned short * red, unsigned short * green, unsigned short * blue);
 
   // Check that tag t can be found
-  bool  CanFindTIFFTag(unsigned int t);
+  bool
+  CanFindTIFFTag(unsigned int t);
 
   // Read and returns the raw bytes of tag t
-  void * ReadRawByteFromTag(unsigned int t, unsigned int & value_count);
+  void *
+  ReadRawByteFromTag(unsigned int t, unsigned int & value_count);
 
   // Populate m_ColorPalette from the file palette
   // The palette corresponds to the one of the first page in case of multipage tiff
-  void PopulateColorPalette();
+  void
+  PopulateColorPalette();
 
-  TIFFReaderInternal *m_InternalImage;
+  TIFFReaderInternal * m_InternalImage;
 
-  void ReadTIFFTags();
+  void
+  ReadTIFFTags();
 
   int m_Compression;
-  int m_JPEGQuality;
 
   PaletteType m_ColorPalette;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TIFFImageIO);
-
-  void ReadCurrentPage(void *out, size_t pixelOffset);
-
-  template <typename TComponent>
-  void ReadGenericImage(void *out,
-                        unsigned int width,
-                        unsigned int height);
+  void
+  ReadCurrentPage(void * out, size_t pixelOffset);
 
   template <typename TComponent>
-    void RGBAImageToBuffer( void *out, const uint32_t *tempImage );
+  void
+  ReadGenericImage(void * out, unsigned int width, unsigned int height);
+
+  template <typename TComponent>
+  void
+  RGBAImageToBuffer(void * out, const uint32_t * tempImage);
 
   template <typename TType>
-    void PutGrayscale( TType *to, TType * from,
-                       unsigned int xsize, unsigned int ysize,
-                       unsigned int toskew, unsigned int fromskew );
+  void
+  PutGrayscale(TType *      to,
+               TType *      from,
+               unsigned int xsize,
+               unsigned int ysize,
+               unsigned int toskew,
+               unsigned int fromskew);
 
   template <typename TType>
-    void PutRGB_( TType *to, TType * from,
-                  unsigned int xsize, unsigned int ysize,
-                  unsigned int toskew, unsigned int fromskew );
+  void
+  PutRGB_(TType * to, TType * from, unsigned int xsize, unsigned int ysize, unsigned int toskew, unsigned int fromskew);
 
 
   template <typename TType, typename TFromType>
-    void PutPaletteGrayscale( TType *to, TFromType * from,
-                              unsigned int xsize, unsigned int ysize,
-                              unsigned int toskew, unsigned int fromskew );
+  void
+  PutPaletteGrayscale(TType *      to,
+                      TFromType *  from,
+                      unsigned int xsize,
+                      unsigned int ysize,
+                      unsigned int toskew,
+                      unsigned int fromskew);
 
   template <typename TType, typename TFromType>
-    void PutPaletteRGB( TType *to, TFromType * from,
-                        unsigned int xsize, unsigned int ysize,
-                        unsigned int toskew, unsigned int fromskew );
+  void
+  PutPaletteRGB(TType *      to,
+                TFromType *  from,
+                unsigned int xsize,
+                unsigned int ysize,
+                unsigned int toskew,
+                unsigned int fromskew);
 
-    template <typename TType, typename TFromType>
-      void PutPaletteScalar( TType *to, TFromType * from,
-                          unsigned int xsize, unsigned int ysize,
-                          unsigned int toskew, unsigned int fromskew );
+  template <typename TType, typename TFromType>
+  void
+  PutPaletteScalar(TType *      to,
+                   TFromType *  from,
+                   unsigned int xsize,
+                   unsigned int ysize,
+                   unsigned int toskew,
+                   unsigned int fromskew);
 
-  unsigned short *m_ColorRed;
-  unsigned short *m_ColorGreen;
-  unsigned short *m_ColorBlue;
-  int             m_TotalColors;
-  unsigned int    m_ImageFormat;
+  unsigned short * m_ColorRed;
+  unsigned short * m_ColorGreen;
+  unsigned short * m_ColorBlue;
+  int              m_TotalColors{ -1 };
+  unsigned int     m_ImageFormat{ TIFFImageIO::NOFORMAT };
 };
 } // end namespace itk
 

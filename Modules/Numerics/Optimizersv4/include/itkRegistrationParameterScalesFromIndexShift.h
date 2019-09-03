@@ -30,79 +30,84 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-template < typename TMetric >
-class ITK_TEMPLATE_EXPORT RegistrationParameterScalesFromIndexShift :
-  public RegistrationParameterScalesFromShiftBase< TMetric >
+template <typename TMetric>
+class ITK_TEMPLATE_EXPORT RegistrationParameterScalesFromIndexShift
+  : public RegistrationParameterScalesFromShiftBase<TMetric>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RegistrationParameterScalesFromIndexShift           Self;
-  typedef RegistrationParameterScalesFromShiftBase< TMetric > Superclass;
-  typedef SmartPointer<Self>                                  Pointer;
-  typedef SmartPointer<const Self>                            ConstPointer;
-
-  /** Method for creation through the object factory. */
-  itkNewMacro( Self );
-
-  /** Run-time type information (and related methods). */
-  itkTypeMacro( RegistrationParameterScalesFromIndexShift, RegistrationParameterScalesFromShiftBase );
-
-  /** Type of scales */
-  typedef typename Superclass::ScalesType                ScalesType;
-  /** Type of parameters of the optimizer */
-  typedef typename Superclass::ParametersType            ParametersType;
-  /** Type of float */
-  typedef typename Superclass::FloatType                 FloatType;
-
-  typedef typename Superclass::VirtualPointType          VirtualPointType;
-  typedef typename Superclass::VirtualIndexType          VirtualIndexType;
-  typedef typename Superclass::MovingTransformType       MovingTransformType;
-  typedef typename Superclass::FixedTransformType        FixedTransformType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::VirtualImageConstPointer  VirtualImageConstPointer;
-
-  typedef typename TMetric::FixedImageType               FixedImageType;
-  typedef typename TMetric::MovingImageType              MovingImageType;
-
-  typedef typename FixedImageType::ConstPointer          FixedImageConstPointer;
-  typedef typename MovingImageType::ConstPointer         MovingImageConstPointer;
-
-  typedef typename FixedImageType::PointType             FixedPointType;
-  typedef typename FixedImageType::IndexType             FixedIndexType;
-  typedef typename FixedImageType::PointValueType        FixedPointValueType;
-
-  typedef typename itk::ContinuousIndex< FixedPointValueType, FixedImageType::ImageDimension >          FixedContinuousIndexType;
-
-  typedef typename MovingImageType::PointType            MovingPointType;
-  typedef typename MovingImageType::IndexType            MovingIndexType;
-  typedef typename MovingImageType::PointValueType       MovingPointValueType;
-
-  typedef typename itk::ContinuousIndex< MovingPointValueType, MovingImageType::ImageDimension >         MovingContinuousIndexType;
-
-protected:
-  RegistrationParameterScalesFromIndexShift();
-  ~RegistrationParameterScalesFromIndexShift() ITK_OVERRIDE {};
-
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-  virtual void ComputeSampleShifts(const ParametersType &deltaParameters, ScalesType &localShifts) ITK_OVERRIDE;
-
-  template<typename TContinuousIndexType>
-  void TransformPointToContinuousIndex(const VirtualPointType &point, TContinuousIndexType &mappedIndex);
-
-private:
   ITK_DISALLOW_COPY_AND_ASSIGN(RegistrationParameterScalesFromIndexShift);
 
+  /** Standard class type aliases. */
+  using Self = RegistrationParameterScalesFromIndexShift;
+  using Superclass = RegistrationParameterScalesFromShiftBase<TMetric>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Method for creation through the object factory. */
+  itkNewMacro(Self);
+
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(RegistrationParameterScalesFromIndexShift, RegistrationParameterScalesFromShiftBase);
+
+  /** Type of scales */
+  using ScalesType = typename Superclass::ScalesType;
+  /** Type of parameters of the optimizer */
+  using ParametersType = typename Superclass::ParametersType;
+  /** Type of float */
+  using FloatType = typename Superclass::FloatType;
+
+  using VirtualPointType = typename Superclass::VirtualPointType;
+  using VirtualIndexType = typename Superclass::VirtualIndexType;
+  using MovingTransformType = typename Superclass::MovingTransformType;
+  using FixedTransformType = typename Superclass::FixedTransformType;
+  using JacobianType = typename Superclass::JacobianType;
+  using VirtualImageConstPointer = typename Superclass::VirtualImageConstPointer;
+
+  using FixedImageType = typename TMetric::FixedImageType;
+  using MovingImageType = typename TMetric::MovingImageType;
+
+  using FixedImageConstPointer = typename FixedImageType::ConstPointer;
+  using MovingImageConstPointer = typename MovingImageType::ConstPointer;
+
+  using FixedPointType = typename FixedImageType::PointType;
+  using FixedIndexType = typename FixedImageType::IndexType;
+  using FixedPointValueType = typename FixedImageType::PointValueType;
+
+  using FixedContinuousIndexType = typename itk::ContinuousIndex<FixedPointValueType, FixedImageType::ImageDimension>;
+
+  using MovingPointType = typename MovingImageType::PointType;
+  using MovingIndexType = typename MovingImageType::IndexType;
+  using MovingPointValueType = typename MovingImageType::PointValueType;
+
+  using MovingContinuousIndexType =
+    typename itk::ContinuousIndex<MovingPointValueType, MovingImageType::ImageDimension>;
+
+protected:
+  RegistrationParameterScalesFromIndexShift() = default;
+  ~RegistrationParameterScalesFromIndexShift() override = default;
+
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  void
+  ComputeSampleShifts(const ParametersType & deltaParameters, ScalesType & localShifts) override;
+
+  template <typename TContinuousIndexType>
+  void
+  TransformPointToContinuousIndex(const VirtualPointType & point, TContinuousIndexType & mappedIndex);
+
+private:
   template <typename TTransform>
-  void ComputeSampleShiftsInternal(const ParametersType &deltaParameters, ScalesType &localShifts);
+  void
+  ComputeSampleShiftsInternal(const ParametersType & deltaParameters, ScalesType & localShifts);
 
-}; //class RegistrationParameterScalesFromIndexShift
+}; // class RegistrationParameterScalesFromIndexShift
 
-}  // namespace itk
+} // namespace itk
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRegistrationParameterScalesFromIndexShift.hxx"
+#  include "itkRegistrationParameterScalesFromIndexShift.hxx"
 #endif
 
 #endif /* itkRegistrationParameterScalesFromIndexShift_h */

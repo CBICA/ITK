@@ -50,90 +50,94 @@ namespace itk
  * \ingroup Transforms
  * \ingroup ITKDisplacementField
  */
-template<typename TParametersValueType, unsigned int NDimensions>
-class ITK_TEMPLATE_EXPORT TimeVaryingVelocityFieldTransform :
-  public VelocityFieldTransform<TParametersValueType, NDimensions>
+template <typename TParametersValueType, unsigned int NDimensions>
+class ITK_TEMPLATE_EXPORT TimeVaryingVelocityFieldTransform
+  : public VelocityFieldTransform<TParametersValueType, NDimensions>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TimeVaryingVelocityFieldTransform                         Self;
-  typedef VelocityFieldTransform<TParametersValueType, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                        Pointer;
-  typedef SmartPointer<const Self>                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(TimeVaryingVelocityFieldTransform);
+
+  /** Standard class type aliases. */
+  using Self = TimeVaryingVelocityFieldTransform;
+  using Superclass = VelocityFieldTransform<TParametersValueType, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( TimeVaryingVelocityFieldTransform, VelocityFieldTransform );
+  itkTypeMacro(TimeVaryingVelocityFieldTransform, VelocityFieldTransform);
 
   /** New macro for creation of through a Smart Pointer */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** InverseTransform type. */
-  typedef typename Superclass::InverseTransformBasePointer InverseTransformBasePointer;
+  using InverseTransformBasePointer = typename Superclass::InverseTransformBasePointer;
 
   /** Interpolator types.*/
-  typedef typename Superclass::InterpolatorType                     InterpolatorType;
-  typedef typename Superclass::VelocityFieldInterpolatorType        VelocityFieldIntegratorType;
+  using InterpolatorType = typename Superclass::InterpolatorType;
+  using VelocityFieldIntegratorType = typename Superclass::VelocityFieldInterpolatorType;
 
   /** Field types. */
-  typedef typename Superclass::DisplacementFieldType                DisplacementFieldType;
-  typedef typename Superclass::VelocityFieldType                    VelocityFieldType;
+  using DisplacementFieldType = typename Superclass::DisplacementFieldType;
+  using VelocityFieldType = typename Superclass::VelocityFieldType;
 
-  typedef VelocityFieldType                                         TimeVaryingVelocityFieldType;
-  typedef typename VelocityFieldType::Pointer                       TimeVaryingVelocityFieldPointer;
+  using TimeVaryingVelocityFieldType = VelocityFieldType;
+  using TimeVaryingVelocityFieldPointer = typename VelocityFieldType::Pointer;
 
   /** Scalar type. */
-  typedef typename Superclass::ScalarType              ScalarType;
+  using ScalarType = typename Superclass::ScalarType;
 
   /** Type of the input parameters. */
-  typedef typename Superclass::ParametersType          ParametersType;
-  typedef typename ParametersType::ValueType           ParametersValueType;
-  typedef typename Superclass::FixedParametersType     FixedParametersType;
-  typedef typename FixedParametersType::ValueType      FixedParametersValueType;
-  typedef typename Superclass::NumberOfParametersType  NumberOfParametersType;
+  using ParametersType = typename Superclass::ParametersType;
+  using ParametersValueType = typename ParametersType::ValueType;
+  using FixedParametersType = typename Superclass::FixedParametersType;
+  using FixedParametersValueType = typename FixedParametersType::ValueType;
+  using NumberOfParametersType = typename Superclass::NumberOfParametersType;
 
   /** Derivative type */
-  typedef typename Superclass::DerivativeType          DerivativeType;
+  using DerivativeType = typename Superclass::DerivativeType;
 
-  typedef typename Transform<TParametersValueType,NDimensions, NDimensions>::Pointer TransformPointer;
+  using TransformPointer = typename Transform<TParametersValueType, NDimensions, NDimensions>::Pointer;
 
   /** Get the time-varying velocity field. */
-#if ! defined ( ITK_FUTURE_LEGACY_REMOVE )
-  VelocityFieldType * GetTimeVaryingVelocityField()
-    {
+#if !defined(ITK_LEGACY_REMOVE)
+  VelocityFieldType *
+  GetTimeVaryingVelocityField()
+  {
     return this->GetModifiableVelocityField();
-    }
+  }
 #endif
-  VelocityFieldType * GetModifiableTimeVaryingVelocityField()
-    {
+  VelocityFieldType *
+  GetModifiableTimeVaryingVelocityField()
+  {
     return this->GetModifiableVelocityField();
-    }
-  const VelocityFieldType * GetTimeVaryingVelocityField() const
-    {
+  }
+  const VelocityFieldType *
+  GetTimeVaryingVelocityField() const
+  {
     return this->GetVelocityField();
-    }
+  }
 
   /** Set the time-varying velocity field.  */
-  virtual void SetTimeVaryingVelocityField( VelocityFieldType * field )
-    {
-    this->SetVelocityField( field );
-    }
+  virtual void
+  SetTimeVaryingVelocityField(VelocityFieldType * field)
+  {
+    this->SetVelocityField(field);
+  }
 
   /** Trigger the computation of the displacement field by integrating
    * the time-varying velocity field. */
-  virtual void IntegrateVelocityField() ITK_OVERRIDE;
+  void
+  IntegrateVelocityField() override;
 
 protected:
-  TimeVaryingVelocityFieldTransform();
-  virtual ~TimeVaryingVelocityFieldTransform() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TimeVaryingVelocityFieldTransform);
+  TimeVaryingVelocityFieldTransform() = default;
+  ~TimeVaryingVelocityFieldTransform() override = default;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkTimeVaryingVelocityFieldTransform.hxx"
+#  include "itkTimeVaryingVelocityFieldTransform.hxx"
 #endif
 
 #endif // itkTimeVaryingVelocityFieldTransform_h

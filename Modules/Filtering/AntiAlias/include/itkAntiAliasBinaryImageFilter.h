@@ -99,33 +99,34 @@ namespace itk
  *
  * \ingroup ITKAntiAlias
  *
- * \wiki
- * \wikiexample{Smoothing/AntiAliasBinaryImageFilter,Anti alias a binary image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/AntiAlias/SmoothBinaryImageBeforeSurfaceExtraction,Smooth Binary Image Before Surface
+ * Extraction} \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT AntiAliasBinaryImageFilter:
-  public SparseFieldLevelSetImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT AntiAliasBinaryImageFilter : public SparseFieldLevelSetImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs */
-  typedef AntiAliasBinaryImageFilter                                  Self;
-  typedef SparseFieldLevelSetImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AntiAliasBinaryImageFilter);
 
-  /** Inherited typedef from the superclass. */
-  typedef typename Superclass::ValueType       ValueType;
-  typedef typename Superclass::IndexType       IndexType;
-  typedef typename Superclass::TimeStepType    TimeStepType;
-  typedef typename Superclass::OutputImageType OutputImageType;
-  typedef typename Superclass::InputImageType  InputImageType;
+  /** Standard class type aliases */
+  using Self = AntiAliasBinaryImageFilter;
+  using Superclass = SparseFieldLevelSetImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Inherited type alias from the superclass. */
+  using ValueType = typename Superclass::ValueType;
+  using IndexType = typename Superclass::IndexType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using InputImageType = typename Superclass::InputImageType;
 
   /** The function type which will calculate the curvature flow */
-  typedef CurvatureFlowFunction< OutputImageType > CurvatureFunctionType;
+  using CurvatureFunctionType = CurvatureFlowFunction<OutputImageType>;
 
   /** ValueType of the input binary image */
-  typedef typename TInputImage::ValueType BinaryValueType;
+  using BinaryValueType = typename TInputImage::ValueType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -139,13 +140,15 @@ public:
 
   /** Set/Get the maximum number of iterations allowed for the solver.  This
    *  prevents infinite loops if a solution "bounces". */
-  void SetMaximumIterations(unsigned int i)
+  void
+  SetMaximumIterations(unsigned int i)
   {
     itkWarningMacro("SetMaximumIterations is deprecated.  Please use SetNumberOfIterations instead.");
     this->SetNumberOfIterations(i);
   }
 
-  unsigned int GetMaximumIterations()
+  unsigned int
+  GetMaximumIterations()
   {
     itkWarningMacro("GetMaximumIterations is deprecated. Please use GetNumberOfIterations instead.");
     return this->GetNumberOfIterations();
@@ -153,43 +156,42 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, typename TOutputImage::PixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< typename TInputImage::PixelType > ) );
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, typename TOutputImage::PixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<typename TInputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
   AntiAliasBinaryImageFilter();
-  ~AntiAliasBinaryImageFilter() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~AntiAliasBinaryImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Overridden from the parent class to indroduce a constraint on
    *  surface flow under certain conditions. */
-  virtual ValueType CalculateUpdateValue(const IndexType & idx,
-                                         const TimeStepType & dt,
-                                         const ValueType & value,
-                                         const ValueType & change) ITK_OVERRIDE;
+  ValueType
+  CalculateUpdateValue(const IndexType &    idx,
+                       const TimeStepType & dt,
+                       const ValueType &    value,
+                       const ValueType &    change) override;
 
   /** Overridden from ProcessObject to set certain values before starting the
-    * finite difference solver and then create an appropriate output */
-  void GenerateData() ITK_OVERRIDE;
+   * finite difference solver and then create an appropriate output */
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AntiAliasBinaryImageFilter);
-
   BinaryValueType m_UpperBinaryValue;
   BinaryValueType m_LowerBinaryValue;
 
   typename CurvatureFunctionType::Pointer m_CurvatureFunction;
 
-  const TInputImage *m_InputImage;
+  const TInputImage * m_InputImage;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAntiAliasBinaryImageFilter.hxx"
+#  include "itkAntiAliasBinaryImageFilter.hxx"
 #endif
 
 #endif

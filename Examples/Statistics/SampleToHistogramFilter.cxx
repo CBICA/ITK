@@ -53,7 +53,8 @@
 #include "itkVector.h"
 // Software Guide : EndCodeSnippet
 
-int main()
+int
+main()
 {
   // Software Guide : BeginLatex
   //
@@ -65,27 +66,26 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef int MeasurementType;
-  const unsigned int MeasurementVectorLength = 2;
-  typedef itk::Vector< MeasurementType , MeasurementVectorLength >
-                                                        MeasurementVectorType;
+  using MeasurementType = int;
+  constexpr unsigned int MeasurementVectorLength = 2;
+  using MeasurementVectorType = itk::Vector<MeasurementType, MeasurementVectorLength>;
 
-  typedef itk::Statistics::ListSample< MeasurementVectorType > ListSampleType;
+  using ListSampleType = itk::Statistics::ListSample<MeasurementVectorType>;
   ListSampleType::Pointer listSample = ListSampleType::New();
-  listSample->SetMeasurementVectorSize( MeasurementVectorLength );
+  listSample->SetMeasurementVectorSize(MeasurementVectorLength);
 
   MeasurementVectorType mv;
   for (unsigned int i = 1; i < 6; ++i)
-    {
+  {
     for (unsigned int j = 0; j < 2; ++j)
-      {
-      mv[j] = ( MeasurementType ) i;
-      }
-    for (unsigned int j = 0; j < i; ++j)
-      {
-      listSample->PushBack(mv);
-      }
+    {
+      mv[j] = (MeasurementType)i;
     }
+    for (unsigned int j = 0; j < i; ++j)
+    {
+      listSample->PushBack(mv);
+    }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -96,16 +96,15 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef float HistogramMeasurementType;
-  const unsigned int numberOfComponents = 2;
-  typedef itk::Statistics::Histogram< HistogramMeasurementType >
-    HistogramType;
+  using HistogramMeasurementType = float;
+  constexpr unsigned int numberOfComponents = 2;
+  using HistogramType = itk::Statistics::Histogram<HistogramMeasurementType>;
 
-  HistogramType::SizeType size( numberOfComponents );
+  HistogramType::SizeType size(numberOfComponents);
   size.Fill(5);
 
-  HistogramType::MeasurementVectorType lowerBound( numberOfComponents );
-  HistogramType::MeasurementVectorType upperBound( numberOfComponents );
+  HistogramType::MeasurementVectorType lowerBound(numberOfComponents);
+  HistogramType::MeasurementVectorType upperBound(numberOfComponents);
 
   lowerBound[0] = 0.5;
   lowerBound[1] = 0.5;
@@ -127,14 +126,14 @@ int main()
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::Statistics::SampleToHistogramFilter< ListSampleType,
-                           HistogramType > FilterType;
+  using FilterType =
+    itk::Statistics::SampleToHistogramFilter<ListSampleType, HistogramType>;
   FilterType::Pointer filter = FilterType::New();
 
-  filter->SetInput( listSample );
-  filter->SetHistogramSize( size );
-  filter->SetHistogramBinMinimum( lowerBound );
-  filter->SetHistogramBinMaximum( upperBound );
+  filter->SetInput(listSample);
+  filter->SetHistogramSize(size);
+  filter->SetHistogramBinMinimum(lowerBound);
+  filter->SetHistogramBinMaximum(upperBound);
   filter->Update();
   // Software Guide : EndCodeSnippet
 
@@ -147,19 +146,18 @@ int main()
 
   // Software Guide : BeginCodeSnippet
 
-  const HistogramType* histogram = filter->GetOutput();
+  const HistogramType * histogram = filter->GetOutput();
 
   HistogramType::ConstIterator iter = histogram->Begin();
-  while ( iter != histogram->End() )
-    {
+  while (iter != histogram->End())
+  {
     std::cout << "Measurement vectors = " << iter.GetMeasurementVector()
               << " frequency = " << iter.GetFrequency() << std::endl;
     ++iter;
-    }
+  }
 
   std::cout << "Size = " << histogram->Size() << std::endl;
-  std::cout << "Total frequency = "
-            << histogram->GetTotalFrequency() << std::endl;
+  std::cout << "Total frequency = " << histogram->GetTotalFrequency() << std::endl;
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

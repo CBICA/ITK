@@ -18,37 +18,46 @@
 #ifndef itkGaussianDerivativeImageFunction_h
 #define itkGaussianDerivativeImageFunction_h
 
-#include "itkNeighborhoodOperatorImageFunction.h"
+#include "itkContinuousIndex.h"
+#include "itkFixedArray.h"
 #include "itkGaussianDerivativeSpatialFunction.h"
 #include "itkGaussianSpatialFunction.h"
+#include "itkImage.h"
+#include "itkImageFunction.h"
+#include "itkNeighborhood.h"
+#include "itkOffset.h"
+#include "itkVector.h"
+
+#include <vector>
 
 namespace itk
 {
 /**
  * \class GaussianDerivativeImageFunction
- * \brief Compute the gaussian derivatives of an the image
+ * \brief Compute the Gaussian derivatives of an the image
  *        at a specific location in space, i.e. point, index or continuous
  *        index.
+ * \note From ITK 5, the Evaluate member functions of this class are concurrent
+ * thread safe: It is safe to have multiple simultaneous Evaluate calls on a
+ * GaussianDerivativeImageFunction object.
+ *
  * This class is templated over the input image type.
  * \sa NeighborhoodOperator
  * \sa ImageFunction
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TOutput = double >
-class ITK_TEMPLATE_EXPORT GaussianDerivativeImageFunction:
-  public ImageFunction< TInputImage,
-                        Vector< TOutput, TInputImage::ImageDimension >,
-                        TOutput >
+template <typename TInputImage, typename TOutput = double>
+class ITK_TEMPLATE_EXPORT GaussianDerivativeImageFunction
+  : public ImageFunction<TInputImage, Vector<TOutput, TInputImage::ImageDimension>, TOutput>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianDerivativeImageFunction);
 
-  /** Standard class typedefs. */
-  typedef GaussianDerivativeImageFunction Self;
-  typedef ImageFunction< TInputImage,
-                         Vector< TOutput, TInputImage::ImageDimension >,
-                         TOutput >        Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  /** Standard class type aliases. */
+  using Self = GaussianDerivativeImageFunction;
+  using Superclass = ImageFunction<TInputImage, Vector<TOutput, TInputImage::ImageDimension>, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -56,115 +65,138 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(GaussianDerivativeImageFunction, ImageFunction);
 
-  /** InputImageType typedef support. */
-  typedef TInputImage                        InputImageType;
-  typedef typename InputImageType::PixelType InputPixelType;
-  typedef typename InputImageType::IndexType IndexType;
+  /** InputImageType type alias support */
+  using InputImageType = TInputImage;
+  using InputPixelType = typename InputImageType::PixelType;
+  using IndexType = typename InputImageType::IndexType;
 
   /** Dimension of the underlying image. */
-  itkStaticConstMacro(ImageDimension2, unsigned int,
-                      InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
-  typedef ContinuousIndex< SpacePrecisionType, itkGetStaticConstMacro(ImageDimension2) >
-  ContinuousIndexType;
+#if !defined(ITK_LEGACY_REMOVE)
+  static constexpr unsigned int ImageDimension2 = ImageDimension;
+#endif
 
-  typedef Neighborhood< InputPixelType, itkGetStaticConstMacro(ImageDimension2) > NeighborhoodType;
-  typedef Neighborhood< TOutput, itkGetStaticConstMacro(ImageDimension2) >        OperatorNeighborhoodType;
+  using ContinuousIndexType = ContinuousIndex<SpacePrecisionType, Self::ImageDimension>;
 
-  typedef Vector< TOutput, itkGetStaticConstMacro(ImageDimension2) >                         VectorType;
-  typedef typename Superclass::OutputType                                                    OutputType;
-  typedef FixedArray< OperatorNeighborhoodType, 2 * itkGetStaticConstMacro(ImageDimension2) > OperatorArrayType;
-  typedef NeighborhoodOperatorImageFunction< InputImageType,
-                                             TOutput > OperatorImageFunctionType;
-  typedef typename OperatorImageFunctionType::Pointer OperatorImageFunctionPointer;
+  using NeighborhoodType = Neighborhood<InputPixelType, Self::ImageDimension>;
+  using OperatorNeighborhoodType = Neighborhood<TOutput, Self::ImageDimension>;
 
-  typedef GaussianDerivativeSpatialFunction< TOutput, 1 >  GaussianDerivativeFunctionType;
-  typedef typename GaussianDerivativeFunctionType::Pointer GaussianDerivativeFunctionPointer;
+  using VectorType = Vector<TOutput, Self::ImageDimension>;
+  using OutputType = typename Superclass::OutputType;
+  using OperatorArrayType = FixedArray<OperatorNeighborhoodType, Self::ImageDimension>;
 
-  typedef GaussianSpatialFunction< TOutput, 1 >  GaussianFunctionType;
-  typedef typename GaussianFunctionType::Pointer GaussianFunctionPointer;
+  using GaussianDerivativeSpatialFunctionType = GaussianDerivativeSpatialFunction<TOutput, 1>;
+  using GaussianDerivativeSpatialFunctionPointer = typename GaussianDerivativeSpatialFunctionType::Pointer;
 
-  /** Point typedef support. */
-  // typedef Point< TOutput, itkGetStaticConstMacro(ImageDimension2) > PointType;
-  typedef typename InputImageType::PointType PointType;
+#if !defined(ITK_LEGACY_REMOVE)
+  using GaussianDerivativeFunctionType = GaussianDerivativeSpatialFunctionType;
+  using GaussianDerivativeFunctionPointer = GaussianDerivativeSpatialFunctionPointer;
+#endif
 
-  /** Evaluate the function at the specifed point. */
-  virtual OutputType Evaluate(const PointType & point) const ITK_OVERRIDE;
+  /** Point type alias support */
+  // using PointType = Point< TOutput, Self::ImageDimension >;
+  using PointType = typename InputImageType::PointType;
+
+  /** Evaluate the function at the specified point. */
+  OutputType
+  Evaluate(const PointType & point) const override;
 
   /** Evaluate the function at specified Index position. */
-  virtual OutputType EvaluateAtIndex(const IndexType & index) const ITK_OVERRIDE;
+  OutputType
+  EvaluateAtIndex(const IndexType & index) const override;
 
   /** Evaluate the function at specified ContinuousIndex position. */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const ITK_OVERRIDE;
+  OutputType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const override;
+
+  /**
+   * UseImageSpacing controls the extent of the computations.
+   * Set UseImageSpacing to true to set the units to physical units of the image.
+   * Set UseImageSpacing to false to set the units of pixels. */
+  void
+  SetUseImageSpacing(const bool val)
+  {
+    if (val != this->m_UseImageSpacing)
+    {
+      this->m_UseImageSpacing = val;
+      this->RecomputeGaussianKernel();
+    }
+  }
+  itkBooleanMacro(UseImageSpacing);
+  itkGetMacro(UseImageSpacing, bool);
 
   /** The variance for the discrete Gaussian kernel. Sets the variance
    * independently for each dimension, but see also
-   * SetVariance(const double v). The default is 0.0 in each dimension. If
-   * UseImageSpacing is true, the units are the physical units of the image. If
-   * UseImageSpacing is false then the units are pixels. */
-  void SetSigma(const double *sigma);
+   * SetVariance(const double v). The default is 0.0 in each dimension.
+   * The extent of the kernel is controlled by UseImageSpacing.
+   */
+  void
+  SetSigma(const double * sigma);
 
-  void SetSigma(const double sigma);
+  void
+  SetSigma(const double sigma);
 
-  const double * GetSigma() const { return m_Sigma; }
+  const double *
+  GetSigma() const
+  {
+    return m_Sigma;
+  }
 
   /** Set the extent of the discrete Gaussian kernel. */
-  void SetExtent(const double *extent);
+  void
+  SetExtent(const double * extent);
 
-  void SetExtent(const double extent);
+  void
+  SetExtent(const double extent);
 
-  const double * GetExtent() const { return m_Extent; }
+  const double *
+  GetExtent() const
+  {
+    return m_Extent;
+  }
 
   /** Set the input image.
    * \warning this method caches BufferedRegion information.
    * If the BufferedRegion has changed, user must call
    * SetInputImage again to update cached values. */
-  virtual void SetInputImage(const InputImageType *ptr) ITK_OVERRIDE;
+  void
+  SetInputImage(const InputImageType * ptr) override;
 
 protected:
   GaussianDerivativeImageFunction();
-  GaussianDerivativeImageFunction(const Self &);
+  ~GaussianDerivativeImageFunction() override = default;
 
-  ~GaussianDerivativeImageFunction() ITK_OVERRIDE {}
-
-  void operator=(const Self &);
-
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Recompute the Gaussian kernel used to evaluate indexes. This should use
    * a fastest Derivative Gaussian operator. */
-  void RecomputeGaussianKernel();
-
-  /** Recompute the Gaussian kernel used to evaluate indexes. The variance
-   * should be uniform. */
-  void RecomputeContinuousGaussianKernel(
-    const double *offset) const;
+  void
+  RecomputeGaussianKernel();
 
 private:
+  double m_Sigma[ImageDimension];
 
-  double                            m_Sigma[ImageDimension2];
+  /** Array of 1D operators. Contains a derivative kernel for
+   * each dimension. Note: A future version of ITK could extend this array
+   * to include a Gaussian blurring kernel for each dimension.*/
+  OperatorArrayType m_OperatorArray;
 
-  /** Array of 1D operators. Contains a derivative kernel and a gaussian kernel for
-   * each dimension. */
-  mutable OperatorArrayType         m_OperatorArray;
-  mutable OperatorArrayType         m_ContinuousOperatorArray;
+  std::vector<Offset<ImageDimension>> m_ImageNeighborhoodOffsets[ImageDimension];
 
-  /** OperatorImageFunction */
-  OperatorImageFunctionPointer      m_OperatorImageFunction;
-  double                            m_Extent[ImageDimension2];
+  double m_Extent[ImageDimension];
 
   /** Flag to indicate whether to use image spacing. */
-  bool m_UseImageSpacing;
+  bool m_UseImageSpacing{ true };
 
   /** Neighborhood Image Function. */
-  GaussianDerivativeFunctionPointer m_GaussianDerivativeFunction;
-  GaussianFunctionPointer           m_GaussianFunction;
+  const GaussianDerivativeSpatialFunctionPointer m_GaussianDerivativeSpatialFunction;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGaussianDerivativeImageFunction.hxx"
+#  include "itkGaussianDerivativeImageFunction.hxx"
 #endif
 
 #endif

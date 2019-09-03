@@ -21,60 +21,52 @@
 #include "itkQuadEdgeMeshExtendedTraits.h"
 #include "itkDiscreteMeanCurvatureQuadEdgeMeshFilter.h"
 
-int itkDiscreteMeanCurvatureQuadEdgeMeshFilterTest( int argc, char* argv[] )
+int
+itkDiscreteMeanCurvatureQuadEdgeMeshFilterTest(int argc, char * argv[])
 {
-  if( argc < 2 )
-    {
-    std::cout <<"*** GaussianCurvature ***" <<std::endl;
-    std::cout <<"This example requires at least one argument:" <<std::endl;
-    std::cout <<" 1- FileName" <<std::endl;
+  if (argc < 2)
+  {
+    std::cout << "*** GaussianCurvature ***" << std::endl;
+    std::cout << "This example requires at least one argument:" << std::endl;
+    std::cout << " 1- FileName" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int Dimension = 3;
-  typedef double CoordType;
+  constexpr unsigned int Dimension = 3;
+  using CoordType = double;
 
-  typedef itk::QuadEdgeMeshExtendedTraits <
-    CoordType,
-    Dimension,
-    2,
-    CoordType,
-    CoordType,
-    CoordType,
-    bool,
-    bool > Traits;
+  using Traits = itk::QuadEdgeMeshExtendedTraits<CoordType, Dimension, 2, CoordType, CoordType, CoordType, bool, bool>;
 
-  typedef itk::QuadEdgeMesh< CoordType, Dimension, Traits > MeshType;
-  typedef itk::DiscreteMeanCurvatureQuadEdgeMeshFilter<MeshType,MeshType>
-    CurvatureFilterType;
+  using MeshType = itk::QuadEdgeMesh<CoordType, Dimension, Traits>;
+  using CurvatureFilterType = itk::DiscreteMeanCurvatureQuadEdgeMeshFilter<MeshType, MeshType>;
 
-  typedef itk::MeshFileReader< MeshType > ReaderType;
+  using ReaderType = itk::MeshFileReader<MeshType>;
 
-  ReaderType::Pointer reader = ReaderType::New( );
-  reader->SetFileName( argv[1] );
+  ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName(argv[1]);
   try
-    {
-    reader->Update( );
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  {
+    reader->Update();
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Exception thrown while reading the input file " << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   MeshType::Pointer mesh = reader->GetOutput();
 
   CurvatureFilterType::Pointer mean_curvature = CurvatureFilterType::New();
-  mean_curvature->SetInput( mesh );
+  mean_curvature->SetInput(mesh);
   mean_curvature->Update();
 
   MeshType::Pointer output = mean_curvature->GetOutput();
 
-  typedef itk::MeshFileWriter< MeshType > WriterType;
+  using WriterType = itk::MeshFileWriter<MeshType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( output );
-  writer->SetFileName( "mean_curvature.vtk" );
+  writer->SetInput(output);
+  writer->SetFileName("mean_curvature.vtk");
   writer->Update();
 
   return EXIT_SUCCESS;

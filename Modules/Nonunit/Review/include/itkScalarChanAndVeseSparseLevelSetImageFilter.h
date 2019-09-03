@@ -55,79 +55,81 @@ namespace itk
  *
  * \ingroup ITKReview
  *
- * \wiki
- * \wikiexample{Segmentation/MultiphaseChanAndVeseSparseFieldLevelSetSegmentation,Multiphase Chan And Vese Sparse Field Level Set Segmentation}
- * \wikiexample{Segmentation/SinglephaseChanAndVeseSparseFieldLevelSetSegmentation,Single-phase Chan And Vese Sparse Field Level Set Segmentation}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Nonunit/Review/MultiphaseChanAndVeseSparseFieldLevelSetSegmentation,Multiphase Chan And Vese Sparse
+ * Field Level Set Segmentation}
+ * \sphinxexample{Nonunit/Review/SinglephaseChanAndVeseSparseFieldLevelSetSegmentation,Single-phase Chan And Vese Sparse
+ * Field Level Set Segmentation}
+ * \sphinxexample{Nonunit/Review/SinglephaseChanAndVeseSparseFieldLevelSetSegmentation2,Single-phase Chan And Vese Dense
+ * Field Level Set Segmentation} \endsphinx
  */
-template< typename TInputImage, typename TFeatureImage, typename TOutputImage,
-          typename TFunction = ScalarChanAndVeseLevelSetFunction< TInputImage, TFeatureImage >,
+template <typename TInputImage,
+          typename TFeatureImage,
+          typename TOutputImage,
+          typename TFunction = ScalarChanAndVeseLevelSetFunction<TInputImage, TFeatureImage>,
           class TSharedData = typename TFunction::SharedDataType,
-          typename TIdCell = unsigned int >
-class ITK_TEMPLATE_EXPORT ScalarChanAndVeseSparseLevelSetImageFilter:
-  public MultiphaseSparseFiniteDifferenceImageFilter< TInputImage, TFeatureImage,
-                                                      TOutputImage, TFunction, TIdCell >
+          typename TIdCell = unsigned int>
+class ITK_TEMPLATE_EXPORT ScalarChanAndVeseSparseLevelSetImageFilter
+  : public MultiphaseSparseFiniteDifferenceImageFilter<TInputImage, TFeatureImage, TOutputImage, TFunction, TIdCell>
 {
 public:
-  typedef ScalarChanAndVeseSparseLevelSetImageFilter Self;
-  typedef MultiphaseSparseFiniteDifferenceImageFilter< TInputImage,
-                                                       TFeatureImage, TOutputImage, TFunction, TIdCell >     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = ScalarChanAndVeseSparseLevelSetImageFilter;
+  using Superclass =
+    MultiphaseSparseFiniteDifferenceImageFilter<TInputImage, TFeatureImage, TOutputImage, TFunction, TIdCell>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(ScalarChanAndVeseSparseLevelSetImageFilter,
-               MultiphaseSparseFiniteDifferenceImageFilter);
+  itkTypeMacro(ScalarChanAndVeseSparseLevelSetImageFilter, MultiphaseSparseFiniteDifferenceImageFilter);
 
-  itkStaticConstMacro(ImageDimension, unsigned int, TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  /** Inherited typedef from the superclass. */
-  typedef typename Superclass::InputImageType    InputImageType;
-  typedef typename Superclass::InputImagePointer InputImagePointer;
-  typedef typename Superclass::InputPointType    InputPointType;
-  typedef typename Superclass::ValueType         ValueType;
-  typedef typename Superclass::InputSpacingType  InputSpacingType;
+  /** Inherited type alias from the superclass. */
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using InputPointType = typename Superclass::InputPointType;
+  using ValueType = typename Superclass::ValueType;
+  using InputSpacingType = typename Superclass::InputSpacingType;
 
-  typedef TFeatureImage                             FeatureImageType;
-  typedef typename FeatureImageType::Pointer        FeatureImagePointer;
-  typedef typename FeatureImageType::PixelType      FeaturePixelType;
-  typedef typename FeatureImageType::IndexType      FeatureIndexType;
-  typedef typename FeatureIndexType::IndexValueType FeatureIndexValueType;
-  typedef typename FeatureImageType::RegionType     FeatureRegionType;
+  using FeatureImageType = TFeatureImage;
+  using FeatureImagePointer = typename FeatureImageType::Pointer;
+  using FeaturePixelType = typename FeatureImageType::PixelType;
+  using FeatureIndexType = typename FeatureImageType::IndexType;
+  using FeatureIndexValueType = typename FeatureIndexType::IndexValueType;
+  using FeatureRegionType = typename FeatureImageType::RegionType;
 
-  /** Output image type typedefs */
-  typedef TOutputImage                        OutputImageType;
-  typedef typename OutputImageType::IndexType IndexType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  /** Output image type type alias */
+  using OutputImageType = TOutputImage;
+  using IndexType = typename OutputImageType::IndexType;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
-  typedef typename Superclass::TimeStepType TimeStepType;
-  typedef typename Superclass::FiniteDifferenceFunctionType
-  FiniteDifferenceFunctionType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using FiniteDifferenceFunctionType = typename Superclass::FiniteDifferenceFunctionType;
 
-  typedef typename Superclass::IdCellType IdCellType;
+  using IdCellType = typename Superclass::IdCellType;
 
-  typedef TFunction                      FunctionType;
-  typedef typename FunctionType::Pointer FunctionPtr;
+  using FunctionType = TFunction;
+  using FunctionPtr = typename FunctionType::Pointer;
 
-  typedef TSharedData                      SharedDataType;
-  typedef typename SharedDataType::Pointer SharedDataPointer;
+  using SharedDataType = TSharedData;
+  using SharedDataPointer = typename SharedDataType::Pointer;
 
-  typedef RegionOfInterestImageFilter< FeatureImageType, FeatureImageType > ROIFilterType;
-  typedef typename ROIFilterType::Pointer                                   ROIFilterPointer;
+  using ROIFilterType = RegionOfInterestImageFilter<FeatureImageType, FeatureImageType>;
+  using ROIFilterPointer = typename ROIFilterType::Pointer;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< OutputPixelType > ) );
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<OutputPixelType>));
   // End concept checking
 #endif
 
   /** Set/Get the feature image to be used for speed function of the level set
    *  equation.  Equivalent to calling Set/GetInput(1, ..) */
-  virtual void SetFeatureImage(const FeatureImagePointer f)
+  virtual void
+  SetFeatureImage(const FeatureImagePointer f)
   {
     this->SetInput(f);
   }
@@ -139,22 +141,27 @@ protected:
     this->m_SharedData = SharedDataType::New();
   }
 
-  ~ScalarChanAndVeseSparseLevelSetImageFilter() {}
+  ~ScalarChanAndVeseSparseLevelSetImageFilter() override {}
 
   SharedDataPointer m_SharedData;
 
-  virtual void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
-  virtual void InitializeIteration() ITK_OVERRIDE;
+  void
+  InitializeIteration() override;
 
-  virtual void UpdatePixel(unsigned int functionIndex,
-                           unsigned int idx, NeighborhoodIterator< InputImageType > & iterator,
-                           ValueType & newValue, bool & status) ITK_OVERRIDE;
+  void
+  UpdatePixel(unsigned int                           functionIndex,
+              unsigned int                           idx,
+              NeighborhoodIterator<InputImageType> & iterator,
+              ValueType &                            newValue,
+              bool &                                 status) override;
 };
-} //end namespace itk
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkScalarChanAndVeseSparseLevelSetImageFilter.hxx"
+#  include "itkScalarChanAndVeseSparseLevelSetImageFilter.hxx"
 #endif
 
 #endif

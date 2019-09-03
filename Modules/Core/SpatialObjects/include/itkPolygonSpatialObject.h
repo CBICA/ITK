@@ -17,7 +17,8 @@
  *=========================================================================*/
 #ifndef itkPolygonSpatialObject_h
 #define itkPolygonSpatialObject_h
-#include "itkBlobSpatialObject.h"
+
+#include "itkPointBasedSpatialObject.h"
 
 namespace itk
 {
@@ -26,106 +27,95 @@ namespace itk
  * \brief TODO
  * \ingroup ITKSpatialObjects
  */
-template< unsigned int TDimension = 3 >
-class ITK_TEMPLATE_EXPORT PolygonSpatialObject:
-  public BlobSpatialObject< TDimension >
+template <unsigned int TDimension = 3>
+class ITK_TEMPLATE_EXPORT PolygonSpatialObject
+  : public PointBasedSpatialObject<TDimension, SpatialObjectPoint<TDimension>>
 {
 public:
-  typedef PolygonSpatialObject< TDimension > Self;
-  typedef BlobSpatialObject< TDimension >    Superclass;
-  typedef SmartPointer< Self >               Pointer;
-  typedef SmartPointer< const Self >         ConstPointer;
-  typedef typename Superclass::PointType     PointType;
-  typedef typename Superclass::TransformType TransformType;
-  typedef typename Superclass::PointListType PointListType;
-  typedef typename Superclass::BlobPointType BlobPointType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PolygonSpatialObject);
+
+  using Self = PolygonSpatialObject<TDimension>;
+  using Superclass = PointBasedSpatialObject<TDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using PolygonPointType = SpatialObjectPoint<TDimension>;
+  using PolygonPointListType = std::vector<PolygonPointType>;
+
+  using PointType = typename Superclass::PointType;
+  using TransformType = typename Superclass::TransformType;
+  using SpatialObjectPointType = typename Superclass::SpatialObjectPointType;
+
+  using ObjectDimensionType = unsigned int;
+  static constexpr ObjectDimensionType ObjectDimension = TDimension;
+
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Method for creation through the object factory. */
-  itkTypeMacro(PolygonSpatialObject, BlobSpatialObject);
+  itkTypeMacro(PolygonSpatialObject, PointBasedSpatialObject);
 
-  /**
-   * \enum PolygonGroupOrientation
-   * \brief enumerates the possible spatial orientations
-   */
-  typedef enum {
-        Axial = 0,
-        Coronal = 1,
-        Sagittal = 2,
-        UserPlane = 3,
-        Unknown = 4
-        } PolygonGroupOrientation;
+  /** Reset the spatial object to its initial condition, yet preserves
+   *   Id, Parent, and Child information */
+  void
+  Clear(void) override;
 
   /** Method returning plane alignment of strand */
-  PolygonGroupOrientation Plane() const;
+  int
+  GetOrientationInObjectSpace() const;
 
   /** Method sets the thickness of the current strand */
-  itkSetMacro(Thickness, double);
+  itkSetMacro(ThicknessInObjectSpace, double);
 
   /** Method gets the thickness of the current strand */
-  itkGetMacro(Thickness, double);
+  itkGetConstMacro(ThicknessInObjectSpace, double);
 
-  /** Returns if the polygon is closed */
-  bool IsClosed() const;
+  /** Set if the contour is closed */
+  itkSetMacro(IsClosed, bool);
 
-  /** Returns the number of points of the polygon */
-  unsigned int NumberOfPoints() const;
-
-  /** Method returns the Point closest to the given point */
-  PointType ClosestPoint(const PointType & curPoint) const;
+  /** Get if the contour is closed */
+  itkGetConstMacro(IsClosed, bool);
 
   /** Method returns area of polygon described by points */
-  double MeasureArea() const;
+  double
+  MeasureAreaInObjectSpace() const;
 
   /** Method returns the volume of the strand */
-  double MeasureVolume() const;
+  double
+  MeasureVolumeInObjectSpace() const;
 
   /** Method returns the length of the perimeter */
-  double MeasurePerimeter() const;
-
-  /** Method deletes a point from the strand */
-  bool DeletePoint(const PointType & pointToDelete);
-
-  /** Method adds a point to the end of the strand */
-  bool AddPoint(const PointType & pointToAdd);
-
-  /** Method inserts point after point1 */
-  bool InsertPoint(const PointType & point1, const PointType & pointToAdd);
-
-  /** Method replaces a point */
-  bool ReplacePoint(const PointType & oldpoint, const PointType & newPoint);
-
-  /** Method removes the series of points between startpoint and endpoint */
-  bool RemoveSegment(const PointType & startpoint, const PointType & endPoint);
+  double
+  MeasurePerimeterInObjectSpace() const;
 
   /** Test whether a point is inside or outside the object. */
-  virtual bool IsInside(const PointType & point,
-                        unsigned int depth,
-                        char *name) const ITK_OVERRIDE;
+  bool
+  IsInsideInObjectSpace(const PointType & point) const override;
 
-  /** Test whether a point is inside or outside the object For
-   * computational speed purposes, it is faster if the method does not
-   * check the name of the class and the current depth. */
-  virtual bool IsInside(const PointType & point) const;
+  /* Avoid hiding the overload that supports depth and name arguments */
+  using Superclass::IsInsideInObjectSpace;
 
 protected:
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  PolygonSpatialObject();
+  ~PolygonSpatialObject() override = default;
+
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  typename LightObject::Pointer
+  InternalClone() const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PolygonSpatialObject);
-
-  PolygonGroupOrientation m_Orientation;
-  double                  m_Thickness;
-  PolygonSpatialObject()
-  {
-    m_Orientation = Unknown;
-    m_Thickness = 0.0;
-  }
+  mutable bool             m_IsClosed;
+  mutable int              m_OrientationInObjectSpace;
+  mutable ModifiedTimeType m_OrientationInObjectSpaceMTime;
+  double                   m_ThicknessInObjectSpace;
 };
-}
+
+} // namespace itk
+
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPolygonSpatialObject.hxx"
+#  include "itkPolygonSpatialObject.hxx"
 #endif
 
-#endif  // itkPolygonSpatialObject_h
+#endif // itkPolygonSpatialObject_h

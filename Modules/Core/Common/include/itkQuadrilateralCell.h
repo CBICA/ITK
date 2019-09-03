@@ -35,11 +35,15 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TCellInterface >
-class ITK_TEMPLATE_EXPORT QuadrilateralCell:public TCellInterface, private QuadrilateralCellTopology
+template <typename TCellInterface>
+class ITK_TEMPLATE_EXPORT QuadrilateralCell
+  : public TCellInterface
+  , private QuadrilateralCellTopology
 {
 public:
-  /** Standard class typedefs. */
+  ITK_DISALLOW_COPY_AND_ASSIGN(QuadrilateralCell);
+
+  /** Standard class type aliases. */
   itkCellCommonTypedefs(QuadrilateralCell);
   itkCellInheritedTypedefs(TCellInterface);
 
@@ -47,61 +51,80 @@ public:
   itkTypeMacro(QuadrilateralCell, CellInterface);
 
   /** The type of boundary for this triangle's vertices. */
-  typedef VertexCell< TCellInterface >         VertexType;
-  typedef typename VertexType::SelfAutoPointer VertexAutoPointer;
+  using VertexType = VertexCell<TCellInterface>;
+  using VertexAutoPointer = typename VertexType::SelfAutoPointer;
 
   /** The type of boundary for this triangle's edges. */
-  typedef LineCell< TCellInterface >         EdgeType;
-  typedef typename EdgeType::SelfAutoPointer EdgeAutoPointer;
+  using EdgeType = LineCell<TCellInterface>;
+  using EdgeAutoPointer = typename EdgeType::SelfAutoPointer;
 
   /** Quadrilateral-specific topology numbers. */
-  itkStaticConstMacro(NumberOfPoints, unsigned int, 4);
-  itkStaticConstMacro(NumberOfVertices, unsigned int, 4);
-  itkStaticConstMacro(NumberOfEdges, unsigned int, 4);
-  itkStaticConstMacro(CellDimension, unsigned int, 2);
-  itkStaticConstMacro(NumberOfDerivatives, unsigned int, 8);
+  static constexpr unsigned int NumberOfPoints = 4;
+  static constexpr unsigned int NumberOfVertices = 4;
+  static constexpr unsigned int NumberOfEdges = 4;
+  static constexpr unsigned int CellDimension = 2;
+  static constexpr unsigned int NumberOfDerivatives = 8;
 
   /** Implement the standard CellInterface. */
-  virtual CellGeometry GetType(void) const ITK_OVERRIDE
-  { return Superclass::QUADRILATERAL_CELL; }
-  virtual void MakeCopy(CellAutoPointer &) const ITK_OVERRIDE;
+  CellGeometry
+  GetType() const override
+  {
+    return Superclass::QUADRILATERAL_CELL;
+  }
+  void
+  MakeCopy(CellAutoPointer &) const override;
 
-  virtual unsigned int GetDimension(void) const ITK_OVERRIDE;
+  unsigned int
+  GetDimension() const override;
 
-  virtual unsigned int GetNumberOfPoints(void) const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfPoints() const override;
 
-  virtual CellFeatureCount GetNumberOfBoundaryFeatures(int dimension) const ITK_OVERRIDE;
+  CellFeatureCount
+  GetNumberOfBoundaryFeatures(int dimension) const override;
 
-  virtual bool GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) ITK_OVERRIDE;
-  virtual void SetPointIds(PointIdConstIterator first) ITK_OVERRIDE;
+  bool
+  GetBoundaryFeature(int dimension, CellFeatureIdentifier, CellAutoPointer &) override;
+  void
+  SetPointIds(PointIdConstIterator first) override;
 
-  virtual void SetPointIds(PointIdConstIterator first,
-                           PointIdConstIterator last) ITK_OVERRIDE;
+  void
+  SetPointIds(PointIdConstIterator first, PointIdConstIterator last) override;
 
-  virtual void SetPointId(int localId, PointIdentifier) ITK_OVERRIDE;
-  virtual PointIdIterator      PointIdsBegin(void) ITK_OVERRIDE;
+  void
+  SetPointId(int localId, PointIdentifier) override;
+  PointIdIterator
+  PointIdsBegin() override;
 
-  virtual PointIdConstIterator PointIdsBegin(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsBegin() const override;
 
-  virtual PointIdIterator      PointIdsEnd(void) ITK_OVERRIDE;
+  PointIdIterator
+  PointIdsEnd() override;
 
-  virtual PointIdConstIterator PointIdsEnd(void) const ITK_OVERRIDE;
+  PointIdConstIterator
+  PointIdsEnd() const override;
 
   /** Quadrilateral-specific interface. */
-  virtual CellFeatureCount GetNumberOfVertices() const;
+  virtual CellFeatureCount
+  GetNumberOfVertices() const;
 
-  virtual CellFeatureCount GetNumberOfEdges() const;
+  virtual CellFeatureCount
+  GetNumberOfEdges() const;
 
-  virtual bool GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
-  virtual bool GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
+  virtual bool
+  GetVertex(CellFeatureIdentifier, VertexAutoPointer &);
+  virtual bool
+  GetEdge(CellFeatureIdentifier, EdgeAutoPointer &);
 
   /** Evaluate the position inside the cell */
-  virtual bool EvaluatePosition(CoordRepType * position,
-                                PointsContainer * points,
-                                CoordRepType * closestPoint,
-                                CoordRepType[CellDimension],
-                                double * dist2,
-                                InterpolationWeightType * weight) ITK_OVERRIDE;
+  bool
+  EvaluatePosition(CoordRepType *    position,
+                   PointsContainer * points,
+                   CoordRepType *    closestPoint,
+                   CoordRepType[CellDimension],
+                   double *                  dist2,
+                   InterpolationWeightType * weight) override;
 
   /** Visitor interface */
   itkCellVisitMacro(Superclass::QUADRILATERAL_CELL);
@@ -109,30 +132,38 @@ public:
   /** Constructor and destructor */
   QuadrilateralCell()
   {
-    for ( PointIdentifier i = 0; i < itkGetStaticConstMacro(NumberOfPoints); i++ )
-      {
-      m_PointIds[i] = NumericTraits< PointIdentifier >::max();
-      }
+    for (PointIdentifier i = 0; i < Self::NumberOfPoints; i++)
+    {
+      m_PointIds[i] = NumericTraits<PointIdentifier>::max();
+    }
   }
 
-  ~QuadrilateralCell() ITK_OVERRIDE {}
+#if defined(__GNUC__) && (__GNUC__ > 5)
+  ~QuadrilateralCell() override = default;
+#else
+  ~QuadrilateralCell() override{};
+#endif
 
 protected:
   /** Store the number of points needed for a quadrilateral. */
   PointIdentifier m_PointIds[NumberOfPoints];
 
-  void InterpolationDerivs(const CoordRepType pointCoords[CellDimension], CoordRepType derivs[NumberOfDerivatives]);
-  void InterpolationFunctions(const CoordRepType pointCoords[CellDimension], InterpolationWeightType weights[NumberOfPoints]);
-  void EvaluateLocation(int &itkNotUsed(subId), const PointsContainer * points, const CoordRepType pointCoords[PointDimension],
-                        CoordRepType x[PointDimension], InterpolationWeightType * weights);
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(QuadrilateralCell);
+  void
+  InterpolationDerivs(const CoordRepType pointCoords[CellDimension], CoordRepType derivs[NumberOfDerivatives]);
+  void
+  InterpolationFunctions(const CoordRepType      pointCoords[CellDimension],
+                         InterpolationWeightType weights[NumberOfPoints]);
+  void
+  EvaluateLocation(int &                     itkNotUsed(subId),
+                   const PointsContainer *   points,
+                   const CoordRepType        pointCoords[PointDimension],
+                   CoordRepType              x[PointDimension],
+                   InterpolationWeightType * weights);
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkQuadrilateralCell.hxx"
+#  include "itkQuadrilateralCell.hxx"
 #endif
 
 #endif

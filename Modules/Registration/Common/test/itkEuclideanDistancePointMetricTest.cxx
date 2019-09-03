@@ -20,26 +20,26 @@
 #include "itkQuadEdgeMesh.h"
 #include "itkRegularSphereMeshSource.h"
 #include "itkEuclideanDistancePointMetric.h"
+#include "itkTestingMacros.h"
 
 /**
  *  This test uses EuclideanDistancePointMetric to compare a Mesh and a
- *  QuadEdgeMesh.  The purpose of the test is to expose a bug caused by using
+ *  QuadEdgeMesh. The purpose of the test is to expose a bug caused by using
  *  the same iterator for both fixed and moving point sets in the parent class.
  *
  */
 
-template< class TFixedMesh, class TMovingMesh >
+template <typename TFixedMesh, typename TMovingMesh>
 double
-CompareMeshSources()
+CompareMeshSources(bool computeSquaredDistance)
 {
 
-  typedef itk::RegularSphereMeshSource< TFixedMesh >  FixedSourceType;
-  typedef itk::RegularSphereMeshSource< TMovingMesh > MovingSourceType;
+  using FixedSourceType = itk::RegularSphereMeshSource<TFixedMesh>;
+  using MovingSourceType = itk::RegularSphereMeshSource<TMovingMesh>;
 
-  typedef itk::EuclideanDistancePointMetric< TFixedMesh,
-                                             TMovingMesh > MetricType;
+  using MetricType = itk::EuclideanDistancePointMetric<TFixedMesh, TMovingMesh>;
 
-  typedef itk::IdentityTransform< double, 3 > IdentityType;
+  using IdentityType = itk::IdentityTransform<double, 3>;
 
   typename FixedSourceType::Pointer fixed = FixedSourceType::New();
   fixed->Update();
@@ -50,65 +50,93 @@ CompareMeshSources()
   typename IdentityType::Pointer identity = IdentityType::New();
 
   typename MetricType::Pointer metric = MetricType::New();
-  metric->SetFixedPointSet( fixed->GetOutput() );
-  metric->SetMovingPointSet( moving->GetOutput() );
-  metric->SetTransform( identity );
+
+  metric->SetComputeSquaredDistance(computeSquaredDistance);
+  ITK_TEST_SET_GET_VALUE(computeSquaredDistance, metric->GetComputeSquaredDistance());
+
+  if (computeSquaredDistance)
+  {
+    metric->ComputeSquaredDistanceOn();
+    ITK_TEST_EXPECT_TRUE(metric->GetComputeSquaredDistance());
+  }
+  else
+  {
+    metric->ComputeSquaredDistanceOff();
+    ITK_TEST_EXPECT_TRUE(!metric->GetComputeSquaredDistance());
+  }
+
+  metric->SetFixedPointSet(fixed->GetOutput());
+  metric->SetMovingPointSet(moving->GetOutput());
+  metric->SetTransform(identity);
 
   typename MetricType::MeasureType measure;
   measure = metric->GetValue(identity->GetParameters());
 
   double sum = 0;
-  for( unsigned int i = 0; i < measure.Size(); ++i )
-    {
+  for (unsigned int i = 0; i < measure.Size(); ++i)
+  {
     sum += measure[i];
-    }
+  }
 
   return sum;
-
 }
 
-int itkEuclideanDistancePointMetricTest(int, char* [] )
+int
+itkEuclideanDistancePointMetricTest(int argc, char * argv[])
 {
 
-  const unsigned int Dimension = 3;
-  typedef double ScalarType;
-  const double Epsilon = 10e-6;
+  if (argc < 2)
+  {
+    std::cout << "Usage: " << itkNameOfTestExecutableMacro(argv) << " computeSquaredDistance " << std::endl;
+    return EXIT_FAILURE;
+  }
 
-  typedef itk::Mesh< ScalarType, Dimension >         MeshType;
-  typedef itk::QuadEdgeMesh< ScalarType, Dimension > QuadEdgeMeshType;
+  constexpr unsigned int Dimension = 3;
+  using ScalarType = double;
+  constexpr double Epsilon = 10e-6;
 
-  if ( CompareMeshSources< MeshType, MeshType >() > Epsilon )
-    {
+  using MeshType = itk::Mesh<ScalarType, Dimension>;
+  using QuadEdgeMeshType = itk::QuadEdgeMesh<ScalarType, Dimension>;
+
+  using MetricType = itk::EuclideanDistancePointMetric<MeshType, QuadEdgeMeshType>;
+
+  MetricType::Pointer metric = MetricType::New();
+
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(metric, EuclideanDistancePointMetric, PointSetToPointSetMetric);
+
+  bool computeSquaredDistance = static_cast<bool>(std::stoi(argv[1]));
+
+  if (CompareMeshSources<MeshType, MeshType>(computeSquaredDistance) > Epsilon)
+  {
     std::cerr << "Comparison between the following was nonzero:" << std::endl;
     std::cerr << "Fixed: itk::Mesh" << std::endl;
     std::cerr << "Moving: itk::Mesh" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  if ( CompareMeshSources< MeshType, QuadEdgeMeshType >() > Epsilon )
-    {
+  if (CompareMeshSources<MeshType, QuadEdgeMeshType>(computeSquaredDistance) > Epsilon)
+  {
     std::cerr << "Comparison between the following was nonzero:" << std::endl;
     std::cerr << "Fixed: itk::Mesh" << std::endl;
     std::cerr << "Moving: itk::QuadEdgeMesh" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  if ( CompareMeshSources< QuadEdgeMeshType, MeshType >() > Epsilon )
-    {
+  if (CompareMeshSources<QuadEdgeMeshType, MeshType>(computeSquaredDistance) > Epsilon)
+  {
     std::cerr << "Comparison between the following was nonzero:" << std::endl;
     std::cerr << "Fixed: itk::QuadEdgeMesh" << std::endl;
     std::cerr << "Moving: itk::Mesh" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  if ( CompareMeshSources< QuadEdgeMeshType, QuadEdgeMeshType >() > Epsilon )
-    {
+  if (CompareMeshSources<QuadEdgeMeshType, QuadEdgeMeshType>(computeSquaredDistance) > Epsilon)
+  {
     std::cerr << "Comparison between the following was nonzero:" << std::endl;
     std::cerr << "Fixed: itk::QuadEdgeMesh" << std::endl;
     std::cerr << "Moving: itk::QuadEdgeMesh" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
-
 }

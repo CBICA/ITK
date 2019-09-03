@@ -47,15 +47,17 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKThresholding
  */
-template< typename TInputImage, typename TMaskImage >
-class ITK_TEMPLATE_EXPORT KappaSigmaThresholdImageCalculator:public Object
+template <typename TInputImage, typename TMaskImage>
+class ITK_TEMPLATE_EXPORT KappaSigmaThresholdImageCalculator : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef KappaSigmaThresholdImageCalculator Self;
-  typedef Object                             Superclass;
-  typedef SmartPointer< Self >               Pointer;
-  typedef SmartPointer< const Self >         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(KappaSigmaThresholdImageCalculator);
+
+  /** Standard class type aliases. */
+  using Self = KappaSigmaThresholdImageCalculator;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -64,21 +66,20 @@ public:
   itkTypeMacro(KappaSigmaThresholdImageCalculator, Object);
 
   /** Extract the dimension of the image. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Standard image type within this class. */
-  typedef TInputImage InputImageType;
-  typedef TMaskImage  MaskImageType;
+  using InputImageType = TInputImage;
+  using MaskImageType = TMaskImage;
 
   /** Standard image type pointer within this class. */
-  typedef typename InputImageType::Pointer      InputImagePointer;
-  typedef typename InputImageType::ConstPointer InputImageConstPointer;
-  typedef typename MaskImageType::Pointer       MaskImagePointer;
-  typedef typename MaskImageType::ConstPointer  MaskImageConstPointer;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using MaskImagePointer = typename MaskImageType::Pointer;
+  using MaskImageConstPointer = typename MaskImageType::ConstPointer;
 
-  typedef typename InputImageType::PixelType InputPixelType;
-  typedef typename MaskImageType::PixelType  MaskPixelType;
+  using InputPixelType = typename InputImageType::PixelType;
+  using MaskPixelType = typename MaskImageType::PixelType;
 
   /** Set the input image. */
   itkSetConstObjectMacro(Image, InputImageType);
@@ -103,23 +104,24 @@ public:
   itkGetConstMacro(NumberOfIterations, unsigned int);
 
   /** Run and compute threshold. */
-  void Compute();
+  void
+  Compute();
 
   /** Get the computed threshold. */
-  const InputPixelType & GetOutput() const;
+  const InputPixelType &
+  GetOutput() const;
 
 protected:
   KappaSigmaThresholdImageCalculator();
-  virtual ~KappaSigmaThresholdImageCalculator() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~KappaSigmaThresholdImageCalculator() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(KappaSigmaThresholdImageCalculator);
-
-  bool           m_Valid;             // Have moments been computed yet?
+  bool           m_Valid{ false }; // Have moments been computed yet?
   MaskPixelType  m_MaskValue;
-  double         m_SigmaFactor;
-  unsigned int   m_NumberOfIterations;
+  double         m_SigmaFactor{ 2 };
+  unsigned int   m_NumberOfIterations{ 2 };
   InputPixelType m_Output;
 
   InputImageConstPointer m_Image;
@@ -128,7 +130,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkKappaSigmaThresholdImageCalculator.hxx"
+#  include "itkKappaSigmaThresholdImageCalculator.hxx"
 #endif
 
 #endif /* itkKappaSigmaThresholdImageCalculator_h */

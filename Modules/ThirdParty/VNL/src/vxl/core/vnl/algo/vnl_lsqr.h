@@ -1,9 +1,6 @@
 // This is core/vnl/algo/vnl_lsqr.h
 #ifndef vnl_lsqr_h_
 #define vnl_lsqr_h_
-#ifdef VCL_NEEDS_PRAGMA_INTERFACE
-#pragma interface
-#endif
 //:
 // \file
 // \brief Linear least squares
@@ -26,7 +23,9 @@
 #include <iosfwd>
 #include <vnl/vnl_vector.h>
 #include <vnl/vnl_linear_system.h>
-#include <vcl_compiler.h>
+#ifdef _MSC_VER
+#  include <vcl_msvc_warnings.h>
+#endif
 
 #include <vnl/algo/vnl_algo_export.h>
 
@@ -74,7 +73,7 @@ class VNL_ALGO_EXPORT vnl_lsqr
   double result_norm_;
   long return_code_;
 
-  static int aprod_(long* mode, long* m, long* n, double* x, double* y,
+  static int aprod_(const long* mode, const long* m, const long* n, double* x, double* y,
                     long* leniw, long* lenrw, long* iw, double* rw,
                     void* userdata);
 };

@@ -29,46 +29,48 @@
 #include "itkImageFileWriter.h"
 #include "itkLaplacianRecursiveGaussianImageFilter.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <iomanip>
 
-int main( int argc, char * argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputImageFile  outputImageFileBase numberOfSlices" << std::endl;
+    std::cerr << argv[0] << "  inputImageFile  outputImageFileBase numberOfSlices"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  typedef float                            InputPixelType;
-  typedef float                            OutputPixelType;
-  typedef itk::Image< InputPixelType,  2 > InputImageType;
-  typedef itk::Image< OutputPixelType, 2 > OutputImageType;
+  using InputPixelType = float;
+  using OutputPixelType = float;
+  using InputImageType = itk::Image<InputPixelType, 2>;
+  using OutputImageType = itk::Image<OutputPixelType, 2>;
 
 
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
 
-  typedef itk::LaplacianRecursiveGaussianImageFilter<
-                        InputImageType, OutputImageType >  FilterType;
+  using FilterType =
+    itk::LaplacianRecursiveGaussianImageFilter<InputImageType, OutputImageType>;
 
 
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   FilterType::Pointer laplacian = FilterType::New();
 
-  laplacian->SetNormalizeAcrossScale( true );
+  laplacian->SetNormalizeAcrossScale(true);
 
-  laplacian->SetInput( reader->GetOutput() );
+  laplacian->SetInput(reader->GetOutput());
 
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetInput( laplacian->GetOutput() );
+  writer->SetInput(laplacian->GetOutput());
 
 
   //  Software Guide : BeginLatex
@@ -81,20 +83,18 @@ int main( int argc, char * argv[] )
 
 
   // Software Guide : BeginCodeSnippet
-  int numberOfSlices = atoi(argv[3]);
-  for( int slice=0; slice < numberOfSlices; slice++ )
-    {
+  int numberOfSlices = std::stoi(argv[3]);
+  for (int slice = 0; slice < numberOfSlices; slice++)
+  {
     std::ostringstream filename;
-    filename << argv[2]
-             << std::setfill('0') << std::setw(3) << slice
-             << ".mhd";
-    writer->SetFileName( filename.str() );
+    filename << argv[2] << std::setfill('0') << std::setw(3) << slice << ".mhd";
+    writer->SetFileName(filename.str());
 
-    const float sigma = static_cast< float >( slice ) / 10.0 + 1.0;
+    const float sigma = static_cast<float>(slice) / 10.0 + 1.0;
 
-    laplacian->SetSigma( sigma );
+    laplacian->SetSigma(sigma);
     writer->Update();
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 

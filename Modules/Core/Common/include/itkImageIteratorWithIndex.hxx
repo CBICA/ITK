@@ -22,62 +22,50 @@
 
 namespace itk
 {
+
 //----------------------------------------------------------------------
 //  Constructor
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIteratorWithIndex< TImage >
-::ImageIteratorWithIndex()
+template <typename TImage>
+ImageIteratorWithIndex<TImage>::ImageIteratorWithIndex(const Self & it)
+  : ImageConstIteratorWithIndex<TImage>(it)
 {}
 
 //----------------------------------------------------------------------
 //  Constructor
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIteratorWithIndex< TImage >
-::ImageIteratorWithIndex(const Self & it):
-  ImageConstIteratorWithIndex< TImage >(it)
+template <typename TImage>
+ImageIteratorWithIndex<TImage>::ImageIteratorWithIndex(TImage * ptr, const RegionType & region)
+  : ImageConstIteratorWithIndex<TImage>(ptr, region)
 {}
 
 //----------------------------------------------------------------------
 //  Constructor
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIteratorWithIndex< TImage >
-::ImageIteratorWithIndex(TImage *ptr, const RegionType & region):
-  ImageConstIteratorWithIndex< TImage >(ptr, region)
-{}
-
-//----------------------------------------------------------------------
-//  Constructor
-//----------------------------------------------------------------------
-template< typename TImage >
-ImageIteratorWithIndex< TImage >
-::ImageIteratorWithIndex(const ImageConstIteratorWithIndex< TImage > & it):
-  ImageConstIteratorWithIndex< TImage >(it)
+template <typename TImage>
+ImageIteratorWithIndex<TImage>::ImageIteratorWithIndex(const ImageConstIteratorWithIndex<TImage> & it)
+  : ImageConstIteratorWithIndex<TImage>(it)
 {}
 
 //----------------------------------------------------------------------
 //    Assignment Operator
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIteratorWithIndex< TImage > &
-ImageIteratorWithIndex< TImage >
-::operator=(const ImageConstIteratorWithIndex< TImage > & it)
+template <typename TImage>
+ImageIteratorWithIndex<TImage> &
+ImageIteratorWithIndex<TImage>::operator=(const ImageConstIteratorWithIndex<TImage> & it)
 {
-  this->ImageConstIteratorWithIndex< TImage >::operator=(it);
+  this->ImageConstIteratorWithIndex<TImage>::operator=(it);
   return *this;
 }
 
 //----------------------------------------------------------------------
 //    Assignment Operator
 //----------------------------------------------------------------------
-template< typename TImage >
-ImageIteratorWithIndex< TImage > &
-ImageIteratorWithIndex< TImage >
-::operator=(const Self & it)
+template <typename TImage>
+ImageIteratorWithIndex<TImage> &
+ImageIteratorWithIndex<TImage>::operator=(const Self & it)
 {
-  this->ImageConstIteratorWithIndex< TImage >::operator=(it);
+  this->ImageConstIteratorWithIndex<TImage>::operator=(it);
   return *this;
 }
 

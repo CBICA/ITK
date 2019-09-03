@@ -47,13 +47,15 @@ namespace itk
  *
  * \ingroup ITKIOGE
  */
-class ITKIOGE_EXPORT GE5ImageIO:public IPLCommonImageIO
+class ITKIOGE_EXPORT GE5ImageIO : public IPLCommonImageIO
 {
 public:
-  /** Standard class typedefs. */
-  typedef GE5ImageIO           Self;
-  typedef IPLCommonImageIO     Superclass;
-  typedef SmartPointer< Self > Pointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GE5ImageIO);
+
+  /** Standard class type aliases. */
+  using Self = GE5ImageIO;
+  using Superclass = IPLCommonImageIO;
+  using Pointer = SmartPointer<Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -69,14 +71,16 @@ public:
    * \post Sets classes ImageIOBase::m_FileName variable to be FileNameToWrite
    * \return Returns true if this ImageIO can read the file specified.
    */
-  virtual bool CanReadFile(const char *FileNameToRead) ITK_OVERRIDE;
+  bool
+  CanReadFile(const char * FileNameToRead) override;
 
   /* * Set the spacing and dimension information for the set filename. */
   // Implemented in superclass
   //      virtual void ReadImageInformation();
 
   /** Modify Origin and direction */
-  virtual void ModifyImageInformation() ITK_OVERRIDE;
+  void
+  ModifyImageInformation() override;
 
   /* * Get the type of the pixel.  */
   // Implemented in superclass
@@ -87,8 +91,8 @@ public:
   //      virtual void Read(void* buffer);
 
   /* * Compute the size (in bytes) of the components of a pixel. For
-       * example, and RGB pixel of unsigned char would have a
-       * component size of 1 byte. */
+   * example, and RGB pixel of unsigned char would have a
+   * component size of 1 byte. */
   // Implemented in superclass
   //      virtual unsigned int GetComponentSize() const;
 
@@ -99,7 +103,7 @@ public:
    * \author Hans J. Johnson
    * \post Sets classes ImageIOBase::m_FileName variable to be FileNameToWrite
    * \return Returns true if this ImageIO can write the file specified.
-  */
+   */
   // Implemented in superclass
   //      virtual bool CanWriteFile(const char * FileNameToWrite);
 
@@ -108,21 +112,21 @@ public:
   //      virtual void WriteImageInformation();
 
   /* * Writes the data to disk from the memory buffer provided. Make sure
-    * that the IORegions has been set properly. */
+   * that the IORegions has been set properly. */
   // Implemented in superclass
   //      virtual void Write(const void* buffer);
 
 protected:
   GE5ImageIO();
-  ~GE5ImageIO() ITK_OVERRIDE;
+  ~GE5ImageIO() override;
 
-  virtual GEImageHeader * ReadHeader(const char *FileNameToRead) ITK_OVERRIDE;
+  GEImageHeader *
+  ReadHeader(const char * FileNameToRead) override;
 
 private:
-  int CheckGE5xImages(char const *const imageFileTemplate, std::string & reason);
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(GE5ImageIO);
+  int
+  CheckGE5xImages(char const * const imageFileTemplate, std::string & reason);
 };
 } // end namespace itk
 
-#endif // itkAnalyzeImageIO_h
+#endif // itkGE5ImageIO_h

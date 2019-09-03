@@ -42,19 +42,25 @@ namespace itk
 class ITK_FORCE_EXPORT_MACRO(ITKVideoCore) TemporalDataObject : public DataObject
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(TemporalDataObject);
 
-  /** Standard class typedefs */
-  typedef TemporalDataObject         Self;
-  typedef DataObject                 Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
-  typedef WeakPointer< const Self >  ConstWeakPointer;
+  /** Standard class type aliases */
+  using Self = TemporalDataObject;
+  using Superclass = DataObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ConstWeakPointer = WeakPointer<const Self>;
 
-  typedef RingBuffer<DataObject>        BufferType;
-  typedef TemporalRegion                TemporalRegionType;
+  using BufferType = RingBuffer<DataObject>;
+  using TemporalRegionType = TemporalRegion;
 
   /** Enum for defining the way in which to compare temporal regions */
-  typedef enum {Frame, RealTime, FrameAndRealTime} TemporalUnitType;
+  typedef enum
+  {
+    Frame,
+    RealTime,
+    FrameAndRealTime
+  } TemporalUnitType;
 
   itkNewMacro(Self);
 
@@ -62,47 +68,65 @@ public:
   itkTypeMacro(TemporalDataObject, DataObject);
 
   /** Get the type of temporal units we care about (Defaults to Frame)*/
-  virtual TemporalUnitType GetTemporalUnit() const;
+  virtual TemporalUnitType
+  GetTemporalUnit() const;
 
   /** Explicity set temporal units (Defaults to Frame)*/
-  virtual void SetTemporalUnitToFrame();
-  virtual void SetTemporalUnitToRealTime();
-  virtual void SetTemporalUnitToFrameAndRealTime();
+  virtual void
+  SetTemporalUnitToFrame();
+  virtual void
+  SetTemporalUnitToRealTime();
+  virtual void
+  SetTemporalUnitToFrameAndRealTime();
 
   /** Get/Set the number of frames that the internal buffer can hold */
-  SizeValueType GetNumberOfBuffers();
-  void SetNumberOfBuffers(SizeValueType num);
+  SizeValueType
+  GetNumberOfBuffers();
+  void
+  SetNumberOfBuffers(SizeValueType num);
 
-  virtual void SetLargestPossibleTemporalRegion(
-    const TemporalRegionType & region);
-  virtual const TemporalRegionType & GetLargestPossibleTemporalRegion() const;
+  virtual void
+  SetLargestPossibleTemporalRegion(const TemporalRegionType & region);
+  virtual const TemporalRegionType &
+  GetLargestPossibleTemporalRegion() const;
 
-  virtual void SetBufferedTemporalRegion(const TemporalRegionType & region);
-  virtual const TemporalRegionType & GetBufferedTemporalRegion() const;
-  virtual void SetRequestedTemporalRegion(const TemporalRegionType & region);
-  virtual const TemporalRegionType & GetRequestedTemporalRegion() const;
+  virtual void
+  SetBufferedTemporalRegion(const TemporalRegionType & region);
+  virtual const TemporalRegionType &
+  GetBufferedTemporalRegion() const;
+  virtual void
+  SetRequestedTemporalRegion(const TemporalRegionType & region);
+  virtual const TemporalRegionType &
+  GetRequestedTemporalRegion() const;
 
   /** Get the portion of the requested region that is not covered by the
    * buffered region */
-  virtual const TemporalRegionType GetUnbufferedRequestedTemporalRegion();
+  virtual const TemporalRegionType
+  GetUnbufferedRequestedTemporalRegion();
 
-  virtual void SetRequestedRegionToLargestPossibleRegion() ITK_OVERRIDE;
+  void
+  SetRequestedRegionToLargestPossibleRegion() override;
 
-  virtual bool RequestedRegionIsOutsideOfTheBufferedRegion() ITK_OVERRIDE;
+  bool
+  RequestedRegionIsOutsideOfTheBufferedRegion() override;
 
-  virtual bool VerifyRequestedRegion() ITK_OVERRIDE;
+  bool
+  VerifyRequestedRegion() override;
 
-  virtual void CopyInformation(const DataObject *) ITK_OVERRIDE;
+  void
+  CopyInformation(const DataObject *) override;
 
-  virtual void SetRequestedRegion(const DataObject *) ITK_OVERRIDE;
+  void
+  SetRequestedRegion(const DataObject *) override;
 
-  virtual void Graft(const DataObject *) ITK_OVERRIDE;
+  void
+  Graft(const DataObject *) override;
 
 protected:
-
   TemporalDataObject();
-  virtual ~TemporalDataObject() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~TemporalDataObject() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Buffer for holding component data objects */
   BufferType::Pointer m_DataObjectBuffer;
@@ -112,13 +136,8 @@ protected:
   TemporalRegionType m_RequestedTemporalRegion;
   TemporalRegionType m_BufferedTemporalRegion;
 
-  TemporalUnitType m_TemporalUnit;
-
-private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(TemporalDataObject);
-
-};  // end class TemporalDataObject
+  TemporalUnitType m_TemporalUnit{ Frame };
+}; // end class TemporalDataObject
 
 } // end namespace itk
 

@@ -56,49 +56,46 @@ namespace itk
  * \ingroup PyramidImageFilter MultiThreaded Streamed
  * \ingroup ITKRegistrationCommon
  *
- * \wiki
- * \wikiexample{ImageProcessing/RecursiveMultiResolutionPyramidImageFilter,Construct a multiresolution pyramid from an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Registration/Common/MultiresolutionPyramidFromImage,Multiresolution Pyramid From Image}
+ * \endsphinx
  */
-template<
-  typename TInputImage,
-  typename TOutputImage
-  >
-class ITK_TEMPLATE_EXPORT RecursiveMultiResolutionPyramidImageFilter:
-  public MultiResolutionPyramidImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT RecursiveMultiResolutionPyramidImageFilter
+  : public MultiResolutionPyramidImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RecursiveMultiResolutionPyramidImageFilter Self;
-  typedef MultiResolutionPyramidImageFilter< TInputImage, TOutputImage >
-  Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RecursiveMultiResolutionPyramidImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = RecursiveMultiResolutionPyramidImageFilter;
+  using Superclass = MultiResolutionPyramidImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(RecursiveMultiResolutionPyramidImageFilter,
-               MultiResolutionPyramidImageFilter);
+  itkTypeMacro(RecursiveMultiResolutionPyramidImageFilter, MultiResolutionPyramidImageFilter);
 
   /** ImageDimension enumeration. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Inherit types from the superclass.. */
-  typedef typename Superclass::InputImageType         InputImageType;
-  typedef typename Superclass::OutputImageType        OutputImageType;
-  typedef typename Superclass::InputImagePointer      InputImagePointer;
-  typedef typename Superclass::OutputImagePointer     OutputImagePointer;
-  typedef typename Superclass::InputImageConstPointer InputImageConstPointer;
+  using InputImageType = typename Superclass::InputImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using InputImageConstPointer = typename Superclass::InputImageConstPointer;
 
   /** Given one output whose requested region has been set,
    * this method sets the requtested region for the remaining
    * output images.
    * The original documentation of this method is below.
    * \sa ProcessObject::GenerateOutputRequestedRegion(); */
-  virtual void GenerateOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  GenerateOutputRequestedRegion(DataObject * output) override;
 
   /** RecursiveMultiResolutionPyramidImageFilter requires a larger input
    * requested region than the output requested regions to accommodate the
@@ -106,23 +103,23 @@ public:
    * MultiResolutionPyramidImageFilter needs to provide an implementation for
    * GenerateInputRequestedRegion().  The original documentation of this
    * method is below.  \sa ProcessObject::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 protected:
   RecursiveMultiResolutionPyramidImageFilter();
-  ~RecursiveMultiResolutionPyramidImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~RecursiveMultiResolutionPyramidImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Generate the output data. */
-  void GenerateData() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RecursiveMultiResolutionPyramidImageFilter);
+  void
+  GenerateData() override;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRecursiveMultiResolutionPyramidImageFilter.hxx"
+#  include "itkRecursiveMultiResolutionPyramidImageFilter.hxx"
 #endif
 
 #endif

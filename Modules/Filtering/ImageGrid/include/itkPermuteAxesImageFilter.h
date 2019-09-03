@@ -43,20 +43,21 @@ namespace itk
  * \ingroup Streamed
  * \ingroup ITKImageGrid
  *
- * \wiki
- * \wikiexample{ImageProcessing/PermuteAxesImageFilter,Switch the axes of an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageGrid/PermuteAxesOfAnImage,Permute Axes Of An Image}
+ * \endsphinx
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT PermuteAxesImageFilter:
-  public ImageToImageFilter< TImage, TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT PermuteAxesImageFilter : public ImageToImageFilter<TImage, TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef PermuteAxesImageFilter               Self;
-  typedef ImageToImageFilter< TImage, TImage > Superclass;
-  typedef SmartPointer< Self >                 Pointer;
-  typedef SmartPointer< const Self >           ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PermuteAxesImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = PermuteAxesImageFilter;
+  using Superclass = ImageToImageFilter<TImage, TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -65,20 +66,20 @@ public:
   itkTypeMacro(PermuteAxesImageFilter, ImageToImageFilter);
 
   /** ImageDimension enumeration */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Inherited types */
-  typedef typename Superclass::InputImagePointer     InputImagePointer;
-  typedef typename Superclass::OutputImagePointer    OutputImagePointer;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
   /** PermuteOrderArray type. */
-  typedef FixedArray< unsigned int, itkGetStaticConstMacro(ImageDimension) > PermuteOrderArrayType;
+  using PermuteOrderArrayType = FixedArray<unsigned int, Self::ImageDimension>;
 
   /** Set the permutation order.  The elements of order must be
    * a rearrangement of the numbers from 0 to ImageDimension - 1. */
-  void SetOrder(const PermuteOrderArrayType & order);
+  void
+  SetOrder(const PermuteOrderArrayType & order);
 
   /** Get the permutation order. */
   itkGetConstReferenceMacro(Order, PermuteOrderArrayType);
@@ -94,42 +95,44 @@ protected:
    * the pipeline execution model.  The original documentation of this
    * method is below.
    * \sa ProcessObject::GenerateOutputInformaton() */
-  virtual void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
   /** PermuteAxesImageFilter needs different input requested region than the output
    * requested region.  As such, PermuteAxesImageFilter needs to provide an
    * implementation for GenerateInputRequestedRegion() in order to inform the
    * pipeline execution model.
    * \sa ProcessObject::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   PermuteAxesImageFilter();
-  ~PermuteAxesImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~PermuteAxesImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** PermuteAxesImageFilter can be implemented as a multithreaded filter.
-   * Therefore, this implementation provides a ThreadedGenerateData() routine
+   * Therefore, this implementation provides a DynamicThreadedGenerateData() routine
    * which is called for each processing thread. The output image data is
    * allocated automatically by the superclass prior to calling
-   * ThreadedGenerateData().  ThreadedGenerateData can only write to the
+   * DynamicThreadedGenerateData().  DynamicThreadedGenerateData can only write to the
    * portion of the output image specified by the parameter
    * "outputRegionForThread"
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()  */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PermuteAxesImageFilter);
-
   PermuteOrderArrayType m_Order;
   PermuteOrderArrayType m_InverseOrder;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPermuteAxesImageFilter.hxx"
+#  include "itkPermuteAxesImageFilter.hxx"
 #endif
 
 #endif

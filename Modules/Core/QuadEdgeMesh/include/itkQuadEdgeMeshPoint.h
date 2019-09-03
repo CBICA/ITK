@@ -31,28 +31,28 @@ namespace itk
  * to an entry in the edge ring.
  * \ingroup ITKQuadEdgeMesh
  */
-template< typename TCoordRep, unsigned int VPointDimension, typename TQuadEdge =
-            GeometricalQuadEdge< unsigned long, unsigned long, bool, bool, true > >
-class ITK_TEMPLATE_EXPORT QuadEdgeMeshPoint:public Point< TCoordRep, VPointDimension >
+template <typename TCoordRep,
+          unsigned int VPointDimension,
+          typename TQuadEdge = GeometricalQuadEdge<unsigned long, unsigned long, bool, bool, true>>
+class ITK_TEMPLATE_EXPORT QuadEdgeMeshPoint : public Point<TCoordRep, VPointDimension>
 {
 public:
-  /** Standard typedefs. */
-  typedef QuadEdgeMeshPoint                   Self;
-  typedef Point< TCoordRep, VPointDimension > Superclass;
+  /** Standard type alias. */
+  using Self = QuadEdgeMeshPoint;
+  using Superclass = Point<TCoordRep, VPointDimension>;
 
   /** Types & values defined in superclass. */
-  itkStaticConstMacro(PointDimension, unsigned int,
-                      VPointDimension);
+  static constexpr unsigned int PointDimension = VPointDimension;
 
-  typedef typename Superclass::ValueType     ValueType;
-  typedef typename Superclass::CoordRepType  CoordRepType;
-  typedef typename Superclass::RealType      RealType;
-  typedef typename Superclass::BaseArray     BaseArray;
-  typedef typename Superclass::Iterator      Iterator;
-  typedef typename Superclass::ConstIterator ConstIterator;
-  typedef typename Superclass::VectorType    VectorType;
+  using ValueType = typename Superclass::ValueType;
+  using CoordRepType = typename Superclass::CoordRepType;
+  using RealType = typename Superclass::RealType;
+  using BaseArray = typename Superclass::BaseArray;
+  using Iterator = typename Superclass::Iterator;
+  using ConstIterator = typename Superclass::ConstIterator;
+  using VectorType = typename Superclass::VectorType;
 
-  typedef ValueType ValueArrayType[itkGetStaticConstMacro(PointDimension)];
+  using ValueArrayType = ValueType[Self::PointDimension];
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
@@ -61,47 +61,70 @@ public:
 
 public:
   QuadEdgeMeshPoint();
-  virtual ~QuadEdgeMeshPoint() {}
-  QuadEdgeMeshPoint(const Self & r);
+  QuadEdgeMeshPoint(const Self &) = default;
+  QuadEdgeMeshPoint(QuadEdgeMeshPoint &&) = default;
+  QuadEdgeMeshPoint &
+  operator=(const QuadEdgeMeshPoint &) = default;
+  QuadEdgeMeshPoint &
+  operator=(QuadEdgeMeshPoint &&) = default;
+  ~QuadEdgeMeshPoint() = default;
+
   QuadEdgeMeshPoint(const Superclass & r);
-  QuadEdgeMeshPoint(const ValueType r[VPointDimension]):Superclass(r)
+
+  QuadEdgeMeshPoint(const ValueType r[VPointDimension])
+    : Superclass(r)
   {
     this->Initialize();
   }
 
-  Self & operator=(const Self & r);
 
-  Self & operator=(const Superclass & r);
+  Self &
+  operator=(const Superclass & r);
 
-  Self & operator=(const ValueType r[VPointDimension]);
+  Self &
+  operator=(const ValueType r[VPointDimension]);
 
   /** Accessor on m_Edge */
-  void SetEdge(TQuadEdge *inputEdge);
+  void
+  SetEdge(TQuadEdge * inputEdge);
 
   /** Set the coordinates from a standard itk::Point */
-  void SetPoint(const Superclass & point);
+  void
+  SetPoint(const Superclass & point);
 
   /** Accessor on m_Edge */
-  TQuadEdge * GetEdge();
+  TQuadEdge *
+  GetEdge();
 
-  TQuadEdge * GetEdge() const;
+  TQuadEdge *
+  GetEdge() const;
 
-  /** FIXME Documentation missing */
-  bool IsInternal() const;
+  /** Return IsOriginalInternal of the edge.
+   * @sa GeometricalQuadEdge::isOriginInternal
+   */
+  bool
+  IsInternal() const;
 
-  /** FIXME Documentation missing */
-  int GetValence() const;
+  /** Return the valence of this QuadEdgeMeshPoint i.e. the number of edges constituting
+   *  the Onext ring to which this point belongs.
+   *  @return the valence when an entry in the Onext ring is present,
+   *          and -1 otherwise.
+   */
+  int
+  GetValence() const;
 
 protected:
-  void Initialize();
+  /** Resets the state of m_Edge to nullptr. */
+  void
+  Initialize();
 
 protected:
-  TQuadEdge *m_Edge;  /**< Entry edge for this point into an Onext ring */
+  TQuadEdge * m_Edge; /**< Entry edge for this point into an Onext ring */
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkQuadEdgeMeshPoint.hxx"
+#  include "itkQuadEdgeMeshPoint.hxx"
 #endif
 
 #endif

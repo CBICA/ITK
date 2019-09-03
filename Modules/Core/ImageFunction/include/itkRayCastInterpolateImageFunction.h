@@ -20,6 +20,7 @@
 
 #include "itkInterpolateImageFunction.h"
 #include "itkTransform.h"
+#include "itkNumericTraits.h"
 
 namespace itk
 {
@@ -35,43 +36,43 @@ namespace itk
  * \ingroup ImageFunctions
  * \ingroup ITKImageFunction
  */
-template< typename TInputImage, typename TCoordRep = double >
-class ITK_TEMPLATE_EXPORT RayCastInterpolateImageFunction:
-  public InterpolateImageFunction< TInputImage, TCoordRep >
+template <typename TInputImage, typename TCoordRep = double>
+class ITK_TEMPLATE_EXPORT RayCastInterpolateImageFunction : public InterpolateImageFunction<TInputImage, TCoordRep>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RayCastInterpolateImageFunction                    Self;
-  typedef InterpolateImageFunction< TInputImage, TCoordRep > Superclass;
-  typedef SmartPointer< Self >                               Pointer;
-  typedef SmartPointer< const Self >                         ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RayCastInterpolateImageFunction);
+
+  /** Standard class type aliases. */
+  using Self = RayCastInterpolateImageFunction;
+  using Superclass = InterpolateImageFunction<TInputImage, TCoordRep>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Constants for the image dimensions */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
 
   /**
    * Type of the Transform Base class
    * The fixed image should be a 3D image
    */
-  typedef Transform< TCoordRep, 3, 3 > TransformType;
+  using TransformType = Transform<TCoordRep, 3, 3>;
 
-  typedef typename TransformType::Pointer         TransformPointer;
-  typedef typename TransformType::InputPointType  InputPointType;
-  typedef typename TransformType::OutputPointType OutputPointType;
-  typedef typename TransformType::ParametersType  TransformParametersType;
-  typedef typename TransformType::JacobianType    TransformJacobianType;
+  using TransformPointer = typename TransformType::Pointer;
+  using InputPointType = typename TransformType::InputPointType;
+  using OutputPointType = typename TransformType::OutputPointType;
+  using TransformParametersType = typename TransformType::ParametersType;
+  using TransformJacobianType = typename TransformType::JacobianType;
 
-  typedef typename Superclass::InputPixelType PixelType;
+  using PixelType = typename Superclass::InputPixelType;
 
-  typedef typename TInputImage::SizeType SizeType;
+  using SizeType = typename TInputImage::SizeType;
 
-  typedef Vector< TCoordRep, 3 > DirectionType;
+  using DirectionType = Vector<TCoordRep, 3>;
 
   /**  Type of the Interpolator Base class */
-  typedef InterpolateImageFunction< TInputImage, TCoordRep > InterpolatorType;
+  using InterpolatorType = InterpolateImageFunction<TInputImage, TCoordRep>;
 
-  typedef typename InterpolatorType::Pointer InterpolatorPointer;
+  using InterpolatorPointer = typename InterpolatorType::Pointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(RayCastInterpolateImageFunction, InterpolateImageFunction);
@@ -79,26 +80,26 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** OutputType typedef support. */
-  typedef typename Superclass::OutputType OutputType;
+  /** OutputType type alias support */
+  using OutputType = typename Superclass::OutputType;
 
-  /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = typename Superclass::InputImageType;
 
-  /** RealType typedef support. */
-  typedef typename Superclass::RealType RealType;
+  /** RealType type alias support */
+  using RealType = typename Superclass::RealType;
 
   /** Dimension underlying input image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
-  /** Point typedef support. */
-  typedef typename Superclass::PointType PointType;
+  /** Point type alias support */
+  using PointType = typename Superclass::PointType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
-  /** ContinuousIndex typedef support. */
-  typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
+  /** ContinuousIndex type alias support */
+  using ContinuousIndexType = typename Superclass::ContinuousIndexType;
 
   /** \brief
    * Interpolate the image at a point position.
@@ -110,7 +111,8 @@ public:
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method.
    */
-  virtual OutputType Evaluate(const PointType & point) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const PointType & point) const override;
 
   /** Interpolate the image at a continuous index position
    *
@@ -123,12 +125,12 @@ public:
    * ImageFunction::IsInsideBuffer() can be used to check bounds before
    * calling the method.
    */
-  virtual OutputType EvaluateAtContinuousIndex(
-    const ContinuousIndexType & index) const ITK_OVERRIDE;
+  OutputType
+  EvaluateAtContinuousIndex(const ContinuousIndexType & index) const override;
 
   /** Connect the Transform.
-    * This Transformation is used to calculate the new focal point position.
-    * */
+   * This Transformation is used to calculate the new focal point position.
+   * */
   itkSetObjectMacro(Transform, TransformType);
   itkGetModifiableObjectMacro(Transform, TransformType);
 
@@ -148,39 +150,51 @@ public:
   /** Check if a point is inside the image buffer.
    * \warning For efficiency, no validity checking of
    * the input image pointer is done. */
-  bool IsInsideBuffer(const PointType &) const ITK_OVERRIDE
+  bool
+  IsInsideBuffer(const PointType &) const override
   {
     return true;
   }
 
-  bool IsInsideBuffer(const ContinuousIndexType &) const ITK_OVERRIDE
+  bool
+  IsInsideBuffer(const ContinuousIndexType &) const override
   {
     return true;
   }
 
-  bool IsInsideBuffer(const IndexType &) const ITK_OVERRIDE
+  bool
+  IsInsideBuffer(const IndexType &) const override
   {
     return true;
+  }
+
+  SizeType
+  GetRadius() const override
+  {
+    const InputImageType * input = this->GetInputImage();
+    if (!input)
+    {
+      itkExceptionMacro("Input image required!");
+    }
+    return input->GetLargestPossibleRegion().GetSize();
   }
 
 protected:
   RayCastInterpolateImageFunction();
-  virtual ~RayCastInterpolateImageFunction() ITK_OVERRIDE {}
+  ~RayCastInterpolateImageFunction() override = default;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   TransformPointer    m_Transform;
   InputPointType      m_FocalPoint;
   double              m_Threshold;
   InterpolatorPointer m_Interpolator;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RayCastInterpolateImageFunction);
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRayCastInterpolateImageFunction.hxx"
+#  include "itkRayCastInterpolateImageFunction.hxx"
 #endif
 
 #endif

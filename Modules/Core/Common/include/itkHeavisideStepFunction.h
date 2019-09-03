@@ -55,40 +55,40 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TInput = float, typename TOutput = double >
-class ITK_TEMPLATE_EXPORT HeavisideStepFunction:
-  public HeavisideStepFunctionBase< TInput, TOutput >
+template <typename TInput = float, typename TOutput = double>
+class ITK_TEMPLATE_EXPORT HeavisideStepFunction : public HeavisideStepFunctionBase<TInput, TOutput>
 {
 public:
-  typedef HeavisideStepFunction                        Self;
-  typedef HeavisideStepFunctionBase< TInput, TOutput > Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(HeavisideStepFunction);
+
+  using Self = HeavisideStepFunction;
+  using Superclass = HeavisideStepFunctionBase<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkNewMacro(Self);
 
   itkTypeMacro(HeavisideStepFunction, HeavisideStepFunctionBase);
 
-  typedef typename Superclass::InputType  InputType;
-  typedef typename Superclass::OutputType OutputType;
+  using InputType = typename Superclass::InputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Evaluate at the specified input position */
-  OutputType Evaluate(const InputType & input) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & input) const override;
 
   /** Evaluate the derivative at the specified input position */
-  OutputType EvaluateDerivative(const InputType & input) const ITK_OVERRIDE;
+  OutputType
+  EvaluateDerivative(const InputType & input) const override;
 
 protected:
   HeavisideStepFunction();
-  ~HeavisideStepFunction() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HeavisideStepFunction);
+  ~HeavisideStepFunction() override = default;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkHeavisideStepFunction.hxx"
+#  include "itkHeavisideStepFunction.hxx"
 #endif
 
 #endif

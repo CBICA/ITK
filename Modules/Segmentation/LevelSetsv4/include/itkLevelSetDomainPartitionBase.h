@@ -30,47 +30,46 @@ namespace itk
  * \brief Helper class used to partition domain and efficiently compute overlap.
  * \ingroup ITKLevelSetsv4
  */
-template< typename TDomain >
+template <typename TDomain>
 class ITK_TEMPLATE_EXPORT LevelSetDomainPartitionBase : public Object
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartitionBase);
 
-  typedef LevelSetDomainPartitionBase           Self;
-  typedef Object                                Superclass;
-  typedef SmartPointer< Self >                  Pointer;
-  typedef SmartPointer< const Self >            ConstPointer;
+  using Self = LevelSetDomainPartitionBase;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   itkTypeMacro(LevelSetDomainPartitionBase, LightObject);
 
   /** Get/Set the number of level set functions */
-  itkSetMacro( NumberOfLevelSetFunctions, IdentifierType );
-  itkGetMacro( NumberOfLevelSetFunctions, IdentifierType );
+  itkSetMacro(NumberOfLevelSetFunctions, IdentifierType);
+  itkGetMacro(NumberOfLevelSetFunctions, IdentifierType);
 
-  virtual void PopulateListDomain() = 0;
+  virtual void
+  PopulateListDomain() = 0;
 
 protected:
-
   /** \brief Constructor */
   LevelSetDomainPartitionBase();
 
   /** \brief Destructor */
-  virtual ~LevelSetDomainPartitionBase() ITK_OVERRIDE;
+  ~LevelSetDomainPartitionBase() override = default;
 
-  virtual void AllocateListDomain() = 0;
+  virtual void
+  AllocateListDomain() = 0;
 
-  typedef std::list< IdentifierType >                 IdentifierListType;
-  typedef typename IdentifierListType::iterator       IdentifierListIterator;
-  typedef typename IdentifierListType::const_iterator IdentifierListConstIterator;
+  using IdentifierListType = std::list<IdentifierType>;
+  using IdentifierListIterator = typename IdentifierListType::iterator;
+  using IdentifierListConstIterator = typename IdentifierListType::const_iterator;
 
   IdentifierType m_NumberOfLevelSetFunctions;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartitionBase);
 };
-} //end namespace itk
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetDomainPartitionBase.hxx"
+#  include "itkLevelSetDomainPartitionBase.hxx"
 #endif
 
 #endif

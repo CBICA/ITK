@@ -26,82 +26,82 @@
 
 #include "itkTestingMacros.h"
 
-int itkStatisticsOpeningLabelMapFilterTest1(int argc, char * argv[])
+int
+itkStatisticsOpeningLabelMapFilterTest1(int argc, char * argv[])
 {
-  if( argc != 7 )
-    {
+  if (argc != 7)
+  {
     std::cerr << "Usage: " << argv[0];
     std::cerr << " input feature output";
     std::cerr << " lambda reverseOrdering(0/1) attribute";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 3;
+  constexpr unsigned int dim = 3;
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, dim > ImageType;
+  using ImageType = itk::Image<PixelType, dim>;
 
-  typedef itk::StatisticsLabelObject< PixelType, dim >           StatisticsLabelObjectType;
-  typedef itk::LabelMap< StatisticsLabelObjectType >             LabelMapType;
+  using StatisticsLabelObjectType = itk::StatisticsLabelObject<PixelType, dim>;
+  using LabelMapType = itk::LabelMap<StatisticsLabelObjectType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   ReaderType::Pointer reader2 = ReaderType::New();
-  reader2->SetFileName( argv[2] );
+  reader2->SetFileName(argv[2]);
 
-  typedef itk::LabelImageToStatisticsLabelMapFilter< ImageType, ImageType, LabelMapType> I2LType;
+  using I2LType = itk::LabelImageToStatisticsLabelMapFilter<ImageType, ImageType, LabelMapType>;
   I2LType::Pointer i2l = I2LType::New();
-  i2l->SetInput( reader->GetOutput() );
-  i2l->SetFeatureImage( reader2->GetOutput() );
+  i2l->SetInput(reader->GetOutput());
+  i2l->SetFeatureImage(reader2->GetOutput());
 
-  typedef itk::StatisticsOpeningLabelMapFilter< LabelMapType > LabelOpeningType;
+  using LabelOpeningType = itk::StatisticsOpeningLabelMapFilter<LabelMapType>;
   LabelOpeningType::Pointer opening = LabelOpeningType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( opening, StatisticsOpeningLabelMapFilter,
-    ShapeOpeningLabelMapFilter);
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(opening, StatisticsOpeningLabelMapFilter, ShapeOpeningLabelMapFilter);
 
   // Testing get and set macros for Lambda
-  double lambda = atof( argv[4] );
-  opening->SetLambda( lambda );
-  TEST_SET_GET_VALUE( lambda , opening->GetLambda() );
+  double lambda = std::stod(argv[4]);
+  opening->SetLambda(lambda);
+  ITK_TEST_SET_GET_VALUE(lambda, opening->GetLambda());
 
   // Testing get and set macros for ReverseOrdering
-  bool reverseOrdering = atoi( argv[5] );
-  opening->SetReverseOrdering( reverseOrdering );
-  TEST_SET_GET_VALUE( reverseOrdering , opening->GetReverseOrdering() );
+  bool reverseOrdering = std::stoi(argv[5]);
+  opening->SetReverseOrdering(reverseOrdering);
+  ITK_TEST_SET_GET_VALUE(reverseOrdering, opening->GetReverseOrdering());
 
   // Testing boolean macro for ReverseOrdering
   opening->ReverseOrderingOn();
-  TEST_SET_GET_VALUE( true, opening->GetReverseOrdering() );
+  ITK_TEST_SET_GET_VALUE(true, opening->GetReverseOrdering());
 
   opening->ReverseOrderingOff();
-  TEST_SET_GET_VALUE( false, opening->GetReverseOrdering() );
+  ITK_TEST_SET_GET_VALUE(false, opening->GetReverseOrdering());
 
   // Testing get and set macros for Attribute
-  LabelOpeningType::AttributeType attribute = atoi( argv[6] );
-  opening->SetAttribute( attribute );
-  TEST_SET_GET_VALUE( attribute, opening->GetAttribute() );
+  LabelOpeningType::AttributeType attribute = std::stoi(argv[6]);
+  opening->SetAttribute(attribute);
+  ITK_TEST_SET_GET_VALUE(attribute, opening->GetAttribute());
 
-  opening->SetInput( i2l->GetOutput() );
+  opening->SetInput(i2l->GetOutput());
 
   itk::SimpleFilterWatcher watcher(opening, "filter");
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> L2IType;
+  using L2IType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
   L2IType::Pointer l2i = L2IType::New();
-  l2i->SetInput( opening->GetOutput() );
+  l2i->SetInput(opening->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( l2i->GetOutput() );
-  writer->SetFileName( argv[3] );
+  writer->SetInput(l2i->GetOutput());
+  writer->SetFileName(argv[3]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

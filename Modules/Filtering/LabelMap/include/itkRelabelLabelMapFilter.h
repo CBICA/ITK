@@ -42,29 +42,32 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TImage >
-class RelabelLabelMapFilter:
-  public AttributeRelabelLabelMapFilter< TImage, typename Functor::LabelLabelObjectAccessor<typename TImage::LabelObjectType> >
+template <typename TImage>
+class RelabelLabelMapFilter
+  : public AttributeRelabelLabelMapFilter<TImage,
+                                          typename Functor::LabelLabelObjectAccessor<typename TImage::LabelObjectType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RelabelLabelMapFilter           Self;
-  typedef AttributeRelabelLabelMapFilter< TImage,
-     typename Functor::LabelLabelObjectAccessor<typename TImage::LabelObjectType> >
-                                          Superclass;
-  typedef SmartPointer< Self >            Pointer;
-  typedef SmartPointer< const Self >      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RelabelLabelMapFilter);
 
-  /** Some convenient typedefs. */
-  typedef TImage                                        ImageType;
-  typedef typename ImageType::Pointer                   ImagePointer;
-  typedef typename ImageType::ConstPointer              ImageConstPointer;
-  typedef typename ImageType::PixelType                 PixelType;
-  typedef typename ImageType::IndexType                 IndexType;
-  typedef typename ImageType::LabelObjectType           LabelObjectType;
+  /** Standard class type aliases. */
+  using Self = RelabelLabelMapFilter;
+  using Superclass =
+    AttributeRelabelLabelMapFilter<TImage,
+                                   typename Functor::LabelLabelObjectAccessor<typename TImage::LabelObjectType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using PixelType = typename ImageType::PixelType;
+  using IndexType = typename ImageType::IndexType;
+  using LabelObjectType = typename ImageType::LabelObjectType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(ImageDimension, unsigned int, TImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -84,15 +87,9 @@ public:
 #endif
 
 protected:
-  RelabelLabelMapFilter()
-    {
-    this->SetReverseOrdering( true );
-    }
-  ~RelabelLabelMapFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RelabelLabelMapFilter);
-};                                     // end of class
+  RelabelLabelMapFilter() { this->SetReverseOrdering(true); }
+  ~RelabelLabelMapFilter() override = default;
+}; // end of class
 } // end namespace itk
 
 

@@ -57,14 +57,15 @@ namespace itk
  */
 
 template <typename TInputImage, typename TOutputImage = TInputImage>
-class ITK_TEMPLATE_EXPORT BSplineControlPointImageFilter
-  : public ImageToImageFilter<TInputImage, TOutputImage>
+class ITK_TEMPLATE_EXPORT BSplineControlPointImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  typedef BSplineControlPointImageFilter                Self;
-  typedef ImageToImageFilter<TInputImage, TOutputImage> Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineControlPointImageFilter);
+
+  using Self = BSplineControlPointImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -73,67 +74,62 @@ public:
   itkTypeMacro(BSplineControlPointImageFilter, ImageToImageFilter);
 
   /** Extract dimension from input image. */
-  itkStaticConstMacro( ImageDimension, unsigned int,
-                       TInputImage::ImageDimension );
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef TInputImage  ControlPointLatticeType;
-  typedef TOutputImage OutputImageType;
+  using ControlPointLatticeType = TInputImage;
+  using OutputImageType = TOutputImage;
 
-  /** Image typedef support. */
-  typedef typename OutputImageType::PixelType  PixelType;
-  typedef typename OutputImageType::RegionType RegionType;
-  typedef typename OutputImageType::IndexType  IndexType;
-  typedef typename OutputImageType::PointType  PointType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
+  /** Image type alias support */
+  using PixelType = typename OutputImageType::PixelType;
+  using RegionType = typename OutputImageType::RegionType;
+  using IndexType = typename OutputImageType::IndexType;
+  using PointType = typename OutputImageType::PointType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
 
-  typedef typename OutputImageType::SpacingType   SpacingType;
-  typedef typename OutputImageType::PointType     OriginType;
-  typedef typename OutputImageType::SizeType      SizeType;
-  typedef typename OutputImageType::DirectionType DirectionType;
+  using SpacingType = typename OutputImageType::SpacingType;
+  using OriginType = typename OutputImageType::PointType;
+  using SizeType = typename OutputImageType::SizeType;
+  using DirectionType = typename OutputImageType::DirectionType;
 
-  /** Other typedef */
-  typedef float RealType;
-  typedef Image<RealType,
-    itkGetStaticConstMacro( ImageDimension )>       RealImageType;
-  typedef typename RealImageType::Pointer           RealImagePointer;
+  /** Other type alias */
+  using RealType = float;
+  using RealImageType = Image<RealType, Self::ImageDimension>;
+  using RealImagePointer = typename RealImageType::Pointer;
 
-  typedef FixedArray<unsigned,
-    itkGetStaticConstMacro( ImageDimension )>       ArrayType;
-  typedef FixedArray<RealType,
-    itkGetStaticConstMacro( ImageDimension )>       RealArrayType;
+  using ArrayType = FixedArray<unsigned, Self::ImageDimension>;
+  using RealArrayType = FixedArray<RealType, Self::ImageDimension>;
 
-  /** PointSet typedef support. */
-  typedef PointSet<PixelType,
-    itkGetStaticConstMacro( ImageDimension )>       PointSetType;
-  typedef typename PointSetType::PixelType          PointDataType;
-  typedef typename PointSetType::PointDataContainer PointDataContainerType;
-  typedef Image<PointDataType,
-    itkGetStaticConstMacro( ImageDimension )>       PointDataImageType;
-  typedef typename PointDataImageType::Pointer      PointDataImagePointer;
+  /** PointSet type alias support */
+  using PointSetType = PointSet<PixelType, Self::ImageDimension>;
+  using PointDataType = typename PointSetType::PixelType;
+  using PointDataContainerType = typename PointSetType::PointDataContainer;
+  using PointDataImageType = Image<PointDataType, Self::ImageDimension>;
+  using PointDataImagePointer = typename PointDataImageType::Pointer;
 
   /** Interpolation kernel type (default spline order = 3) */
-  typedef CoxDeBoorBSplineKernelFunction<3> KernelType;
-  typedef BSplineKernelFunction<0>          KernelOrder0Type;
-  typedef BSplineKernelFunction<1>          KernelOrder1Type;
-  typedef BSplineKernelFunction<2>          KernelOrder2Type;
-  typedef BSplineKernelFunction<3>          KernelOrder3Type;
+  using KernelType = CoxDeBoorBSplineKernelFunction<3>;
+  using KernelOrder0Type = BSplineKernelFunction<0>;
+  using KernelOrder1Type = BSplineKernelFunction<1>;
+  using KernelOrder2Type = BSplineKernelFunction<2>;
+  using KernelOrder3Type = BSplineKernelFunction<3>;
 
   /**
    * Set the spline order of the B-spline object for all parametric dimensions.
    * Default = 3.
    */
-  void SetSplineOrder( unsigned int );
+  void
+  SetSplineOrder(unsigned int);
 
   /**
    * Set the spline order array where each element of the array corresponds to
    * a single parametric dimension of the B-spline object.  Default = 3.
    */
-  void SetSplineOrder( ArrayType );
+  void SetSplineOrder(ArrayType);
 
   /**
    * Get the spline order array of the B-spline object.  Default = 3.
    */
-  itkGetConstReferenceMacro( SplineOrder, ArrayType );
+  itkGetConstReferenceMacro(SplineOrder, ArrayType);
 
   /**
    * Set/Get the boolean array indicating the periodicity of the B-spline object.
@@ -151,26 +147,26 @@ public:
    * they were also located at the end of the domain. The number of points to
    * be reused will depend on the spline order. As a user, you don't need to
    * replicate the points, the filter will do this for you. */
-  itkSetMacro( CloseDimension, ArrayType );
-  itkGetConstReferenceMacro( CloseDimension, ArrayType );
+  itkSetMacro(CloseDimension, ArrayType);
+  itkGetConstReferenceMacro(CloseDimension, ArrayType);
 
   /**
    * Set/Get the parametric spacing of the B-spline object domain.
    */
-  itkSetMacro( Spacing, SpacingType );
-  itkGetConstMacro( Spacing, SpacingType );
+  itkSetMacro(Spacing, SpacingType);
+  itkGetConstMacro(Spacing, SpacingType);
 
   /**
    * Set/Get the parametric origin of the B-spline object domain.
    */
-  itkSetMacro( Origin, OriginType );
-  itkGetConstMacro( Origin, OriginType );
+  itkSetMacro(Origin, OriginType);
+  itkGetConstMacro(Origin, OriginType);
 
   /**
    * Set/Get the parametric size of the B-spline object domain.
    */
-  itkSetMacro( Size, SizeType );
-  itkGetConstMacro( Size, SizeType );
+  itkSetMacro(Size, SizeType);
+  itkGetConstMacro(Size, SizeType);
 
   /**
    * Set the sampled object direction.  Note that this is not used in any of the
@@ -186,12 +182,12 @@ public:
    * us to go from the parametric space to the physical space.  Therefore,
    * the direction is not used.
    */
-  itkSetMacro( Direction, DirectionType );
+  itkSetMacro(Direction, DirectionType);
 
   /**
    * Get the sampled B-spline object direction.
    */
-  itkGetConstMacro( Direction, DirectionType );
+  itkGetConstMacro(Direction, DirectionType);
 
   /**
    * Generate a refined control point lattice from the input control point
@@ -200,96 +196,93 @@ public:
    * of refinement levels to all 1's, the control point lattice is not increased
    * in resolution.  Doubling the resolution starts at 2 refinement levels.
    */
-  typename ControlPointLatticeType::Pointer
-    RefineControlPointLattice( ArrayType );
+  typename ControlPointLatticeType::Pointer RefineControlPointLattice(ArrayType);
 
 protected:
   BSplineControlPointImageFilter();
-  virtual ~BSplineControlPointImageFilter() ITK_OVERRIDE;
-  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  ~BSplineControlPointImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  /**
-   * Multi-threaded function which generates the output sampled B-spline object.
-   */
-  void ThreadedGenerateData( const OutputImageRegionType &, ThreadIdType ) ITK_OVERRIDE;
+  /** Multi-threaded function which generates the output sampled B-spline object. */
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType &) override;
+
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineControlPointImageFilter);
-
-
   /**
    * Before splitting, we need to allocate memory for the output sampled
    * B-spline object based on the multi-threading functionality
    */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /**
    * Based on the way CollapsePhiLattice() is written, we want to split on the
    * the last dimension.
    */
-  virtual unsigned int SplitRequestedRegion( unsigned int, unsigned int, OutputImageRegionType & ) ITK_OVERRIDE;
+  unsigned int
+  SplitRequestedRegion(unsigned int, unsigned int, OutputImageRegionType &) override;
 
   /**
    * Sub-function used by GenerateOutputImageFast() to generate the sampled
    * B-spline object quickly.
    */
-  void CollapsePhiLattice( PointDataImageType *, PointDataImageType *,
-    const RealType, const unsigned int );
+  void
+  CollapsePhiLattice(PointDataImageType *, PointDataImageType *, const RealType, const unsigned int);
 
   /**
    * Private function to handle the internal ivars.
    */
-  void SetNumberOfLevels( ArrayType );
+  void SetNumberOfLevels(ArrayType);
 
   /** Parameters for the output image. */
-  SizeType                                     m_Size;
-  SpacingType                                  m_Spacing;
-  OriginType                                   m_Origin;
-  DirectionType                                m_Direction;
+  SizeType      m_Size;
+  SpacingType   m_Spacing;
+  OriginType    m_Origin;
+  DirectionType m_Direction;
 
-  bool                                         m_DoMultilevel;
-  unsigned int                                 m_MaximumNumberOfLevels;
-  ArrayType                                    m_NumberOfControlPoints;
-  ArrayType                                    m_CloseDimension;
-  ArrayType                                    m_SplineOrder;
-  ArrayType                                    m_NumberOfLevels;
+  bool         m_DoMultilevel{ false };
+  unsigned int m_MaximumNumberOfLevels{ 1 };
+  ArrayType    m_NumberOfControlPoints;
+  ArrayType    m_CloseDimension;
+  ArrayType    m_SplineOrder;
+  ArrayType    m_NumberOfLevels;
 
-  vnl_matrix<RealType>       m_RefinedLatticeCoefficients[ImageDimension];
+  vnl_matrix<RealType> m_RefinedLatticeCoefficients[ImageDimension];
 
-  typename KernelType::Pointer                 m_Kernel[ImageDimension];
-  typename KernelOrder0Type::Pointer           m_KernelOrder0;
-  typename KernelOrder1Type::Pointer           m_KernelOrder1;
-  typename KernelOrder2Type::Pointer           m_KernelOrder2;
-  typename KernelOrder3Type::Pointer           m_KernelOrder3;
+  typename KernelType::Pointer       m_Kernel[ImageDimension];
+  typename KernelOrder0Type::Pointer m_KernelOrder0;
+  typename KernelOrder1Type::Pointer m_KernelOrder1;
+  typename KernelOrder2Type::Pointer m_KernelOrder2;
+  typename KernelOrder3Type::Pointer m_KernelOrder3;
 
-  RealType                                     m_BSplineEpsilon;
+  RealType m_BSplineEpsilon{ static_cast<RealType>(1e-3) };
 
   inline typename RealImageType::IndexType
-  NumberToIndex( unsigned int number, typename RealImageType::SizeType size )
-    {
+  NumberToIndex(unsigned int number, typename RealImageType::SizeType size)
+  {
     typename RealImageType::IndexType k;
     k[0] = 1;
 
-    for ( unsigned int i = 1; i < ImageDimension; i++ )
-      {
-      k[i] = size[ImageDimension-i-1]*k[i-1];
-      }
-    typename RealImageType::IndexType index;
-    for ( unsigned int i = 0; i < ImageDimension; i++ )
-      {
-      index[ImageDimension-i-1]
-        = static_cast<unsigned int>( number/k[ImageDimension-i-1] );
-      number %= k[ImageDimension-i-1];
-      }
-    return index;
+    for (unsigned int i = 1; i < ImageDimension; i++)
+    {
+      k[i] = size[ImageDimension - i - 1] * k[i - 1];
     }
-
+    typename RealImageType::IndexType index;
+    for (unsigned int i = 0; i < ImageDimension; i++)
+    {
+      index[ImageDimension - i - 1] = static_cast<unsigned int>(number / k[ImageDimension - i - 1]);
+      number %= k[ImageDimension - i - 1];
+    }
+    return index;
+  }
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBSplineControlPointImageFilter.hxx"
+#  include "itkBSplineControlPointImageFilter.hxx"
 #endif
 
 #endif

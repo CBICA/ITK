@@ -23,65 +23,63 @@
 #include "itkPipelineMonitorImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkAddImageFilterTest2(int argc, char* argv[] )
+int
+itkAddImageFilterTest2(int argc, char * argv[])
 {
-  if( argc != 3 )
-    {
-    std::cerr << "Usage: "
-              << argv[0]
-              << " <InputImage>"
-              << " <OutputImage>"
-              << std::endl;
+  if (argc != 3)
+  {
+    std::cerr << "Usage: " << argv[0] << " <InputImage>"
+              << " <OutputImage>" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   const char * inputImage = argv[1];
   const char * outputImage = argv[2];
 
   // Define the dimension of the images
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef float          FloatPixelType;
-  typedef unsigned short IntegerPixelType;
+  using FloatPixelType = float;
+  using IntegerPixelType = unsigned short;
 
-  typedef itk::Image< FloatPixelType, Dimension >   FloatImageType;
-  typedef itk::Image< IntegerPixelType, Dimension > IntegerImageType;
+  using FloatImageType = itk::Image<FloatPixelType, Dimension>;
+  using IntegerImageType = itk::Image<IntegerPixelType, Dimension>;
 
-  typedef itk::ImageFileReader< FloatImageType > FloatReaderType;
+  using FloatReaderType = itk::ImageFileReader<FloatImageType>;
   FloatReaderType::Pointer floatReader = FloatReaderType::New();
-  floatReader->SetFileName( inputImage );
-  floatReader->SetUseStreaming( true );
+  floatReader->SetFileName(inputImage);
+  floatReader->SetUseStreaming(true);
 
-  typedef itk::ImageFileReader< IntegerImageType > IntegerReaderType;
+  using IntegerReaderType = itk::ImageFileReader<IntegerImageType>;
   IntegerReaderType::Pointer integerReader = IntegerReaderType::New();
-  integerReader->SetFileName( inputImage );
-  integerReader->SetUseStreaming( true );
+  integerReader->SetFileName(inputImage);
+  integerReader->SetUseStreaming(true);
 
-  const unsigned int streams = 4;
+  constexpr unsigned int streams = 4;
 
-  typedef itk::PipelineMonitorImageFilter< IntegerImageType > IntegerMonitorFilterType;
+  using IntegerMonitorFilterType = itk::PipelineMonitorImageFilter<IntegerImageType>;
   IntegerMonitorFilterType::Pointer integerMonitorFilter = IntegerMonitorFilterType::New();
-  integerMonitorFilter->SetInput( integerReader->GetOutput() );
+  integerMonitorFilter->SetInput(integerReader->GetOutput());
 
   // Test with different input types.
-  typedef itk::AddImageFilter< FloatImageType, IntegerImageType, FloatImageType > AddFilterType;
+  using AddFilterType = itk::AddImageFilter<FloatImageType, IntegerImageType, FloatImageType>;
   AddFilterType::Pointer addFilter = AddFilterType::New();
-  addFilter->SetInput1( floatReader->GetOutput() );
-  addFilter->SetInput2( integerMonitorFilter->GetOutput() );
+  addFilter->SetInput1(floatReader->GetOutput());
+  addFilter->SetInput2(integerMonitorFilter->GetOutput());
 
-  typedef itk::PipelineMonitorImageFilter< FloatImageType > MonitorFilterType;
+  using MonitorFilterType = itk::PipelineMonitorImageFilter<FloatImageType>;
   MonitorFilterType::Pointer monitorFilter = MonitorFilterType::New();
-  monitorFilter->SetInput( addFilter->GetOutput() );
+  monitorFilter->SetInput(addFilter->GetOutput());
 
-  typedef itk::ImageFileWriter< FloatImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<FloatImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( monitorFilter->GetOutput() );
-  writer->SetNumberOfStreamDivisions( streams );
-  writer->SetFileName( outputImage );
+  writer->SetInput(monitorFilter->GetOutput());
+  writer->SetNumberOfStreamDivisions(streams);
+  writer->SetFileName(outputImage);
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
-  TEST_EXPECT_TRUE( monitorFilter->VerifyInputFilterExecutedStreaming( streams ) );
-  TEST_EXPECT_TRUE( integerMonitorFilter->VerifyInputFilterExecutedStreaming( streams ) );
+  ITK_TEST_EXPECT_TRUE(monitorFilter->VerifyInputFilterExecutedStreaming(streams));
+  ITK_TEST_EXPECT_TRUE(integerMonitorFilter->VerifyInputFilterExecutedStreaming(streams));
 
   return EXIT_SUCCESS;
 }

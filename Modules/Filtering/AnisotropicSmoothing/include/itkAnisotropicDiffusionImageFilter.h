@@ -69,34 +69,35 @@ namespace itk
  * \ingroup ImageEnhancement
  * \ingroup ITKAnisotropicSmoothing
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT AnisotropicDiffusionImageFilter:
-  public DenseFiniteDifferenceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT AnisotropicDiffusionImageFilter
+  : public DenseFiniteDifferenceImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef AnisotropicDiffusionImageFilter                               Self;
-  typedef DenseFiniteDifferenceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                          Pointer;
-  typedef SmartPointer< const Self >                                    ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AnisotropicDiffusionImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = AnisotropicDiffusionImageFilter;
+  using Superclass = DenseFiniteDifferenceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information. */
-  itkTypeMacro(AnisotropicDiffusionImageFilter,
-               DenseFiniteDifferenceImageFilter);
+  itkTypeMacro(AnisotropicDiffusionImageFilter, DenseFiniteDifferenceImageFilter);
 
   /** Capture information from the superclass. */
-  typedef typename Superclass::InputImageType   InputImageType;
-  typedef typename Superclass::OutputImageType  OutputImageType;
-  typedef typename Superclass::UpdateBufferType UpdateBufferType;
+  using InputImageType = typename Superclass::InputImageType;
+  using OutputImageType = typename Superclass::OutputImageType;
+  using UpdateBufferType = typename Superclass::UpdateBufferType;
 
   /** Dimensionality of input and output data is assumed to be the same.
    * It is inherited from the superclass. */
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** The pixel type of the output image will be used in computations.
    * Inherited from the superclass. */
-  typedef typename Superclass::PixelType    PixelType;
-  typedef typename Superclass::TimeStepType TimeStepType;
+  using PixelType = typename Superclass::PixelType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
   /** Set/Get the time step for each iteration */
   itkSetMacro(TimeStep, TimeStepType);
@@ -124,7 +125,8 @@ public:
       at a pixel.  This method is  useful in streaming applications to avoid
       block artifacts by overriding the normal gradient magnitude calculation
       (i.e. all image chunks are scaled uniformly). */
-  void SetFixedAverageGradientMagnitude(double a)
+  void
+  SetFixedAverageGradientMagnitude(double a)
   {
     m_FixedAverageGradientMagnitude = a;
     this->Modified();
@@ -135,21 +137,21 @@ public:
 
 protected:
   AnisotropicDiffusionImageFilter();
-  ~AnisotropicDiffusionImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~AnisotropicDiffusionImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Supplies the halting criteria for this class of filters.  The
    * algorithm will stop after a user-specified number of iterations. */
   //  virtual bool Halt();
 
   /** Prepare for the iteration process. */
-  virtual void InitializeIteration() ITK_OVERRIDE;
+  void
+  InitializeIteration() override;
 
   bool m_GradientMagnitudeIsFixed;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AnisotropicDiffusionImageFilter);
-
   double       m_ConductanceParameter;
   double       m_ConductanceScalingParameter;
   unsigned int m_ConductanceScalingUpdateInterval;
@@ -157,10 +159,10 @@ private:
 
   TimeStepType m_TimeStep;
 };
-} // end namspace itk
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkAnisotropicDiffusionImageFilter.hxx"
+#  include "itkAnisotropicDiffusionImageFilter.hxx"
 #endif
 
 #endif

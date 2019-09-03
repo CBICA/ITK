@@ -47,62 +47,69 @@ namespace itk
  * \ingroup OSSystemObjects
  * \ingroup ITKCommon
  */
-class ITKCommon_EXPORT LoggerOutput:public OutputWindow
+class ITKCommon_EXPORT LoggerOutput : public OutputWindow
 {
 public:
-  /** Standard class typedefs. */
-  typedef LoggerOutput               Self;
-  typedef OutputWindow               Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LoggerOutput;
+  using Superclass = OutputWindow;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(LoggerOutput, OutputWindow);
 
   itkNewMacro(LoggerOutput);
 
-  typedef Logger *LoggerType;
+  using LoggerType = Logger *;
 
   /** Send a string to display. */
-  virtual void DisplayText(const char *t) ITK_OVERRIDE;
+  void
+  DisplayText(const char * t) override;
 
   /** Send a string as an error message to display.
    * The default implementation calls DisplayText() but subclasses
    * could present this message differently. */
-  virtual void DisplayErrorText(const char *t) ITK_OVERRIDE;
+  void
+  DisplayErrorText(const char * t) override;
 
   /** Send a string as a warningmessage to display.
    * The default implementation calls DisplayText() but subclasses
    * could present this message differently. */
-  virtual void DisplayWarningText(const char *t) ITK_OVERRIDE;
+  void
+  DisplayWarningText(const char * t) override;
 
   /** Send a string as a message to display.
    * The default implementation calls DisplayText() but subclasses
    * could present this message differently. */
-  virtual void DisplayGenericOutputText(const char *t) ITK_OVERRIDE;
+  void
+  DisplayGenericOutputText(const char * t) override;
 
   /** Send a string as a debug message to display.
    * The default implementation calls DisplayText() but subclasses
    * could present this message differently. */
-  virtual void DisplayDebugText(const char *t) ITK_OVERRIDE;
+  void
+  DisplayDebugText(const char * t) override;
 
   itkSetMacro(Logger, LoggerType);
 
   itkGetConstMacro(Logger, LoggerType);
 
-  virtual void OverrideITKWindow()
+  virtual void
+  OverrideITKWindow()
   {
     itk::OutputWindow::SetInstance(this);
   }
 
 protected:
-  LoggerOutput():m_Logger(ITK_NULLPTR) {}
-  virtual ~LoggerOutput() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  LoggerOutput() {}
+  ~LoggerOutput() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  Logger *m_Logger;
+  Logger * m_Logger{ nullptr };
 };
 } // end namespace itk
 
-#endif  // itkLoggerOutput_h
+#endif // itkLoggerOutput_h

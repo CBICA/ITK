@@ -1,6 +1,4 @@
 itk_wrap_class("itk::ImageToImageFilter" POINTER)
-  # complex types
-  itk_wrap_image_filter("${WRAP_ITK_COMPLEX_REAL}" 2)
 
   # scalar <-> RGB
   UNIQUE(stypes "${ITKM_IT};UL;${WRAP_ITK_SCALAR}")
@@ -26,16 +24,21 @@ itk_wrap_class("itk::ImageToImageFilter" POINTER)
   itk_wrap_image_filter_combinations("${WRAP_ITK_VECTOR}" "${WRAP_ITK_SCALAR}")
   itk_wrap_image_filter_combinations("${WRAP_ITK_SCALAR}" "${WRAP_ITK_VECTOR}")
 
-  # complex <-> scalar
-  itk_wrap_image_filter_combinations("${WRAP_ITK_REAL}" "${WRAP_ITK_COMPLEX_REAL}")
-  itk_wrap_image_filter_combinations("${WRAP_ITK_COMPLEX_REAL}" "${WRAP_ITK_REAL}")
+  # complex types
+  itk_wrap_image_filter_combinations("${WRAP_ITK_COMPLEX_REAL}" "${WRAP_ITK_COMPLEX_REAL}")
 
-  # scalar <-> SymmetricSecondRankTensor
+  # complex <-> scalar
+  itk_wrap_image_filter_combinations("${WRAP_ITK_SCALAR}" "${WRAP_ITK_COMPLEX_REAL}")
+  itk_wrap_image_filter_combinations("${WRAP_ITK_COMPLEX_REAL}" "${WRAP_ITK_SCALAR}")
+
   foreach(d ${ITK_WRAP_IMAGE_DIMS})
     foreach(t ${WRAP_ITK_SCALAR})
+      # scalar <-> SymmetricSecondRankTensor
       itk_wrap_template("${ITKM_I${t}${d}}${ITKM_ISSRT${ITKM_D}${d}${d}}" "${ITKT_I${t}${d}}, ${ITKT_ISSRT${ITKM_D}${d}${d}}")
       itk_wrap_template("${ITKM_ISSRT${ITKM_D}${d}${d}}${ITKM_I${t}${d}}" "${ITKT_ISSRT${ITKM_D}${d}${d}}, ${ITKT_I${t}${d}}")
     endforeach()
+    # SymmetricSecondRankTensor -> SymmetricSecondRankTensor
+    itk_wrap_template("${ITKM_ISSRT${ITKM_D}${d}${d}}${ITKM_ISSRT${ITKM_D}${d}${d}}" "${ITKT_ISSRT${ITKM_D}${d}${d}}, ${ITKT_ISSRT${ITKM_D}${d}${d}}")
   endforeach()
 
   # Wrap dim=3 -> dim=2, dim=3 -> dim=2, etc.
@@ -46,7 +49,7 @@ itk_wrap_class("itk::ImageToImageFilter" POINTER)
           itk_wrap_template("${ITKM_I${t}${d}}${ITKM_I${t}${d2}}"
                         "${ITKT_I${t}${d}},${ITKT_I${t}${d2}}")
         endforeach()
-      endif(NOT "${d}" EQUAL "${d2}")
+      endif()
     endforeach()
   endforeach()
 
@@ -57,6 +60,8 @@ itk_wrap_class("itk::ImageToImageFilter" POINTER)
     foreach(d ${ITK_WRAP_IMAGE_DIMS})
       itk_wrap_template("I${ITKM_F}${d}ICV${ITKM_D}${d}${d}"
                         "itk::Image<${ITKT_F}, ${d}>, itk::Image<itk::CovariantVector<${ITKT_D}, ${d}>, ${d}>")
+      itk_wrap_template("I${ITKM_D}${d}ICV${ITKM_D}${d}${d}"
+                        "itk::Image<${ITKT_D}, ${d}>, itk::Image<itk::CovariantVector<${ITKT_D}, ${d}>, ${d}>")
     endforeach()
   endif()
 

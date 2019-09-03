@@ -19,10 +19,12 @@
 #define itkMirrorPadImageFilter_h
 
 #include "itkPadImageFilter.h"
+#include "itkNumericTraits.h"
 #include <vector>
 
 namespace itk
 {
+
 /** \class MirrorPadImageFilter
  * \brief Increase the image size by padding with replicants of the
  * input image value.
@@ -38,26 +40,31 @@ namespace itk
  * \image html MirrorPadImageFilter.png "Visual explanation of padding regions."
  *
  * This filter is implemented as a multithreaded filter.  It provides a
- * ThreadedGenerateData() method for its implementation.
+ * DynamicThreadedGenerateData() method for its implementation.
+ *
+ * Exponential decay in the bounds is enabled when DecayBase has to be
+ * in the range (0.0, 1.0]. When it is 1.0 it is disabled. The decay
+ * rate is based on the Manhattan distance.
  *
  * \ingroup GeometricTransform
  * \sa WrapPadImageFilter, ConstantPadImageFilter
  * \ingroup ITKImageGrid
  *
- * \wiki
- * \wikiexample{Images/MirrorPadImageFilter,Pad an image using mirroring over the boundaries}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageGrid/PadAnImageByMirroring,Pad An Image By Mirroring}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT MirrorPadImageFilter:
-  public PadImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT MirrorPadImageFilter : public PadImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef MirrorPadImageFilter                        Self;
-  typedef PadImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MirrorPadImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = MirrorPadImageFilter;
+  using Superclass = PadImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -65,84 +72,104 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MirrorPadImageFilter, PadImageFilter);
 
-  typedef TInputImage  InputImageType;
-  typedef TOutputImage OutputImageType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
 
   /** Typedef to describe the output image region type. */
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
-  typedef typename Superclass::InputImageRegionType  InputImageRegionType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
+  using InputImageRegionType = typename Superclass::InputImageRegionType;
 
   /** Typedef to describe the type of pixel. */
-  typedef typename Superclass::OutputImagePixelType OutputImagePixelType;
-  typedef typename Superclass::InputImagePixelType  InputImagePixelType;
+  using OutputImagePixelType = typename Superclass::OutputImagePixelType;
+  using InputImagePixelType = typename Superclass::InputImagePixelType;
 
   /** Typedef to describe the output and input image index and size types. */
-  typedef typename Superclass::OutputImageIndexType OutputImageIndexType;
-  typedef typename Superclass::InputImageIndexType  InputImageIndexType;
-  typedef typename Superclass::OutputImageSizeType  OutputImageSizeType;
-  typedef typename Superclass::InputImageSizeType   InputImageSizeType;
+  using OutputImageIndexType = typename Superclass::OutputImageIndexType;
+  using InputImageIndexType = typename Superclass::InputImageIndexType;
+  using OutputImageSizeType = typename Superclass::OutputImageSizeType;
+  using InputImageSizeType = typename Superclass::InputImageSizeType;
 
   /** ImageDimension enumeration. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
+
+  /** Get/Set the base for exponential decay in mirrored region. */
+  itkGetMacro(DecayBase, double);
+  itkSetClampMacro(DecayBase, double, NumericTraits<double>::min(), 1.0);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputImagePixelType, OutputImagePixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputImagePixelType, OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
-  MirrorPadImageFilter() {}
-  ~MirrorPadImageFilter() ITK_OVERRIDE {}
+  MirrorPadImageFilter() = default;
+  ~MirrorPadImageFilter() override = default;
+
 
   /** Convert from the output index to the input index taking
    * into consideration mirrored and normal regions. */
-  void ConvertOutputIndexToInputIndex(OutputImageIndexType & outputIndex,
-                                      InputImageIndexType & inputIndex,
-                                      OutputImageRegionType & outputRegion,
-                                      InputImageRegionType & inputRegion,
-                                      int *oddRegionArray);
+  void
+  ConvertOutputIndexToInputIndex(OutputImageIndexType &  outputIndex,
+                                 InputImageIndexType &   inputIndex,
+                                 OutputImageRegionType & outputRegion,
+                                 InputImageRegionType &  inputRegion,
+                                 int *                   oddRegionArray,
+                                 IndexValueType &        distanceFromEdge);
+
+  void
+  ConvertOutputIndexToInputIndex(OutputImageIndexType &  outputIndex,
+                                 InputImageIndexType &   inputIndex,
+                                 OutputImageRegionType & outputRegion,
+                                 InputImageRegionType &  inputRegion,
+                                 int *                   oddRegionArray,
+                                 double &                outDecayFactor);
 
   /** Decide whether test falls within an odd or even number
    * of size regions from base. */
-  int RegionIsOdd(long base, long test, long size);
+  int
+  RegionIsOdd(long base, long test, long size);
 
   /** MirrorPadImageFilter can be implemented as a multithreaded filter.
-   * Therefore, this implementation provides a ThreadedGenerateData()
+   * Therefore, this implementation provides a DynamicThreadedGenerateData()
    * routine which is called for each processing thread. The output
    * image data is allocated automatically by the superclass prior to
-   * calling ThreadedGenerateData().  ThreadedGenerateData can only
+   * calling DynamicThreadedGenerateData().  DynamicThreadedGenerateData can only
    * write to the portion of the output image specified by the
    * parameter "outputRegionForThread"
    *
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData()  */
-  void ThreadedGenerateData(const OutputImageRegionType & outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
   /** Given an n dimensional list of input region breakpoints in indices
    * and size (where the current region and maximum region for each dimension
    * is encoded in regIndices and regLimit), choose the next input region. */
-  int GenerateNextInputRegion(long *regIndices, long *regLimit,
-                              std::vector< long > *indices,
-                              std::vector< long > *sizes,
-                              InputImageRegionType & outputRegion);
+  int
+  GenerateNextInputRegion(long *                 regIndices,
+                          long *                 regLimit,
+                          std::vector<long> *    indices,
+                          std::vector<long> *    sizes,
+                          InputImageRegionType & outputRegion);
 
   /** Given an n dimensional list of output region breakpoints in indices
    * and size (where the current region and maximum region for each dimension
    * is encoded in regIndices and regLimit), choose the next output region. */
-  int GenerateNextOutputRegion(long *regIndices, long *regLimit,
-                               std::vector< long > *indices,
-                               std::vector< long > *sizes,
-                               OutputImageRegionType & outputRegion);
+  int
+  GenerateNextOutputRegion(long *                  regIndices,
+                           long *                  regLimit,
+                           std::vector<long> *     indices,
+                           std::vector<long> *     sizes,
+                           OutputImageRegionType & outputRegion);
 
   /** Given the start and end indices of a region, determine how many
    * instances of size fit within the region.  The variable offset provides
    * a way to adjust width of the area while forcing alignment to the
    * start or end location. */
-  int FindRegionsInArea(long start, long end, long size, long offset);
+  int
+  FindRegionsInArea(long start, long end, long size, long offset);
 
   /** Generate region 0 (inter-region) information.  Based on the indices
    * of the input and the output for this dimension, decide what are the
@@ -150,13 +177,17 @@ protected:
    * corresponding to the input region.  Padding will be on either
    * side of this region.  The algorithmic complications are necessary
    * to support the streaming interface and multithreading. */
-  int BuildInterRegions(std::vector< long > & inputRegionStart,
-                        std::vector< long > & outputRegionStart,
-                        std::vector< long > & inputRegionSizes,
-                        std::vector< long > & outputRegionSizes,
-                        long inputIndex, long outputIndex,
-                        long inputSize, long outputSize, int numRegs,
-                        int & regCtr);
+  int
+  BuildInterRegions(std::vector<long> & inputRegionStart,
+                    std::vector<long> & outputRegionStart,
+                    std::vector<long> & inputRegionSizes,
+                    std::vector<long> & outputRegionSizes,
+                    long                inputIndex,
+                    long                outputIndex,
+                    long                inputSize,
+                    long                outputSize,
+                    int                 numRegs,
+                    int &               regCtr);
 
   /** Generate region 1 (pre-region) information.  Based on the indices
    * of the input and the output for this dimension, decide what are the
@@ -166,13 +197,17 @@ protected:
    * size of the input image in this dimension.  Other algorithmic
    * complications are necessary to support the streaming interface
    * and multithreading. */
-  int BuildPreRegions(std::vector< long > & inputRegionStart,
-                      std::vector< long > & outputRegionStart,
-                      std::vector< long > & inputRegionSizes,
-                      std::vector< long > & outputRegionSizes,
-                      long inputIndex, long outputIndex,
-                      long inputSize, long outputSize, int numRegs,
-                      int & regCtr);
+  int
+  BuildPreRegions(std::vector<long> & inputRegionStart,
+                  std::vector<long> & outputRegionStart,
+                  std::vector<long> & inputRegionSizes,
+                  std::vector<long> & outputRegionSizes,
+                  long                inputIndex,
+                  long                outputIndex,
+                  long                inputSize,
+                  long                outputSize,
+                  int                 numRegs,
+                  int &               regCtr);
 
   /** Generate region 2 (post-region) information.  Based on the indices
    * of the input and the output for this dimension, decide what are the
@@ -182,13 +217,17 @@ protected:
    * size of the input image in this dimension.  Other algorithmic
    * complications are necessary to support the streaming interface
    * and multithreading. */
-  int BuildPostRegions(std::vector< long > & inputRegionStart,
-                       std::vector< long > & outputRegionStart,
-                       std::vector< long > & inputRegionSizes,
-                       std::vector< long > & outputRegionSizes,
-                       long inputIndex, long outputIndex,
-                       long inputSize, long outputSize,
-                       int numRegs, int & regCtr);
+  int
+  BuildPostRegions(std::vector<long> & inputRegionStart,
+                   std::vector<long> & outputRegionStart,
+                   std::vector<long> & inputRegionSizes,
+                   std::vector<long> & outputRegionSizes,
+                   long                inputIndex,
+                   long                outputIndex,
+                   long                inputSize,
+                   long                outputSize,
+                   int                 numRegs,
+                   int &               regCtr);
 
   /** MirrorPadImageFilter needs a different input requested region than
    * output requested region.  As such, MirrorPadImageFilter needs to
@@ -197,15 +236,16 @@ protected:
    *
    * \sa ProcessObject::GenerateInputRequestedRegion()
    * \sa PadImageFilter::GenerateInputRequestedRegion() */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MirrorPadImageFilter);
+  double m_DecayBase = 1.0;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMirrorPadImageFilter.hxx"
+#  include "itkMirrorPadImageFilter.hxx"
 #endif
 
 #endif

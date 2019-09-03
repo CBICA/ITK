@@ -23,18 +23,14 @@ namespace itk
 {
 GiplImageIOFactory::GiplImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkGiplImageIO",
-                          "Gipl Image IO",
-                          1,
-                          CreateObjectFunction< GiplImageIO >::New() );
+  this->RegisterOverride(
+    "itkImageIOBase", "itkGiplImageIO", "Gipl Image IO", true, CreateObjectFunction<GiplImageIO>::New());
 }
 
-GiplImageIOFactory::~GiplImageIOFactory()
-{}
+GiplImageIOFactory::~GiplImageIOFactory() = default;
 
 const char *
-GiplImageIOFactory::GetITKSourceVersion(void) const
+GiplImageIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
@@ -50,13 +46,14 @@ GiplImageIOFactory::GetDescription() const
 
 static bool GiplImageIOFactoryHasBeenRegistered;
 
-void ITKIOGIPL_EXPORT GiplImageIOFactoryRegister__Private(void)
+void ITKIOGIPL_EXPORT
+     GiplImageIOFactoryRegister__Private()
 {
-  if( ! GiplImageIOFactoryHasBeenRegistered )
-    {
+  if (!GiplImageIOFactoryHasBeenRegistered)
+  {
     GiplImageIOFactoryHasBeenRegistered = true;
     GiplImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

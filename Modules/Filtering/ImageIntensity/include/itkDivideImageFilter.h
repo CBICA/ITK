@@ -18,7 +18,7 @@
 #ifndef itkDivideImageFilter_h
 #define itkDivideImageFilter_h
 
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkArithmeticOpsFunctors.h"
 #include "itkNumericTraits.h"
 #include "itkMath.h"
@@ -39,40 +39,34 @@ namespace itk
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/DivideImageFilter,Pixel-wise division of two images}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/PixelDivisionOfTwoImages,Pixel Division Of Two Images}
+ * \endsphinx
  */
-template< typename TInputImage1, typename TInputImage2, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT DivideImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                            Functor::Div<
-                              typename TInputImage1::PixelType,
-                              typename TInputImage2::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage1, typename TInputImage2, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT DivideImageFilter
+  : public BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>
 {
 public:
-  /**
-   * Standard "Self" typedef.
-   */
-  typedef DivideImageFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(DivideImageFilter);
 
   /**
-   * Standard "Superclass" typedef.
+   * Standard "Self" type alias.
    */
-  typedef BinaryFunctorImageFilter< TInputImage1, TInputImage2, TOutputImage,
-                                    Functor::Div<
-                                      typename TInputImage1::PixelType,
-                                      typename TInputImage2::PixelType,
-                                      typename TOutputImage::PixelType >
-                                    > Superclass;
+  using Self = DivideImageFilter;
 
   /**
-   * Smart pointer typedef support
+   * Standard "Superclass" type alias.
    */
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage1, TInputImage2, TOutputImage>;
+
+  /**
+   * Smart pointer type alias support
+   */
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType =
+    Functor::Div<typename TInputImage1::PixelType, typename TInputImage2::PixelType, typename TOutputImage::PixelType>;
 
   /**
    * Method for creation through the object factory.
@@ -80,43 +74,43 @@ public:
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(DivideImageFilter,
-               BinaryFunctorImageFilter);
+  itkTypeMacro(DivideImageFilter, BinaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( IntConvertibleToInput2Check,
-                   ( Concept::Convertible< int, typename TInputImage2::PixelType > ) );
-  itkConceptMacro( Input1Input2OutputDivisionOperatorsCheck,
-                   ( Concept::DivisionOperators< typename TInputImage1::PixelType,
-                                                 typename TInputImage2::PixelType,
-                                                 typename TOutputImage::PixelType > ) );
+  itkConceptMacro(IntConvertibleToInput2Check, (Concept::Convertible<int, typename TInputImage2::PixelType>));
+  itkConceptMacro(Input1Input2OutputDivisionOperatorsCheck,
+                  (Concept::DivisionOperators<typename TInputImage1::PixelType,
+                                              typename TInputImage2::PixelType,
+                                              typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  DivideImageFilter() {}
-  virtual ~DivideImageFilter() ITK_OVERRIDE {}
+  DivideImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-  void GenerateData() ITK_OVERRIDE
+  ~DivideImageFilter() override = default;
+
+  void
+  VerifyPreconditions() ITKv5_CONST override
+  {
+    Superclass::VerifyPreconditions();
+
+    const auto * input =
+      dynamic_cast<const typename Superclass::DecoratedInput2ImagePixelType *>(this->ProcessObject::GetInput(1));
+    if (input != nullptr &&
+        itk::Math::AlmostEquals(input->Get(), itk::NumericTraits<typename TInputImage2::PixelType>::ZeroValue()))
     {
-    const typename Superclass::DecoratedInput2ImagePixelType *input
-       = dynamic_cast< const typename Superclass::DecoratedInput2ImagePixelType * >(
-        this->ProcessObject::GetInput(1) );
-    if( input != ITK_NULLPTR && itk::Math::AlmostEquals(input->Get(), itk::NumericTraits< typename TInputImage2::PixelType >::ZeroValue()) )
-      {
-      itkGenericExceptionMacro(<<"The constant value used as denominator should not be set to zero");
-      }
-    else
-      {
-      Superclass::GenerateData();
-      }
+      itkGenericExceptionMacro(<< "The constant value used as denominator should not be set to zero");
     }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(DivideImageFilter);
-
+  }
 };
+
 } // end namespace itk
 
 #endif

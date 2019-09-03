@@ -34,24 +34,23 @@ namespace itk
 {
 PhilipsRECImageIOFactory::PhilipsRECImageIOFactory()
 {
-  this->RegisterOverride( "itkImageIOBase",
-                          "itkPhilipsRECImageIO",
-                          "Philips REC Image IO",
-                          1,
-                          CreateObjectFunction< PhilipsRECImageIO >::New() );
+  this->RegisterOverride("itkImageIOBase",
+                         "itkPhilipsRECImageIO",
+                         "Philips REC Image IO",
+                         true,
+                         CreateObjectFunction<PhilipsRECImageIO>::New());
 }
 
-PhilipsRECImageIOFactory::~PhilipsRECImageIOFactory()
-{}
+PhilipsRECImageIOFactory::~PhilipsRECImageIOFactory() {}
 
 const char *
-PhilipsRECImageIOFactory::GetITKSourceVersion(void) const
+PhilipsRECImageIOFactory::GetITKSourceVersion() const
 {
   return ITK_SOURCE_VERSION;
 }
 
 const char *
-PhilipsRECImageIOFactory::GetDescription(void) const
+PhilipsRECImageIOFactory::GetDescription() const
 {
   return "Philips REC ImageIO Factory, allows the loading of Philips REC images"
          " into Insight";
@@ -62,13 +61,14 @@ PhilipsRECImageIOFactory::GetDescription(void) const
 
 static bool PhilipsRECImageIOFactoryHasBeenRegistered;
 
-void ITKIOPhilipsREC_EXPORT PhilipsRECImageIOFactoryRegister__Private(void)
+void ITKIOPhilipsREC_EXPORT
+     PhilipsRECImageIOFactoryRegister__Private()
 {
-  if( ! PhilipsRECImageIOFactoryHasBeenRegistered )
-    {
+  if (!PhilipsRECImageIOFactoryHasBeenRegistered)
+  {
     PhilipsRECImageIOFactoryHasBeenRegistered = true;
     PhilipsRECImageIOFactory::RegisterOneFactory();
-    }
+  }
 }
 
 } // end namespace itk

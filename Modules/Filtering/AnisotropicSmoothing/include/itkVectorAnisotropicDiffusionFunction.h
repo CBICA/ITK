@@ -35,9 +35,9 @@ namespace itk
  *
  * \par Data type requirements
  * This filter was designed to process itk::Images of itk::Vector type.  The code
- * relies on various typedefs and overloaded operators defined in itk::Vector.
+ * relies on various type alias and overloaded operators defined in itk::Vector.
  * It is perfectly reasonable, however, to apply this filter to images of other,
- * user-defined types as long as the appropriate typedefs and operator overloads
+ * user-defined types as long as the appropriate type alias and operator overloads
  * are in place.  As a general rule, follow the example of itk::Vector in
  * defining your data types.
  *
@@ -49,49 +49,49 @@ namespace itk
  *
  * \ingroup ITKAnisotropicSmoothing
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT VectorAnisotropicDiffusionFunction:
-  public AnisotropicDiffusionFunction< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT VectorAnisotropicDiffusionFunction : public AnisotropicDiffusionFunction<TImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorAnisotropicDiffusionFunction     Self;
-  typedef AnisotropicDiffusionFunction< TImage > Superclass;
-  typedef SmartPointer< Self >                   Pointer;
-  typedef SmartPointer< const Self >             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorAnisotropicDiffusionFunction);
+
+  /** Standard class type aliases. */
+  using Self = VectorAnisotropicDiffusionFunction;
+  using Superclass = AnisotropicDiffusionFunction<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
-  itkTypeMacro(VectorAnisotropicDiffusionFunction,
-               AnisotropicDiffusionFunction);
+  itkTypeMacro(VectorAnisotropicDiffusionFunction, AnisotropicDiffusionFunction);
 
   /** Inherit some parameters from the superclass type */
-  typedef typename Superclass::ImageType        ImageType;
-  typedef typename Superclass::PixelType        PixelType;
-  typedef typename Superclass::TimeStepType     TimeStepType;
-  typedef typename Superclass::RadiusType       RadiusType;
-  typedef typename Superclass::NeighborhoodType NeighborhoodType;
+  using ImageType = typename Superclass::ImageType;
+  using PixelType = typename Superclass::PixelType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
 
   /** Inherit some parameters from the superclass type */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      Superclass::ImageDimension);
-  itkStaticConstMacro(VectorDimension, unsigned int, PixelType::Dimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
+  static constexpr unsigned int VectorDimension = PixelType::Dimension;
 
   /** Compute the average gradient magnitude squared. */
-  virtual void CalculateAverageGradientMagnitudeSquared(TImage *) ITK_OVERRIDE;
+  void
+  CalculateAverageGradientMagnitudeSquared(TImage *) override;
 
 protected:
-  VectorAnisotropicDiffusionFunction() {}
-  ~VectorAnisotropicDiffusionFunction() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
-  { Superclass::PrintSelf(os, indent); }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorAnisotropicDiffusionFunction);
+  VectorAnisotropicDiffusionFunction() = default;
+  ~VectorAnisotropicDiffusionFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
+  }
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorAnisotropicDiffusionFunction.hxx"
+#  include "itkVectorAnisotropicDiffusionFunction.hxx"
 #endif
 
 #endif

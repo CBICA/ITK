@@ -15,12 +15,12 @@
  *  limitations under the License.
  *
  *=========================================================================*/
-#ifndef itkFFTWForwardFFTImageFilter_h
-#define itkFFTWForwardFFTImageFilter_h
-
 #include "itkForwardFFTImageFilter.h"
 
-#include "itkFFTWCommon.h"
+#ifndef itkFFTWForwardFFTImageFilter_h
+#  define itkFFTWForwardFFTImageFilter_h
+
+#  include "itkFFTWCommon.h"
 
 namespace itk
 {
@@ -50,40 +50,41 @@ namespace itk
  * \sa FFTWGlobalConfiguration
  * \sa ForwardFFTImageFilter
  */
-template< typename TInputImage, typename TOutputImage=Image< std::complex<typename TInputImage::PixelType>, TInputImage::ImageDimension> >
-class ITK_TEMPLATE_EXPORT FFTWForwardFFTImageFilter:
-  public ForwardFFTImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage,
+          typename TOutputImage = Image<std::complex<typename TInputImage::PixelType>, TInputImage::ImageDimension>>
+class ITK_TEMPLATE_EXPORT FFTWForwardFFTImageFilter : public ForwardFFTImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef TInputImage                          InputImageType;
-  typedef typename InputImageType::PixelType   InputPixelType;
-  typedef typename InputImageType::SizeType    InputSizeType;
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::PixelType  OutputPixelType;
-  typedef typename OutputImageType::SizeType   OutputSizeType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(FFTWForwardFFTImageFilter);
 
-  typedef FFTWForwardFFTImageFilter                          Self;
-  typedef ForwardFFTImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                               Pointer;
-  typedef SmartPointer< const Self >                         ConstPointer;
+  /** Standard class type aliases. */
+  using InputImageType = TInputImage;
+  using InputPixelType = typename InputImageType::PixelType;
+  using InputSizeType = typename InputImageType::SizeType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename OutputImageType::PixelType;
+  using OutputSizeType = typename OutputImageType::SizeType;
+
+  using Self = FFTWForwardFFTImageFilter;
+  using Superclass = ForwardFFTImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** The proxy type is a wrapper for the FFTW API. Because the proxy
    * is defined only for double and float, trying to use any other
    * pixel type is unsupported, as is trying to use double if only the
    * float FFTW version is configured in, or float if only double is
    * configured. */
-  typedef typename fftw::Proxy< InputPixelType > FFTWProxyType;
+  using FFTWProxyType = typename fftw::Proxy<InputPixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(FFTWForwardFFTImageFilter,
-               ForwardFFTImageFilter);
+  itkTypeMacro(FFTWForwardFFTImageFilter, ForwardFFTImageFilter);
 
   /** Define the image dimension. */
-  itkStaticConstMacro(ImageDimension, unsigned int, InputImageType::ImageDimension);
+  static constexpr unsigned int ImageDimension = InputImageType::ImageDimension;
 
   /** Set/Get the behavior of wisdom plan creation. The default is
    * provided by FFTWGlobalConfiguration::GetPlanRigor().
@@ -91,43 +92,50 @@ public:
    * The parameter is one of the FFTW planner rigor flags FFTW_ESTIMATE, FFTW_MEASURE,
    * FFTW_PATIENT, FFTW_EXHAUSTIVE provided by FFTWGlobalConfiguration.
    *
+   * This has no effect with ITK_USE_CUFFTW enabled.
+   *
    * /sa FFTWGlobalConfiguration
    */
-  virtual void SetPlanRigor( const int & value )
+  virtual void
+  SetPlanRigor(const int & value)
   {
+#  ifndef ITK_USE_CUFFTW
     // Use that method to check the value
-    FFTWGlobalConfiguration::GetPlanRigorName( value );
-    if( m_PlanRigor != value )
-      {
+    FFTWGlobalConfiguration::GetPlanRigorName(value);
+#  endif
+    if (m_PlanRigor != value)
+    {
       m_PlanRigor = value;
       this->Modified();
-      }
+    }
   }
-  itkGetConstReferenceMacro( PlanRigor, int );
+  itkGetConstReferenceMacro(PlanRigor, int);
 
-  SizeValueType GetSizeGreatestPrimeFactor() const ITK_OVERRIDE;
+  SizeValueType
+  GetSizeGreatestPrimeFactor() const override;
 
 protected:
   FFTWForwardFFTImageFilter();
-  ~FFTWForwardFFTImageFilter() {}
+  ~FFTWForwardFFTImageFilter() override {}
 
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
-  virtual void UpdateOutputData(DataObject *output) ITK_OVERRIDE;
+  void
+  UpdateOutputData(DataObject * output) override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(FFTWForwardFFTImageFilter);
-
   bool m_CanUseDestructiveAlgorithm;
 
   int m_PlanRigor;
 };
 } // namespace itk
 
-#ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFFTWForwardFFTImageFilter.hxx"
-#endif
+#  ifndef ITK_MANUAL_INSTANTIATION
+#    include "itkFFTWForwardFFTImageFilter.hxx"
+#  endif
 
-#endif //itkFFTWForwardFFTImageFilter_h
+#endif // itkFFTWForwardFFTImageFilter_h

@@ -46,11 +46,13 @@ template <typename THistogram, typename TOutput>
 class HistogramThresholdCalculator : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef HistogramThresholdCalculator    Self;
-  typedef ProcessObject                   Superclass;
-  typedef SmartPointer<Self>              Pointer;
-  typedef SmartPointer<const Self>        ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(HistogramThresholdCalculator);
+
+  /** Standard class type aliases. */
+  using Self = HistogramThresholdCalculator;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -59,63 +61,63 @@ public:
   itkTypeMacro(HistogramThresholdCalculator, ProcessObject);
 
   /** Type definition for the input histogram. */
-  typedef THistogram HistogramType;
+  using HistogramType = THistogram;
 
   /** output object type */
-  typedef TOutput                               OutputType;
-  typedef SimpleDataObjectDecorator<OutputType> DecoratedOutputType;
+  using OutputType = TOutput;
+  using DecoratedOutputType = SimpleDataObjectDecorator<OutputType>;
 
-  void SetInput( const HistogramType * input )
+  void
+  SetInput(const HistogramType * input)
   {
     // Process object is not const-correct so the const_cast is required here
-    this->ProcessObject::SetNthInput( 0, const_cast< HistogramType * >( input ) );
+    this->ProcessObject::SetNthInput(0, const_cast<HistogramType *>(input));
   }
 
-  const HistogramType * GetInput() const
+  const HistogramType *
+  GetInput() const
   {
-    if ( this->GetNumberOfInputs() < 1 )
-      {
-      return ITK_NULLPTR;
-      }
-    return static_cast< const HistogramType * >( this->ProcessObject::GetInput(0) );
+    if (this->GetNumberOfInputs() < 1)
+    {
+      return nullptr;
+    }
+    return static_cast<const HistogramType *>(this->ProcessObject::GetInput(0));
   }
 
-  DecoratedOutputType * GetOutput()
+  DecoratedOutputType *
+  GetOutput()
   {
-    if ( this->GetNumberOfOutputs() < 1 )
-      {
-      return ITK_NULLPTR;
-      }
-    return static_cast< DecoratedOutputType * >( this->ProcessObject::GetOutput(0) );
+    if (this->GetNumberOfOutputs() < 1)
+    {
+      return nullptr;
+    }
+    return static_cast<DecoratedOutputType *>(this->ProcessObject::GetOutput(0));
   }
 
   using Superclass::MakeOutput;
-  virtual typename DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType) ITK_OVERRIDE
+  typename DataObject::Pointer MakeOutput(DataObjectPointerArraySizeType) override
   {
     return DecoratedOutputType::New().GetPointer();
   }
 
-  const OutputType & GetThreshold()
+  const OutputType &
+  GetThreshold()
   {
-    if ( this->GetNumberOfOutputs() < 1 )
-      {
-      itkExceptionMacro(<<"No output available.");
-      }
-    return static_cast< DecoratedOutputType * >( this->ProcessObject::GetOutput(0) )->Get();
+    if (this->GetNumberOfOutputs() < 1)
+    {
+      itkExceptionMacro(<< "No output available.");
+    }
+    return static_cast<DecoratedOutputType *>(this->ProcessObject::GetOutput(0))->Get();
   }
 
 protected:
   HistogramThresholdCalculator()
   {
     this->ProcessObject::SetNumberOfRequiredOutputs(1);
-    this->ProcessObject::SetNthOutput( 0, this->MakeOutput(0) );
+    this->ProcessObject::SetNthOutput(0, this->MakeOutput(0));
   }
-  virtual ~HistogramThresholdCalculator() ITK_OVERRIDE {};
+  ~HistogramThresholdCalculator() override = default;
   using ProcessObject::SetInput;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(HistogramThresholdCalculator);
-
 };
 
 } // end namespace itk

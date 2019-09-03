@@ -30,71 +30,71 @@ namespace itk
  * \brief Helper class used to share data in the ScalarChanAndVeseLevelSetFunction.
  * \ingroup ITKLevelSetsv4
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT LevelSetDomainPartitionImageWithKdTree:
-  public LevelSetDomainPartitionImage< TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT LevelSetDomainPartitionImageWithKdTree : public LevelSetDomainPartitionImage<TImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartitionImageWithKdTree);
 
-  typedef LevelSetDomainPartitionImageWithKdTree  Self;
-  typedef LevelSetDomainPartitionImage< TImage >  Superclass;
-  typedef SmartPointer< Self >                    Pointer;
-  typedef SmartPointer< const Self >              ConstPointer;
+  using Self = LevelSetDomainPartitionImageWithKdTree;
+  using Superclass = LevelSetDomainPartitionImage<TImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, Superclass::ImageDimension);
+  static constexpr unsigned int ImageDimension = Superclass::ImageDimension;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  itkTypeMacro( LevelSetDomainPartitionImageWithKdTree, LevelSetDomainPartitionImage);
+  itkTypeMacro(LevelSetDomainPartitionImageWithKdTree, LevelSetDomainPartitionImage);
 
-  typedef TImage                                        ImageType;
-  typedef typename Superclass::ListIndexType            ListIndexType;
-  typedef typename Superclass::ListRegionType           ListRegionType;
-  typedef typename Superclass::ListPointType            ListPointType;
-  typedef typename Superclass::ListIteratorType         ListIteratorType;
-  typedef typename Superclass::IdentifierListType       IdentifierListType;
+  using ImageType = TImage;
+  using ListIndexType = typename Superclass::ListIndexType;
+  using ListRegionType = typename Superclass::ListRegionType;
+  using ListPointType = typename Superclass::ListPointType;
+  using ListIteratorType = typename Superclass::ListIteratorType;
+  using IdentifierListType = typename Superclass::IdentifierListType;
 
-  typedef typename ListPointType::VectorType                    CentroidVectorType;
-  typedef typename Statistics::ListSample< CentroidVectorType > SampleType;
-  typedef typename Statistics::KdTreeGenerator< SampleType >    TreeGeneratorType;
-  typedef typename TreeGeneratorType::Pointer                   TreePointer;
-  typedef typename TreeGeneratorType::KdTreeType                TreeType;
-  typedef typename TreeType::Pointer                            KdTreePointer;
+  using CentroidVectorType = typename ListPointType::VectorType;
+  using SampleType = typename Statistics::ListSample<CentroidVectorType>;
+  using TreeGeneratorType = typename Statistics::KdTreeGenerator<SampleType>;
+  using TreePointer = typename TreeGeneratorType::Pointer;
+  using TreeType = typename TreeGeneratorType::KdTreeType;
+  using KdTreePointer = typename TreeType::Pointer;
 
   /** Initialize with a precomputed kd-tree */
-  itkSetObjectMacro( KdTree, TreeType );
+  itkSetObjectMacro(KdTree, TreeType);
 
   /** Number of neighbors level sets connected to this level set. */
-  typedef unsigned int NeighborsIdType;
+  using NeighborsIdType = unsigned int;
 
   /** Get/Set number of neighbors in the kd-tree leaf node */
-  itkSetMacro( NumberOfNeighbors, NeighborsIdType );
-  itkGetMacro( NumberOfNeighbors, NeighborsIdType );
+  itkSetMacro(NumberOfNeighbors, NeighborsIdType);
+  itkGetMacro(NumberOfNeighbors, NeighborsIdType);
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void PopulateListDomain() ITK_OVERRIDE;
+  void
+  PopulateListDomain() override;
 
 protected:
   LevelSetDomainPartitionImageWithKdTree();
-  ~LevelSetDomainPartitionImageWithKdTree() ITK_OVERRIDE;
+  ~LevelSetDomainPartitionImageWithKdTree() override = default;
 
   /** Populate a list image with each pixel being a list of overlapping
    *  level set support at that pixel */
-  void PopulateDomainWithKdTree();
+  void
+  PopulateDomainWithKdTree();
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetDomainPartitionImageWithKdTree);
-
-  KdTreePointer     m_KdTree;
-  NeighborsIdType   m_NumberOfNeighbors;
+  KdTreePointer   m_KdTree;
+  NeighborsIdType m_NumberOfNeighbors{ 10 };
 };
 
-} //end namespace itk
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetDomainPartitionImageWithKdTree.hxx"
+#  include "itkLevelSetDomainPartitionImageWithKdTree.hxx"
 #endif
 
 #endif

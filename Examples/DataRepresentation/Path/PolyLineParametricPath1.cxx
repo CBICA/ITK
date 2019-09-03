@@ -37,15 +37,16 @@
 #include "itkPolyLineParametricPath.h"
 // Software Guide : EndCodeSnippet
 
-int main(int argc, char * argv [] )
+int
+main(int argc, char * argv[])
 {
 
-  if( argc < 2 )
-    {
+  if (argc < 2)
+  {
     std::cerr << "Missing arguments" << std::endl;
     std::cerr << "Usage: PolyLineParametricPath  inputImageFileName" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Software Guide : BeginLatex
   //
@@ -54,54 +55,54 @@ int main(int argc, char * argv [] )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::Image< unsigned char, Dimension > ImageType;
+  using ImageType = itk::Image<unsigned char, Dimension>;
 
-  typedef itk::PolyLineParametricPath< Dimension > PathType;
+  using PathType = itk::PolyLineParametricPath<Dimension>;
   // Software Guide : EndCodeSnippet
 
 
-  typedef itk::ImageFileReader< ImageType >    ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
 
-  ReaderType::Pointer   reader = ReaderType::New();
+  ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cout << "Problem reading the input image " << std::endl;
     std::cout << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Software Guide : BeginCodeSnippet
   ImageType::ConstPointer image = reader->GetOutput();
-  PathType::Pointer path = PathType::New();
+  PathType::Pointer       path = PathType::New();
   path->Initialize();
 
-  typedef PathType::ContinuousIndexType    ContinuousIndexType;
+  using ContinuousIndexType = PathType::ContinuousIndexType;
   ContinuousIndexType cindex;
 
-  typedef ImageType::PointType             ImagePointType;
+  using ImagePointType = ImageType::PointType;
   ImagePointType origin = image->GetOrigin();
 
   ImageType::SpacingType spacing = image->GetSpacing();
-  ImageType::SizeType    size    = image->GetBufferedRegion().GetSize();
+  ImageType::SizeType    size = image->GetBufferedRegion().GetSize();
 
   ImagePointType point;
 
   point[0] = origin[0] + spacing[0] * size[0];
   point[1] = origin[1] + spacing[1] * size[1];
 
-  image->TransformPhysicalPointToContinuousIndex( origin, cindex );
-  path->AddVertex( cindex );
-  image->TransformPhysicalPointToContinuousIndex( point, cindex );
-  path->AddVertex( cindex );
+  image->TransformPhysicalPointToContinuousIndex(origin, cindex);
+  path->AddVertex(cindex);
+  image->TransformPhysicalPointToContinuousIndex(point, cindex);
+  path->AddVertex(cindex);
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

@@ -30,40 +30,39 @@ namespace itk
  * \brief TODO
  * \ingroup ITKIOSpatialObjects
  */
-template< unsigned int NDimensions = 3,
+template <unsigned int NDimensions = 3,
           typename PixelType = unsigned char,
-          typename TMeshTraits = DefaultStaticMeshTraits< PixelType, NDimensions, NDimensions >
-          >
-class ITK_TEMPLATE_EXPORT SpatialObjectReader:public Object
+          typename TMeshTraits = DefaultStaticMeshTraits<PixelType, NDimensions, NDimensions>>
+class ITK_TEMPLATE_EXPORT SpatialObjectReader : public Object
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectReader);
 
-  /** SmartPointer typedef support */
-  typedef SpatialObjectReader                 Self;
-  typedef SmartPointer< Self >                Pointer;
-  typedef SpatialObject< NDimensions >        SpatialObjectType;
-  typedef typename SpatialObjectType::Pointer SpatialObjectPointer;
+  /** SmartPointer type alias support */
+  using Self = SpatialObjectReader;
+  using Pointer = SmartPointer<Self>;
+  using SpatialObjectType = SpatialObject<NDimensions>;
+  using SpatialObjectPointer = typename SpatialObjectType::Pointer;
 
-  typedef GroupSpatialObject< NDimensions > GroupType;
-  typedef typename GroupType::Pointer       GroupPointer;
-
-  typedef SceneSpatialObject< NDimensions > SceneType;
-  typedef typename SceneType::Pointer       ScenePointer;
+  using GroupType = GroupSpatialObject<NDimensions>;
+  using GroupPointer = typename GroupType::Pointer;
 
   /** base type for MetaConverters -- bidirections conversion btw
    *  SpatialObject & MetaObject
    */
-  typedef MetaConverterBase< NDimensions >  MetaConverterBaseType;
+  using MetaConverterBaseType = MetaConverterBase<NDimensions>;
+  using MetaSceneConverterType = MetaSceneConverter<NDimensions, PixelType, TMeshTraits>;
 
   /** Method for creation through the object factory */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  typedef Object Superclass;
+  using Superclass = Object;
   itkTypeMacro(SpatialObjectReader, Object);
 
   /** Load a scene file. */
-  void Update();
+  void
+  Update();
 
   /** Set the filename  */
   itkSetStringMacro(FileName);
@@ -72,37 +71,46 @@ public:
   itkGetStringMacro(FileName);
 
   /** Get the output */
-  ScenePointer GetScene(void) { return m_Scene; }
-  GroupPointer GetGroup(void) { return m_Group; }
+  GroupPointer
+  GetGroup()
+  {
+    return m_Group;
+  }
 
   /** Set/GetEvent */
-  const MetaEvent * GetEvent() { return m_MetaToSpatialConverter.GetEvent(); }
-  void SetEvent(MetaEvent *event) { m_MetaToSpatialConverter.SetEvent(event); }
+  const MetaEvent *
+  GetEvent()
+  {
+    return m_MetaToSpatialConverter->GetEvent();
+  }
+
+  void
+  SetEvent(MetaEvent * event)
+  {
+    m_MetaToSpatialConverter->SetEvent(event);
+  }
 
   /** Add a converter for a new MetaObject/SpatialObject type */
-  void RegisterMetaConverter(const char *metaTypeName,
-                             const char *spatialObjectTypeName,
-                             MetaConverterBaseType *converter);
+  void
+  RegisterMetaConverter(const char *            metaTypeName,
+                        const char *            spatialObjectTypeName,
+                        MetaConverterBaseType * converter);
 
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SpatialObjectReader);
-
   std::string m_FileName;
 
   SpatialObjectReader();
-  virtual ~SpatialObjectReader() ITK_OVERRIDE;
+  ~SpatialObjectReader() override = default;
 
 private:
-
-  ScenePointer m_Scene;
   GroupPointer m_Group;
 
-  MetaSceneConverter< NDimensions, PixelType, TMeshTraits > m_MetaToSpatialConverter;
+  typename MetaSceneConverterType::Pointer m_MetaToSpatialConverter;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSpatialObjectReader.hxx"
+#  include "itkSpatialObjectReader.hxx"
 #endif
 
 #endif // itkSpatialObjectReader_h

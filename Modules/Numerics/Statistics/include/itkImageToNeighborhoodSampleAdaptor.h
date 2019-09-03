@@ -30,8 +30,10 @@
 #include "itkConstNeighborhoodIterator.h"
 #include "itkNeighborhoodIterator.h"
 
-namespace itk {
-namespace Statistics {
+namespace itk
+{
+namespace Statistics
+{
 
 /** \class ImageToNeighborhoodSampleAdaptor
  *  \brief This class provides ListSample interface to ITK Image
@@ -48,19 +50,20 @@ namespace Statistics {
  * \ingroup ITKStatistics
  */
 
-  template < typename TImage, typename TBoundaryCondition >
-class ITK_TEMPLATE_EXPORT ImageToNeighborhoodSampleAdaptor :
-  public ListSample< std::vector< ConstNeighborhoodIterator< TImage, TBoundaryCondition > > >
+template <typename TImage, typename TBoundaryCondition>
+class ITK_TEMPLATE_EXPORT ImageToNeighborhoodSampleAdaptor
+  : public ListSample<std::vector<ConstNeighborhoodIterator<TImage, TBoundaryCondition>>>
 {
 public:
-  /** Standard class typedefs */
-  typedef ImageToNeighborhoodSampleAdaptor               Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToNeighborhoodSampleAdaptor);
 
-  typedef ListSample< std::vector< ConstNeighborhoodIterator< TImage, TBoundaryCondition > > >
-                                                         Superclass;
+  /** Standard class type aliases */
+  using Self = ImageToNeighborhoodSampleAdaptor;
 
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer<const Self>                       ConstPointer;
+  using Superclass = ListSample<std::vector<ConstNeighborhoodIterator<TImage, TBoundaryCondition>>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageToNeighborhoodSampleAdaptor, ListSample);
@@ -68,262 +71,276 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** Image typedefs */
-  typedef TImage                                          ImageType;
-  typedef typename ImageType::Pointer                     ImagePointer;
-  typedef typename ImageType::ConstPointer                ImageConstPointer;
-  typedef typename ImageType::IndexType                   IndexType;
-  typedef typename ImageType::OffsetType                  OffsetType;
-  typedef typename ImageType::OffsetValueType             OffsetValueType;
-  typedef typename ImageType::PixelType                   PixelType;
-  typedef typename ImageType::PixelContainerConstPointer  PixelContainerConstPointer;
-  typedef typename ImageType::RegionType                  RegionType;
-  typedef typename RegionType::OffsetTableType            OffsetTableType;
-  typedef typename ImageType::SizeType                    SizeType;
-  typedef ImageRegionIteratorWithIndex< TImage >          ImageIteratorType;
-  /** Neighborhood Iterator typedef support */
-  typedef ConstNeighborhoodIterator< TImage, TBoundaryCondition > NeighborhoodIteratorType;
-  typedef NeighborhoodIterator< TImage, TBoundaryCondition >      NonConstNeighborhoodIteratorType;
-  typedef typename NeighborhoodIteratorType::NeighborhoodType     NeighborhoodType;
-  typedef typename NeighborhoodIteratorType::RadiusType           NeighborhoodRadiusType;
-  typedef typename NeighborhoodIteratorType::IndexType            NeighborhoodIndexType;
-  typedef typename NeighborhoodIteratorType::SizeType             NeighborhoodSizeType;
+  /** Image type alias */
+  using ImageType = TImage;
+  using ImagePointer = typename ImageType::Pointer;
+  using ImageConstPointer = typename ImageType::ConstPointer;
+  using IndexType = typename ImageType::IndexType;
+  using OffsetType = typename ImageType::OffsetType;
+  using OffsetValueType = typename ImageType::OffsetValueType;
+  using PixelType = typename ImageType::PixelType;
+  using PixelContainerConstPointer = typename ImageType::PixelContainerConstPointer;
+  using RegionType = typename ImageType::RegionType;
+  using OffsetTableType = typename RegionType::OffsetTableType;
+  using SizeType = typename ImageType::SizeType;
+  using ImageIteratorType = ImageRegionIteratorWithIndex<TImage>;
+  /** Neighborhood Iterator type alias support */
+  using NeighborhoodIteratorType = ConstNeighborhoodIterator<TImage, TBoundaryCondition>;
+  using NonConstNeighborhoodIteratorType = NeighborhoodIterator<TImage, TBoundaryCondition>;
+  using NeighborhoodType = typename NeighborhoodIteratorType::NeighborhoodType;
+  using NeighborhoodRadiusType = typename NeighborhoodIteratorType::RadiusType;
+  using NeighborhoodIndexType = typename NeighborhoodIteratorType::IndexType;
+  using NeighborhoodSizeType = typename NeighborhoodIteratorType::SizeType;
 
-  /** Superclass typedefs for Measurement vector, measurement,
+  /** Superclass type alias for Measurement vector, measurement,
    * Instance Identifier, frequency, size, size element value */
-  typedef typename std::vector< ConstNeighborhoodIterator< TImage, TBoundaryCondition > >
-                                                     MeasurementVectorType;
-  typedef typename MeasurementVectorType::value_type ValueType;
-  typedef ValueType                                  MeasurementType;
+  using MeasurementVectorType = typename std::vector<ConstNeighborhoodIterator<TImage, TBoundaryCondition>>;
+  using ValueType = typename MeasurementVectorType::value_type;
+  using MeasurementType = ValueType;
 
-  typedef typename Superclass::AbsoluteFrequencyType      AbsoluteFrequencyType;
-  typedef typename Superclass::TotalAbsoluteFrequencyType TotalAbsoluteFrequencyType;
-  typedef typename Superclass::MeasurementVectorSizeType  MeasurementVectorSizeType;
-  typedef typename Superclass::InstanceIdentifier         InstanceIdentifier;
+  using AbsoluteFrequencyType = typename Superclass::AbsoluteFrequencyType;
+  using TotalAbsoluteFrequencyType = typename Superclass::TotalAbsoluteFrequencyType;
+  using MeasurementVectorSizeType = typename Superclass::MeasurementVectorSizeType;
+  using InstanceIdentifier = typename Superclass::InstanceIdentifier;
 
   /** Method to set the image */
-  void SetImage(const TImage* image);
+  void
+  SetImage(const TImage * image);
 
   /** Method to get the image */
-  const TImage* GetImage() const;
+  const TImage *
+  GetImage() const;
 
   /** Method to set the radius */
-  void SetRadius(const NeighborhoodRadiusType& radius);
+  void
+  SetRadius(const NeighborhoodRadiusType & radius);
 
   /** Method to get the radius */
-  NeighborhoodRadiusType GetRadius() const;
+  NeighborhoodRadiusType
+  GetRadius() const;
 
   /** Method to set the region */
-  void SetRegion(const RegionType& region);
+  void
+  SetRegion(const RegionType & region);
 
   /** Method to get the region */
-  RegionType GetRegion() const;
+  RegionType
+  GetRegion() const;
 
-  void SetUseImageRegion(const bool& flag);
+  void
+  SetUseImageRegion(const bool & flag);
 
   /** Method to get UseImageRegion flag */
-  itkGetConstMacro( UseImageRegion, bool );
+  itkGetConstMacro(UseImageRegion, bool);
 
   /** Convenience methods to turn on/off the UseImageRegion flag */
-  itkBooleanMacro( UseImageRegion );
+  itkBooleanMacro(UseImageRegion);
 
 
   /** returns the number of measurement vectors in this container */
-  InstanceIdentifier Size() const ITK_OVERRIDE;
+  InstanceIdentifier
+  Size() const override;
 
   /** method to return measurement vector for a specified id */
-  virtual const MeasurementVectorType & GetMeasurementVector(InstanceIdentifier id) const ITK_OVERRIDE;
+  const MeasurementVectorType &
+  GetMeasurementVector(InstanceIdentifier id) const override;
 
   /** method to return frequency for a specified id */
-  AbsoluteFrequencyType GetFrequency(InstanceIdentifier  id) const ITK_OVERRIDE;
+  AbsoluteFrequencyType
+  GetFrequency(InstanceIdentifier id) const override;
 
   /** method to return the total frequency */
-  TotalAbsoluteFrequencyType GetTotalFrequency() const ITK_OVERRIDE;
+  TotalAbsoluteFrequencyType
+  GetTotalFrequency() const override;
 
   /** \class ConstIterator
    *  \brief Const Iterator
    *  \ingroup ITKStatistics
    */
   class ConstIterator
-    {
+  {
     friend class ImageToNeighborhoodSampleAdaptor;
-    public:
 
-    ConstIterator( const ImageToNeighborhoodSampleAdaptor * adaptor )
-      {
-      *this = adaptor->Begin();
-      }
+  public:
+    ConstIterator(const ImageToNeighborhoodSampleAdaptor * adaptor) { *this = adaptor->Begin(); }
 
-    ConstIterator(const ConstIterator &iter)
-      {
-        m_MeasurementVectorCache = iter.m_MeasurementVectorCache;
-        m_InstanceIdentifier = iter.m_InstanceIdentifier;
-      }
+    ConstIterator(const ConstIterator & iter)
+    {
+      m_MeasurementVectorCache = iter.m_MeasurementVectorCache;
+      m_InstanceIdentifier = iter.m_InstanceIdentifier;
+    }
 
-    ConstIterator& operator=( const ConstIterator & iter )
-      {
-        m_MeasurementVectorCache = iter.m_MeasurementVectorCache;
-        m_InstanceIdentifier = iter.m_InstanceIdentifier;
-        return *this;
-      }
-
-    AbsoluteFrequencyType GetFrequency() const
-      {
-      return 1;
-      }
-
-    const MeasurementVectorType & GetMeasurementVector() const
-      {
-        return this->m_MeasurementVectorCache;
-      }
-
-    InstanceIdentifier GetInstanceIdentifier() const
-      {
-      return m_InstanceIdentifier;
-      }
-
-    ConstIterator& operator++()
-      {
-        ++(m_MeasurementVectorCache[0]);
-        ++m_InstanceIdentifier;
+    ConstIterator &
+    operator=(const ConstIterator & iter)
+    {
+      m_MeasurementVectorCache = iter.m_MeasurementVectorCache;
+      m_InstanceIdentifier = iter.m_InstanceIdentifier;
       return *this;
-      }
+    }
 
-    bool operator!=(const ConstIterator &it)
-      {
+    AbsoluteFrequencyType
+    GetFrequency() const
+    {
+      return 1;
+    }
+
+    const MeasurementVectorType &
+    GetMeasurementVector() const
+    {
+      return this->m_MeasurementVectorCache;
+    }
+
+    InstanceIdentifier
+    GetInstanceIdentifier() const
+    {
+      return m_InstanceIdentifier;
+    }
+
+    ConstIterator &
+    operator++()
+    {
+      ++(m_MeasurementVectorCache[0]);
+      ++m_InstanceIdentifier;
+      return *this;
+    }
+
+    bool
+    operator!=(const ConstIterator & it)
+    {
       return (m_MeasurementVectorCache[0] != it.m_MeasurementVectorCache[0]);
-      }
+    }
 
-    bool operator==(const ConstIterator &it)
-      {
+    bool
+    operator==(const ConstIterator & it)
+    {
       return (m_MeasurementVectorCache[0] == it.m_MeasurementVectorCache[0]);
-      }
+    }
 
   protected:
     // This method should only be available to the ListSample class
-    ConstIterator(
-      NeighborhoodIteratorType iter,
-      InstanceIdentifier iid)
-      {
-        this->m_MeasurementVectorCache.clear();
-        this->m_MeasurementVectorCache.push_back(iter);
-        m_InstanceIdentifier = iid;
-      }
+    ConstIterator(NeighborhoodIteratorType iter, InstanceIdentifier iid)
+    {
+      this->m_MeasurementVectorCache.clear();
+      this->m_MeasurementVectorCache.push_back(iter);
+      m_InstanceIdentifier = iid;
+    }
 
   private:
-    ConstIterator() ITK_DELETED_FUNCTION;
-    mutable MeasurementVectorType     m_MeasurementVectorCache;
-    InstanceIdentifier                m_InstanceIdentifier;
-    };
+    ConstIterator() = delete;
+    mutable MeasurementVectorType m_MeasurementVectorCache;
+    InstanceIdentifier            m_InstanceIdentifier;
+  };
 
- /** \class Iterator
+  /** \class Iterator
    *  \brief Iterator
    *  \ingroup ITKStatistics
    */
   class Iterator : public ConstIterator
   {
 
-  friend class ImageToNeighborhoodSampleAdaptor;
+    friend class ImageToNeighborhoodSampleAdaptor;
 
   public:
+    Iterator(Self * adaptor)
+      : ConstIterator(adaptor)
+    {}
 
-    Iterator(Self * adaptor):ConstIterator(adaptor)
-      {
-      }
+    Iterator(const Iterator & iter)
+      : ConstIterator(iter)
+    {}
 
-    Iterator(const Iterator &iter):ConstIterator( iter )
-      {
-      }
-
-    Iterator& operator =(const Iterator & iter)
-      {
-      this->ConstIterator::operator=( iter );
+    Iterator &
+    operator=(const Iterator & iter)
+    {
+      this->ConstIterator::operator=(iter);
       return *this;
-      }
+    }
 
-#if !(defined(_MSC_VER) && (_MSC_VER <= 1200))
   protected:
-#endif
-    //This copy constructor is actually used in Iterator Begin()!
-    Iterator(NeighborhoodIteratorType iter, InstanceIdentifier iid):ConstIterator( iter, iid )
-      {
-      }
+    // This copy constructor is actually used in Iterator Begin()!
+    Iterator(NeighborhoodIteratorType iter, InstanceIdentifier iid)
+      : ConstIterator(iter, iid)
+    {}
 
   private:
     // To ensure const-correctness these method must not be in the public API.
     // The are not implemented, since they should never be called.
-    Iterator() ITK_DELETED_FUNCTION;
-    Iterator(const Self * adaptor) ITK_DELETED_FUNCTION;
-    Iterator(const ConstIterator & it) ITK_DELETED_FUNCTION;
-    ConstIterator& operator=(const ConstIterator& it) ITK_DELETED_FUNCTION;
+    Iterator() = delete;
+    Iterator(const Self * adaptor) = delete;
+    Iterator(const ConstIterator & it) = delete;
+    ConstIterator &
+    operator=(const ConstIterator & it) = delete;
   };
 
   /** returns an iterator that points to the beginning of the container */
-  Iterator Begin()
-    {
-    NeighborhoodIteratorType nIterator( m_Radius, m_Image, m_Region);
+  Iterator
+  Begin()
+  {
+    NeighborhoodIteratorType nIterator(m_Radius, m_Image, m_Region);
     nIterator.GoToBegin();
     Iterator iter(nIterator, 0);
     return iter;
-    }
+  }
 
   /** returns an iterator that points to the end of the container */
-  Iterator End()
-    {
-    NeighborhoodIteratorType nIterator( m_Radius, m_Image, m_Region);
+  Iterator
+  End()
+  {
+    NeighborhoodIteratorType nIterator(m_Radius, m_Image, m_Region);
     nIterator.GoToEnd();
     Iterator iter(nIterator, m_Region.GetNumberOfPixels());
     return iter;
-    }
+  }
 
 
   /** returns an iterator that points to the beginning of the container */
-  ConstIterator Begin() const
-    {
-    NeighborhoodIteratorType nIterator( m_Radius, m_Image, m_Region);
+  ConstIterator
+  Begin() const
+  {
+    NeighborhoodIteratorType nIterator(m_Radius, m_Image, m_Region);
     nIterator.GoToBegin();
     ConstIterator iter(nIterator, 0);
     return iter;
-    }
+  }
 
   /** returns an iterator that points to the end of the container */
-  ConstIterator End() const
-    {
-    NeighborhoodIteratorType nIterator( m_Radius, m_Image, m_Region);
+  ConstIterator
+  End() const
+  {
+    NeighborhoodIteratorType nIterator(m_Radius, m_Image, m_Region);
     nIterator.GoToEnd();
     ConstIterator iter(nIterator, m_Region.GetNumberOfPixels());
     return iter;
-    }
+  }
 
 protected:
   ImageToNeighborhoodSampleAdaptor();
-  virtual ~ImageToNeighborhoodSampleAdaptor() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  ~ImageToNeighborhoodSampleAdaptor() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageToNeighborhoodSampleAdaptor);
-
-  ImageConstPointer                  m_Image;
-  mutable MeasurementVectorType      m_MeasurementVectorInternal;
-  mutable InstanceIdentifier         m_InstanceIdentifierInternal;
-  mutable IndexType                  m_NeighborIndexInternal;
-  NeighborhoodRadiusType             m_Radius;
-  RegionType                         m_Region;
-  bool                               m_UseImageRegion;
-  OffsetTableType                    m_OffsetTable;
+  ImageConstPointer             m_Image;
+  mutable MeasurementVectorType m_MeasurementVectorInternal;
+  mutable InstanceIdentifier    m_InstanceIdentifierInternal;
+  mutable IndexType             m_NeighborIndexInternal;
+  NeighborhoodRadiusType        m_Radius;
+  RegionType                    m_Region;
+  bool                          m_UseImageRegion{ true };
+  OffsetTableType               m_OffsetTable;
 
 }; // end of class ImageToNeighborhoodSampleAdaptor
 
 } // end of namespace Statistics
 
 template <typename TImage, typename TBoundaryCondition>
-  std::ostream & operator<<(std::ostream &os,
-                            const std::vector< itk::ConstNeighborhoodIterator<TImage, TBoundaryCondition> > &mv);
+std::ostream &
+operator<<(std::ostream & os, const std::vector<itk::ConstNeighborhoodIterator<TImage, TBoundaryCondition>> & mv);
 
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageToNeighborhoodSampleAdaptor.hxx"
+#  include "itkImageToNeighborhoodSampleAdaptor.hxx"
 #endif
 
 #endif

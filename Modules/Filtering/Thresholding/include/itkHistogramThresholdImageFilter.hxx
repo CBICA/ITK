@@ -28,15 +28,13 @@
 namespace itk
 {
 
-template<typename TInputImage, typename TOutputImage, typename TMaskImage>
-HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>
-::HistogramThresholdImageFilter() :
-  m_InsideValue( NumericTraits<OutputPixelType>::max() ),
-  m_OutsideValue( NumericTraits<OutputPixelType>::ZeroValue() ),
-  m_Threshold( NumericTraits<InputPixelType>::ZeroValue() ),
-  m_MaskValue ( NumericTraits<MaskPixelType>::max() ),
-  m_NumberOfHistogramBins( 256 ),
-  m_MaskOutput( true )
+template <typename TInputImage, typename TOutputImage, typename TMaskImage>
+HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>::HistogramThresholdImageFilter()
+  : m_InsideValue(NumericTraits<OutputPixelType>::max())
+  , m_OutsideValue(NumericTraits<OutputPixelType>::ZeroValue())
+  , m_Threshold(NumericTraits<InputPixelType>::ZeroValue())
+  , m_MaskValue(NumericTraits<MaskPixelType>::max())
+
 {
   this->SetNumberOfRequiredOutputs(1);
 
@@ -44,132 +42,129 @@ HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>
   // #0 "Primary" required
 
   // #1 "MaskImage" optional
-  Self::AddOptionalInputName("MaskImage",1);
+  Self::AddOptionalInputName("MaskImage", 1);
 
-  if( typeid(ValueType) == typeid(signed char)
-      || typeid(ValueType) == typeid(unsigned char)
-      || typeid(ValueType) == typeid(char))
-    {
+  if (typeid(ValueType) == typeid(signed char) || typeid(ValueType) == typeid(unsigned char) ||
+      typeid(ValueType) == typeid(char))
+  {
     m_AutoMinimumMaximum = false;
-    }
+  }
   else
-    {
+  {
     m_AutoMinimumMaximum = true;
-    }
+  }
 }
 
-template<typename TInputImage, typename TOutputImage, typename TMaskImage>
+template <typename TInputImage, typename TOutputImage, typename TMaskImage>
 void
-HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>
-::GenerateData()
+HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>::GenerateData()
 {
-  if( m_Calculator.IsNull() )
-    {
-    itkExceptionMacro(<<"No threshold calculator set.");
-    }
+  if (m_Calculator.IsNull())
+  {
+    itkExceptionMacro(<< "No threshold calculator set.");
+  }
   typename ProgressAccumulator::Pointer progress = ProgressAccumulator::New();
   progress->SetMiniPipelineFilter(this);
 
-  typedef itk::Statistics::ImageToHistogramFilter<InputImageType> HistogramGeneratorType;
+  using HistogramGeneratorType = itk::Statistics::ImageToHistogramFilter<InputImageType>;
   typename HistogramGeneratorType::Pointer histogramGenerator = HistogramGeneratorType::New();
 
-  typedef itk::Statistics::MaskedImageToHistogramFilter<InputImageType, MaskImageType> MaskedHistogramGeneratorType;
+  using MaskedHistogramGeneratorType = itk::Statistics::MaskedImageToHistogramFilter<InputImageType, MaskImageType>;
   typename MaskedHistogramGeneratorType::Pointer maskedhistogramGenerator = MaskedHistogramGeneratorType::New();
 
   if (this->GetMaskImage())
-    {
-    maskedhistogramGenerator->SetInput( this->GetInput() );
+  {
+    maskedhistogramGenerator->SetInput(this->GetInput());
     maskedhistogramGenerator->SetMaskImage(this->GetMaskImage());
-    maskedhistogramGenerator->SetNumberOfThreads( this->GetNumberOfThreads() );
+    maskedhistogramGenerator->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
     typename HistogramType::SizeType hsize(this->GetInput()->GetNumberOfComponentsPerPixel());
     hsize.Fill(this->GetNumberOfHistogramBins());
     maskedhistogramGenerator->SetHistogramSize(hsize);
     maskedhistogramGenerator->SetAutoMinimumMaximum(this->GetAutoMinimumMaximum());
     maskedhistogramGenerator->SetMaskValue(this->GetMaskValue());
-    progress->RegisterInternalFilter(maskedhistogramGenerator,.4f);
+    progress->RegisterInternalFilter(maskedhistogramGenerator, .4f);
 
-    m_Calculator->SetInput( maskedhistogramGenerator->GetOutput() );
-    m_Calculator->SetNumberOfThreads( this->GetNumberOfThreads() );
-    }
+    m_Calculator->SetInput(maskedhistogramGenerator->GetOutput());
+    m_Calculator->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
+  }
   else
-    {
-    histogramGenerator->SetInput( this->GetInput() );
-    histogramGenerator->SetNumberOfThreads( this->GetNumberOfThreads() );
+  {
+    histogramGenerator->SetInput(this->GetInput());
+    histogramGenerator->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
     typename HistogramType::SizeType hsize(this->GetInput()->GetNumberOfComponentsPerPixel());
     hsize.Fill(this->GetNumberOfHistogramBins());
     histogramGenerator->SetHistogramSize(hsize);
     histogramGenerator->SetAutoMinimumMaximum(this->GetAutoMinimumMaximum());
-    progress->RegisterInternalFilter(histogramGenerator,.4f);
+    progress->RegisterInternalFilter(histogramGenerator, .4f);
 
-    m_Calculator->SetInput( histogramGenerator->GetOutput() );
-    m_Calculator->SetNumberOfThreads( this->GetNumberOfThreads() );
-    }
-  progress->RegisterInternalFilter(m_Calculator,.2f);
+    m_Calculator->SetInput(histogramGenerator->GetOutput());
+    m_Calculator->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
+  }
+  progress->RegisterInternalFilter(m_Calculator, .2f);
 
-  typedef BinaryThresholdImageFilter<TInputImage,TOutputImage> ThresholderType;
+  using ThresholderType = BinaryThresholdImageFilter<TInputImage, TOutputImage>;
   typename ThresholderType::Pointer thresholder = ThresholderType::New();
   thresholder->SetInput(this->GetInput());
-  thresholder->SetLowerThreshold( NumericTraits<InputPixelType>::NonpositiveMin() );
-  thresholder->SetUpperThresholdInput( m_Calculator->GetOutput() );
-  thresholder->SetInsideValue( this->GetInsideValue() );
-  thresholder->SetOutsideValue( this->GetOutsideValue() );
-  thresholder->SetNumberOfThreads( this->GetNumberOfThreads() );
-  progress->RegisterInternalFilter(thresholder,.4f);
+  thresholder->SetLowerThreshold(NumericTraits<InputPixelType>::NonpositiveMin());
+  thresholder->SetUpperThresholdInput(m_Calculator->GetOutput());
+  thresholder->SetInsideValue(this->GetInsideValue());
+  thresholder->SetOutsideValue(this->GetOutsideValue());
+  thresholder->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
+  progress->RegisterInternalFilter(thresholder, .4f);
 
-  typedef MaskImageFilter<TOutputImage, TMaskImage> MaskType;
+  using MaskType = MaskImageFilter<TOutputImage, TMaskImage>;
   typename MaskType::Pointer masker = MaskType::New();
 
   if ((this->GetMaskOutput()) && (this->GetMaskImage()))
-    {
+  {
     masker->SetInput(thresholder->GetOutput());
     masker->SetInput2(this->GetMaskImage());
-    masker->SetNumberOfThreads( this->GetNumberOfThreads() );
+    masker->SetNumberOfWorkUnits(this->GetNumberOfWorkUnits());
     progress->RegisterInternalFilter(masker, .4f);
-    masker->GraftOutput( this->GetOutput() );
+    masker->GraftOutput(this->GetOutput());
     masker->Update();
-    this->GraftOutput( masker->GetOutput() );
-    }
+    this->GraftOutput(masker->GetOutput());
+  }
   else
-    {
-    thresholder->GraftOutput( this->GetOutput() );
+  {
+    thresholder->GraftOutput(this->GetOutput());
     thresholder->Update();
-    this->GraftOutput( thresholder->GetOutput() );
-    }
+    this->GraftOutput(thresholder->GetOutput());
+  }
   m_Threshold = m_Calculator->GetThreshold();
-  m_Calculator->SetInput( ITK_NULLPTR );
+  m_Calculator->SetInput(nullptr);
 }
 
-template<typename TInputImage, typename TOutputImage, typename TMaskImage>
+template <typename TInputImage, typename TOutputImage, typename TMaskImage>
 void
-HistogramThresholdImageFilter<TInputImage, TOutputImage,TMaskImage>
-::GenerateInputRequestedRegion()
+HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>::GenerateInputRequestedRegion()
 {
-  TInputImage * input = const_cast<TInputImage *>(this->GetInput());
-  if( input )
-    {
+  auto * input = const_cast<TInputImage *>(this->GetInput());
+  if (input)
+  {
     input->SetRequestedRegionToLargestPossibleRegion();
-    }
+  }
 }
 
-template<typename TInputImage, typename TOutputImage, typename TMaskImage>
+template <typename TInputImage, typename TOutputImage, typename TMaskImage>
 void
-HistogramThresholdImageFilter<TInputImage,TOutputImage,TMaskImage>
-::PrintSelf(std::ostream& os, Indent indent) const
+HistogramThresholdImageFilter<TInputImage, TOutputImage, TMaskImage>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 
-  os << indent << "OutsideValue: "
-     << static_cast<typename NumericTraits<OutputPixelType>::PrintType>(m_OutsideValue) << std::endl;
-  os << indent << "InsideValue: "
-     << static_cast<typename NumericTraits<OutputPixelType>::PrintType>(m_InsideValue) << std::endl;
-  os << indent << "Threshold (computed): "
-     << static_cast<typename NumericTraits<InputPixelType>::PrintType>(m_Threshold) << std::endl;
-  os << indent << "MaskValue: "
-    << static_cast<typename NumericTraits<OutputPixelType>::PrintType>(m_MaskValue) << std::endl;
-  itkPrintSelfObjectMacro( Calculator );
+  os << indent << "OutsideValue: " << static_cast<typename NumericTraits<OutputPixelType>::PrintType>(m_OutsideValue)
+     << std::endl;
+  os << indent << "InsideValue: " << static_cast<typename NumericTraits<OutputPixelType>::PrintType>(m_InsideValue)
+     << std::endl;
+  os << indent
+     << "Threshold (computed): " << static_cast<typename NumericTraits<InputPixelType>::PrintType>(m_Threshold)
+     << std::endl;
+  os << indent << "MaskValue: " << static_cast<typename NumericTraits<OutputPixelType>::PrintType>(m_MaskValue)
+     << std::endl;
+  itkPrintSelfObjectMacro(Calculator);
   os << indent << "NumberOfHistogramBins: " << m_NumberOfHistogramBins << std::endl;
   os << indent << "AutoMinimumMaximm: " << m_AutoMinimumMaximum << std::endl;
   os << indent << "MaskOutput: " << m_MaskOutput << std::endl;
 }
-}// end namespace itk
+} // end namespace itk
 #endif

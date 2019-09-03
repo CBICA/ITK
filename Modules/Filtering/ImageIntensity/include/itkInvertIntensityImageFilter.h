@@ -29,33 +29,40 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput, typename  TOutput >
+template <typename TInput, typename TOutput>
 class ITK_TEMPLATE_EXPORT InvertIntensityTransform
 {
 public:
-  typedef typename NumericTraits< TInput >::RealType RealType;
-  InvertIntensityTransform() { m_Maximum = NumericTraits< TInput >::max(); }
-  ~InvertIntensityTransform() {}
+  using RealType = typename NumericTraits<TInput>::RealType;
+  InvertIntensityTransform() { m_Maximum = NumericTraits<TInput>::max(); }
+  ~InvertIntensityTransform() = default;
 
-  void SetMaximum(TOutput max) { m_Maximum = max; }
-
-  bool operator!=(const InvertIntensityTransform & other) const
+  void
+  SetMaximum(TOutput max)
   {
-    if ( m_Maximum != other.m_Maximum )
-      {
+    m_Maximum = max;
+  }
+
+  bool
+  operator!=(const InvertIntensityTransform & other) const
+  {
+    if (m_Maximum != other.m_Maximum)
+    {
       return true;
-      }
+    }
     return false;
   }
 
-  bool operator==(const InvertIntensityTransform & other) const
+  bool
+  operator==(const InvertIntensityTransform & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & x) const
+  inline TOutput
+  operator()(const TInput & x) const
   {
-    TOutput result = static_cast< TOutput >( m_Maximum - x );
+    auto result = static_cast<TOutput>(m_Maximum - x);
 
     return result;
   }
@@ -63,7 +70,7 @@ public:
 private:
   TInput m_Maximum;
 };
-}  // end namespace functor
+} // end namespace Functor
 
 /** \class InvertIntensityImageFilter
  * \brief Invert the intensity of an image.
@@ -81,68 +88,67 @@ private:
  *
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/InvertIntensityImageFilter,Invert an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/InvertImage,Invert Image}
+ * \endsphinx
  */
-template< typename  TInputImage, typename  TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT InvertIntensityImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::InvertIntensityTransform<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT InvertIntensityImageFilter
+  : public UnaryFunctorImageFilter<
+      TInputImage,
+      TOutputImage,
+      Functor::InvertIntensityTransform<typename TInputImage::PixelType, typename TOutputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef InvertIntensityImageFilter Self;
-  typedef UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                                   Functor::InvertIntensityTransform<
-                                     typename TInputImage::PixelType,
-                                     typename TOutputImage::PixelType > > Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(InvertIntensityImageFilter);
 
-  typedef typename TOutputImage::PixelType                   OutputPixelType;
-  typedef typename TInputImage::PixelType                    InputPixelType;
-  typedef typename NumericTraits< InputPixelType >::RealType RealType;
+  /** Standard class type aliases. */
+  using Self = InvertIntensityImageFilter;
+  using Superclass = UnaryFunctorImageFilter<
+    TInputImage,
+    TOutputImage,
+    Functor::InvertIntensityTransform<typename TInputImage::PixelType, typename TOutputImage::PixelType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using RealType = typename NumericTraits<InputPixelType>::RealType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(InvertIntensityImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(InvertIntensityImageFilter, UnaryFunctorImageFilter);
 
   /** Set/Get the maximum intensity value for the inversion. */
   itkSetMacro(Maximum, InputPixelType);
   itkGetConstReferenceMacro(Maximum, InputPixelType);
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Process to execute before entering the multithreaded section */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputPixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputPixelType>));
   // End concept checking
 #endif
 
 protected:
   InvertIntensityImageFilter();
-  virtual ~InvertIntensityImageFilter() ITK_OVERRIDE {}
+  ~InvertIntensityImageFilter() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(InvertIntensityImageFilter);
-
   InputPixelType m_Maximum;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkInvertIntensityImageFilter.hxx"
+#  include "itkInvertIntensityImageFilter.hxx"
 #endif
 
 #endif

@@ -82,13 +82,15 @@ namespace itk
  * \ingroup ClassificationFilters
  * \ingroup ITKClassifiers
  */
-template< typename TDataContainer >
-class ITK_TEMPLATE_EXPORT ClassifierBase:public LightProcessObject
+template <typename TDataContainer>
+class ITK_TEMPLATE_EXPORT ClassifierBase : public LightProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef ClassifierBase     Self;
-  typedef LightProcessObject Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ClassifierBase);
+
+  /** Standard class type aliases. */
+  using Self = ClassifierBase;
+  using Superclass = LightProcessObject;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(ClassifierBase, LightProcessObject);
@@ -100,28 +102,29 @@ public:
   itkGetConstReferenceMacro(NumberOfClasses, unsigned int);
 
   /**Sets the decision rule */
-  typedef typename TDataContainer::ValueType MeasurementVectorType;
+  using MeasurementVectorType = typename TDataContainer::ValueType;
 
   /** Typedefs for membership funciton */
-  typedef Statistics::MembershipFunctionBase< MeasurementVectorType > MembershipFunctionType;
-  typedef typename MembershipFunctionType::Pointer                    MembershipFunctionPointer;
+  using MembershipFunctionType = Statistics::MembershipFunctionBase<MeasurementVectorType>;
+  using MembershipFunctionPointer = typename MembershipFunctionType::Pointer;
 
-  typedef std::vector< MembershipFunctionPointer >
-  MembershipFunctionPointerVector;
+  using MembershipFunctionPointerVector = std::vector<MembershipFunctionPointer>;
 
   /** Type alias for decision rule */
-  typedef Statistics::DecisionRule DecisionRuleType;
+  using DecisionRuleType = Statistics::DecisionRule;
 
   /** Sets the pointer to the decision rule.
    * Stores the decision rule that makes the real decision using
    * informations from MembershipFunctions and other prior knowledge */
-  void SetDecisionRule(DecisionRuleType *ptrToDecisionRule)
+  void
+  SetDecisionRule(DecisionRuleType * ptrToDecisionRule)
   {
     m_DecisionRule = ptrToDecisionRule;
   }
 
   /** Gets the pointer to the decision rule being used. */
-  DecisionRuleType * GetDecisionRule(void)
+  DecisionRuleType *
+  GetDecisionRule()
   {
     return m_DecisionRule.GetPointer();
   }
@@ -130,35 +133,39 @@ public:
    * the AddMembershipFunction method. The index is assigned according
    * to the order each membership function has been added using the
    * AddMemberShipFunction method */
-  const MembershipFunctionType * GetMembershipFunction(unsigned int index) const
+  const MembershipFunctionType *
+  GetMembershipFunction(unsigned int index) const
   {
     return m_MembershipFunctions[index].GetPointer();
   }
 
   /** Gets the number of membership functions */
-  unsigned int GetNumberOfMembershipFunctions()
+  unsigned int
+  GetNumberOfMembershipFunctions()
   {
-    return static_cast< unsigned int >( m_MembershipFunctions.size() );
+    return static_cast<unsigned int>(m_MembershipFunctions.size());
   }
 
   /** Stores a membership function of a class in its internal vector */
-  unsigned int AddMembershipFunction(MembershipFunctionType *function);
+  unsigned int
+  AddMembershipFunction(MembershipFunctionType * function);
 
   /** Starts the classification process */
-  void Update();
+  void
+  Update();
 
 protected:
   ClassifierBase();
-  ~ClassifierBase() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ClassifierBase() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** The real classification logic implementaion. All the subclasses
    * of this class should implement this method. */
-  virtual void GenerateData() ITK_OVERRIDE = 0;
+  void
+  GenerateData() override = 0;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ClassifierBase);
-
   /** Number of classes */
   unsigned int m_NumberOfClasses;
 
@@ -171,7 +178,7 @@ private:
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkClassifierBase.hxx"
+#  include "itkClassifierBase.hxx"
 #endif
 
 #endif

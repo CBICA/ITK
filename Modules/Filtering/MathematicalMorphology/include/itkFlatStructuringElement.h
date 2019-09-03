@@ -77,52 +77,51 @@ namespace itk
  *
  * \ingroup ITKMathematicalMorphology
  *
- * \wiki
- * \wikiexample{Morphology/FlatStructuringElement,Erode a binary image using a flat (box) structuring element}
- * \endwiki
- * \wiki
- * \wikiexample{Morphology/FlatStructuringElementRadiusIsParametric,Generate structuring elements with accurate area}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/MathematicalMorphology/ErodeBinaryImageUsingFlatStruct,Erode Binary Image Using Flat
+ * Structure Element} \endsphinx \sphinx
+ * \sphinxexample{Filtering/MathematicalMorphology/GenerateStructureElementsWithAccurateArea,Generate Structuring
+ * Elements With Accurate Area} \endsphinx
  */
 
-template< unsigned int VDimension >
-class ITK_TEMPLATE_EXPORT FlatStructuringElement:public Neighborhood< bool, VDimension >
+template <unsigned int VDimension>
+class ITK_TEMPLATE_EXPORT FlatStructuringElement : public Neighborhood<bool, VDimension>
 {
 public:
-  /** Standard class typedefs. */
-  typedef FlatStructuringElement< VDimension > Self;
-  typedef Neighborhood< bool, VDimension >     Superclass;
+  /** Standard class type aliases. */
+  using Self = FlatStructuringElement<VDimension>;
+  using Superclass = Neighborhood<bool, VDimension>;
 
   /** External support for pixel type. */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
-  /** Iterator typedef support. Note the naming is intentional, i.e.,
-  * AllocatorType::iterator and AllocatorType::const_iterator, because the
-  * allocator may be a vnl object or other type, which uses this form. */
-  typedef typename Superclass::Iterator      Iterator;
-  typedef typename Superclass::ConstIterator ConstIterator;
+  /** Iterator type alias support Note the naming is intentional, i.e.,
+   * AllocatorType::iterator and AllocatorType::const_iterator, because the
+   * allocator may be a vnl object or other type, which uses this form. */
+  using Iterator = typename Superclass::Iterator;
+  using ConstIterator = typename Superclass::ConstIterator;
 
-  /** Size and value typedef support. */
-  typedef typename Superclass::SizeType      SizeType;
-  typedef typename Superclass::OffsetType    OffsetType;
+  /** Size and value type alias support */
+  using SizeType = typename Superclass::SizeType;
+  using OffsetType = typename Superclass::OffsetType;
 
-  /** Radius typedef support. */
-  typedef typename Superclass::RadiusType RadiusType;
+  /** Radius type alias support */
+  using RadiusType = typename Superclass::RadiusType;
 
-  /** External slice iterator type typedef support. */
-  typedef typename Superclass::SliceIteratorType SliceIteratorType;
+  /** External slice iterator type type alias support */
+  using SliceIteratorType = typename Superclass::SliceIteratorType;
 
   /** External support for dimensionality. */
-  itkStaticConstMacro(NeighborhoodDimension, unsigned int, VDimension);
+  static constexpr unsigned int NeighborhoodDimension = VDimension;
 
-  typedef Vector< float, VDimension > LType;
-  typedef std::vector< LType >        DecompType;
+  using LType = Vector<float, VDimension>;
+  using DecompType = std::vector<LType>;
 
   /** ImageType used in constructors */
-  typedef typename itk::Image< PixelType, VDimension > ImageType;
+  using ImageType = typename itk::Image<PixelType, VDimension>;
 
   /** Default destructor. */
-  virtual ~FlatStructuringElement() ITK_OVERRIDE {}
+  ~FlatStructuringElement() override = default;
 
   /** Default constructor. */
   FlatStructuringElement()
@@ -137,69 +136,79 @@ public:
    * Create a box structuring element. The structuring element is
    * is decomposable.
    */
-  static Self Box(RadiusType radius);
+  static Self
+  Box(RadiusType radius);
 
   /** Create a ball structuring element */
-  static Self Ball(RadiusType radius, bool radiusIsParametric = false);
+  static Self
+  Ball(RadiusType radius, bool radiusIsParametric = false);
 
   /** Create a cross structuring element */
-  static Self Cross(RadiusType radius);
+  static Self
+  Cross(RadiusType radius);
 
   /** Create an annulus structuring element */
-  static Self Annulus(RadiusType radius,
-                      unsigned int thickness = 1,
-                      bool includeCenter = false,
-                      bool radiusIsParametric = false);
+  static Self
+  Annulus(RadiusType radius, unsigned int thickness = 1, bool includeCenter = false, bool radiusIsParametric = false);
 
   /**
    * Create a polygon structuring element. The structuring element is
    * is decomposable.
    * lines is the number of elements in the decomposition
    */
-  static Self Polygon(RadiusType radius, unsigned lines);
+  static Self
+  Polygon(RadiusType radius, unsigned lines);
 
   /**
    * Returns whether the structuring element is decomposable or not. If the
    * structuring is decomposable, the set of lines associated with the
    * structuring may be used by an algorithm instead of the standard buffer.
    */
-  bool GetDecomposable() const
+  bool
+  GetDecomposable() const
   {
     return m_Decomposable;
   }
-  void SetDecomposable( bool v )
+  void
+  SetDecomposable(bool v)
   {
     m_Decomposable = v;
   }
 
   /** Return the lines associated with the structuring element */
-  const DecompType & GetLines() const
+  const DecompType &
+  GetLines() const
   {
-    return ( m_Lines );
+    return (m_Lines);
   }
-  void AddLine( LType l )
+  void
+  AddLine(LType l)
   {
     m_Lines.push_back(l);
   }
 
-  bool CheckParallel(LType NewVec) const;
+  bool
+  CheckParallel(LType NewVec) const;
 
   /**
    * Fill the buffer of the structuring element based on the lines
    * associated to the structuring element
    */
-  void ComputeBufferFromLines();
+  void
+  ComputeBufferFromLines();
 
   /**
    * The RadiusIsParametric mode ensures that the area of the foreground
    * corresponds to the radius that was specified.
    * This defaults to "off" for backward compatibility.
    */
-  bool GetRadiusIsParametric() const
+  bool
+  GetRadiusIsParametric() const
   {
     return m_RadiusIsParametric;
   }
-  void SetRadiusIsParametric( bool flag )
+  void
+  SetRadiusIsParametric(bool flag)
   {
     m_RadiusIsParametric = flag;
   }
@@ -207,43 +216,47 @@ public:
 
   /** Create a FlatStructureElement from a bool
    *  image. Image must be odd in all dimensions.*/
-  static Self FromImage(const ImageType * image);
+  static Self
+  FromImage(const ImageType * image);
 
 protected:
-
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
   bool m_Decomposable;
 
   DecompType m_Lines;
 
-  template< unsigned int VDimension3 >
-  struct StructuringElementFacet {
-    Vector< float, VDimension3 > P1, P2, P3;
+  template <unsigned int VDimension3>
+  struct StructuringElementFacet
+  {
+    Vector<float, VDimension3> P1, P2, P3;
   };
-  typedef StructuringElementFacet< VDimension > FacetType;
+  using FacetType = StructuringElementFacet<VDimension>;
 
-  template<typename TStructuringElement, typename TRadius>
-  static void GeneratePolygon(TStructuringElement & res,            TRadius      radius, unsigned lines);
+  template <typename TStructuringElement, typename TRadius>
+  static void
+              GeneratePolygon(TStructuringElement & res, TRadius radius, unsigned lines);
   static void GeneratePolygon(itk::FlatStructuringElement<2> & res, itk::Size<2> radius, unsigned lines);
   static void GeneratePolygon(itk::FlatStructuringElement<3> & res, itk::Size<3> radius, unsigned lines);
 
-  typedef Vector< float, 2 >           LType2;
+  using LType2 = Vector<float, 2>;
 
-  typedef Vector< float, 3 >           LType3;
-  typedef StructuringElementFacet< 3 > FacetType3;
+  using LType3 = Vector<float, 3>;
+  using FacetType3 = StructuringElementFacet<3>;
 
   bool m_RadiusIsParametric;
 
   /** Check for correct odd size image.
    *  Return image size. Called in constructor FromImage.*/
-  static RadiusType CheckImageSize(const ImageType * image);
+  static RadiusType
+  CheckImageSize(const ImageType * image);
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFlatStructuringElement.hxx"
+#  include "itkFlatStructuringElement.hxx"
 #endif
 
 #endif

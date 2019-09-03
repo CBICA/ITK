@@ -27,79 +27,78 @@ namespace
 {
 
 template <typename TInputImage>
-int DoIt( const std::string &infname,
-          const std::string &outfname )
+int
+DoIt(const std::string & infname, const std::string & outfname)
 {
-  typedef TInputImage InputImageType;
+  using InputImageType = TInputImage;
 
   const unsigned int ImageDimension = InputImageType::ImageDimension;
-  typedef typename InputImageType::PixelType InputPixelType;
+  using InputPixelType = typename InputImageType::PixelType;
 
-  typedef itk::ImageFileReader<InputImageType> ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
   typename ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( infname );
+  reader->SetFileName(infname);
 
-  typedef itk::GradientImageFilter<InputImageType > FilterType;
+  using FilterType = itk::GradientImageFilter<InputImageType>;
   typename FilterType::Pointer filter = FilterType::New();
 
-  filter->SetInput( reader->GetOutput() );
+  filter->SetInput(reader->GetOutput());
 
-  typedef typename FilterType::OutputImageType  OutputImageType;
-  typedef itk::ImageFileWriter<OutputImageType> WriterType;
+  using OutputImageType = typename FilterType::OutputImageType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
   typename WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( filter->GetOutput() );
-  writer->SetFileName( outfname );
-  writer->SetNumberOfStreamDivisions( 5 );
+  writer->SetInput(filter->GetOutput());
+  writer->SetFileName(outfname);
+  writer->SetNumberOfStreamDivisions(5);
   writer->Update();
 
   std::cout << filter;
 
-  typedef itk::VectorImage<InputPixelType, ImageDimension> VectorImageType;
+  using VectorImageType = itk::VectorImage<InputPixelType, ImageDimension>;
 
-  typedef itk::GradientImageFilter<InputImageType, float, float, VectorImageType> VectorFilterType;
+  using VectorFilterType = itk::GradientImageFilter<InputImageType, float, float, VectorImageType>;
   typename VectorFilterType::Pointer vectorFilter = VectorFilterType::New();
-  vectorFilter->SetInput( reader->GetOutput() );
+  vectorFilter->SetInput(reader->GetOutput());
   vectorFilter->Update();
 
   filter->UpdateLargestPossibleRegion();
 
-  itk::ImageRegionConstIterator<OutputImageType> iter( filter->GetOutput(),
-    filter->GetOutput()->GetBufferedRegion() );
-  itk::ImageRegionConstIterator<VectorImageType> viter( vectorFilter->GetOutput(),
-    vectorFilter->GetOutput()->GetBufferedRegion() );
+  itk::ImageRegionConstIterator<OutputImageType> iter(filter->GetOutput(), filter->GetOutput()->GetBufferedRegion());
+  itk::ImageRegionConstIterator<VectorImageType> viter(vectorFilter->GetOutput(),
+                                                       vectorFilter->GetOutput()->GetBufferedRegion());
 
   // Check the filter output
   bool diff = false;
-  while( !iter.IsAtEnd() )
-    {
+  while (!iter.IsAtEnd())
+  {
 
-    for( unsigned int i = 0; i < ImageDimension; ++i )
+    for (unsigned int i = 0; i < ImageDimension; ++i)
+    {
+      if (!itk::Math::FloatAlmostEqual(iter.Get()[i], viter.Get()[i]))
       {
-      if ( ! itk::Math::FloatAlmostEqual( iter.Get()[i], viter.Get()[i] ) )
-        {
         diff = true;
-        }
       }
+    }
 
     ++viter;
     ++iter;
-    }
+  }
 
-  if ( diff )
-    {
+  if (diff)
+  {
     std::cerr << "VectorImage output does not match covariant!" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
-
 }
 
-}
+} // namespace
 
-int itkGradientImageFilterTest2(int argc, char * argv[] )
+int
+itkGradientImageFilterTest2(int argc, char * argv[])
 {
 
-  if ( argc < 3 )
+  if (argc < 3)
   {
     std::cerr << "Missing arguments" << std::endl;
     std::cerr << "Usage: " << argv[0] << " Inputimage OutputImage" << std::endl;
@@ -110,25 +109,25 @@ int itkGradientImageFilterTest2(int argc, char * argv[] )
   const std::string outfname = argv[2];
 
   itk::ImageIOBase::Pointer iobase =
-    itk::ImageIOFactory::CreateImageIO( infname.c_str(), itk::ImageIOFactory::ReadMode);
+    itk::ImageIOFactory::CreateImageIO(infname.c_str(), itk::ImageIOFactory::FileModeType::ReadMode);
 
-  if ( iobase.IsNull() )
-    {
-    itkGenericExceptionMacro( "Unable to determine ImageIO reader for \"" << infname << "\"" );
-    }
+  if (iobase.IsNull())
+  {
+    itkGenericExceptionMacro("Unable to determine ImageIO reader for \"" << infname << "\"");
+  }
 
-  typedef itk::Image<short,3>                      TestImageType;
-  typedef itk::GradientImageFilter<TestImageType > FilterType;
+  using TestImageType = itk::Image<short, 3>;
+  using FilterType = itk::GradientImageFilter<TestImageType>;
 
   FilterType::Pointer filter = FilterType::New();
-  EXERCISE_BASIC_OBJECT_METHODS( filter, GradientImageFilter, ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, GradientImageFilter, ImageToImageFilter);
 
   const unsigned int dimension = iobase->GetNumberOfDimensions();
 
-  if ( dimension == 2 )
-    return DoIt< itk::Image<float, 2> >( infname, outfname );
-  else if ( dimension == 3 )
-    return DoIt< itk::Image<float, 3> >( infname, outfname );
+  if (dimension == 2)
+    return DoIt<itk::Image<float, 2>>(infname, outfname);
+  else if (dimension == 3)
+    return DoIt<itk::Image<float, 3>>(infname, outfname);
 
   return EXIT_FAILURE;
 }

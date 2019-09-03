@@ -1,10 +1,9 @@
 // This is core/vnl/vnl_random.h
 #ifndef vnl_random_h
 #define vnl_random_h
-#ifdef VCL_NEEDS_PRAGMA_INTERFACE
-#pragma interface
+#ifdef _MSC_VER
+#  include <vcl_msvc_warnings.h>
 #endif
-#include <vcl_compiler.h>
 #include "vnl/vnl_export.h"
 
 //:
@@ -12,7 +11,7 @@
 // \author Aaron Kotcheff (Manchester)
 // \brief A superior random number generator
 
-VXL_CONSTEXPR_VAR unsigned int vnl_random_array_size = 37;
+constexpr unsigned int vnl_random_array_size = 37;
 
 //: A superior random number generator.
 // Implements a new random number generator that
@@ -81,7 +80,7 @@ class VNL_EXPORT vnl_random
     void reseed(unsigned long);
 
     //: Starts a new deterministic sequence from an already declared generator using the provided seed.
-    void reseed(unsigned long[vnl_random_array_size]);
+    void reseed(const unsigned long[vnl_random_array_size]);
 
     //: This restarts the sequence of random numbers.
     //  Restarts so that it repeats

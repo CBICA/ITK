@@ -31,158 +31,169 @@
  *  of applying scales in one iteration of optimization.
  *
  */
-class GradientDescentOptimizerv4Test2Metric
-  : public itk::ObjectToObjectMetricBase
+class GradientDescentOptimizerv4Test2Metric : public itk::ObjectToObjectMetricBase
 {
 public:
+  using Self = GradientDescentOptimizerv4Test2Metric;
+  using Superclass = itk::ObjectToObjectMetricBase;
+  using Pointer = itk::SmartPointer<Self>;
+  using ConstPointer = itk::SmartPointer<const Self>;
+  itkNewMacro(Self);
+  itkTypeMacro(GradientDescentOptimizerv4Test2Metric, ObjectToObjectMetricBase);
 
-  typedef GradientDescentOptimizerv4Test2Metric Self;
-  typedef itk::ObjectToObjectMetricBase         Superclass;
-  typedef itk::SmartPointer<Self>               Pointer;
-  typedef itk::SmartPointer<const Self>         ConstPointer;
-  itkNewMacro( Self );
-  itkTypeMacro( GradientDescentOptimizerv4Test2Metric, ObjectToObjectMetricBase );
+  enum
+  {
+    SpaceDimension = 3
+  };
 
-  enum { SpaceDimension=3 };
-
-  typedef Superclass::ParametersType          ParametersType;
-  typedef Superclass::ParametersValueType     ParametersValueType;
-  typedef Superclass::NumberOfParametersType  NumberOfParametersType;
-  typedef Superclass::DerivativeType          DerivativeType;
-  typedef Superclass::MeasureType             MeasureType;
+  using ParametersType = Superclass::ParametersType;
+  using ParametersValueType = Superclass::ParametersValueType;
+  using NumberOfParametersType = Superclass::NumberOfParametersType;
+  using DerivativeType = Superclass::DerivativeType;
+  using MeasureType = Superclass::MeasureType;
 
   GradientDescentOptimizerv4Test2Metric()
   {
-    m_Parameters.SetSize( this->GetNumberOfParameters() );
-    m_Parameters.Fill( 0 );
+    m_Parameters.SetSize(this->GetNumberOfParameters());
+    m_Parameters.Fill(0);
   }
 
-  virtual void Initialize(void) throw ( itk::ExceptionObject ) ITK_OVERRIDE {}
+  void
+  Initialize() throw(itk::ExceptionObject) override
+  {}
 
-  virtual void GetDerivative( DerivativeType & derivative ) const ITK_OVERRIDE
+  void
+  GetDerivative(DerivativeType & derivative) const override
   {
     MeasureType value;
-    GetValueAndDerivative( value, derivative );
+    GetValueAndDerivative(value, derivative);
   }
 
-  void GetValueAndDerivative( MeasureType & value,
-                              DerivativeType & derivative ) const ITK_OVERRIDE
+  void
+  GetValueAndDerivative(MeasureType & value, DerivativeType & derivative) const override
   {
-    if( derivative.Size() != this->GetNumberOfParameters() )
-      derivative.SetSize( this->GetNumberOfParameters() );
+    if (derivative.Size() != this->GetNumberOfParameters())
+      derivative.SetSize(this->GetNumberOfParameters());
 
     value = 0.0;
 
-    for( NumberOfParametersType i=0; i < this->GetNumberOfParameters(); i++ )
-      {
+    for (NumberOfParametersType i = 0; i < this->GetNumberOfParameters(); i++)
+    {
       derivative[i] = i;
-      }
+    }
 
     std::cout << "derivative: " << derivative << std::endl;
   }
 
-  virtual MeasureType  GetValue() const ITK_OVERRIDE
+  MeasureType
+  GetValue() const override
   {
     return 0.0;
   }
 
-  virtual void UpdateTransformParameters( const DerivativeType & update, ParametersValueType ) ITK_OVERRIDE
+  void
+  UpdateTransformParameters(const DerivativeType & update, ParametersValueType) override
   {
     m_Parameters += update;
   }
 
-  virtual unsigned int GetNumberOfParameters(void) const ITK_OVERRIDE
+  unsigned int
+  GetNumberOfParameters() const override
   {
     return SpaceDimension * 3;
   }
 
-  virtual bool HasLocalSupport() const ITK_OVERRIDE
-    {
+  bool
+  HasLocalSupport() const override
+  {
     return false;
-    }
+  }
 
-  virtual unsigned int GetNumberOfLocalParameters() const ITK_OVERRIDE
+  unsigned int
+  GetNumberOfLocalParameters() const override
   {
     return SpaceDimension;
   }
 
   /* These Set/Get methods are only needed for this test derivation that
    * isn't using a transform */
-  virtual void SetParameters( ParametersType & parameters ) ITK_OVERRIDE
+  void
+  SetParameters(ParametersType & parameters) override
   {
     m_Parameters = parameters;
   }
 
-  virtual const ParametersType & GetParameters() const ITK_OVERRIDE
+  const ParametersType &
+  GetParameters() const override
   {
     return m_Parameters;
   }
 
 private:
-
   ParametersType m_Parameters;
 };
 
 ///////////////////////////////////////////////////////////
-int itkGradientDescentOptimizerv4Test2(int, char* [] )
+int
+itkGradientDescentOptimizerv4Test2(int, char *[])
 {
   std::cout << "Gradient Descent Object Optimizer Test ";
   std::cout << std::endl << std::endl;
 
-  typedef  itk::GradientDescentOptimizerv4  OptimizerType;
+  using OptimizerType = itk::GradientDescentOptimizerv4;
 
-  typedef OptimizerType::ScalesType             ScalesType;
+  using ScalesType = OptimizerType::ScalesType;
 
   // Declaration of a itkOptimizer
-  OptimizerType::Pointer  itkOptimizer = OptimizerType::New();
+  OptimizerType::Pointer itkOptimizer = OptimizerType::New();
 
   // Declaration of the Metric
   GradientDescentOptimizerv4Test2Metric::Pointer metric = GradientDescentOptimizerv4Test2Metric::New();
 
-  itkOptimizer->SetMetric( metric );
+  itkOptimizer->SetMetric(metric);
 
-  typedef GradientDescentOptimizerv4Test2Metric::ParametersType    ParametersType;
-  typedef GradientDescentOptimizerv4Test2Metric::NumberOfParametersType    NumberOfParametersType;
+  using ParametersType = GradientDescentOptimizerv4Test2Metric::ParametersType;
+  using NumberOfParametersType = GradientDescentOptimizerv4Test2Metric::NumberOfParametersType;
 
-  ParametersType  initialPosition( metric->GetNumberOfParameters() );
+  ParametersType initialPosition(metric->GetNumberOfParameters());
   initialPosition.Fill(0);
-  metric->SetParameters( initialPosition );
+  metric->SetParameters(initialPosition);
 
-  itkOptimizer->SetLearningRate( 1.0 );
-  itkOptimizer->SetNumberOfIterations( 1 );
+  itkOptimizer->SetLearningRate(1.0);
+  itkOptimizer->SetNumberOfIterations(1);
 
-  ScalesType scales( metric->GetNumberOfLocalParameters() );
-  for( NumberOfParametersType i=0; i < metric->GetNumberOfLocalParameters(); i++ )
-    {
-    scales[i] = i+2;
-    }
-  itkOptimizer->SetScales( scales );
+  ScalesType scales(metric->GetNumberOfLocalParameters());
+  for (NumberOfParametersType i = 0; i < metric->GetNumberOfLocalParameters(); i++)
+  {
+    scales[i] = i + 2;
+  }
+  itkOptimizer->SetScales(scales);
 
-  ParametersType truth( metric->GetNumberOfParameters() );
+  ParametersType         truth(metric->GetNumberOfParameters());
   NumberOfParametersType numLocal = metric->GetNumberOfLocalParameters();
   NumberOfParametersType numLoops = metric->GetNumberOfParameters() / numLocal;
-  for( NumberOfParametersType i=0; i < numLoops; i++ )
+  for (NumberOfParametersType i = 0; i < numLoops; i++)
+  {
+    for (NumberOfParametersType j = 0; j < numLocal; j++)
     {
-    for( NumberOfParametersType j=0; j < numLocal; j++ )
-      {
       NumberOfParametersType ind = i * numLocal + j;
       truth[ind] = initialPosition[ind] + (ind) / scales[j];
-      }
     }
+  }
   std::cout << "truth: " << truth << std::endl;
 
   try
-    {
+  {
     itkOptimizer->StartOptimization();
-    }
-  catch( itk::ExceptionObject & e )
-    {
+  }
+  catch (itk::ExceptionObject & e)
+  {
     std::cout << "Exception thrown ! " << std::endl;
     std::cout << "An error occurred during Optimization" << std::endl;
-    std::cout << "Location    = " << e.GetLocation()    << std::endl;
+    std::cout << "Location    = " << e.GetLocation() << std::endl;
     std::cout << "Description = " << e.GetDescription() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   ParametersType finalPosition = metric->GetParameters();
   std::cout << "finalPosition = " << finalPosition << std::endl;
@@ -190,18 +201,17 @@ int itkGradientDescentOptimizerv4Test2(int, char* [] )
   //
   // check results to see if it is within range
   //
-  for( NumberOfParametersType j = 0; j < metric->GetNumberOfParameters(); j++ )
+  for (NumberOfParametersType j = 0; j < metric->GetNumberOfParameters(); j++)
+  {
+    if (itk::Math::abs(finalPosition[j] - truth[j]) > 0.000001)
     {
-    if( itk::Math::abs( finalPosition[j] - truth[j] ) > 0.000001 )
-      {
       std::cerr << "Results do not match: " << std::endl
                 << "expected: " << truth << std::endl
                 << "actual: " << finalPosition << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;
-
 }

@@ -35,67 +35,68 @@ namespace itk
  *
  * \ingroup ITKDisplacementField
  */
-template<typename TParametersValueType, unsigned int NDimensions>
+template <typename TParametersValueType, unsigned int NDimensions>
 class ITK_TEMPLATE_EXPORT GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform
-: public TimeVaryingVelocityFieldTransform<TParametersValueType, NDimensions>
+  : public TimeVaryingVelocityFieldTransform<TParametersValueType, NDimensions>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform           Self;
-  typedef TimeVaryingVelocityFieldTransform<TParametersValueType, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                                   Pointer;
-  typedef SmartPointer<const Self>                                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform);
+
+  /** Standard class type aliases. */
+  using Self = GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform;
+  using Superclass = TimeVaryingVelocityFieldTransform<TParametersValueType, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform,
-                                                TimeVaryingVelocityFieldTransform );
+  itkTypeMacro(GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform, TimeVaryingVelocityFieldTransform);
 
   /** New macro for creation of through a Smart Pointer */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Dimension of the time varying velocity field. */
-  itkStaticConstMacro( TimeVaryingVelocityFieldDimension, unsigned int, NDimensions+1 );
+  static constexpr unsigned int TimeVaryingVelocityFieldDimension = NDimensions + 1;
 
   /** Types from superclass */
-  typedef typename Superclass::ScalarType                         ScalarType;
-  typedef typename Superclass::DerivativeType                     DerivativeType;
-  typedef typename DerivativeType::ValueType                      DerivativeValueType;
-  typedef typename Superclass::VelocityFieldType                  VelocityFieldType;
+  using ScalarType = typename Superclass::ScalarType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using DerivativeValueType = typename DerivativeType::ValueType;
+  using VelocityFieldType = typename Superclass::VelocityFieldType;
 
-  typedef typename Superclass::TimeVaryingVelocityFieldType       TimeVaryingVelocityFieldType;
-  typedef typename Superclass::TimeVaryingVelocityFieldPointer    TimeVaryingVelocityFieldPointer;
+  using TimeVaryingVelocityFieldType = typename Superclass::TimeVaryingVelocityFieldType;
+  using TimeVaryingVelocityFieldPointer = typename Superclass::TimeVaryingVelocityFieldPointer;
 
-  typedef typename VelocityFieldType::PixelType                   DisplacementVectorType;
-  typedef typename DisplacementVectorType::ValueType              DisplacementVectorValueType;
+  using DisplacementVectorType = typename VelocityFieldType::PixelType;
+  using DisplacementVectorValueType = typename DisplacementVectorType::ValueType;
 
 
   /**
    * Get/Set the Gaussian spatial smoothing variance for the update field.
    * Default = 3.
    */
-  itkSetMacro( GaussianSpatialSmoothingVarianceForTheUpdateField, ScalarType );
-  itkGetConstReferenceMacro( GaussianSpatialSmoothingVarianceForTheUpdateField, ScalarType );
+  itkSetMacro(GaussianSpatialSmoothingVarianceForTheUpdateField, ScalarType);
+  itkGetConstReferenceMacro(GaussianSpatialSmoothingVarianceForTheUpdateField, ScalarType);
 
   /**
    * Get/Set the Gaussian temporal smoothing variance for the update field.
    * Default = 1.0.
    */
-  itkSetMacro( GaussianTemporalSmoothingVarianceForTheUpdateField, ScalarType );
-  itkGetConstReferenceMacro( GaussianTemporalSmoothingVarianceForTheUpdateField, ScalarType );
+  itkSetMacro(GaussianTemporalSmoothingVarianceForTheUpdateField, ScalarType);
+  itkGetConstReferenceMacro(GaussianTemporalSmoothingVarianceForTheUpdateField, ScalarType);
 
   /**
    * Get/Set the Gaussian spatial smoothing variance for the total field.
    * Default = 0.5.
    */
-  itkSetMacro( GaussianSpatialSmoothingVarianceForTheTotalField, ScalarType );
-  itkGetConstReferenceMacro( GaussianSpatialSmoothingVarianceForTheTotalField, ScalarType );
+  itkSetMacro(GaussianSpatialSmoothingVarianceForTheTotalField, ScalarType);
+  itkGetConstReferenceMacro(GaussianSpatialSmoothingVarianceForTheTotalField, ScalarType);
 
   /**
    * Get/Set the Gaussian temporal smoothing variance for the total field.
    * Default = 0.
    */
-  itkSetMacro( GaussianTemporalSmoothingVarianceForTheTotalField, ScalarType );
-  itkGetConstReferenceMacro( GaussianTemporalSmoothingVarianceForTheTotalField, ScalarType );
+  itkSetMacro(GaussianTemporalSmoothingVarianceForTheTotalField, ScalarType);
+  itkGetConstReferenceMacro(GaussianTemporalSmoothingVarianceForTheTotalField, ScalarType);
 
   /** Update the transform's parameters by the values in \c update.
    * We assume \c update is of the same length as Parameters. Throw
@@ -105,41 +106,40 @@ public:
    * added to the field.
    * See base class for more details.
    */
-  virtual void UpdateTransformParameters( const DerivativeType & update, ScalarType factor = 1.0 ) ITK_OVERRIDE;
+  void
+  UpdateTransformParameters(const DerivativeType & update, ScalarType factor = 1.0) override;
 
   /** Smooth the displacement field in-place.
    * Uses m_GaussSmoothSigma to change the variance for the GaussianOperator.
    * \warning Not thread safe. Does its own threading.
    */
-  virtual TimeVaryingVelocityFieldPointer GaussianSmoothTimeVaryingVelocityField( VelocityFieldType *, ScalarType, ScalarType );
+  virtual TimeVaryingVelocityFieldPointer
+  GaussianSmoothTimeVaryingVelocityField(VelocityFieldType *, ScalarType, ScalarType);
 
 protected:
   GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform();
-  virtual ~GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform() ITK_OVERRIDE;
-  virtual void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  ~GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Track when the temporary displacement field used during smoothing
    * was last modified/initialized. We only want to change it if the
    * main displacement field is also changed, i.e. assigned to a new object */
-  ModifiedTimeType                  m_GaussianSmoothingTempFieldModifiedTime;
+  ModifiedTimeType m_GaussianSmoothingTempFieldModifiedTime{ 0 };
 
   /** Used in GaussianSmoothTimeVaryingVelocityField as variance for the
    * GaussianOperator
    */
-  ScalarType                        m_GaussianSpatialSmoothingVarianceForTheUpdateField;
-  ScalarType                        m_GaussianSpatialSmoothingVarianceForTheTotalField;
-  ScalarType                        m_GaussianTemporalSmoothingVarianceForTheUpdateField;
-  ScalarType                        m_GaussianTemporalSmoothingVarianceForTheTotalField;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform);
-
+  ScalarType m_GaussianSpatialSmoothingVarianceForTheUpdateField;
+  ScalarType m_GaussianSpatialSmoothingVarianceForTheTotalField;
+  ScalarType m_GaussianTemporalSmoothingVarianceForTheUpdateField;
+  ScalarType m_GaussianTemporalSmoothingVarianceForTheTotalField;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkGaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform.hxx"
+#  include "itkGaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform.hxx"
 #endif
 
 #endif // itkGaussianSmoothingOnUpdateTimeVaryingVelocityFieldTransform_h

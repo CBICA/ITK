@@ -20,41 +20,39 @@
 #include "itkImageRegionIteratorWithIndex.h"
 
 
-int itkAddImageFilterFrameTest(int, char* [] )
+int
+itkAddImageFilterFrameTest(int, char *[])
 {
 
   // Define the dimension of the images
-  const unsigned int myDimension = 3;
+  constexpr unsigned int myDimension = 3;
 
   // Declare the types of the images
-  typedef itk::Image<float, myDimension>  myImageType1;
-  typedef itk::Image<float, myDimension>  myImageType2;
-  typedef itk::Image<float, myDimension>  myImageType3;
+  using myImageType1 = itk::Image<float, myDimension>;
+  using myImageType2 = itk::Image<float, myDimension>;
+  using myImageType3 = itk::Image<float, myDimension>;
 
   // Declare the type of the index to access images
-  typedef itk::Index<myDimension>         myIndexType;
+  using myIndexType = itk::Index<myDimension>;
 
   // Declare the type of the size
-  typedef itk::Size<myDimension>          mySizeType;
+  using mySizeType = itk::Size<myDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion<myDimension>        myRegionType;
+  using myRegionType = itk::ImageRegion<myDimension>;
 
   // Declare the type for the ADD filter
-  typedef itk::AddImageFilter<
-                                myImageType1,
-                                myImageType2,
-                                myImageType3  >       myFilterType;
+  using myFilterType = itk::AddImageFilter<myImageType1, myImageType2, myImageType3>;
 
   // Declare the pointers to images
-  typedef myImageType1::Pointer   myImageType1Pointer;
-  typedef myImageType2::Pointer   myImageType2Pointer;
-  typedef myImageType3::Pointer   myImageType3Pointer;
-  typedef myFilterType::Pointer   myFilterTypePointer;
+  using myImageType1Pointer = myImageType1::Pointer;
+  using myImageType2Pointer = myImageType2::Pointer;
+  using myImageType3Pointer = myImageType3::Pointer;
+  using myFilterTypePointer = myFilterType::Pointer;
 
   // Create two images
-  myImageType1Pointer inputImageA  = myImageType1::New();
-  myImageType2Pointer inputImageB  = myImageType2::New();
+  myImageType1Pointer inputImageA = myImageType1::New();
+  myImageType2Pointer inputImageB = myImageType2::New();
 
   // Define their size, and start index
   mySizeType size;
@@ -68,45 +66,45 @@ int itkAddImageFilterFrameTest(int, char* [] )
   start[2] = 0;
 
   myRegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImageA->SetLargestPossibleRegion( region );
-  inputImageA->SetBufferedRegion( region );
-  inputImageA->SetRequestedRegion( region );
+  inputImageA->SetLargestPossibleRegion(region);
+  inputImageA->SetBufferedRegion(region);
+  inputImageA->SetRequestedRegion(region);
   inputImageA->Allocate();
 
   // Initialize Image B
-  inputImageB->SetLargestPossibleRegion( region );
-  inputImageB->SetBufferedRegion( region );
-  inputImageB->SetRequestedRegion( region );
+  inputImageB->SetLargestPossibleRegion(region);
+  inputImageB->SetBufferedRegion(region);
+  inputImageB->SetRequestedRegion(region);
   inputImageB->Allocate();
 
   // Declare Iterator types apropriated for each image
-  typedef itk::ImageRegionIteratorWithIndex<myImageType1>  myIteratorType1;
-  typedef itk::ImageRegionIteratorWithIndex<myImageType2>  myIteratorType2;
+  using myIteratorType1 = itk::ImageRegionIteratorWithIndex<myImageType1>;
+  using myIteratorType2 = itk::ImageRegionIteratorWithIndex<myImageType2>;
 
   // Create one iterator for Image A (this is a light object)
-  myIteratorType1 it1( inputImageA, inputImageA->GetBufferedRegion() );
+  myIteratorType1 it1(inputImageA, inputImageA->GetBufferedRegion());
 
   // Initialize the content of Image A
   std::cout << "First operand " << std::endl;
-  while( !it1.IsAtEnd() )
+  while (!it1.IsAtEnd())
   {
-    it1.Set( 2.0 );
+    it1.Set(2.0);
     std::cout << it1.Get() << std::endl;
     ++it1;
   }
 
   // Create one iterator for Image B (this is a light object)
-  myIteratorType2 it2( inputImageB, inputImageB->GetBufferedRegion() );
+  myIteratorType2 it2(inputImageB, inputImageB->GetBufferedRegion());
 
   // Initialize the content of Image B
   std::cout << "Second operand " << std::endl;
-  while( !it2.IsAtEnd() )
+  while (!it2.IsAtEnd())
   {
-    it2.Set( 3.0 );
+    it2.Set(3.0);
     std::cout << it2.Get() << std::endl;
     ++it2;
   }
@@ -117,10 +115,9 @@ int itkAddImageFilterFrameTest(int, char* [] )
 
 
   // Connect the input images
-  filter->SetInput1( inputImageA );
-  filter->SetInput2( inputImageB );
+  filter->SetInput1(inputImageA);
+  filter->SetInput2(inputImageB);
 
-  filter->SetFunctor(filter->GetFunctor());
 
   // Get the Smart Pointer to the Filter Output
   myImageType3Pointer outputImage = filter->GetOutput();
@@ -133,15 +130,15 @@ int itkAddImageFilterFrameTest(int, char* [] )
 
   // Execute the filter
   try
-    {
+  {
     filter->Update();
     std::cout << "No exception thrown for a difference in origins!" << std::endl;
     return EXIT_FAILURE;
-    }
-  catch (itk::ExceptionObject &exc)
-    {
+  }
+  catch (itk::ExceptionObject & exc)
+  {
     std::cout << "Known exception caught (origin)! " << exc << std::endl;
-    }
+  }
 
 
   // Make Image B have a different spacing
@@ -153,15 +150,15 @@ int itkAddImageFilterFrameTest(int, char* [] )
 
   // Execute the filter
   try
-    {
+  {
     filter->Update();
     std::cout << "No exception thrown for a difference in spacings!" << std::endl;
     return EXIT_FAILURE;
-    }
-  catch (itk::ExceptionObject &exc)
-    {
+  }
+  catch (itk::ExceptionObject & exc)
+  {
     std::cout << "Known exception caught (spacing)! " << exc << std::endl;
-    }
+  }
 
 
   // Make Image B have different direction cosines
@@ -174,18 +171,17 @@ int itkAddImageFilterFrameTest(int, char* [] )
 
   // Execute the filter
   try
-    {
+  {
     filter->Update();
     std::cout << "No exception thrown for a difference in directions!" << std::endl;
     return EXIT_FAILURE;
-    }
-  catch (itk::ExceptionObject &exc)
-    {
+  }
+  catch (itk::ExceptionObject & exc)
+  {
     std::cout << "Known exception caught (directions)! " << exc << std::endl;
-    }
+  }
 
 
   // All objects should be automatically destroyed at this point
   return EXIT_SUCCESS;
-
 }

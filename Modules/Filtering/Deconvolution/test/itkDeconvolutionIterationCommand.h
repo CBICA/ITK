@@ -24,50 +24,49 @@
 namespace itk
 {
 
-template< typename TFilterType >
+template <typename TFilterType>
 class DeconvolutionIterationCommand : public itk::Command
 {
 public:
-  typedef DeconvolutionIterationCommand  Self;
-  typedef itk::Command                   Superclass;
-  typedef itk::SmartPointer< Self >      Pointer;
-  itkNewMacro( Self );
+  using Self = DeconvolutionIterationCommand;
+  using Superclass = itk::Command;
+  using Pointer = itk::SmartPointer<Self>;
+  itkNewMacro(Self);
 
-  virtual void Execute(itk::Object *caller, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(itk::Object * caller, const itk::EventObject & event) override
   {
-    this->Execute( (const itk::Object *)caller, event);
+    this->Execute((const itk::Object *)caller, event);
   }
 
-  virtual void Execute(const itk::Object *object, const itk::EventObject & event) ITK_OVERRIDE
+  void
+  Execute(const itk::Object * object, const itk::EventObject & event) override
   {
     m_NumberOfIterations++;
-    if ( ! itk::IterationEvent().CheckEvent( &event ) )
-      {
+    if (!itk::IterationEvent().CheckEvent(&event))
+    {
       return;
-      }
-    std::cout << object->GetNameOfClass() << " iteration "
-              << m_NumberOfIterations << std::endl;
+    }
+    std::cout << object->GetNameOfClass() << " iteration " << m_NumberOfIterations << std::endl;
 
-    const TFilterType * filter = static_cast< const TFilterType * >( object );
-    if ( filter->GetCurrentEstimate() == ITK_NULLPTR )
-      {
-      itkExceptionMacro(<< "CurrentEstimate is ITK_NULLPTR, but should not be.");
-      }
+    const auto * filter = static_cast<const TFilterType *>(object);
+    if (filter->GetCurrentEstimate() == nullptr)
+    {
+      itkExceptionMacro(<< "CurrentEstimate is nullptr, but should not be.");
+    }
   }
 
-  bool GetInvoked() const
+  bool
+  GetInvoked() const
   {
-    return ( m_NumberOfIterations > 0 );
+    return (m_NumberOfIterations > 0);
   }
 
 protected:
-  DeconvolutionIterationCommand()
-  {
-    m_NumberOfIterations = 0;
-  }
+  DeconvolutionIterationCommand() { m_NumberOfIterations = 0; }
 
 private:
-  int  m_NumberOfIterations;
+  int m_NumberOfIterations;
 };
 
 } // end namespace itk

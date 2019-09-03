@@ -16,7 +16,7 @@
 #
 #==========================================================================*/
 
-from __future__ import print_function
+import re
 
 # The following line defines an ascii string used for dynamically refreshing
 # the import and progress callbacks on the same terminal line.
@@ -35,30 +35,30 @@ def auto_not_in_place(v=True):
     itkConfig.NotInPlace = v
 
 
-def auto_progress(progressType=1):
+def auto_progress(progress_type=1):
     """Set up auto progress report
 
-    progressType:
+    progress_type:
         1 or True -> auto progress be used in a terminal
         2 -> simple auto progress (without special characters)
         0 or False -> disable auto progress
     """
     import itkConfig
 
-    if progressType is True or progressType == 1:
+    if progress_type is True or progress_type == 1:
         itkConfig.ImportCallback = terminal_import_callback
         itkConfig.ProgressCallback = terminal_progress_callback
 
-    elif progressType == 2:
+    elif progress_type == 2:
         itkConfig.ImportCallback = simple_import_callback
         itkConfig.ProgressCallback = simple_progress_callback
 
-    elif progressType is False or progressType == 0:
+    elif progress_type is False or progress_type == 0:
         itkConfig.ImportCallback = None
         itkConfig.ProgressCallback = None
 
     else:
-        raise ValueError("Invalid auto progress type: " + repr(progressType))
+        raise ValueError("Invalid auto progress type: " + repr(progress_type))
 
 
 def terminal_progress_callback(name, p):
@@ -127,77 +127,74 @@ def echo(object, f=sys.stderr):
 del sys
 
 
-def size(imageOrFilter):
+def size(image_or_filter):
     """Return the size of an image, or of the output image of a filter
 
     This method take care of updating the needed informations
     """
     # we don't need the entire output, only its size
-    imageOrFilter.UpdateOutputInformation()
-    img = output(imageOrFilter)
+    image_or_filter.UpdateOutputInformation()
+    img = output(image_or_filter)
     return img.GetLargestPossibleRegion().GetSize()
 
 
-def physical_size(imageOrFilter):
+def physical_size(image_or_filter):
     """Return the physical size of an image, or of the output image of a filter
 
     This method take care of updating the needed informations
     """
     # required because range is overloaded in this module
     import sys
-    if sys.version_info >= (3, 0):
-      from builtins import range
-    else:
-      from __builtin__ import range
-    spacing_ = spacing(imageOrFilter)
-    size_ = size(imageOrFilter)
+    from builtins import range
+    spacing_ = spacing(image_or_filter)
+    size_ = size(image_or_filter)
     result = []
     for i in range(0, spacing_.Size()):
         result.append(spacing_.GetElement(i) * size_.GetElement(i))
     return result
 
 
-def spacing(imageOrFilter):
+def spacing(image_or_filter):
     """Return the spacing of an image, or of the output image of a filter
 
     This method take care of updating the needed informations
     """
     # we don't need the entire output, only its size
-    imageOrFilter.UpdateOutputInformation()
-    img = output(imageOrFilter)
+    image_or_filter.UpdateOutputInformation()
+    img = output(image_or_filter)
     return img.GetSpacing()
 
 
-def origin(imageOrFilter):
+def origin(image_or_filter):
     """Return the origin of an image, or of the output image of a filter
 
     This method take care of updating the needed informations
     """
     # we don't need the entire output, only its size
-    imageOrFilter.UpdateOutputInformation()
-    img = output(imageOrFilter)
+    image_or_filter.UpdateOutputInformation()
+    img = output(image_or_filter)
     return img.GetOrigin()
 
 
-def index(imageOrFilter):
+def index(image_or_filter):
     """Return the index of an image, or of the output image of a filter
 
     This method take care of updating the needed informations
     """
     # we don't need the entire output, only its size
-    imageOrFilter.UpdateOutputInformation()
-    img = output(imageOrFilter)
+    image_or_filter.UpdateOutputInformation()
+    img = output(image_or_filter)
     return img.GetLargestPossibleRegion().GetIndex()
 
 
-def region(imageOrFilter):
+def region(image_or_filter):
     """Return the region of an image, or of the output image of a filter
 
     This method take care of updating the needed informations
     """
     # we don't need the entire output, only its size
-    imageOrFilter.UpdateOutputInformation()
-    img = output(imageOrFilter)
+    image_or_filter.UpdateOutputInformation()
+    img = output(image_or_filter)
     return img.GetLargestPossibleRegion()
 
 HAVE_NUMPY = True
@@ -234,7 +231,7 @@ def _get_itk_pixelid(numpy_array_type):
                 return _np_itk[key]
             raise e
 
-def _GetArrayFromImage(imageOrFilter, function, keepAxes, updateLargestPossibleRegion):
+def _GetArrayFromImage(image_or_filter, function, keep_axes, update):
     """Get an Array with the content of the image buffer
     """
     # Check for numpy
@@ -242,84 +239,109 @@ def _GetArrayFromImage(imageOrFilter, function, keepAxes, updateLargestPossibleR
         raise ImportError('Numpy not available.')
     # Finds the image type
     import itk
-    keys = [k for k in itk.PyBuffer.keys() if k[0] == output(imageOrFilter).__class__]
+    keys = [k for k in itk.PyBuffer.keys() if k[0] == output(image_or_filter).__class__]
     if len(keys ) == 0:
         raise RuntimeError("No suitable template parameter can be found.")
     ImageType = keys[0]
     # Create a numpy array of the type of the input image
     templatedFunction = getattr(itk.PyBuffer[keys[0]], function)
-    return templatedFunction(output(imageOrFilter), keepAxes, updateLargestPossibleRegion)
+    return templatedFunction(output(image_or_filter), keep_axes, update)
 
-def GetArrayFromImage(imageOrFilter, keepAxes=False, updateLargestPossibleRegion=True):
+def GetArrayFromImage(image_or_filter, keep_axes=False, update=True):
     """Get an array with the content of the image buffer
     """
-    return _GetArrayFromImage(imageOrFilter, "GetArrayFromImage", keepAxes, updateLargestPossibleRegion)
+    return _GetArrayFromImage(image_or_filter, "GetArrayFromImage", keep_axes, update)
 
-def GetArrayViewFromImage(imageOrFilter, keepAxes=False, updateLargestPossibleRegion=True):
+array_from_image = GetArrayFromImage
+
+def GetArrayViewFromImage(image_or_filter, keep_axes=False, update=True):
     """Get an array view with the content of the image buffer
     """
-    return _GetArrayFromImage(imageOrFilter, "GetArrayViewFromImage", keepAxes, updateLargestPossibleRegion)
+    return _GetArrayFromImage(image_or_filter, "GetArrayViewFromImage", keep_axes, update)
 
-def _GetImageFromArray(arr, function, isVector):
+array_view_from_image = GetArrayViewFromImage
+
+def _GetImageFromArray(arr, function, is_vector):
     """Get an ITK image from a Python array.
     """
     if not HAVE_NUMPY:
         raise ImportError('Numpy not available.')
     import itk
     PixelType = _get_itk_pixelid(arr)
-    if isVector:
+    if is_vector:
         Dimension = arr.ndim - 1
+        if arr.flags['C_CONTIGUOUS']:
+            VectorDimension = arr.shape[-1]
+        else:
+            VectorDimension = arr.shape[0]
+        if PixelType == itk.UC:
+            if VectorDimension == 3:
+                ImageType = itk.Image[ itk.RGBPixel[itk.UC], Dimension ]
+            elif VectorDimension == 4:
+                ImageType = itk.Image[ itk.RGBAPixel[itk.UC], Dimension ]
+        else:
+            ImageType = itk.Image[ itk.Vector[PixelType, VectorDimension] , Dimension]
     else:
         Dimension = arr.ndim
-    ImageType = itk.Image[PixelType, Dimension]
+        ImageType = itk.Image[PixelType, Dimension]
     templatedFunction = getattr(itk.PyBuffer[ImageType], function)
-    return templatedFunction(arr, isVector)
+    return templatedFunction(arr, is_vector)
 
-def GetImageFromArray(arr, isVector=False):
+def GetImageFromArray(arr, is_vector=False):
     """Get an ITK image from a Python array.
     """
-    return _GetImageFromArray(arr, "GetImageFromArray", isVector)
+    return _GetImageFromArray(arr, "GetImageFromArray", is_vector)
 
-def GetImageViewFromArray(arr, isVector=False):
+image_from_array = GetImageFromArray
+
+def GetImageViewFromArray(arr, is_vector=False):
     """Get an ITK image view from a Python array.
     """
-    return _GetImageFromArray(arr, "GetImageViewFromArray", isVector)
+    return _GetImageFromArray(arr, "GetImageViewFromArray", is_vector)
 
-def _GetArrayFromVnlObject(vnlObject, function):
-    """Get an array with the content of vnlObject
+image_view_from_array = GetImageFromArray
+
+def _GetArrayFromVnlObject(vnl_object, function):
+    """Get an array with the content of vnl_object
     """
     # Check for numpy
     if not HAVE_NUMPY:
         raise ImportError('Numpy not available.')
     # Finds the vnl object type
     import itk
-    PixelType = itk.template(vnlObject)[1][0]
+    PixelType = itk.template(vnl_object)[1][0]
     keys = [k for k in itk.PyVnl.keys() if k[0] == PixelType]
     if len(keys ) == 0:
         raise RuntimeError("No suitable template parameter can be found.")
     # Create a numpy array of the type of the vnl object
     templatedFunction = getattr(itk.PyVnl[keys[0]], function)
-    return templatedFunction(vnlObject)
+    return templatedFunction(vnl_object)
 
-def GetArrayFromVnlVector(vnlVector):
-    """Get an array with the content of vnlVector
+def GetArrayFromVnlVector(vnl_vector):
+    """Get an array with the content of vnl_vector
     """
-    return _GetArrayFromVnlObject(vnlVector, "GetArrayFromVnlVector")
+    return _GetArrayFromVnlObject(vnl_vector, "GetArrayFromVnlVector")
 
-def GetArrayViewFromVnlVector(vnlVector):
-    """Get an array view of vnlVector
-    """
-    return _GetArrayFromVnlObject(vnlVector, "GetArrayViewFromVnlVector")
+array_from_vnl_vector = GetArrayFromVnlVector
 
-def GetArrayFromVnlMatrix(vnlMatrix):
-    """Get an array with the content of vnlMatrix
+def GetArrayViewFromVnlVector(vnl_vector):
+    """Get an array view of vnl_vector
     """
-    return _GetArrayFromVnlObject(vnlMatrix, "GetArrayFromVnlMatrix")
+    return _GetArrayFromVnlObject(vnl_vector, "GetArrayViewFromVnlVector")
 
-def GetArrayViewFromVnlMatrix(vnlMatrix):
-    """Get an array view of vnlMatrix
+array_view_from_vnl_vector = GetArrayFromVnlVector
+
+def GetArrayFromVnlMatrix(vnl_matrix):
+    """Get an array with the content of vnl_matrix
     """
-    return _GetArrayFromVnlObject(vnlMatrix, "GetArrayViewFromVnlMatrix")
+    return _GetArrayFromVnlObject(vnl_matrix, "GetArrayFromVnlMatrix")
+
+def GetArrayViewFromVnlMatrix(vnl_matrix):
+    """Get an array view of vnl_matrix
+    """
+    return _GetArrayFromVnlObject(vnl_matrix, "GetArrayViewFromVnlMatrix")
+
+array_from_vnl_matrix = GetArrayFromVnlMatrix
 
 def _GetVnlObjectFromArray(arr, function):
     """Get a vnl object from a Python array.
@@ -336,10 +358,29 @@ def GetVnlVectorFromArray(arr):
     """
     return _GetVnlObjectFromArray(arr, "GetVnlVectorFromArray")
 
+vnl_vector_from_array = GetVnlVectorFromArray
+
 def GetVnlMatrixFromArray(arr):
     """Get a vnl matrix from a Python array.
     """
     return _GetVnlObjectFromArray(arr, "GetVnlMatrixFromArray")
+
+vnl_matrix_from_array = GetVnlMatrixFromArray
+
+def GetArrayFromMatrix(itk_matrix):
+    return GetArrayFromVnlMatrix(itk_matrix.GetVnlMatrix().as_matrix())
+
+array_from_matrix = GetArrayFromMatrix
+
+def GetMatrixFromArray(arr):
+    import itk
+    vnl_matrix = GetVnlMatrixFromArray(arr)
+    dims = arr.shape
+    PixelType = _get_itk_pixelid(arr)
+    m = itk.Matrix[PixelType, dims[0], dims[1]](vnl_matrix)
+    return m
+
+matrix_from_array = GetMatrixFromArray
 
 # return an image
 from itkTemplate import image, output
@@ -384,15 +425,70 @@ def class_(obj):
     else:
         return obj.__class__
 
+def python_type(obj):
+    """Returns the Python type name of an object
 
-def range(imageOrFilter):
+    The Python name corresponding to the given instantiated object is printed.
+    This includes both the Python name and the parameters of the object. A user
+    can copy and paste the printed value to instantiate a new object of the
+    same type."""
+    import itkTemplate
+    from itkTypes import itkCType
+
+    def in_itk(name):
+        import itk
+        # Remove "itk::" and "std::" from template name.
+        # Only happens for ITK objects.
+        shortname = name.split('::')[-1]
+        shortname = shortname.split('itk')[-1]
+
+        namespace = itk
+        # A type cannot be part of ITK if its name was not modified above. This
+        # check avoids having an input of type `list` and return `itk.list` that
+        # also exists.
+        likely_itk = (shortname != name or name[:3] == 'vnl')
+        if likely_itk and hasattr(namespace, shortname):
+            return namespace.__name__ + '.' + shortname  # Prepend name with 'itk.'
+        else:
+            return name
+
+    def recursive(obj, level):
+        try:
+            T, P = template(obj)
+            name = in_itk(T.__name__)
+            parameters = []
+            for t in P:
+                parameters.append(recursive(t, level+1))
+            return name + "[" + ",".join(parameters) + "]"
+        except KeyError:
+            if isinstance(obj, itkCType):  # Handles CTypes differently
+                return 'itk.' + obj.short_name
+            elif hasattr(obj, "__name__"):
+                # This should be where most ITK types end up.
+                return in_itk(obj.__name__)
+            elif (not isinstance(obj, type)
+                  and type(obj) != itkTemplate.itkTemplate and level != 0):
+                # obj should actually be considered a value, not a type,
+                # or it is already an itkTemplate type.
+                # A value can be an integer that is a template parameter.
+                # This does not happen at the first level of the recursion
+                # as it is not possible that this object would be a template
+                # parameter. Checking the level `0` allows e.g. to find the
+                # type of an object that is a `list` or an `int`.
+                return str(obj)
+            else:
+                return in_itk(type(obj).__name__)
+    return recursive(obj, 0)
+
+
+def range(image_or_filter):
     """Return the range of values in a image of in the output image of a filter
 
     The minimum and maximum values are returned in a tuple: (min, max)
     range() take care of updating the pipeline
     """
     import itk
-    img = output(imageOrFilter)
+    img = output(image_or_filter)
     img.UpdateOutputInformation()
     img.Update()
     # don't put that calculator in the automatic pipeline
@@ -404,49 +500,72 @@ def range(imageOrFilter):
     return (comp.GetMinimum(), comp.GetMaximum())
 
 
-def imwrite(imageOrFilter, fileName, compression=False):
+def imwrite(image_or_filter, filename, compression=False):
     """Write a image or the output image of a filter to a file.
 
     The writer is instantiated with the image type of the image in
     parameter (or, again, with the output image of the filter in parameter).
     """
     import itk
-    img = output(imageOrFilter)
+    img = output(image_or_filter)
     img.UpdateOutputInformation()
     # don't put that writer in the automatic pipeline
     tmp_auto_pipeline = auto_pipeline.current
     auto_pipeline.current = None
     writer = itk.ImageFileWriter[img].New(
         Input=img,
-        FileName=fileName,
+        FileName=filename,
         UseCompression=compression)
     auto_pipeline.current = tmp_auto_pipeline
     writer.Update()
 
-# For backwards compatibility
-def write(*args, **kwargs):
-    import warnings
-    warnings.warn("WrapITK warning: itk.write() is deprecated. "
-            "Use itk.imwrite() instead.")
-    imwrite(*args, **kwargs)
+def imread(filename, pixel_type=None, fallback_only=False):
+    """Read an image from a file or series of files and return an itk.Image.
 
-def imread(fileName, pixelType=None):
-    """Read an image from a file and return an itk.Image.
+    The reader is instantiated with the image type of the image file if
+    `pixel_type` is not provided (default). The dimension of the image is
+    automatically found. If the given filename is a list or a tuple, the
+    reader will use an itk.ImageSeriesReader object to read the files.
 
-    The reader is instantiated with the image type of the image file.
+    If `fallback_only` is set to `True`, `imread()` will first try to
+    automatically deduce the image pixel_type, and only use the given
+    `pixel_type` if the automatic deduction fail. Failures typically
+    happen if the pixel type is not supported (e.g. it is not currently
+    wrapped).
     """
     import itk
-    if pixelType:
-        imageIO = itk.ImageIOFactory.CreateImageIO( fileName, itk.ImageIOFactory.ReadMode )
+    if fallback_only == True:
+        if pixel_type is None:
+            raise Exception("`pixel_type` must be set when using `fallback_only`"
+                " option")
+        try:
+            return imread(filename)
+        except KeyError:
+            pass
+    if type(filename) in [list, tuple]:
+        TemplateReaderType=itk.ImageSeriesReader
+        io_filename=filename[0]
+        increase_dimension=True
+        kwargs={'FileNames':filename}
+    else:
+        TemplateReaderType=itk.ImageFileReader
+        io_filename=filename
+        increase_dimension=False
+        kwargs={'FileName':filename}
+    if pixel_type:
+        imageIO = itk.ImageIOFactory.CreateImageIO(io_filename, itk.ImageIOFactory.ReadMode)
         if not imageIO:
             raise RuntimeError("No ImageIO is registered to handle the given file.")
-        imageIO.SetFileName( fileName )
+        imageIO.SetFileName(io_filename)
         imageIO.ReadImageInformation()
         dimension = imageIO.GetNumberOfDimensions()
-        ImageType=itk.Image[pixelType,dimension]
-        reader = itk.ImageFileReader[ImageType].New(FileName=fileName)
+        # Increase dimension if last dimension is not of size one.
+        if increase_dimension and imageIO.GetDimensions(dimension-1) != 1:
+            dimension += 1
+        ImageType=itk.Image[pixel_type,dimension]
+        reader = TemplateReaderType[ImageType].New(**kwargs)
     else:
-        reader = itk.ImageFileReader.New(FileName=fileName)
+        reader = TemplateReaderType.New(**kwargs)
     reader.Update()
     return reader.GetOutput()
 
@@ -481,12 +600,22 @@ def search(s, case_sensitive=False):  # , fuzzy=True):
     return res
 
 
-def set_inputs(newItkObject, args=[], kargs={}):
+# Helpers for set_inputs snake case to CamelCase keyword argument conversion
+_snake_underscore_re = re.compile('(_)([a-z0-9A-Z])')
+def _underscore_upper(matchobj):
+    return matchobj.group(2).upper()
+def _snake_to_camel(keyword):
+    camel = keyword[0].upper()
+    if _snake_underscore_re.search(keyword[1:]):
+        return camel + _snake_underscore_re.sub(_underscore_upper, keyword[1:])
+    return camel + keyword[1:]
+
+def set_inputs(new_itk_object, args=[], kargs={}):
     """Set the inputs of the given objects, according to the non named or the
     named parameters in args and kargs
 
     This function tries to assign all the non named parameters in the input of
-    the newItkObject
+    the new_itk_object
     - the first non named parameter in the first input, etc.
 
     The named parameters are used by calling the method with the same name
@@ -506,8 +635,8 @@ def set_inputs(newItkObject, args=[], kargs={}):
     # args without name are filter used to set input image
     #
     # count SetInput calls to call SetInput, SetInput2, SetInput3, ...
-    # usefull with filter which take 2 input (or more) like SubstractImageFiler
-    # Ex: substract image2.png to image1.png and save the result in result.png
+    # useful with filter which take 2 input (or more) like SubtractImageFiler
+    # Ex: subtract image2.png to image1.png and save the result in result.png
     # r1 = itk.ImageFileReader.US2.New(FileName='image1.png')
     # r2 = itk.ImageFileReader.US2.New(FileName='image2.png')
     # s = itk.SubtractImageFilter.US2US2US2.New(r1, r2)
@@ -515,15 +644,15 @@ def set_inputs(newItkObject, args=[], kargs={}):
     try:
         for setInputNb, arg in enumerate(args):
             methodName = 'SetInput%i' % (setInputNb + 1)
-            if methodName in dir(newItkObject):
+            if methodName in dir(new_itk_object):
                 # first try to use methods called SetInput1, SetInput2, ...
                 # those method should have more chances to work in case of
                 # multiple input types
-                getattr(newItkObject, methodName)(arg)
+                getattr(new_itk_object, methodName)(arg)
             else:
                 # no method called SetInput?
                 # try with the standard SetInput(nb, input)
-                newItkObject.SetInput(setInputNb, arg)
+                new_itk_object.SetInput(setInputNb, arg)
     except TypeError as e:
         # the exception have (at least) to possible reasons:
         # + the filter don't take the input number as first argument
@@ -534,22 +663,22 @@ def set_inputs(newItkObject, args=[], kargs={}):
             raise e
         # it's the first input, try to use the SetInput() method without input
         # number
-        newItkObject.SetInput(args[0])
+        new_itk_object.SetInput(args[0])
         # but raise an exception if there is more than 1 argument
         if len(args) > 1:
-            raise TypeError('Object accept only 1 input.')
+            raise TypeError('Object accepts only 1 input.')
     except AttributeError:
         # There is no SetInput() method, try SetImage
         # but before, check the number of inputs
         if len(args) > 1:
-            raise TypeError('Object accept only 1 input.')
+            raise TypeError('Object accepts only 1 input.')
         methodList = ['SetImage', 'SetInputImage']
         methodName = None
         for m in methodList:
-            if m in dir(newItkObject):
+            if m in dir(new_itk_object):
                 methodName = m
         if methodName:
-            getattr(newItkObject, methodName)(args[0])
+            getattr(new_itk_object, methodName)(args[0])
         else:
             raise AttributeError('No method found to set the input.')
 
@@ -560,126 +689,22 @@ def set_inputs(newItkObject, args=[], kargs={}):
         # with the full name
         # (Ex: itk.ImageFileReader.UC2.New(SetFileName='image.png'))
         if attribName not in ["auto_progress", "template_parameters"]:
-            attrib = getattr(newItkObject, 'Set' + attribName)
-            attrib(output(value))
+            if attribName.islower():
+                attribName = _snake_to_camel(attribName)
+            attrib = getattr(new_itk_object, 'Set' + attribName)
 
-
-def show(input, **kargs):
-    """display an image
-    """
-    import itk
-    img = output(input)
-    if img.GetImageDimension() == 3 and "show3D" in dir(itk):
-        return itk.show3D(input, **kargs)
-    else:
-        # print("2D not supported yet, use the 3D viewer.")
-        return show2D(input, **kargs)
-
-
-class show2D:
-
-    """Display a 2D image
-    """
-
-    def __init__(self, imageOrFilter, Label=False, Title=None):
-        import tempfile
-        import itk
-        import os
-        import platform
-        # get some data from the environment
-        command = os.environ.get("WRAPITK_SHOW2D_COMMAND")
-        if command is None:
-            if platform.system() == "Darwin":
-                command = (
-                    "open -a ImageJ -n --args -eval 'open(\"%(image)s\"); "
-                    "run (\"View 100%%\"); rename(\"%(title)s\");'")
+           # Do not use try-except mechanism as this leads to
+            # segfaults. Instead limit the number of types that are
+            # tested. The list of tested type could maybe be replaced by
+            # a test that would check for iterables.
+            if type(value) in [list, tuple]:
+                try:
+                    output_value = [output(x) for x in value]
+                    attrib(*output_value)
+                except:
+                    attrib(output(value))
             else:
-                command = (
-                    "imagej %(image)s -run 'View 100%%' -eval "
-                    "'rename(\"%(title)s\")' &")
-
-        label_command = os.environ.get("WRAPITK_SHOW2D_LABEL_COMMAND")
-        if label_command is None:
-            if platform.system() == "Darwin":
-                label_command = (
-                    "open -a ImageJ -n --args -eval 'open(\"%(image)s\"); "
-                    "run (\"View 100%%\"); rename(\"%(title)s\"); "
-                    "run(\"3-3-2 RGB\");'")
-            else:
-                label_command = (
-                    "imagej %(image)s -run 'View 100%%' -eval "
-                    "'rename(\"%(title)s\")' -run '3-3-2 RGB' &")
-
-        compress = os.environ.get(
-            "WRAPITK_SHOW2D_COMPRESS",
-            "true").lower() in ["on", "true", "yes", "1"]
-        extension = os.environ.get("WRAPITK_SHOW2D_EXTENSION", ".tif")
-
-        # use the tempfile module to get a non used file name and to put
-        # the file at the rignt place
-        self.__tmpFile__ = tempfile.NamedTemporaryFile(suffix=extension)
-        # get an updated image
-        img = output(imageOrFilter)
-        img.UpdateOutputInformation()
-        img.Update()
-        if Title is None:
-            # try to generate a title
-            s = img.GetSource()
-            if s:
-                s = itk.down_cast(s)
-                if hasattr(img, "GetSourceOutputIndex"):
-                    o = '[%s]' % img.GetSourceOutputIndex()
-                elif hasattr(img, "GetSourceOutputName"):
-                    o = '[%s]' % img.GetSourceOutputName()
-                else:
-                    o = ""
-                Title = "%s%s" % (s.__class__.__name__, o)
-            else:
-                Title = img.__class__.__name__
-            try:
-                import IPython
-                ip = IPython.get_ipython()
-                if ip is not None:
-                    names = []
-                    ref = imageOrFilter
-                    if s:
-                        ref = s
-                    for n, v in ip.user_ns.iteritems():
-                        if isinstance(v, itk.LightObject) and v == ref:
-                            names.append(n)
-                    if names != []:
-                        Title = ", ".join(names) + " - " + Title
-            except ImportError:
-                # just do nothing
-                pass
-        # change the LabelMaps to an Image, so we can look at them easily
-        if 'LabelMap' in dir(itk) and img.GetNameOfClass() == 'LabelMap':
-            # retreive the biggest label in the label map
-            maxLabel = img.GetNthLabelObject(
-                img.GetNumberOfLabelObjects() - 1).GetLabel()
-            # search for a filter to convert the label map
-            lab = itk.LabelMapToLabelImageFilter.keys()
-            maxVal = itk.NumericTraits[itk.template(params[1])[1][0]].max()
-            cond = params[0] == class_(img) and maxVal >= maxLabel
-            label_image_type = sorted([params[1] for params in lab if cond])[0]
-            convert = itk.LabelMapToLabelImageFilter[
-                img, label_image_type].New(img)
-            convert.Update()
-            img = convert.GetOutput()
-            # this is a label image - force the parameter
-            Label = True
-        write(img, self.__tmpFile__.name, compress)
-        # now run imview
-        import os
-        if Label:
-            os.system(
-                label_command %
-                {"image": self.__tmpFile__.name, "title": Title})
-        else:
-            os.system(
-                command %
-                {"image": self.__tmpFile__.name, "title": Title})
-
+                attrib(output(value))
 
 class templated_class:
 
@@ -917,6 +942,14 @@ class pipeline:
                 else:
                     raise ValueError("Index can only be 0 on that object")
 
+    def GetNumberOfOutputs(self):
+        """Return the number of outputs
+        """
+        if len(self.filters) == 0:
+            return 1
+        else:
+            return self.filters[-1].GetNumberOfOutputs()
+
     def SetInput(self, input):
         """Set the input of the pipeline
         """
@@ -948,10 +981,7 @@ class pipeline:
             self.Update()
 
     def __len__(self):
-        if len(self.filters) == 0:
-            return 1
-        else:
-            return self.filters[-1].GetNumberOfOutputs()
+        return self.GetNumberOfOutputs()
 
     def __getitem__(self, item):
         return self.GetOutput(item)
@@ -1176,6 +1206,23 @@ def ipython_kw_matches(text):
         # drop the .New at this end, so we can search in the class members
         if callableMatch.endswith(".New"):
             callableMatch = callableMatch[:-4]
+        elif not re.findall('([A-Z])', callableMatch):  # True if snake case
+            # Split at the last '.' occurence
+            splitted = callableMatch.split('.')
+            namespace = splitted[:-1]
+            function_name = splitted[-1]
+            # Find corresponding object name
+            object_name = _snake_to_camel(function_name)
+            # Check that this object actually exists
+            try:
+                objectCallableMatch = ".".join(namespace + [object_name])
+                eval(objectCallableMatch, ip.Completer.namespace)
+                # Reconstruct full object name
+                callableMatch = objectCallableMatch
+            except AttributeError:
+                # callableMatch is not a snake case function with a
+                # corresponding object.
+                pass
         try:
             object = eval(callableMatch, ip.Completer.namespace)
             if isinstance(object, itkTemplate.itkTemplate):

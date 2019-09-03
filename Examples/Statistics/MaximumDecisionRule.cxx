@@ -37,7 +37,8 @@
 #include <vector>
 // Software Guide : EndCodeSnippet
 
-int main(int, char*[])
+int
+main(int, char *[])
 {
   // Software Guide : BeginLatex
   //
@@ -47,7 +48,7 @@ int main(int, char*[])
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::Statistics::MaximumDecisionRule DecisionRuleType;
+  using DecisionRuleType = itk::Statistics::MaximumDecisionRule;
   DecisionRuleType::Pointer decisionRule = DecisionRuleType::New();
   // Software Guide : EndCodeSnippet
 
@@ -62,13 +63,12 @@ int main(int, char*[])
 
   // Software Guide : BeginCodeSnippet
   DecisionRuleType::MembershipVectorType discriminantScores;
-  discriminantScores.push_back( 0.1 );
-  discriminantScores.push_back( 0.3 );
-  discriminantScores.push_back( 0.6 );
+  discriminantScores.push_back(0.1);
+  discriminantScores.push_back(0.3);
+  discriminantScores.push_back(0.6);
 
   std::cout << "MaximumDecisionRule: The index of the chosen = "
-            << decisionRule->Evaluate( discriminantScores )
-            << std::endl;
+            << decisionRule->Evaluate(discriminantScores) << std::endl;
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

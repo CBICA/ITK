@@ -42,43 +42,49 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-template< typename TSample >
-class ITK_TEMPLATE_EXPORT SampleToSubsampleFilter:public ProcessObject
+template <typename TSample>
+class ITK_TEMPLATE_EXPORT SampleToSubsampleFilter : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef SampleToSubsampleFilter    Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SampleToSubsampleFilter);
+
+  /** Standard class type aliases. */
+  using Self = SampleToSubsampleFilter;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard macros */
   itkTypeMacro(SampleToSubsampleFilter, ProcessObject);
 
   /** Typedefs for Measurement vector, measurement, Instance Identifier,
    * frequency, size, size element value from the template argument TSample */
-  typedef TSample                                    SampleType;
-  typedef typename SampleType::MeasurementVectorType MeasurementVectorType;
-  typedef typename SampleType::MeasurementType       MeasurementType;
-  typedef typename SampleType::InstanceIdentifier    InstanceIdentifier;
+  using SampleType = TSample;
+  using MeasurementVectorType = typename SampleType::MeasurementVectorType;
+  using MeasurementType = typename SampleType::MeasurementType;
+  using InstanceIdentifier = typename SampleType::InstanceIdentifier;
 
   /** Declare the output type */
-  typedef Subsample< SampleType > SubsampleType;
-  typedef SubsampleType           OutputType;
+  using SubsampleType = Subsample<SampleType>;
+  using OutputType = SubsampleType;
 
   /** Set/Get the input sample */
   using Superclass::SetInput;
-  virtual void SetInput(const SampleType *sample);
+  virtual void
+  SetInput(const SampleType * sample);
 
-  virtual const SampleType * GetInput() const;
+  virtual const SampleType *
+  GetInput() const;
 
   /** Get the output subsample */
-  const OutputType  * GetOutput() const;
+  const OutputType *
+  GetOutput() const;
 
 protected:
   SampleToSubsampleFilter();
-  virtual ~SampleToSubsampleFilter() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~SampleToSubsampleFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Make a DataObject of the correct type to used as the specified
    * output. This method
@@ -86,18 +92,16 @@ protected:
    * called.
    * \sa ProcessObject
    */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SampleToSubsampleFilter);
-};                                       // end of class
+  DataObjectPointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
+}; // end of class
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkSampleToSubsampleFilter.hxx"
+#  include "itkSampleToSubsampleFilter.hxx"
 #endif
 
 #endif

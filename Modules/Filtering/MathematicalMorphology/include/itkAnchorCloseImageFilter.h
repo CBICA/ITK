@@ -23,19 +23,25 @@
 
 namespace itk
 {
-template< typename TImage, typename TKernel >
-class AnchorCloseImageFilter:
-  public AnchorOpenCloseImageFilter< TImage, TKernel, std::greater< typename TImage::PixelType >,
-                                     std::less< typename TImage::PixelType > >
+template <typename TImage, typename TKernel>
+class AnchorCloseImageFilter
+  : public AnchorOpenCloseImageFilter<TImage,
+                                      TKernel,
+                                      std::greater<typename TImage::PixelType>,
+                                      std::less<typename TImage::PixelType>>
 
 {
 public:
-  typedef AnchorCloseImageFilter Self;
-  typedef AnchorOpenCloseImageFilter< TImage, TKernel, std::greater< typename TImage::PixelType >,
-                                      std::less< typename TImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AnchorCloseImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Self = AnchorCloseImageFilter;
+  using Superclass = AnchorOpenCloseImageFilter<TImage,
+                                                TKernel,
+                                                std::greater<typename TImage::PixelType>,
+                                                std::less<typename TImage::PixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -43,14 +49,12 @@ public:
 protected:
   AnchorCloseImageFilter()
   {
-    this->m_Boundary1 = NumericTraits< typename TImage::PixelType >::NonpositiveMin();
-    this->m_Boundary2 = NumericTraits< typename TImage::PixelType >::max();
+    this->m_Boundary1 = NumericTraits<typename TImage::PixelType>::NonpositiveMin();
+    this->m_Boundary2 = NumericTraits<typename TImage::PixelType>::max();
   }
-  virtual ~AnchorCloseImageFilter() ITK_OVERRIDE {}
+  ~AnchorCloseImageFilter() override = default;
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(AnchorCloseImageFilter);
 };
 } // namespace itk
 

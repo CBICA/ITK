@@ -55,55 +55,58 @@ namespace itk
  * \ingroup RegionGrowingSegmentation
  * \ingroup ITKRegionGrowing
  *
- * \wiki
- * \wikiexample{ImageSegmentation/ConfidenceConnectedImageFilter,Segment pixels with similar statistics using connectivity}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Segmentation/RegionGrowing/SegmentPixelsWithSimilarStats,SegmentPixelsWithSimilarStats}
+ * \endsphinx
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ConfidenceConnectedImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ConfidenceConnectedImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ConfidenceConnectedImageFilter                  Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ConfidenceConnectedImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ConfidenceConnectedImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods).  */
-  itkTypeMacro(ConfidenceConnectedImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(ConfidenceConnectedImageFilter, ImageToImageFilter);
 
-  typedef TInputImage                         InputImageType;
-  typedef typename InputImageType::Pointer    InputImagePointer;
-  typedef typename InputImageType::RegionType InputImageRegionType;
-  typedef typename InputImageType::PixelType  InputImagePixelType;
-  typedef typename InputImageType::IndexType  IndexType;
-  typedef typename InputImageType::SizeType   SizeType;
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using IndexType = typename InputImageType::IndexType;
+  using SizeType = typename InputImageType::SizeType;
 
-  typedef TOutputImage                         OutputImageType;
-  typedef typename OutputImageType::Pointer    OutputImagePointer;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
-  typedef typename OutputImageType::PixelType  OutputImagePixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
-  typedef std::vector< IndexType > SeedsContainerType;
+  using SeedsContainerType = std::vector<IndexType>;
 
-  typedef typename NumericTraits<
-    InputImagePixelType >::RealType InputRealType;
+  using InputRealType = typename NumericTraits<InputImagePixelType>::RealType;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Set seed point. This method is deprecated, please use AddSeed() */
-  void SetSeed(const IndexType & seed);
+  void
+  SetSeed(const IndexType & seed);
 
   /** Clear all the seeds. */
-  void ClearSeeds();
+  void
+  ClearSeeds();
 
   /** Add seed point. */
-  void AddSeed(const IndexType & seed);
+  void
+  AddSeed(const IndexType & seed);
 
   /** Set/Get the multiplier to define the confidence interval.  Multiplier
    * can be anything greater than zero. A typical value is 2.5 */
@@ -134,32 +137,32 @@ public:
   itkGetConstReferenceMacro(Variance, InputRealType);
 
   /** Method to access seed container */
-  virtual const SeedsContainerType &GetSeeds() const;
+  virtual const SeedsContainerType &
+  GetSeeds() const;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputImagePixelType > ) );
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< OutputImagePixelType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputImagePixelType>));
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
   ConfidenceConnectedImageFilter();
-  ~ConfidenceConnectedImageFilter() ITK_OVERRIDE {}
+  ~ConfidenceConnectedImageFilter() override = default;
 
   // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   // Override since the filter produces the entire dataset
-  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ConfidenceConnectedImageFilter);
-
   SeedsContainerType   m_Seeds;
   double               m_Multiplier;
   unsigned int         m_NumberOfIterations;
@@ -171,7 +174,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConfidenceConnectedImageFilter.hxx"
+#  include "itkConfidenceConnectedImageFilter.hxx"
 #endif
 
 #endif

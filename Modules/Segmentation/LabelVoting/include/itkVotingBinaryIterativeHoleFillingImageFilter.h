@@ -51,21 +51,21 @@ namespace itk
  * \ingroup IntensityImageFilters
  * \ingroup ITKLabelVoting
  */
-template< typename TImage >
-class ITK_TEMPLATE_EXPORT VotingBinaryIterativeHoleFillingImageFilter:
-  public ImageToImageFilter< TImage, TImage >
+template <typename TImage>
+class ITK_TEMPLATE_EXPORT VotingBinaryIterativeHoleFillingImageFilter : public ImageToImageFilter<TImage, TImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(VotingBinaryIterativeHoleFillingImageFilter);
 
-  /** Convenient typedefs for simplifying declarations. */
-  typedef TImage InputImageType;
-  typedef TImage OutputImageType;
+  /** Convenient type alias for simplifying declarations. */
+  using InputImageType = TImage;
+  using OutputImageType = TImage;
 
-  /** Standard class typedefs. */
-  typedef VotingBinaryIterativeHoleFillingImageFilter           Self;
-  typedef ImageToImageFilter< InputImageType, OutputImageType > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  /** Standard class type aliases. */
+  using Self = VotingBinaryIterativeHoleFillingImageFilter;
+  using Superclass = ImageToImageFilter<InputImageType, OutputImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -75,19 +75,16 @@ public:
 
   /** Type of the internal Voting filter that is going to be executed
     iteratively */
-  typedef VotingBinaryHoleFillingImageFilter<
-    InputImageType,
-    OutputImageType
-    > VotingFilterType;
+  using VotingFilterType = VotingBinaryHoleFillingImageFilter<InputImageType, OutputImageType>;
 
-  /** Image typedef support. */
-  typedef typename InputImageType::PixelType  InputPixelType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  /** Image type alias support */
+  using InputPixelType = typename InputImageType::PixelType;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
-  typedef typename InputImageType::RegionType  InputImageRegionType;
-  typedef typename OutputImageType::RegionType OutputImageRegionType;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
 
-  typedef typename InputImageType::SizeType InputSizeType;
+  using InputSizeType = typename InputImageType::SizeType;
 
   /** Maximum number of iterations. This filter is executed iteratively as
    * long as at least one pixel has changed in a previous iteration, or until
@@ -131,26 +128,24 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputPixelType > ) );
-  itkConceptMacro( InputOStreamWritableeCheck,
-                   ( Concept::OStreamWritable< InputPixelType > ) );
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputPixelType>));
+  itkConceptMacro(InputOStreamWritableeCheck, (Concept::OStreamWritable<InputPixelType>));
   // End concept checking
 #endif
 
 protected:
   VotingBinaryIterativeHoleFillingImageFilter();
-  virtual ~VotingBinaryIterativeHoleFillingImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~VotingBinaryIterativeHoleFillingImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    * \sa ImageToImageFilter::ThreadedGenerateData(),
    *     ImageToImageFilter::GenerateData() */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VotingBinaryIterativeHoleFillingImageFilter);
-
   InputSizeType m_Radius;
 
   InputPixelType m_ForegroundValue;
@@ -164,7 +159,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVotingBinaryIterativeHoleFillingImageFilter.hxx"
+#  include "itkVotingBinaryIterativeHoleFillingImageFilter.hxx"
 #endif
 
 #endif

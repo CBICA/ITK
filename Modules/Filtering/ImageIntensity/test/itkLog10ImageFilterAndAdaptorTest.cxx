@@ -22,32 +22,31 @@
 #include "itkSubtractImageFilter.h"
 #include "itkTestingMacros.h"
 
-int itkLog10ImageFilterAndAdaptorTest( int, char* [] )
+int
+itkLog10ImageFilterAndAdaptorTest(int, char *[])
 {
   // Define the dimension of the images
-  const unsigned int ImageDimension = 3;
+  constexpr unsigned int ImageDimension = 3;
 
   // Declare the pixel types of the images
-  typedef float                PixelType;
+  using PixelType = float;
 
   // Declare the types of the images
-  typedef itk::Image< PixelType, ImageDimension > InputImageType;
-  typedef itk::Image< PixelType, ImageDimension > OutputImageType;
+  using InputImageType = itk::Image<PixelType, ImageDimension>;
+  using OutputImageType = itk::Image<PixelType, ImageDimension>;
 
   // Declare appropriate Iterator types for each image
-  typedef itk::ImageRegionIteratorWithIndex<
-                                  InputImageType >  InputIteratorType;
-  typedef itk::ImageRegionIteratorWithIndex<
-                                  OutputImageType > OutputIteratorType;
+  using InputIteratorType = itk::ImageRegionIteratorWithIndex<InputImageType>;
+  using OutputIteratorType = itk::ImageRegionIteratorWithIndex<OutputImageType>;
 
   // Declare the type of the index to access images
-  typedef itk::Index< ImageDimension >         IndexType;
+  using IndexType = itk::Index<ImageDimension>;
 
   // Declare the type of the size
-  typedef itk::Size< ImageDimension >          SizeType;
+  using SizeType = itk::Size<ImageDimension>;
 
   // Declare the type of the Region
-  typedef itk::ImageRegion< ImageDimension >   RegionType;
+  using RegionType = itk::ImageRegion<ImageDimension>;
 
   // Create the input images
   InputImageType::Pointer inputImage = InputImageType::New();
@@ -64,40 +63,38 @@ int itkLog10ImageFilterAndAdaptorTest( int, char* [] )
   start[2] = 0;
 
   RegionType region;
-  region.SetIndex( start );
-  region.SetSize( size );
+  region.SetIndex(start);
+  region.SetSize(size);
 
   // Initialize Image A
-  inputImage->SetLargestPossibleRegion( region );
-  inputImage->SetBufferedRegion( region );
-  inputImage->SetRequestedRegion( region );
+  inputImage->SetLargestPossibleRegion(region);
+  inputImage->SetBufferedRegion(region);
+  inputImage->SetRequestedRegion(region);
   inputImage->Allocate();
 
   // Create one iterator for the Input Image (this is a light object)
-  InputIteratorType it( inputImage, inputImage->GetBufferedRegion() );
+  InputIteratorType it(inputImage, inputImage->GetBufferedRegion());
 
   // Initialize the content of Image A
   const double value = itk::Math::pi / 6.0;
   it.GoToBegin();
-  while( !it.IsAtEnd() )
-    {
-    it.Set( value );
+  while (!it.IsAtEnd())
+  {
+    it.Set(value);
     ++it;
-    }
+  }
 
   // Declare the type for the Log10 filter
-  typedef itk::Log10ImageFilter< InputImageType, OutputImageType > FilterType;
+  using FilterType = itk::Log10ImageFilter<InputImageType, OutputImageType>;
 
   // Create the Filter
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, Log10ImageFilter,
-    UnaryFunctorImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, Log10ImageFilter, UnaryGeneratorImageFilter);
 
   // Set the input image
-  filter->SetInput( inputImage );
+  filter->SetInput(inputImage);
 
-  filter->SetFunctor( filter->GetFunctor() );
 
   // Execute the filter
   filter->Update();
@@ -106,54 +103,49 @@ int itkLog10ImageFilterAndAdaptorTest( int, char* [] )
   OutputImageType::Pointer outputImage = filter->GetOutput();
 
   // Create an iterator for going through the image output
-  OutputIteratorType ot( outputImage, outputImage->GetRequestedRegion() );
+  OutputIteratorType ot(outputImage, outputImage->GetRequestedRegion());
 
   // Check the content of the result image
   const OutputImageType::PixelType epsilon = 1e-6;
   ot.GoToBegin();
   it.GoToBegin();
-  while( !ot.IsAtEnd() )
-    {
-    const InputImageType::PixelType  input  = it.Get();
+  while (!ot.IsAtEnd())
+  {
+    const InputImageType::PixelType  input = it.Get();
     const OutputImageType::PixelType output = ot.Get();
-    const OutputImageType::PixelType naturallog  = std::log10(input);
-    if( !itk::Math::FloatAlmostEqual( naturallog, output, 10, epsilon ) )
-      {
-      std::cerr.precision( static_cast< int >( itk::Math::abs( std::log10( epsilon ) ) ) );
+    const OutputImageType::PixelType naturallog = std::log10(input);
+    if (!itk::Math::FloatAlmostEqual(naturallog, output, 10, epsilon))
+    {
+      std::cerr.precision(static_cast<int>(itk::Math::abs(std::log10(epsilon))));
       std::cerr << "Error " << std::endl;
       std::cerr << " std::log10( " << input << ") = " << naturallog << std::endl;
       std::cerr << " differs from " << output;
       std::cerr << " by more than " << epsilon << std::endl;
       return EXIT_FAILURE;
-      }
+    }
     ++ot;
     ++it;
-    }
+  }
 
 
   //
   // Test the itk::Log10ImageAdaptor
   //
 
-  typedef itk::Log10ImageAdaptor< InputImageType,
-                          OutputImageType::PixelType> AdaptorType;
+  using AdaptorType = itk::Log10ImageAdaptor<InputImageType, OutputImageType::PixelType>;
 
   AdaptorType::Pointer log10Adaptor = AdaptorType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( log10Adaptor, Log10ImageAdaptor,
-    ImageAdaptor );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(log10Adaptor, Log10ImageAdaptor, ImageAdaptor);
 
-  log10Adaptor->SetImage( inputImage );
+  log10Adaptor->SetImage(inputImage);
 
-  typedef itk::SubtractImageFilter<
-                        OutputImageType,
-                        AdaptorType,
-                        OutputImageType > DiffFilterType;
+  using DiffFilterType = itk::SubtractImageFilter<OutputImageType, AdaptorType, OutputImageType>;
 
   DiffFilterType::Pointer diffFilter = DiffFilterType::New();
 
-  diffFilter->SetInput1( outputImage );
-  diffFilter->SetInput2( log10Adaptor );
+  diffFilter->SetInput1(outputImage);
+  diffFilter->SetInput2(log10Adaptor);
 
   diffFilter->Update();
 
@@ -164,23 +156,23 @@ int itkLog10ImageFilterAndAdaptorTest( int, char* [] )
   //
 
   // Create an iterator for going through the image output
-  OutputIteratorType dt( diffImage, diffImage->GetRequestedRegion() );
+  OutputIteratorType dt(diffImage, diffImage->GetRequestedRegion());
 
   dt.GoToBegin();
-  while( !dt.IsAtEnd() )
-    {
+  while (!dt.IsAtEnd())
+  {
     const OutputImageType::PixelType diff = dt.Get();
-    if( std::fabs( diff ) > epsilon )
-      {
-      std::cerr.precision( static_cast< int >( itk::Math::abs( std::log10( epsilon ) ) ) );
+    if (std::fabs(diff) > epsilon)
+    {
+      std::cerr.precision(static_cast<int>(itk::Math::abs(std::log10(epsilon))));
       std::cerr << "Error comparing results with Adaptors" << std::endl;
       std::cerr << " difference = " << diff << std::endl;
       std::cerr << " differs from 0 ";
       std::cerr << " by more than " << epsilon << std::endl;
       return EXIT_FAILURE;
-      }
-    ++dt;
     }
+    ++dt;
+  }
 
   return EXIT_SUCCESS;
 }

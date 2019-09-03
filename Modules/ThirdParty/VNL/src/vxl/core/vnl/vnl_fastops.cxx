@@ -1,7 +1,4 @@
 // This is core/vnl/vnl_fastops.cxx
-#ifdef VCL_NEEDS_PRAGMA_INTERFACE
-#pragma implementation
-#endif
 //:
 // \file
 // \author Andrew W. Fitzgibbon, Oxford RRG
@@ -13,8 +10,6 @@
 #include <cstring>
 #include <iostream>
 #include "vnl_fastops.h"
-
-#include <vcl_compiler.h>
 
 //: Compute $A^\top A$.
 void vnl_fastops::AtA(vnl_matrix<double>& out, const vnl_matrix<double>& A)
@@ -41,6 +36,7 @@ void vnl_fastops::AtA(vnl_matrix<double>& out, const vnl_matrix<double>& A)
 */
     std::memset(ata[0], 0, n * n * sizeof ata[0][0]);
     for (unsigned int k = 0; k < m; ++k)
+    {
       for (unsigned int i = 0; i < n; ++i) {
         const double aki = a[k][i];
         double const* arow = a[k] + i;
@@ -49,6 +45,7 @@ void vnl_fastops::AtA(vnl_matrix<double>& out, const vnl_matrix<double>& A)
         while (arow != arowend)
           *atarow++ += aki * *arow++;
       }
+    }
       for (unsigned int i = 0; i < n; ++i)
         for (unsigned int j = i+1; j < n; ++j)
           ata[j][i] = ata[i][j];

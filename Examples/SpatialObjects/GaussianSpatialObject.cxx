@@ -31,7 +31,8 @@
 #include "itkGaussianSpatialObject.h"
 // Software Guide : EndCodeSnippet
 
-int main(int, char* [])
+int
+main(int, char *[])
 {
   // Software Guide : BeginLatex
   //
@@ -41,7 +42,7 @@ int main(int, char* [])
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::GaussianSpatialObject<3>   GaussianType;
+  using GaussianType = itk::GaussianSpatialObject<3>;
   GaussianType::Pointer myGaussian = GaussianType::New();
   // Software Guide : EndCodeSnippet
 
@@ -58,13 +59,14 @@ int main(int, char* [])
 
   // Software Guide : BeginLatex
   //
-  // The radius of the Gaussian is defined by the \code{SetRadius()} method.
+  // The radius of the Gaussian is defined by the
+  // \code{SetRadiusInObjectSpace()} method.
   // By default the radius is set to 1.0.
   //
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  myGaussian->SetRadius(3);
+  myGaussian->SetRadiusInObjectSpace(3);
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -75,13 +77,13 @@ int main(int, char* [])
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  itk::Point<double,3> pt;
-  pt[0]=1;
-  pt[1]=2;
-  pt[2]=1;
+  itk::Point<double, 3> pt;
+  pt[0] = 1;
+  pt[1] = 2;
+  pt[2] = 1;
   double value;
-  myGaussian->ValueAt(pt, value);
-  std::cout << "ValueAt(" << pt << ") = " << value << std::endl;
+  myGaussian->ValueAtInWorldSpace(pt, value);
+  std::cout << "ValueAtInWorldSpace(" << pt << ") = " << value << std::endl;
   // Software Guide : EndCodeSnippet
 
   return EXIT_SUCCESS;

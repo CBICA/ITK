@@ -38,19 +38,23 @@ namespace itk
  * \brief Create instances of VTKImageIO objects using an object factory.
  * \ingroup ITKIOVTK
  */
-class ITKIOVTK_EXPORT VTKImageIOFactory:public ObjectFactoryBase
+class ITKIOVTK_EXPORT VTKImageIOFactory : public ObjectFactoryBase
 {
 public:
-  /** Standard class typedefs. */
-  typedef VTKImageIOFactory          Self;
-  typedef ObjectFactoryBase          Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VTKImageIOFactory);
+
+  /** Standard class type aliases. */
+  using Self = VTKImageIOFactory;
+  using Superclass = ObjectFactoryBase;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Class Methods used to interface with the registered factories. */
-  virtual const char * GetITKSourceVersion(void) const ITK_OVERRIDE;
+  const char *
+  GetITKSourceVersion() const override;
 
-  virtual const char * GetDescription(void) const ITK_OVERRIDE;
+  const char *
+  GetDescription() const override;
 
   /** Method for class instantiation. */
   itkFactorylessNewMacro(Self);
@@ -59,7 +63,8 @@ public:
   itkTypeMacro(VTKImageIOFactory, ObjectFactoryBase);
 
   /** Register one factory of this type  */
-  static void RegisterOneFactory(void)
+  static void
+  RegisterOneFactory()
   {
     VTKImageIOFactory::Pointer vtkFactory = VTKImageIOFactory::New();
 
@@ -68,10 +73,7 @@ public:
 
 protected:
   VTKImageIOFactory();
-  ~VTKImageIOFactory() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VTKImageIOFactory);
+  ~VTKImageIOFactory() override;
 };
 } // end namespace itk
 

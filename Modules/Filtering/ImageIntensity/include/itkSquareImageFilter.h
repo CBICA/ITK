@@ -18,7 +18,7 @@
 #ifndef itkSquareImageFilter_h
 #define itkSquareImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 
 namespace itk
 {
@@ -28,78 +28,77 @@ namespace itk
  * \ingroup IntensityImageFilters  MultiThreaded
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{ImageProcessing/SquareImageFilter,Square every pixel in an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/SquareEveryPixel,Square Every Pixel}
+ * \endsphinx
  */
 
 namespace Functor
 {
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class Square
 {
 public:
-  typedef typename NumericTraits< TInput >::RealType RealType;
-  Square() {}
-  ~Square() {}
-  bool operator!=(const Square &) const
+  using RealType = typename NumericTraits<TInput>::RealType;
+  Square() = default;
+  ~Square() = default;
+  bool
+  operator!=(const Square &) const
   {
     return false;
   }
 
-  bool operator==(const Square & other) const
+  bool
+  operator==(const Square & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    const RealType ra = static_cast< RealType >( A );
+    const auto ra = static_cast<RealType>(A);
 
-    return static_cast< TOutput >( ra * ra );
+    return static_cast<TOutput>(ra * ra);
   }
 };
-}
-template< typename TInputImage, typename TOutputImage >
-class SquareImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::Square< typename TInputImage::PixelType,
-                                            typename TOutputImage::PixelType >   >
+} // namespace Functor
+template <typename TInputImage, typename TOutputImage>
+class SquareImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef SquareImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::Square< typename TInputImage::PixelType,
-                     typename TOutputImage::PixelType > >  Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(SquareImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = SquareImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::Square<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(SquareImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(SquareImageFilter, UnaryGeneratorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename TInputImage::PixelType > ) );
-  itkConceptMacro( RealTypeMultiplyOperatorCheck,
-                   ( Concept::MultiplyOperator< typename NumericTraits< typename TInputImage::PixelType >::RealType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<typename TInputImage::PixelType>));
+  itkConceptMacro(RealTypeMultiplyOperatorCheck,
+                  (Concept::MultiplyOperator<typename NumericTraits<typename TInputImage::PixelType>::RealType>));
   // End concept checking
 #endif
 
 protected:
-  SquareImageFilter() {}
-  virtual ~SquareImageFilter() ITK_OVERRIDE {}
+  SquareImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
 
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(SquareImageFilter);
+  ~SquareImageFilter() override = default;
 };
 } // end namespace itk
 

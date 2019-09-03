@@ -97,20 +97,20 @@
 class CommandIterationUpdate : public itk::Command
 {
 public:
-  typedef  CommandIterationUpdate   Self;
-  typedef  itk::Command             Superclass;
-// Software Guide : EndCodeSnippet
+  using Self = CommandIterationUpdate;
+  using Superclass = itk::Command;
+  // Software Guide : EndCodeSnippet
 
 
   //  Software Guide : BeginLatex
   //
-  //  The following typedef declares the type of the SmartPointer capable of
+  //  The following type alias declares the type of the SmartPointer capable of
   //  holding a reference to this object.
   //
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::SmartPointer<Self>  Pointer;
+  using Pointer = itk::SmartPointer<Self>;
   // Software Guide : EndCodeSnippet
 
 
@@ -124,7 +124,7 @@ public:
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  itkNewMacro( Self );
+  itkNewMacro(Self);
   // Software Guide : EndCodeSnippet
 
 
@@ -136,17 +136,17 @@ public:
   //
   //  Software Guide : EndLatex
 
-// Software Guide : BeginCodeSnippet
+  // Software Guide : BeginCodeSnippet
 
 protected:
-  CommandIterationUpdate() {};
-// Software Guide : EndCodeSnippet
+  CommandIterationUpdate() = default;
+  // Software Guide : EndCodeSnippet
 
 public:
   //  Software Guide : BeginLatex
   //
   //  Since this Command object will be observing the optimizer,
-  //  the following typedefs are useful for converting pointers when the
+  //  the following type alias are useful for converting pointers when the
   //  \code{Execute()} method is invoked.  Note the use of \code{const} on
   //  the declaration of \code{OptimizerPointer}.  This is relevant since, in
   //  this case, the observer is not intending to modify the optimizer in any
@@ -156,8 +156,8 @@ public:
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::RegularStepGradientDescentOptimizerv4<double> OptimizerType;
-  typedef const OptimizerType *                              OptimizerPointer;
+  using OptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
+  using OptimizerPointer = const OptimizerType *;
   // Software Guide : EndCodeSnippet
 
 
@@ -177,11 +177,11 @@ public:
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  void Execute(itk::Object *caller,
-               const itk::EventObject & event) ITK_OVERRIDE
-    {
-    Execute( (const itk::Object *)caller, event);
-    }
+  void
+  Execute(itk::Object * caller, const itk::EventObject & event) override
+  {
+    Execute((const itk::Object *)caller, event);
+  }
   // Software Guide : EndCodeSnippet
 
   //  Software Guide : BeginLatex
@@ -194,9 +194,9 @@ public:
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  void Execute(const itk::Object * object,
-               const itk::EventObject & event) ITK_OVERRIDE
-    {
+  void
+  Execute(const itk::Object * object, const itk::EventObject & event) override
+  {
     // Software Guide : EndCodeSnippet
 
 
@@ -211,8 +211,7 @@ public:
     //  Software Guide : EndLatex
 
     // Software Guide : BeginCodeSnippet
-    OptimizerPointer optimizer =
-                         static_cast< OptimizerPointer >( object );
+    auto optimizer = static_cast<OptimizerPointer>(object);
     // Software Guide : EndCodeSnippet
 
 
@@ -233,10 +232,10 @@ public:
     //  Software Guide : EndLatex
 
     // Software Guide : BeginCodeSnippet
-    if( ! itk::IterationEvent().CheckEvent( &event ) )
-      {
+    if (!itk::IterationEvent().CheckEvent(&event))
+    {
       return;
-      }
+    }
     // Software Guide : EndCodeSnippet
 
 
@@ -256,7 +255,7 @@ public:
     std::cout << optimizer->GetValue() << " : ";
     std::cout << optimizer->GetCurrentPosition() << std::endl;
     // Software Guide : EndCodeSnippet
-    }
+  }
 
   //  Software Guide : BeginLatex
   //
@@ -268,79 +267,77 @@ public:
 };
 
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
-  if( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Missing Parameters " << std::endl;
     std::cerr << "Usage: " << argv[0];
     std::cerr << " fixedImageFile  movingImageFile ";
     std::cerr << "outputImagefile " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const    unsigned int    Dimension = 2;
-  typedef  float           PixelType;
+  constexpr unsigned int Dimension = 2;
+  using PixelType = float;
 
-  typedef itk::Image< PixelType, Dimension >  FixedImageType;
-  typedef itk::Image< PixelType, Dimension >  MovingImageType;
+  using FixedImageType = itk::Image<PixelType, Dimension>;
+  using MovingImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::TranslationTransform< double, Dimension >      TransformType;
+  using TransformType = itk::TranslationTransform<double, Dimension>;
 
-  typedef itk::RegularStepGradientDescentOptimizerv4<double>  OptimizerType;
+  using OptimizerType = itk::RegularStepGradientDescentOptimizerv4<double>;
 
-  typedef itk::ImageRegistrationMethodv4<
-                                    FixedImageType,
-                                    MovingImageType,
-                                    TransformType     >  RegistrationType;
+  using RegistrationType =
+    itk::ImageRegistrationMethodv4<FixedImageType, MovingImageType, TransformType>;
 
-  typedef itk::MeanSquaresImageToImageMetricv4<
-                                      FixedImageType,
-                                      MovingImageType >  MetricType;
+  using MetricType =
+    itk::MeanSquaresImageToImageMetricv4<FixedImageType, MovingImageType>;
 
-  OptimizerType::Pointer      optimizer     = OptimizerType::New();
-  RegistrationType::Pointer   registration  = RegistrationType::New();
+  OptimizerType::Pointer    optimizer = OptimizerType::New();
+  RegistrationType::Pointer registration = RegistrationType::New();
 
-  registration->SetOptimizer(     optimizer     );
+  registration->SetOptimizer(optimizer);
 
-  MetricType::Pointer         metric        = MetricType::New();
+  MetricType::Pointer metric = MetricType::New();
 
-  registration->SetMetric( metric  );
+  registration->SetMetric(metric);
 
-  typedef itk::ImageFileReader< FixedImageType  > FixedImageReaderType;
-  typedef itk::ImageFileReader< MovingImageType > MovingImageReaderType;
+  using FixedImageReaderType = itk::ImageFileReader<FixedImageType>;
+  using MovingImageReaderType = itk::ImageFileReader<MovingImageType>;
 
-  FixedImageReaderType::Pointer  fixedImageReader  = FixedImageReaderType::New();
+  FixedImageReaderType::Pointer  fixedImageReader = FixedImageReaderType::New();
   MovingImageReaderType::Pointer movingImageReader = MovingImageReaderType::New();
 
-  fixedImageReader->SetFileName(  argv[1] );
-  movingImageReader->SetFileName( argv[2] );
+  fixedImageReader->SetFileName(argv[1]);
+  movingImageReader->SetFileName(argv[2]);
 
-  registration->SetFixedImage(    fixedImageReader->GetOutput()    );
-  registration->SetMovingImage(   movingImageReader->GetOutput()   );
+  registration->SetFixedImage(fixedImageReader->GetOutput());
+  registration->SetMovingImage(movingImageReader->GetOutput());
 
   // Set parameters of the optimizer
   //
-  optimizer->SetLearningRate( 4 );
-  optimizer->SetMinimumStepLength( 0.001 );
-  optimizer->SetRelaxationFactor( 0.5 );
-  optimizer->SetNumberOfIterations( 200 );
+  optimizer->SetLearningRate(4);
+  optimizer->SetMinimumStepLength(0.001);
+  optimizer->SetRelaxationFactor(0.5);
+  optimizer->SetNumberOfIterations(200);
 
   // One level registration process without shrinking and smoothing.
   //
-  const unsigned int numberOfLevels = 1;
+  constexpr unsigned int numberOfLevels = 1;
 
   RegistrationType::ShrinkFactorsArrayType shrinkFactorsPerLevel;
-  shrinkFactorsPerLevel.SetSize( 1 );
+  shrinkFactorsPerLevel.SetSize(1);
   shrinkFactorsPerLevel[0] = 1;
 
   RegistrationType::SmoothingSigmasArrayType smoothingSigmasPerLevel;
-  smoothingSigmasPerLevel.SetSize( 1 );
+  smoothingSigmasPerLevel.SetSize(1);
   smoothingSigmasPerLevel[0] = 0;
 
-  registration->SetNumberOfLevels ( numberOfLevels );
-  registration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
-  registration->SetShrinkFactorsPerLevel( shrinkFactorsPerLevel );
+  registration->SetNumberOfLevels(numberOfLevels);
+  registration->SetSmoothingSigmasPerLevel(smoothingSigmasPerLevel);
+  registration->SetShrinkFactorsPerLevel(shrinkFactorsPerLevel);
 
 
   //  Software Guide : BeginLatex
@@ -385,7 +382,7 @@ int main( int argc, char *argv[] )
   //  Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  optimizer->AddObserver( itk::IterationEvent(), observer );
+  optimizer->AddObserver(itk::IterationEvent(), observer);
   // Software Guide : EndCodeSnippet
 
 
@@ -400,24 +397,25 @@ int main( int argc, char *argv[] )
 
   // Software Guide : BeginCodeSnippet
   try
-    {
+  {
     registration->Update();
     std::cout << "Optimizer stop condition: "
               << registration->GetOptimizer()->GetStopConditionDescription()
               << std::endl;
-    }
-  catch( itk::ExceptionObject & err )
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cout << "ExceptionObject caught !" << std::endl;
     std::cout << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   // Software Guide : EndCodeSnippet
 
 
   //  Software Guide : BeginLatex
   //
-  //  The registration process is applied to the following images in \code{Examples/Data}:
+  //  The registration process is applied to the following images in
+  //  \code{Examples/Data}:
   //
   //  \begin{itemize}
   //  \item \code{BrainProtonDensitySliceBorder20.png}
@@ -463,7 +461,7 @@ int main( int argc, char *argv[] )
 
 
   TransformType::ParametersType finalParameters =
-                            registration->GetOutput()->Get()->GetParameters();
+    registration->GetOutput()->Get()->GetParameters();
 
   const double TranslationAlongX = finalParameters[0];
   const double TranslationAlongY = finalParameters[1];
@@ -481,45 +479,41 @@ int main( int argc, char *argv[] )
 
   // Prepare the resampling filter in order to map the moving image.
   //
-  typedef itk::ResampleImageFilter<
-                            MovingImageType,
-                            FixedImageType >    ResampleFilterType;
+  using ResampleFilterType = itk::ResampleImageFilter<MovingImageType, FixedImageType>;
 
   ResampleFilterType::Pointer resample = ResampleFilterType::New();
 
-  resample->SetTransform( registration->GetTransform() );
-  resample->SetInput( movingImageReader->GetOutput() );
+  resample->SetTransform(registration->GetTransform());
+  resample->SetInput(movingImageReader->GetOutput());
 
   FixedImageType::Pointer fixedImage = fixedImageReader->GetOutput();
 
-  resample->SetSize(    fixedImage->GetLargestPossibleRegion().GetSize() );
-  resample->SetOutputOrigin(  fixedImage->GetOrigin() );
-  resample->SetOutputSpacing( fixedImage->GetSpacing() );
-  resample->SetOutputDirection( fixedImage->GetDirection() );
-  resample->SetDefaultPixelValue( 100 );
+  resample->SetSize(fixedImage->GetLargestPossibleRegion().GetSize());
+  resample->SetOutputOrigin(fixedImage->GetOrigin());
+  resample->SetOutputSpacing(fixedImage->GetSpacing());
+  resample->SetOutputDirection(fixedImage->GetDirection());
+  resample->SetDefaultPixelValue(100);
 
 
   // Prepare a writer and caster filters to send the resampled moving image to
   // a file
   //
-  typedef  unsigned char  OutputPixelType;
+  using OutputPixelType = unsigned char;
 
-  typedef itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
-  typedef itk::CastImageFilter<
-                        FixedImageType,
-                        OutputImageType > CastFilterType;
+  using CastFilterType = itk::CastImageFilter<FixedImageType, OutputImageType>;
 
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
-  WriterType::Pointer      writer =  WriterType::New();
-  CastFilterType::Pointer  caster =  CastFilterType::New();
+  WriterType::Pointer     writer = WriterType::New();
+  CastFilterType::Pointer caster = CastFilterType::New();
 
 
-  writer->SetFileName( argv[3] );
+  writer->SetFileName(argv[3]);
 
-  caster->SetInput( resample->GetOutput() );
-  writer->SetInput( caster->GetOutput()   );
+  caster->SetInput(resample->GetOutput());
+  writer->SetInput(caster->GetOutput());
   writer->Update();
 
 

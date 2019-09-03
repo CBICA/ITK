@@ -36,26 +36,25 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-class ITKCommon_EXPORT MemoryProbe:
-  public ResourceProbe< SizeValueType, double >
+class ITKCommon_EXPORT MemoryProbe : public ResourceProbe<SizeValueType, double>
 {
 public:
-
   MemoryProbe();
-  ~MemoryProbe() ITK_OVERRIDE;
+  ~MemoryProbe() override;
 
   /** Type for measuring memory. */
-  typedef SizeValueType MemoryLoadType;
+  using MemoryLoadType = SizeValueType;
 
   /** Type for measuring the average memory. */
-  typedef double MeanMemoryLoadType;
+  using MeanMemoryLoadType = double;
 
 protected:
-  virtual MemoryLoadType GetInstantValue(void) const ITK_OVERRIDE;
+  MemoryLoadType
+  GetInstantValue() const override;
 
 private:
   mutable MemoryUsageObserver m_MemoryObserver;
 };
 } // end namespace itk
 
-#endif //itkMemoryProbe_h
+#endif // itkMemoryProbe_h

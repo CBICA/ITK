@@ -1,5 +1,5 @@
 get_filename_component(_ITKExternalData_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-include(${_ITKExternalData_DIR}/ExternalData.cmake)
+include(ExternalData)
 
 if(NOT ExternalData_OBJECT_STORES)
   # Use ExternalData_OBJECT_STORES from environment as default.
@@ -44,10 +44,6 @@ if(NOT ITK_FORBID_DOWNLOADS)
     "https://slicer.kitware.com/midas3/api/rest?method=midas.bitstream.download&checksum=%(hash)&algorithm=%(algo)"
     )
 endif()
-
-# Tell ExternalData commands to transform raw files to content links.
-# TODO: Condition this feature on presence of our pre-commit hook.
-set(ExternalData_LINK_CONTENT MD5)
 
 # Emscripten currently has difficulty reading symlinks.
 if(EMSCRIPTEN)

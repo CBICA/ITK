@@ -50,33 +50,41 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< typename TType >
+template <typename TType>
 class ITK_TEMPLATE_EXPORT DefaultPixelAccessor
 {
 public:
+  DefaultPixelAccessor() = default;
+  ~DefaultPixelAccessor() = default;
 
-  DefaultPixelAccessor() {}
-  virtual ~DefaultPixelAccessor() {}
-
-  /** External typedef. It defines the external aspect
+  /** External type alias. It defines the external aspect
    * that this class will exhibit. */
-  typedef TType ExternalType;
+  using ExternalType = TType;
 
-  /** Internal typedef. It defines the internal real
+  /** Internal type alias. It defines the internal real
    * representation of data. */
-  typedef TType InternalType;
+  using InternalType = TType;
 
   /** Set the pixel. */
-  inline void Set(TType & output, const TType & input) const
-  { output = input; }
+  inline void
+  Set(TType & output, const TType & input) const
+  {
+    output = input;
+  }
 
   /** Get the pixel. */
-  inline TType & Get(TType & input) const
-  { return input; }
+  inline TType &
+  Get(TType & input) const
+  {
+    return input;
+  }
 
   /** Get a const reference to the pixel. */
-  inline const TType & Get(const TType & input) const
-  { return input; }
+  inline const TType &
+  Get(const TType & input) const
+  {
+    return input;
+  }
 };
 } // end namespace itk
 

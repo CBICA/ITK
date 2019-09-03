@@ -22,20 +22,9 @@
 
 namespace itk
 {
-template< unsigned int VDimension, typename TInput >
-InteriorExteriorSpatialFunction< VDimension, TInput >
-::InteriorExteriorSpatialFunction()
-{}
-
-template< unsigned int VDimension, typename TInput >
-InteriorExteriorSpatialFunction< VDimension, TInput >
-::~InteriorExteriorSpatialFunction()
-{}
-
-template< unsigned int VDimension, typename TInput >
+template <unsigned int VDimension, typename TInput>
 void
-InteriorExteriorSpatialFunction< VDimension, TInput >
-::PrintSelf(std::ostream & os, Indent indent) const
+InteriorExteriorSpatialFunction<VDimension, TInput>::PrintSelf(std::ostream & os, Indent indent) const
 {
   Superclass::PrintSelf(os, indent);
 }

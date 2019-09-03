@@ -19,7 +19,7 @@
 #define itkLabelOverlayImageFilter_h
 
 #include "itkLabelOverlayFunctor.h"
-#include "itkBinaryFunctorImageFilter.h"
+#include "itkBinaryGeneratorImageFilter.h"
 #include "itkConceptChecking.h"
 
 namespace itk
@@ -47,51 +47,50 @@ namespace itk
  *
  * \ingroup ITKImageFusion
  *
- * \wiki
- * \wikiexample{ImageProcessing/LabelOverlayImageFilter,Overlay a LabelMap on an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageFusion/OverlayLabelMapOnImage,Overlay Label Map On Image}
+ * \endsphinx
  */
-template< typename  TInputImage, typename TLabelImage, typename  TOutputImage >
-class ITK_TEMPLATE_EXPORT LabelOverlayImageFilter:
-  public
-  BinaryFunctorImageFilter< TInputImage, TLabelImage, TOutputImage,
-                            Functor::LabelOverlayFunctor<
-                              typename TInputImage::PixelType,
-                              typename TLabelImage::PixelType,
-                              typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TLabelImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LabelOverlayImageFilter
+  : public BinaryGeneratorImageFilter<TInputImage, TLabelImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelOverlayImageFilter Self;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelOverlayImageFilter);
 
-  typedef BinaryFunctorImageFilter< TInputImage, TLabelImage, TOutputImage,
-                                    Functor::LabelOverlayFunctor<
-                                      typename TInputImage::PixelType,
-                                      typename TLabelImage::PixelType,
-                                      typename TOutputImage::PixelType >   >  Superclass;
+  /** Standard class type aliases. */
+  using Self = LabelOverlayImageFilter;
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  using Superclass = BinaryGeneratorImageFilter<TInputImage, TLabelImage, TOutputImage>;
 
-  typedef TOutputImage OutputImageType;
-  typedef TLabelImage  LabelImageType;
-  typedef TInputImage  InputImageType;
+  using FunctorType = Functor::LabelOverlayFunctor<typename TInputImage::PixelType,
+                                                   typename TLabelImage::PixelType,
+                                                   typename TOutputImage::PixelType>;
 
-  typedef typename TOutputImage::PixelType OutputPixelType;
-  typedef typename TLabelImage::PixelType  LabelPixelType;
-  typedef typename TInputImage::PixelType  InputPixelType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using OutputImageType = TOutputImage;
+  using LabelImageType = TLabelImage;
+  using InputImageType = TInputImage;
+
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using LabelPixelType = typename TLabelImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
 
   /** Runtime information support. */
-  itkTypeMacro(LabelOverlayImageFilter, BinaryFunctorImageFilter);
+  itkTypeMacro(LabelOverlayImageFilter, BinaryGeneratorImageFilter);
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Set the label image */
-  void SetLabelImage(const TLabelImage *input);
+  void
+  SetLabelImage(const TLabelImage * input);
 
   /** Get the label image */
-  const LabelImageType * GetLabelImage() const;
+  const LabelImageType *
+  GetLabelImage() const;
 
   /** Set/Get the opacity of the colored label image. The value must be
    * between 0 and 1
@@ -105,50 +104,59 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputPixelShouldHaveValueType,
-                   ( Concept::HasValueType< OutputPixelType > ) );
-  itkConceptMacro( OutputPixelShouldHaveBracketOperator,
-                   ( Concept::BracketOperator<
-                       OutputPixelType,
-                       unsigned int,
-                       typename OutputPixelType::ValueType > ) );
+  itkConceptMacro(OutputPixelShouldHaveValueType, (Concept::HasValueType<OutputPixelType>));
+  itkConceptMacro(OutputPixelShouldHaveBracketOperator,
+                  (Concept::BracketOperator<OutputPixelType, unsigned int, typename OutputPixelType::ValueType>));
   // End concept checking
 #endif
 
   /** Empty the color LUT container */
-  void ResetColors();
+  void
+  ResetColors();
 
   /** Get number of colors in the LUT container */
-  unsigned int GetNumberOfColors() const;
+  unsigned int
+  GetNumberOfColors() const;
 
   /** type of the color component */
-  typedef typename OutputPixelType::ComponentType ComponentType;
+  using ComponentType = typename OutputPixelType::ComponentType;
 
   /** Add color to the LUT container */
-  void AddColor(ComponentType r, ComponentType g, ComponentType b);
+  void
+  AddColor(ComponentType r, ComponentType g, ComponentType b);
+
+
+  itkGetConstReferenceMacro(Functor, FunctorType);
+  FunctorType &
+  GetFunctor()
+  {
+    return m_Functor;
+  }
 
 protected:
   LabelOverlayImageFilter();
-  virtual ~LabelOverlayImageFilter() ITK_OVERRIDE {}
+  ~LabelOverlayImageFilter() override = default;
 
   /** Process to execute before entering the multithreaded section */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelOverlayImageFilter);
-
+  FunctorType    m_Functor;
   double         m_Opacity;
   LabelPixelType m_BackgroundValue;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelOverlayImageFilter.hxx"
+#  include "itkLabelOverlayImageFilter.hxx"
 #endif
 
 #endif

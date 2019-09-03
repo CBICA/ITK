@@ -69,11 +69,11 @@ template <typename TMoving, typename TFixed>
 class ITK_TEMPLATE_EXPORT ImageMetricLoad : public LoadElement
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageMetricLoad          Self;
-  typedef LoadElement              Superclass;
-  typedef SmartPointer<Self>       Pointer;
-  typedef SmartPointer<const Self> ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ImageMetricLoad;
+  using Superclass = LoadElement;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
@@ -83,144 +83,139 @@ public:
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
-  // Necessary typedefs for dealing with images BEGIN
-  typedef typename LoadElement::Float Float;
+  // Necessary type alias for dealing with images BEGIN
+  using Float = typename LoadElement::Float;
 
-  typedef TMoving                           MovingType;
-  typedef typename MovingType::ConstPointer MovingConstPointer;
-  typedef MovingType *                      MovingPointer;
-  typedef TFixed                            FixedType;
-  typedef FixedType *                       FixedPointer;
-  typedef typename FixedType::ConstPointer  FixedConstPointer;
+  using MovingType = TMoving;
+  using MovingConstPointer = typename MovingType::ConstPointer;
+  using MovingPointer = MovingType *;
+  using FixedType = TFixed;
+  using FixedPointer = FixedType *;
+  using FixedConstPointer = typename FixedType::ConstPointer;
 
   /** Dimensionality of input and output data is assumed to be the same. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      MovingType::ImageDimension);
+  static constexpr unsigned int ImageDimension = MovingType::ImageDimension;
 
-  typedef ImageRegionIteratorWithIndex<MovingType> RefRegionIteratorType;
-  typedef ImageRegionIteratorWithIndex<FixedType>  TarRegionIteratorType;
+  using RefRegionIteratorType = ImageRegionIteratorWithIndex<MovingType>;
+  using TarRegionIteratorType = ImageRegionIteratorWithIndex<FixedType>;
 
-  typedef NeighborhoodIterator<MovingType>
-  MovingNeighborhoodIteratorType;
-  typedef typename MovingNeighborhoodIteratorType::IndexType
-  MovingNeighborhoodIndexType;
-  typedef typename MovingNeighborhoodIteratorType::RadiusType
-  MovingRadiusType;
-  typedef NeighborhoodIterator<FixedType>
-  FixedNeighborhoodIteratorType;
-  typedef typename FixedNeighborhoodIteratorType::IndexType
-  FixedNeighborhoodIndexType;
-  typedef typename FixedNeighborhoodIteratorType::RadiusType
-  FixedRadiusType;
+  using MovingNeighborhoodIteratorType = NeighborhoodIterator<MovingType>;
+  using MovingNeighborhoodIndexType = typename MovingNeighborhoodIteratorType::IndexType;
+  using MovingRadiusType = typename MovingNeighborhoodIteratorType::RadiusType;
+  using FixedNeighborhoodIteratorType = NeighborhoodIterator<FixedType>;
+  using FixedNeighborhoodIndexType = typename FixedNeighborhoodIteratorType::IndexType;
+  using FixedRadiusType = typename FixedNeighborhoodIteratorType::RadiusType;
 
-// IMAGE DATA
-  typedef   typename  MovingType::PixelType                             RefPixelType;
-  typedef   typename  FixedType::PixelType                              TarPixelType;
-  typedef   Float                                                       PixelType;
-  typedef   Float                                                       ComputationType;
-  typedef   Image<RefPixelType, itkGetStaticConstMacro(ImageDimension)> RefImageType;
-  typedef   Image<TarPixelType, itkGetStaticConstMacro(ImageDimension)> TarImageType;
-  typedef   Image<PixelType, itkGetStaticConstMacro(ImageDimension)>    ImageType;
-  typedef   vnl_vector<Float>                                           VectorType;
+  // IMAGE DATA
+  using RefPixelType = typename MovingType::PixelType;
+  using TarPixelType = typename FixedType::PixelType;
+  using PixelType = Float;
+  using ComputationType = Float;
+  using RefImageType = Image<RefPixelType, Self::ImageDimension>;
+  using TarImageType = Image<TarPixelType, Self::ImageDimension>;
+  using ImageType = Image<PixelType, Self::ImageDimension>;
+  using VectorType = vnl_vector<Float>;
 
-// Necessary typedefs for dealing with images END
+  // Necessary type alias for dealing with images END
 
-// ------------------------------------------------------------
-// Set up the metrics
-// ------------------------------------------------------------
-  typedef double
-  CoordinateRepresentationType;
-  typedef Transform<CoordinateRepresentationType, itkGetStaticConstMacro(ImageDimension),
-                    itkGetStaticConstMacro(ImageDimension)>            TransformBaseType;
-  typedef TranslationTransform<CoordinateRepresentationType,
-                               itkGetStaticConstMacro(ImageDimension)> DefaultTransformType;
+  // ------------------------------------------------------------
+  // Set up the metrics
+  // ------------------------------------------------------------
+  using CoordinateRepresentationType = double;
+  using TransformBaseType = Transform<CoordinateRepresentationType, Self::ImageDimension, Self::ImageDimension>;
+  using DefaultTransformType = TranslationTransform<CoordinateRepresentationType, Self::ImageDimension>;
 
   /**  Type of supported metrics. */
-  typedef   ImageToImageMetric<FixedType, MovingType> MetricBaseType;
-  typedef typename MetricBaseType::Pointer            MetricBaseTypePointer;
+  using MetricBaseType = ImageToImageMetric<FixedType, MovingType>;
+  using MetricBaseTypePointer = typename MetricBaseType::Pointer;
 
-  typedef   MutualInformationImageToImageMetric<MovingType, FixedType> MutualInformationMetricType;
+  using MutualInformationMetricType = MutualInformationImageToImageMetric<MovingType, FixedType>;
 
-  typedef   MeanSquaresImageToImageMetric<MovingType, FixedType> MeanSquaresMetricType;
+  using MeanSquaresMetricType = MeanSquaresImageToImageMetric<MovingType, FixedType>;
 
-  typedef   NormalizedCorrelationImageToImageMetric<MovingType, FixedType> NormalizedCorrelationMetricType;
+  using NormalizedCorrelationMetricType = NormalizedCorrelationImageToImageMetric<MovingType, FixedType>;
 
-  typedef  MeanSquaresMetricType                        DefaultMetricType;
-  typedef typename DefaultTransformType::ParametersType ParametersType;
-  typedef typename DefaultTransformType::JacobianType   JacobianType;
+  using DefaultMetricType = MeanSquaresMetricType;
+  using ParametersType = typename DefaultTransformType::ParametersType;
+  using JacobianType = typename DefaultTransformType::JacobianType;
 
-  typedef unsigned long                                        ElementIdentifier;
-  typedef VectorContainer<ElementIdentifier, Element::Pointer> ElementContainerType;
-// ------------------------------------------------------------
-// Set up an Interpolator
-// ------------------------------------------------------------
-  typedef LinearInterpolateImageFunction<MovingType, double> InterpolatorType;
+  using ElementIdentifier = unsigned long;
+  using ElementContainerType = VectorContainer<ElementIdentifier, Element::Pointer>;
+  // ------------------------------------------------------------
+  // Set up an Interpolator
+  // ------------------------------------------------------------
+  using InterpolatorType = LinearInterpolateImageFunction<MovingType, double>;
 
   /** Gradient filtering */
-  typedef float RealType;
-  typedef CovariantVector<RealType,
-                          itkGetStaticConstMacro(ImageDimension)> GradientPixelType;
-  typedef Image<GradientPixelType,
-                itkGetStaticConstMacro(ImageDimension)> GradientImageType;
-  typedef SmartPointer<GradientImageType> GradientImagePointer;
-  typedef GradientRecursiveGaussianImageFilter<ImageType,
-                                               GradientImageType>
-  GradientImageFilterType;
-  //  typedef typename GradientImageFilterType::Pointer
-  // GradientImageFilterPointer;
+  using RealType = float;
+  using GradientPixelType = CovariantVector<RealType, Self::ImageDimension>;
+  using GradientImageType = Image<GradientPixelType, Self::ImageDimension>;
+  using GradientImagePointer = SmartPointer<GradientImageType>;
+  using GradientImageFilterType = GradientRecursiveGaussianImageFilter<ImageType, GradientImageType>;
+  // using GradientImageFilterPointer = typename GradientImageFilterType::Pointer;
 
-// FUNCTIONS
+  // FUNCTIONS
 
   /** Set/Get the Metric.  */
-  void SetMetric(MetricBaseTypePointer MP)
+  void
+  SetMetric(MetricBaseTypePointer MP)
   {
     m_Metric = MP;
   }
 
   /** Define the reference (moving) image. */
-  void SetMovingImage(MovingType *R)
+  void
+  SetMovingImage(MovingType * R)
   {
     m_RefImage = R;
     m_RefSize = m_RefImage->GetLargestPossibleRegion().GetSize();
   }
 
-  void SetMetricMovingImage(MovingType *R)
+  void
+  SetMetricMovingImage(MovingType * R)
   {
     m_Metric->SetMovingImage(R);
     m_RefSize = R->GetLargestPossibleRegion().GetSize();
   }
 
   /** Define the target (fixed) image. */
-  void SetFixedImage(FixedType *T)
+  void
+  SetFixedImage(FixedType * T)
   {
     m_TarImage = T;
     m_TarSize = T->GetLargestPossibleRegion().GetSize();
   }
 
-  void SetMetricFixedImage(FixedType *T)
+  void
+  SetMetricFixedImage(FixedType * T)
   {
     m_Metric->SetFixedImage(T);
     m_TarSize = T->GetLargestPossibleRegion().GetSize();
   }
 
-  MovingPointer GetMovingImage()
+  MovingPointer
+  GetMovingImage()
   {
     return m_RefImage;
   }
-  FixedPointer GetFixedImage()
+  FixedPointer
+  GetFixedImage()
   {
     return m_TarImage;
   }
 
   /** Define the metric region size. */
-  void SetMetricRadius(MovingRadiusType T)
+  void
+  SetMetricRadius(MovingRadiusType T)
   {
-    m_MetricRadius  = T;
+    m_MetricRadius = T;
   }
   /** Get the metric region size. */
-  MovingRadiusType GetMetricRadius()
+  MovingRadiusType
+  GetMetricRadius()
   {
     return m_MetricRadius;
   }
@@ -229,31 +224,36 @@ public:
    * in each 1-dimensional line integral when evaluating the load.
    * This value is passed to the load implementation.
    */
-  void SetNumberOfIntegrationPoints(unsigned int i)
+  void
+  SetNumberOfIntegrationPoints(unsigned int i)
   {
     m_NumberOfIntegrationPoints = i;
   }
-  unsigned int GetNumberOfIntegrationPoints()
+  unsigned int
+  GetNumberOfIntegrationPoints()
   {
     return m_NumberOfIntegrationPoints;
   }
 
   /** Set the direction of the gradient (uphill or downhill).
-    * E.g. the mean squares metric should be minimized while NCC and PR should be maximized.
-    */
-  void SetSign(Float s)
+   * E.g. the mean squares metric should be minimized while NCC and PR should be maximized.
+   */
+  void
+  SetSign(Float s)
   {
     m_Sign = s;
   }
 
   /** Set the sigma in a gaussian measure. */
-  void SetTemp(Float s)
+  void
+  SetTemp(Float s)
   {
     m_Temp = s;
   }
 
   /** Scaling of the similarity energy term */
-  void SetGamma(Float s)
+  void
+  SetGamma(Float s)
   {
     m_Gamma = s;
   }
@@ -261,14 +261,16 @@ public:
   /** Set the pointer to the solution vector.
    * \param ptr Pointer to the object of Solution class.
    */
-  virtual void SetSolution(Solution::ConstPointer ptr) ITK_OVERRIDE
+  void
+  SetSolution(Solution::ConstPointer ptr) override
   {
     m_Solution = ptr;
   }
   /** Get the pointer to the solution vector.
    * \return Pointer to the object of Solution class.
    */
-  virtual Solution::ConstPointer GetSolution() ITK_OVERRIDE
+  Solution::ConstPointer
+  GetSolution() override
   {
     return m_Solution;
   }
@@ -276,74 +278,89 @@ public:
   /**
    *  This method returns the total metric evaluated over the image with respect to the current solution.
    */
-  Float GetMetric(VectorType InVec);
+  Float
+  GetMetric(VectorType InVec);
 
-  VectorType GetPolynomialFitToMetric(VectorType PositionInElement, VectorType SolutionAtPosition);
+  VectorType
+  GetPolynomialFitToMetric(VectorType PositionInElement, VectorType SolutionAtPosition);
 
-  VectorType MetricFiniteDiff(VectorType PositionInElement, VectorType SolutionAtPosition);
+  VectorType
+  MetricFiniteDiff(VectorType PositionInElement, VectorType SolutionAtPosition);
 
   // FIXME - WE ASSUME THE 2ND VECTOR (INDEX 1) HAS THE INFORMATION WE WANT
-  Float GetSolution(unsigned int i, unsigned int which = 0)
+  Float
+  GetSolution(unsigned int i, unsigned int which = 0)
   {
     return m_Solution->GetSolutionValue(i, which);
   }
 
-// define the copy constructor
-//  ImageMetricLoad(const ImageMetricLoad& LMS);
+  // define the copy constructor
+  //  ImageMetricLoad(const ImageMetricLoad& LMS);
 
-  void InitializeMetric();
+  void
+  InitializeMetric();
 
   ImageMetricLoad(); // cannot be private until we always use smart pointers
-  Float EvaluateMetricGivenSolution(Element::ArrayType *el, Float step = 1.0);
+  Float
+  EvaluateMetricGivenSolution(Element::ArrayType * el, Float step = 1.0);
 
-  Float EvaluateMetricGivenSolution1(Element::ArrayType *el, Float step = 1.0);
+  Float
+  EvaluateMetricGivenSolution1(Element::ArrayType * el, Float step = 1.0);
 
   /**
    * Compute the image based load - implemented with ITK metric derivatives.
    */
   VectorType Fe(VectorType, VectorType);
 
-  static Baseclass * NewImageMetricLoad(void)
+  static Baseclass *
+  NewImageMetricLoad()
   {
     return new ImageMetricLoad;
   }
 
   /** Set/Get the metric gradient image */
   // void InitializeGradientImage();
-  void SetMetricGradientImage(GradientImageType *g)
+  void
+  SetMetricGradientImage(GradientImageType * g)
   {
     m_MetricGradientImage = g;
   }
-  GradientImageType * GetMetricGradientImage()
+  GradientImageType *
+  GetMetricGradientImage()
   {
     return m_MetricGradientImage;
   }
 
-  void PrintCurrentEnergy()
+  void
+  PrintCurrentEnergy()
   {
     std::cout << " energy " << m_Energy << std::endl;
   }
-  double GetCurrentEnergy()
+  double
+  GetCurrentEnergy()
   {
     return m_Energy;
   }
-  void  SetCurrentEnergy(double e)
+  void
+  SetCurrentEnergy(double e)
   {
     m_Energy = e;
   }
 
   // FIXME - Documentation
-  virtual void ApplyLoad(Element::ConstPointer element, Element::VectorType & Fe) ITK_OVERRIDE;
+  void
+  ApplyLoad(Element::ConstPointer element, Element::VectorType & Fe) override;
 
 protected:
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  GradientImageType *m_MetricGradientImage;
-  MovingPointer      m_RefImage;
-  FixedPointer       m_TarImage;
-  MovingRadiusType   m_MetricRadius;            /** used by the metric to set
-                                                  region size for fixed image*/
+  GradientImageType * m_MetricGradientImage;
+  MovingPointer       m_RefImage;
+  FixedPointer        m_TarImage;
+  MovingRadiusType    m_MetricRadius; /** used by the metric to set
+                                        region size for fixed image*/
   typename MovingType::SizeType m_RefSize;
   typename FixedType::SizeType  m_TarSize;
   unsigned int                  m_NumberOfIntegrationPoints;
@@ -361,13 +378,12 @@ private:
   mutable double m_Energy;
 
 private:
-
 };
-}
-}  // end namespace fem/itk
+} // end namespace fem
+} // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFEMImageMetricLoad.hxx"
+#  include "itkFEMImageMetricLoad.hxx"
 #endif
 
-#endif
+#endif // itkFEMImageMetricLoad_h

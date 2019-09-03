@@ -23,45 +23,46 @@
 #include "itkLabelMapOverlayImageFilter.h"
 
 
-int itkLabelMapOverlayImageFilterTest1(int argc, char * argv[])
+int
+itkLabelMapOverlayImageFilterTest1(int argc, char * argv[])
 {
-  if( argc != 5 )
-    {
+  if (argc != 5)
+  {
     std::cerr << "usage: " << argv[0] << " input input output opacity" << std::endl;
     // std::cerr << "  : " << std::endl;
     exit(1);
-    }
+  }
 
-  const int dim = 2;
+  constexpr int dim = 2;
 
-  typedef itk::Image< unsigned char, dim > IType;
+  using IType = itk::Image<unsigned char, dim>;
 
-  typedef itk::ImageFileReader< IType > ReaderType;
+  using ReaderType = itk::ImageFileReader<IType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::LabelImageToLabelMapFilter< IType > ConverterType;
+  using ConverterType = itk::LabelImageToLabelMapFilter<IType>;
   ConverterType::Pointer converter = ConverterType::New();
-  converter->SetInput( reader->GetOutput() );
+  converter->SetInput(reader->GetOutput());
 
   ReaderType::Pointer reader2 = ReaderType::New();
-  reader2->SetFileName( argv[2] );
+  reader2->SetFileName(argv[2]);
 
-//  typedef itk::RGBPixel< unsigned char > RGBPixelType;
-//  typedef itk::Image< RGBPixelType, dim > RGBImageType;
+  //  using RGBPixelType = itk::RGBPixel< unsigned char >;
+  //  using RGBImageType = itk::Image< RGBPixelType, dim >;
 
-  typedef itk::LabelMapOverlayImageFilter< ConverterType::OutputImageType, IType > ColorizerType;
+  using ColorizerType = itk::LabelMapOverlayImageFilter<ConverterType::OutputImageType, IType>;
   ColorizerType::Pointer colorizer = ColorizerType::New();
-  colorizer->SetInput( converter->GetOutput() );
-  colorizer->SetFeatureImage( reader2->GetOutput() );
-  colorizer->SetOpacity( atof(argv[4]) );
+  colorizer->SetInput(converter->GetOutput());
+  colorizer->SetFeatureImage(reader2->GetOutput());
+  colorizer->SetOpacity(std::stod(argv[4]));
 
   itk::SimpleFilterWatcher watcher(colorizer, "filter");
 
-  typedef itk::ImageFileWriter< ColorizerType::OutputImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ColorizerType::OutputImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( colorizer->GetOutput() );
-  writer->SetFileName( argv[3] );
+  writer->SetInput(colorizer->GetOutput());
+  writer->SetFileName(argv[3]);
   writer->Update();
   return 0;
 }

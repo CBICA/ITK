@@ -71,23 +71,24 @@ namespace itk
  * \ingroup ImageObjects
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{IO/ReadVectorImage,Read an image file with an unknown number of components}
- * \wikiexample{VectorImages/VectorImage,Create a vector image}
- * \wikiexample{VectorImages/NeighborhoodIterator,NeighborhoodIterator on a VectorImage}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CastVectorImageToAnotherType,Cast Vector Image To Another Type}
+ * \sphinxexample{Core/Common/CreateVectorImage,Create Vector Image}
+ * \sphinxexample{VectorImages/NeighborhoodIterator,Neighborhood Iterator On Vector Image}
+ * \endsphinx
  */
-template< typename TPixel, unsigned int VImageDimension = 3 >
-class ITK_TEMPLATE_EXPORT VectorImage:
-  public ImageBase< VImageDimension >
+template <typename TPixel, unsigned int VImageDimension = 3>
+class ITK_TEMPLATE_EXPORT VectorImage : public ImageBase<VImageDimension>
 {
 public:
-  /** Standard class typedefs */
-  typedef VectorImage                  Self;
-  typedef ImageBase< VImageDimension > Superclass;
-  typedef SmartPointer< Self >         Pointer;
-  typedef SmartPointer< const Self >   ConstPointer;
-  typedef WeakPointer< const Self >    ConstWeakPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorImage);
+
+  /** Standard class type aliases */
+  using Self = VectorImage;
+  using Superclass = ImageBase<VImageDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using ConstWeakPointer = WeakPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -95,77 +96,76 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(VectorImage, ImageBase);
 
-  /** Pixel typedef support. Used to declare pixel type in filters
+  /** Pixel type alias support Used to declare pixel type in filters
    * or other operations. This is not the actual pixel type contained in
    * the buffer, ie m_Buffer. The image exhibits an external API of an
    * VariableLengthVector< T > and internally stores its data as type T. */
-  typedef VariableLengthVector< TPixel > PixelType;
+  using PixelType = VariableLengthVector<TPixel>;
 
   /** This is the actual pixel type contained in the buffer. Each vector
    * pixel is composed of 'm_VectorLength' contiguous InternalPixelType.
    */
-  typedef TPixel InternalPixelType;
+  using InternalPixelType = TPixel;
 
   /** Typedef alias for PixelType */
-  typedef PixelType ValueType;
+  using ValueType = PixelType;
 
-  typedef InternalPixelType IOPixelType;
+  using IOPixelType = InternalPixelType;
 
   /** Accessor type that convert data between internal and external
    *  representations.  */
-  typedef DefaultVectorPixelAccessor< InternalPixelType > AccessorType;
+  using AccessorType = DefaultVectorPixelAccessor<InternalPixelType>;
 
   /** Functor to provide a common API between DefaultPixelAccessor and
    * DefaultVectorPixelAccessor */
-  typedef DefaultVectorPixelAccessorFunctor< Self > AccessorFunctorType;
+  using AccessorFunctorType = DefaultVectorPixelAccessorFunctor<Self>;
 
   /** Typedef for the functor used to access a neighborhood of pixel
    * pointers. */
-  typedef VectorImageNeighborhoodAccessorFunctor<
-    Self >              NeighborhoodAccessorFunctorType;
+  using NeighborhoodAccessorFunctorType = VectorImageNeighborhoodAccessorFunctor<Self>;
 
   /** Dimension of the image.  This constant is used by functions that are
    * templated over image type (as opposed to being templated over pixel type
    * and dimension) when they need compile time access to the dimension of
    * the image. */
-  itkStaticConstMacro(ImageDimension, unsigned int, VImageDimension);
+  static constexpr unsigned int ImageDimension = VImageDimension;
 
-  /** Index typedef support. An index is used to access pixel values. */
-  typedef typename Superclass::IndexType      IndexType;
-  typedef typename Superclass::IndexValueType IndexValueType;
+  /** Index type alias support An index is used to access pixel values. */
+  using IndexType = typename Superclass::IndexType;
+  using IndexValueType = typename Superclass::IndexValueType;
 
-  /** Offset typedef support. An offset is used to access pixel values. */
-  typedef typename Superclass::OffsetType OffsetType;
+  /** Offset type alias support An offset is used to access pixel values. */
+  using OffsetType = typename Superclass::OffsetType;
 
-  /** Size typedef support. A size is used to define region bounds. */
-  typedef typename Superclass::SizeType      SizeType;
+  /** Size type alias support A size is used to define region bounds. */
+  using SizeType = typename Superclass::SizeType;
 
   /** Container used to store pixels in the image. */
-  typedef ImportImageContainer< SizeValueType, InternalPixelType > PixelContainer;
+  using PixelContainer = ImportImageContainer<SizeValueType, InternalPixelType>;
 
-  /** Direction typedef support. A matrix of direction cosines. */
-  typedef typename Superclass::DirectionType DirectionType;
+  /** Direction type alias support A matrix of direction cosines. */
+  using DirectionType = typename Superclass::DirectionType;
 
-  /** Region typedef support. A region is used to specify a subset of an image.
-    */
-  typedef typename Superclass::RegionType RegionType;
+  /** Region type alias support A region is used to specify a subset of an image.
+   */
+  using RegionType = typename Superclass::RegionType;
 
-  /** Spacing typedef support.  Spacing holds the size of a pixel.  The
+  /** Spacing type alias support  Spacing holds the size of a pixel.  The
    * spacing is the geometric distance between image samples. */
-  typedef typename Superclass::SpacingType SpacingType;
+  using SpacingType = typename Superclass::SpacingType;
 
-  /** Origin typedef support.  The origin is the geometric coordinates
+  /** Origin type alias support  The origin is the geometric coordinates
    * of the index (0,0). */
-  typedef typename Superclass::PointType PointType;
+  using PointType = typename Superclass::PointType;
 
   /** A pointer to the pixel container. */
-  typedef typename PixelContainer::Pointer      PixelContainerPointer;
-  typedef typename PixelContainer::ConstPointer PixelContainerConstPointer;
+  using PixelContainerPointer = typename PixelContainer::Pointer;
+  using PixelContainerConstPointer = typename PixelContainer::ConstPointer;
 
-  /** Offset typedef (relative position between indices) */
-  typedef typename Superclass::OffsetValueType OffsetValueType;
+  /** Offset type alias (relative position between indices) */
+  using OffsetValueType = typename Superclass::OffsetValueType;
 
-  typedef unsigned int VectorLengthType;
+  using VectorLengthType = unsigned int;
 
   /**
    * \brief A structure which enable changing any image class' pixel
@@ -175,52 +175,60 @@ public:
    * TPixelType, the following two rebinds result in the same type to
    * enable usage with the numeric trait's type.
    *
-   * \code
-   * typename InputImageType::template template Rebind<double>::Type RealImageType1;
-   * typename InputImageType::template template Rebind<VariableLengthVector<double> >::Type RealImageType2;
-   * \endcode
+     \code
+     typename InputImageType::template template Rebind<double>::Type RealImageType1;
+     typename InputImageType::template template Rebind<VariableLengthVector<double> >::Type RealImageType2;
+     \endcode
    *
    * \sa Image::Rebind
+   * \deprecated Use template alias RebindImageType instead
    */
   template <typename UPixelType, unsigned int NUImageDimension = VImageDimension>
   struct Rebind
   {
-    typedef itk::VectorImage<UPixelType, NUImageDimension>  Type;
+    using Type = itk::VectorImage<UPixelType, NUImageDimension>;
   };
 
   /// \cond HIDE_SPECIALIZATION_DOCUMENTATION
   template <typename UElementType, unsigned int NUImageDimension>
-  struct Rebind< VariableLengthVector< UElementType >, NUImageDimension>
+  struct Rebind<VariableLengthVector<UElementType>, NUImageDimension>
   {
-    typedef itk::VectorImage<UElementType, NUImageDimension>  Type;
+    using Type = itk::VectorImage<UElementType, NUImageDimension>;
   };
   /// \endcond
 
+  template <typename UPixelType, unsigned int NUImageDimension = VImageDimension>
+  using RebindImageType = typename Rebind<UPixelType, NUImageDimension>::Type;
+
   /** Allocate the image memory. The size of the image must
    * already be set, e.g. by calling SetRegions(). */
-  virtual void Allocate(bool UseDefaultConstructor = false) ITK_OVERRIDE;
+  void
+  Allocate(bool UseDefaultConstructor = false) override;
 
   /** Restore the data object to its initial state. This means releasing
    * memory. */
-  virtual void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /** Fill the image buffer with a value.  Be sure to call Allocate()
    * first. */
-  void FillBuffer(const PixelType & value);
+  void
+  FillBuffer(const PixelType & value);
 
   /** \brief Set a pixel value.
    *
    * Allocate() needs to have been called first -- for efficiency,
    * this function does not check that the image has actually been
    * allocated yet. */
-  void SetPixel(const IndexType & index, const PixelType & value)
+  void
+  SetPixel(const IndexType & index, const PixelType & value)
   {
     OffsetValueType offset = m_VectorLength * this->FastComputeOffset(index);
 
-    for ( VectorLengthType i = 0; i < m_VectorLength; i++ )
-      {
-      ( *m_Buffer )[offset + i] = value[i];
-      }
+    for (VectorLengthType i = 0; i < m_VectorLength; i++)
+    {
+      (*m_Buffer)[offset + i] = value[i];
+    }
   }
 
   /** \brief Get a pixel (read only version).
@@ -228,13 +236,14 @@ public:
    * For efficiency, this function does not check that the
    * image has actually been allocated yet. Note that the method returns a
    * pixel on the stack. */
-  const PixelType GetPixel(const IndexType & index) const
+  const PixelType
+  GetPixel(const IndexType & index) const
   {
     OffsetValueType offset = m_VectorLength * this->FastComputeOffset(index);
 
     // Do not create a local for this method, to use return value
     // optimization.
-    return PixelType(&( ( *m_Buffer )[offset] ), m_VectorLength);
+    return PixelType(&((*m_Buffer)[offset]), m_VectorLength);
   }
 
   /** \brief Get a "reference" to a pixel. This result cannot be used
@@ -246,13 +255,14 @@ public:
    *
    * For efficiency, this function does not check that the
    * image has actually been allocated yet. */
-  PixelType  GetPixel(const IndexType & index)
+  PixelType
+  GetPixel(const IndexType & index)
   {
     OffsetValueType offset = m_VectorLength * this->FastComputeOffset(index);
 
     // Correctness of this method relies of return value optimization, do
     // not create a local for the value.
-    return PixelType(&( ( *m_Buffer )[offset] ), m_VectorLength);
+    return PixelType(&((*m_Buffer)[offset]), m_VectorLength);
   }
 
   /** \brief Access a pixel. This result cannot be used as an lvalue
@@ -274,24 +284,35 @@ public:
 
   /** Return a pointer to the beginning of the buffer.  This is used by
    * the image iterator class. */
-  InternalPixelType * GetBufferPointer()
+  InternalPixelType *
+  GetBufferPointer()
   {
-    return m_Buffer ? m_Buffer->GetBufferPointer() : ITK_NULLPTR;
+    return m_Buffer ? m_Buffer->GetBufferPointer() : nullptr;
   }
-  const InternalPixelType * GetBufferPointer() const
+  const InternalPixelType *
+  GetBufferPointer() const
   {
-    return m_Buffer ? m_Buffer->GetBufferPointer() : ITK_NULLPTR;
+    return m_Buffer ? m_Buffer->GetBufferPointer() : nullptr;
   }
 
   /** Return a pointer to the container. */
-  PixelContainer * GetPixelContainer() { return m_Buffer.GetPointer(); }
+  PixelContainer *
+  GetPixelContainer()
+  {
+    return m_Buffer.GetPointer();
+  }
 
   /** Return a pointer to the container. */
-  const PixelContainer * GetPixelContainer() const { return m_Buffer.GetPointer(); }
+  const PixelContainer *
+  GetPixelContainer() const
+  {
+    return m_Buffer.GetPointer();
+  }
 
   /** Set the container to use. Note that this does not cause the
    * DataObject to be modified. */
-  void SetPixelContainer(PixelContainer *container);
+  void
+  SetPixelContainer(PixelContainer * container);
 
   /** Graft the data and information from one image to another. This
    * is a convenience method to setup a second image with all the meta
@@ -303,22 +324,33 @@ public:
    * simply calls CopyInformation() and copies the region ivars.
    * The implementation here refers to the superclass' implementation
    * and then copies over the pixel container. */
-  virtual void Graft(const Self *data);
+  virtual void
+  Graft(const Self * data);
 
   /** Return the Pixel Accessor object */
-  AccessorType GetPixelAccessor(void) { return AccessorType(m_VectorLength); }
+  AccessorType
+  GetPixelAccessor()
+  {
+    return AccessorType(m_VectorLength);
+  }
 
   /** Return the Pixel Accesor object */
-  const AccessorType GetPixelAccessor(void) const { return AccessorType(m_VectorLength); }
+  const AccessorType
+  GetPixelAccessor() const
+  {
+    return AccessorType(m_VectorLength);
+  }
 
   /** Return the NeighborhoodAccessor functor */
-  NeighborhoodAccessorFunctorType GetNeighborhoodAccessor()
+  NeighborhoodAccessorFunctorType
+  GetNeighborhoodAccessor()
   {
     return NeighborhoodAccessorFunctorType(m_VectorLength);
   }
 
   /** Return the NeighborhoodAccessor functor */
-  const NeighborhoodAccessorFunctorType GetNeighborhoodAccessor() const
+  const NeighborhoodAccessorFunctorType
+  GetNeighborhoodAccessor() const
   {
     return NeighborhoodAccessorFunctorType(m_VectorLength);
   }
@@ -328,22 +360,25 @@ public:
   itkGetConstReferenceMacro(VectorLength, VectorLengthType);
 
   /** Get/Set the number of components each pixel has, ie the VectorLength */
-  virtual unsigned int GetNumberOfComponentsPerPixel() const ITK_OVERRIDE;
+  unsigned int
+  GetNumberOfComponentsPerPixel() const override;
 
-  virtual void SetNumberOfComponentsPerPixel(unsigned int n) ITK_OVERRIDE;
+  void
+  SetNumberOfComponentsPerPixel(unsigned int n) override;
 
 protected:
   VectorImage();
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  virtual ~VectorImage() ITK_OVERRIDE {}
-  virtual void Graft(const DataObject *data) ITK_OVERRIDE;
+  ~VectorImage() override = default;
+  void
+  Graft(const DataObject * data) override;
   using Superclass::Graft;
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorImage);
 
+private:
   /** Length of the "vector pixel" */
-  VectorLengthType m_VectorLength;
+  VectorLengthType m_VectorLength{ 0 };
 
   /** Memory for the current buffer. */
   PixelContainerPointer m_Buffer;
@@ -351,7 +386,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorImage.hxx"
+#  include "itkVectorImage.hxx"
 #endif
 
 #endif

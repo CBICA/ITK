@@ -60,21 +60,22 @@ namespace fem
 class ITKFEM_EXPORT Element2DC0LinearTriangularStrain : public Element2DStrain<Element2DC0LinearTriangular>
 {
 public:
-  /** Standard class typedefs. */
-  typedef Element2DC0LinearTriangularStrain            Self;
-  typedef Element2DStrain<Element2DC0LinearTriangular> Superclass;
-  typedef SmartPointer<Self>                           Pointer;
-  typedef SmartPointer<const Self>                     ConstPointer;
+  /** Standard class type aliases. */
+  using Self = Element2DC0LinearTriangularStrain;
+  using Superclass = Element2DStrain<Element2DC0LinearTriangular>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkSimpleNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(Element2DC0LinearTriangularStrain, Element2DStrain<Element2DC0LinearTriangular> );
+  itkTypeMacro(Element2DC0LinearTriangularStrain, Element2DStrain<Element2DC0LinearTriangular>);
 
   /** CreateAnother method will clone the existing instance of this type,
    * including its internal member variables. */
-  virtual::itk::LightObject::Pointer CreateAnother(void) const ITK_OVERRIDE;
+  ::itk::LightObject::Pointer
+  CreateAnother() const override;
 
   /**
    * Default constructor only clears the internal storage
@@ -88,11 +89,11 @@ public:
   Element2DC0LinearTriangularStrain(NodeIDType n1_, NodeIDType n2_, NodeIDType n3_, Material::ConstPointer p_);
 
 protected:
-  virtual void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-};  // class Element2DC0LinearTriangularStrain
+}; // class Element2DC0LinearTriangularStrain
+} // end namespace fem
+} // end namespace itk
 
-}
-}  // end namespace itk::fem
-
-#endif  // #ifndef itkFEMElement2DC0LinearTriangularStrain_h
+#endif // itkFEMElement2DC0LinearTriangularStrain_h

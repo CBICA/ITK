@@ -1,31 +1,20 @@
 set(DOCUMENTATION "This is a collection of classes that are intended to be
 removed from the toolkit.")
 
-if(NOT ITKV3_COMPATIBILITY ) ## Deprecated code only work with ITKV3_COMPATIBILITY
-  set(EXCLUDE_DEPRECATED_LEGACY_CODE "EXCLUDE_FROM_DEFAULT")
-else()
-  set(EXCLUDE_DEPRECATED_LEGACY_CODE "")
+set(ITKDeprecatedOnByDefault EXCLUDE_FROM_DEFAULT)
+if (ITKV4_COMPATIBILITY)
+  set(ITKDeprecatedOnByDefault "")
 endif()
+
 itk_module(ITKDeprecated
-  PRIVATE_DEPENDS
+  DEPENDS
     ITKCommon
-    ITKDICOMParser
-    ITKIOGDCM
-    ITKIOImageBase
-    ITKNIFTI
-    ITKZLIB
-  COMPILE_DEPENDS
-    ITKV3Compatibility      ## Note: Deprecated requires the ITKV3 compatibility layer
-    ITKMesh
+    ITKTransform
+    ITKImageFunction
   TEST_DEPENDS
     ITKTestKernel
-    ITKDICOMParser
-    ITKGDCM
-    ITKIOBioRad
-    ITKIOLSM
-    ITKIOStimulate
-    ITKRegistrationCommon
-  ${EXCLUDE_DEPRECATED_LEGACY_CODE}
+  ${ITKDeprecatedOnByDefault}
+  ENABLE_SHARED
   DESCRIPTION
     "${DOCUMENTATION}"
 )

@@ -33,50 +33,50 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkThresholdMaximumConnectedComponentsImageFilter.h"
+#include "itkTestingMacros.h"
 
-int itkThresholdMaximumConnectedComponentsImageFilterTest( int argc,
-                                                           char * argv [] )
+int
+itkThresholdMaximumConnectedComponentsImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 3 )
-    {
-    std::cerr << "Usage: " << argv[0] << std::endl;
+  if (argc < 3)
+  {
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv) << std::endl;
     std::cerr << " 1: InputImage Name 2:OutputImage Name" << std::endl;
     std::cerr << " 3: minimumPixelArea" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
-  typedef unsigned char InputPixelType;
-  typedef unsigned char OutputPixelType;
-  const   unsigned int Dimension = 2;
+  using InputPixelType = unsigned char;
+  using OutputPixelType = unsigned char;
+  constexpr unsigned int Dimension = 2;
 
-  typedef itk::Image< InputPixelType, Dimension >  InputImageType;
-  typedef itk::Image< OutputPixelType, Dimension > OutputImageType;
+  using InputImageType = itk::Image<InputPixelType, Dimension>;
+  using OutputImageType = itk::Image<OutputPixelType, Dimension>;
 
   InputPixelType maxLabel = itk::NumericTraits<InputPixelType>::max();
-  InputPixelType minLabel =
-                 itk::NumericTraits<InputPixelType>::NonpositiveMin();
+  InputPixelType minLabel = itk::NumericTraits<InputPixelType>::NonpositiveMin();
 
-  const unsigned int minimumPixelArea = atoi( argv[3] );
+  const unsigned int minimumPixelArea = std::stoi(argv[3]);
 
-  typedef itk::ImageFileReader< InputImageType >  ReaderType;
+  using ReaderType = itk::ImageFileReader<InputImageType>;
   ReaderType::Pointer reader = ReaderType::New();
 
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
   // Read the Input Image
   std::cout << "About to load input image " << std::endl;
 
   try
-    {
+  {
     reader->Update();
-    }
-  catch(itk::ExceptionObject & err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "Exception Caught!" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // ************************************************************************
   // Automatic Threshold Filter
@@ -89,56 +89,55 @@ int itkThresholdMaximumConnectedComponentsImageFilterTest( int argc,
   unsigned int numberOfObjects;
   unsigned int thresholdValue;
 
-  typedef itk::ThresholdMaximumConnectedComponentsImageFilter< InputImageType>
-  ThresholdType;
+  using ThresholdType = itk::ThresholdMaximumConnectedComponentsImageFilter<InputImageType>;
   ThresholdType::Pointer automaticThreshold = ThresholdType::New();
 
-  automaticThreshold->SetInput( reader->GetOutput() );
-  automaticThreshold->SetMinimumObjectSizeInPixels( minimumPixelArea );
+  automaticThreshold->SetInput(reader->GetOutput());
+  automaticThreshold->SetMinimumObjectSizeInPixels(minimumPixelArea);
 
   // For counting Myofibers, the inside value should be the minLabel
   // If you wanted to count a solid object (ie dapi nuclei) set the
   // inside value to minLabel.
   //
-  automaticThreshold->SetInsideValue( minLabel );
-  automaticThreshold->SetOutsideValue( maxLabel );
+  automaticThreshold->SetInsideValue(minLabel);
+  automaticThreshold->SetOutsideValue(maxLabel);
 
   try
-    {
+  {
     automaticThreshold->Update();
-    }
-  catch(itk::ExceptionObject & err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "Exception Caught!" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  numberOfObjects  = automaticThreshold->GetNumberOfObjects();
-  thresholdValue   = automaticThreshold->GetThresholdValue();
+  numberOfObjects = automaticThreshold->GetNumberOfObjects();
+  thresholdValue = automaticThreshold->GetThresholdValue();
 
   std::cout << "Number of Objects = " << numberOfObjects << std::endl;
-  std::cout << "Threshold Value   = " << thresholdValue  << std::endl;
+  std::cout << "Threshold Value   = " << thresholdValue << std::endl;
 
   // *****************************************************************
   // Image File Writer
-  typedef itk::ImageFileWriter< OutputImageType >  WriterType;
+  using WriterType = itk::ImageFileWriter<OutputImageType>;
 
-  WriterType::Pointer writer = WriterType::New( );
-  writer->SetInput( automaticThreshold->GetOutput() );
+  WriterType::Pointer writer = WriterType::New();
+  writer->SetInput(automaticThreshold->GetOutput());
 
-  writer->SetFileName( argv[2] );
+  writer->SetFileName(argv[2]);
 
   try
-    {
+  {
     writer->Update();
-    }
-  catch(itk::ExceptionObject & err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "Exception Caught!" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

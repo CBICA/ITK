@@ -31,11 +31,11 @@ namespace itk
  *  kernel.
  *
  *  For example, the simplest Laplacian Operator for 2D has the form:
- *  \code
- *              0   1   0
- *              1  -4   1
- *              0   1   0
- *  \endcode
+    \code
+                0   1   0
+                1  -4   1
+                0   1   0
+    \endcode
  *
  *  \par
  *  The LaplacianOperator is a non-directional NeighborhoodOperator that
@@ -55,78 +55,81 @@ namespace itk
  * \ingroup Operators
  * \ingroup ITKCommon
  *
- * \wiki
- * \wikiexample{Operators/LaplacianOperator,Create a Laplacian kernel}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Core/Common/CreateLaplacianKernel,Create Laplacian Kernel}
+ * \endsphinx
  */
-template< typename TPixel, unsigned int VDimension = 2,
-          typename TAllocator = NeighborhoodAllocator< TPixel > >
-class ITK_TEMPLATE_EXPORT LaplacianOperator:
-  public NeighborhoodOperator< TPixel, VDimension, TAllocator >
+template <typename TPixel, unsigned int VDimension = 2, typename TAllocator = NeighborhoodAllocator<TPixel>>
+class ITK_TEMPLATE_EXPORT LaplacianOperator : public NeighborhoodOperator<TPixel, VDimension, TAllocator>
 {
 public:
-  /** Standard "Self" typedef support.   */
-  typedef LaplacianOperator Self;
+  /** Standard "Self" type alias support   */
+  using Self = LaplacianOperator;
 
-  /** Standard "Superclass" typedef.   */
-  typedef NeighborhoodOperator< TPixel, VDimension, TAllocator > Superclass;
+  /** Standard "Superclass" type alias.   */
+  using Superclass = NeighborhoodOperator<TPixel, VDimension, TAllocator>;
 
-  typedef typename Superclass::PixelType PixelType;
-  typedef typename Superclass::SizeType  SizeType;
+  using PixelType = typename Superclass::PixelType;
+  using SizeType = typename Superclass::SizeType;
 
   /**  Default constructor  */
   LaplacianOperator()
   {
-    for ( unsigned i = 0; i < VDimension; ++i )
-      {
+    for (unsigned i = 0; i < VDimension; ++i)
+    {
       m_DerivativeScalings[i] = 1.0;
-      }
+    }
   }
 
   /** Copy constructor   */
-  LaplacianOperator(const Self & other):
-    NeighborhoodOperator< TPixel, VDimension, TAllocator >(other)
+  LaplacianOperator(const Self & other)
+    : NeighborhoodOperator<TPixel, VDimension, TAllocator>(other)
   {
-    for ( unsigned i = 0; i < VDimension; ++i )
-      {
+    for (unsigned i = 0; i < VDimension; ++i)
+    {
       m_DerivativeScalings[i] = other.m_DerivativeScalings[i];
-      }
+    }
   }
 
   /** This function is called to create the operator  */
-  void CreateOperator();
+  void
+  CreateOperator();
 
   /** Assignment operator   */
-  Self & operator=(const Self & other)
+  Self &
+  operator=(const Self & other)
   {
     Superclass::operator=(other);
     return *this;
   }
 
   /** Prints some debugging information   */
-  virtual void PrintSelf(std::ostream & os, Indent i) const
+  void
+  PrintSelf(std::ostream & os, Indent i) const override
   {
-    os << i << "LaplacianOperator { this=" << this
-       << "}" << std::endl;
-    Superclass::PrintSelf( os, i.GetNextIndent() );
+    os << i << "LaplacianOperator { this=" << this << "}" << std::endl;
+    Superclass::PrintSelf(os, i.GetNextIndent());
   }
 
   /** Sets the weights that are applied to the derivative in each axial
    *  direction when the kernel is computed.  These weights are all 1.0 by
    *  default. This method must be called BEFORE CreateOperator */
-  void SetDerivativeScalings(const double *s);
+  void
+  SetDerivativeScalings(const double * s);
 
 protected:
   /** Typedef support for coefficient vector type.  Necessary to
    * work around compiler bug on VC++.   */
-  typedef typename Superclass::CoefficientVector CoefficientVector;
+  using CoefficientVector = typename Superclass::CoefficientVector;
 
   /** Calculates operator coefficients.   */
-  CoefficientVector GenerateCoefficients();
+  CoefficientVector
+  GenerateCoefficients() override;
 
   /** Arranges coefficients spatially in the memory buffer, default
    * function was NOT used.   */
-  void Fill(const CoefficientVector &);
+  void
+  Fill(const CoefficientVector &) override;
 
 private:
   /** Weights applied to derivatives in each axial direction */
@@ -135,7 +138,7 @@ private:
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLaplacianOperator.hxx"
+#  include "itkLaplacianOperator.hxx"
 #endif
 
 #endif

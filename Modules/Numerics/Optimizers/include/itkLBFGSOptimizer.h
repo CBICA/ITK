@@ -82,15 +82,16 @@ namespace itk
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizers
  */
-class ITKOptimizers_EXPORT LBFGSOptimizer:
-  public SingleValuedNonLinearVnlOptimizer
+class ITKOptimizers_EXPORT LBFGSOptimizer : public SingleValuedNonLinearVnlOptimizer
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef LBFGSOptimizer                    Self;
-  typedef SingleValuedNonLinearVnlOptimizer Superclass;
-  typedef SmartPointer< Self >              Pointer;
-  typedef SmartPointer< const Self >        ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LBFGSOptimizer);
+
+  /** Standard "Self" type alias. */
+  using Self = LBFGSOptimizer;
+  using Superclass = SingleValuedNonLinearVnlOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -98,31 +99,36 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(LBFGSOptimizer, SingleValuedNonLinearVnlOptimizer);
 
-  /** InternalParameters typedef. */
-  typedef   vnl_vector< double > InternalParametersType;
+  /** InternalParameters type alias. */
+  using InternalParametersType = vnl_vector<double>;
 
   /** Internal optimizer type. */
-  typedef   vnl_lbfgs InternalOptimizerType;
+  using InternalOptimizerType = vnl_lbfgs;
 
   /** Method for getting access to the internal optimizer. */
-  vnl_lbfgs * GetOptimizer();
+  vnl_lbfgs *
+  GetOptimizer();
 
   /** Start optimization with an initial value. */
-  virtual void StartOptimization(void) ITK_OVERRIDE;
+  void
+  StartOptimization() override;
 
   /** Plug in a Cost Function into the optimizer  */
-  virtual void SetCostFunction(SingleValuedCostFunction *costFunction) ITK_OVERRIDE;
+  void
+  SetCostFunction(SingleValuedCostFunction * costFunction) override;
 
   /** Set/Get the optimizer trace flag. If set to true, the optimizer
    * prints out information every iteration.
    */
-  virtual void SetTrace(bool flag);
+  virtual void
+  SetTrace(bool flag);
 
   itkGetMacro(Trace, bool);
   itkBooleanMacro(Trace);
 
   /** Set/Get the maximum number of function evaluations allowed. */
-  virtual void SetMaximumNumberOfFunctionEvaluations(unsigned int n);
+  virtual void
+  SetMaximumNumberOfFunctionEvaluations(unsigned int n);
 
   itkGetMacro(MaximumNumberOfFunctionEvaluations, unsigned int);
 
@@ -131,7 +137,8 @@ public:
    * be found. The optimization terminates when:
    * ||G|| < gtol max(1,||X||) where ||.|| denotes the Euclidean norm.
    */
-  virtual void SetGradientConvergenceTolerance(double gtol);
+  virtual void
+  SetGradientConvergenceTolerance(double gtol);
 
   itkGetMacro(GradientConvergenceTolerance, double);
 
@@ -141,7 +148,8 @@ public:
    * respect to the cost of the iterations it may be advantageous to set
    * the value to a small value (say 0.1).
    */
-  virtual void SetLineSearchAccuracy(double tol);
+  virtual void
+  SetLineSearchAccuracy(double tol);
 
   itkGetMacro(LineSearchAccuracy, double);
 
@@ -149,26 +157,28 @@ public:
    * with a default value of 1.0 which determines the stpe size in the line
    * search.
    */
-  virtual void SetDefaultStepLength(double stp);
+  virtual void
+  SetDefaultStepLength(double stp);
 
   itkGetMacro(DefaultStepLength, double);
 
   /** Return Current Value */
-  MeasureType GetValue() const;
+  MeasureType
+  GetValue() const;
 
   /** Get the reason for termination */
-  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
+  const std::string
+  GetStopConditionDescription() const override;
 
 protected:
   LBFGSOptimizer();
-  virtual ~LBFGSOptimizer() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~LBFGSOptimizer() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  typedef Superclass::CostFunctionAdaptorType CostFunctionAdaptorType;
+  using CostFunctionAdaptorType = Superclass::CostFunctionAdaptorType;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LBFGSOptimizer);
-
   bool                       m_OptimizerInitialized;
   InternalOptimizerType *    m_VnlOptimizer;
   mutable std::ostringstream m_StopConditionDescription;

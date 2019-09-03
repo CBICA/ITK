@@ -3,8 +3,6 @@
 // Tests for vnl_finite.h, written by Peter Vanroose, 6 May 2002.
 
 #include <iostream>
-#include <cstdlib>
-#include <vcl_compiler.h>
 #include <testlib/testlib_test.h>
 #include <vnl/vnl_finite.h>
 
@@ -177,7 +175,7 @@ void test_finite_int(vnl_finite_int<N>)
 }
 
 template <int N, int M>
-void test_finite_poly(vnl_finite_int_poly<N,M>, std::string s)
+void test_finite_poly(vnl_finite_int_poly<N,M>, const std::string& s)
 {
   std::cout << "\n --- Testing vnl_finite_int_poly<" << N << ',' << M << "> ---\n";
 
@@ -228,7 +226,7 @@ void test_finite_poly(vnl_finite_int_poly<N,M>, std::string s)
 
   std::vector<vnl_finite_int<N> > mod_p(M+1);
   for (int m=0; m<=M; ++m)
-    mod_p[m] = std::atoi(s.c_str()+2*m);
+    mod_p[m] = std::stoi(s.c_str()+2*m);
 
   testlib_test_begin("Setting modulo polynomial");
   mod_p = vnl_finite_int_poly<N,M>::modulo_polynomial(mod_p);

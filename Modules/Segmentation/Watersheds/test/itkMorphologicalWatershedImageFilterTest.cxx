@@ -25,105 +25,100 @@
 #include "itkTestingMacros.h"
 
 
-int itkMorphologicalWatershedImageFilterTest( int argc, char * argv[] )
+int
+itkMorphologicalWatershedImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 6 )
-    {
+  if (argc < 6)
+  {
     std::cerr << "Missing parameters" << std::endl;
-    std::cerr << "Usage: " << argv[0]
-      << " inputImageFile"
-      << " outputImageFile"
-      << " markWatershedLine"
-      << " fullyConnected"
-      << " level"
-      << " [ovelayOutput [alpha]]";
+    std::cerr << "Usage: " << itkNameOfTestExecutableMacro(argv) << " inputImageFile"
+              << " outputImageFile"
+              << " markWatershedLine"
+              << " fullyConnected"
+              << " level"
+              << " [ovelayOutput [alpha]]";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int Dimension = 2;
+  constexpr unsigned int Dimension = 2;
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, Dimension > ImageType;
+  using ImageType = itk::Image<PixelType, Dimension>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::MorphologicalWatershedImageFilter< ImageType, ImageType >
-    FilterType;
+  using FilterType = itk::MorphologicalWatershedImageFilter<ImageType, ImageType>;
   FilterType::Pointer filter = FilterType::New();
 
-  EXERCISE_BASIC_OBJECT_METHODS( filter, MorphologicalWatershedImageFilter,
-    ImageToImageFilter );
+  ITK_EXERCISE_BASIC_OBJECT_METHODS(filter, MorphologicalWatershedImageFilter, ImageToImageFilter);
 
-  bool markWatershedLine = atoi( argv[3] );
-  TEST_SET_GET_BOOLEAN( filter, MarkWatershedLine, markWatershedLine );
+  bool markWatershedLine = std::stoi(argv[3]);
+  ITK_TEST_SET_GET_BOOLEAN(filter, MarkWatershedLine, markWatershedLine);
 
-  bool fullyConnected = atoi( argv[4] );
-  TEST_SET_GET_BOOLEAN( filter, FullyConnected, fullyConnected );
+  bool fullyConnected = std::stoi(argv[4]);
+  ITK_TEST_SET_GET_BOOLEAN(filter, FullyConnected, fullyConnected);
 
-  FilterType::InputImagePixelType level =
-    static_cast< FilterType::InputImagePixelType >( atof( argv[5] ) );
-  filter->SetLevel( level );
-  TEST_SET_GET_VALUE( level, filter->GetLevel() );
+  auto level = static_cast<FilterType::InputImagePixelType>(std::stod(argv[5]));
+  filter->SetLevel(level);
+  ITK_TEST_SET_GET_VALUE(level, filter->GetLevel());
 
 
-  filter->SetInput( reader->GetOutput() );
+  filter->SetInput(reader->GetOutput());
 
-  itk::SimpleFilterWatcher watcher( filter, "MorphologicalWatershedImageFilter" );
+  itk::SimpleFilterWatcher watcher(filter, "MorphologicalWatershedImageFilter");
 
-  TRY_EXPECT_NO_EXCEPTION( filter->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(filter->Update());
 
 
   // Rescale the output to have a better display
-  typedef itk::MinimumMaximumImageCalculator< ImageType > MaxCalculatorType;
+  using MaxCalculatorType = itk::MinimumMaximumImageCalculator<ImageType>;
   MaxCalculatorType::Pointer minMaxCalculator = MaxCalculatorType::New();
-  minMaxCalculator->SetImage( filter->GetOutput() );
+  minMaxCalculator->SetImage(filter->GetOutput());
   minMaxCalculator->Compute();
 
-  typedef itk::IntensityWindowingImageFilter<
-    ImageType, ImageType > RescaleType;
+  using RescaleType = itk::IntensityWindowingImageFilter<ImageType, ImageType>;
   RescaleType::Pointer rescaler = RescaleType::New();
-  rescaler->SetInput( filter->GetOutput() );
-  rescaler->SetWindowMinimum( itk::NumericTraits< PixelType >::ZeroValue() );
-  rescaler->SetWindowMaximum( minMaxCalculator->GetMaximum() );
-  rescaler->SetOutputMaximum( itk::NumericTraits< PixelType >::max() );
-  rescaler->SetOutputMinimum( itk::NumericTraits< PixelType >::ZeroValue() );
+  rescaler->SetInput(filter->GetOutput());
+  rescaler->SetWindowMinimum(itk::NumericTraits<PixelType>::ZeroValue());
+  rescaler->SetWindowMaximum(minMaxCalculator->GetMaximum());
+  rescaler->SetOutputMaximum(itk::NumericTraits<PixelType>::max());
+  rescaler->SetOutputMinimum(itk::NumericTraits<PixelType>::ZeroValue());
 
   // Write output image
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( rescaler->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(rescaler->GetOutput());
+  writer->SetFileName(argv[2]);
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
-  if( argc > 6 )
-    {
-    typedef itk::RGBPixel< PixelType >            RGBPixelType;
-    typedef itk::Image< RGBPixelType, Dimension > RGBImageType;
+  if (argc > 6)
+  {
+    using RGBPixelType = itk::RGBPixel<PixelType>;
+    using RGBImageType = itk::Image<RGBPixelType, Dimension>;
 
-    typedef itk::LabelOverlayImageFilter<
-      ImageType, ImageType, RGBImageType> OverlayType;
+    using OverlayType = itk::LabelOverlayImageFilter<ImageType, ImageType, RGBImageType>;
 
     OverlayType::Pointer overlay = OverlayType::New();
-    overlay->SetInput( reader->GetOutput() );
-    overlay->SetLabelImage( filter->GetOutput() );
+    overlay->SetInput(reader->GetOutput());
+    overlay->SetLabelImage(filter->GetOutput());
 
-    typedef itk::ImageFileWriter< RGBImageType > RGBWriterType;
+    using RGBWriterType = itk::ImageFileWriter<RGBImageType>;
     RGBWriterType::Pointer rgbwriter = RGBWriterType::New();
-    rgbwriter->SetInput( overlay->GetOutput() );
-    rgbwriter->SetFileName( argv[6] );
+    rgbwriter->SetInput(overlay->GetOutput());
+    rgbwriter->SetFileName(argv[6]);
 
-    if( argc > 7 )
-      {
-      overlay->SetOpacity( atof( argv[7] ) );
-      }
-
-    TRY_EXPECT_NO_EXCEPTION( rgbwriter->Update() );
+    if (argc > 7)
+    {
+      overlay->SetOpacity(std::stod(argv[7]));
     }
+
+    ITK_TRY_EXPECT_NO_EXCEPTION(rgbwriter->Update());
+  }
 
   std::cerr << "Test finished" << std::endl;
   return EXIT_SUCCESS;

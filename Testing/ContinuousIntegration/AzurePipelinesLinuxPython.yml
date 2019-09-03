@@ -1,10 +1,12 @@
+name: ITK.Linux.Python
+
 trigger:
   branches:
     include:
     - master
     - release*
 variables:
-  ExternalDataVersion: 4.13.1
+  ExternalDataVersion: 5.0.0
 jobs:
 - job: Linux
   timeoutInMinutes: 0
@@ -20,20 +22,17 @@ jobs:
         if [ -n "$(System.PullRequest.SourceCommitId)" ]; then
           git checkout $(System.PullRequest.SourceCommitId)
         fi
-      displayName: Checkout pull request HEAD
-
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.7'
+      displayName: 'Checkout pull request HEAD'
 
     - bash: |
         set -x
-
-        sudo pip3 install ninja
+        sudo python3 -m pip install ninja
         sudo apt-get update
         sudo apt-get install -y python3-venv python3-numpy python-numpy
+        sudo python3 -m pip install --upgrade setuptools
+        sudo python3 -m pip install scikit-ci-addons
+      displayName: 'Install dependencies'
 
-      displayName: Install dependencies
     - bash: |
         set -x
 
@@ -42,24 +41,47 @@ jobs:
         curl -L https://github.com/InsightSoftwareConsortium/ITK/releases/download/v$(ExternalDataVersion)/InsightData-$(ExternalDataVersion).tar.gz -O
         cmake -E tar xfz InsightData-$(ExternalDataVersion).tar.gz
         cmake -E rename InsightToolkit-$(ExternalDataVersion)/.ExternalData/MD5 $(Build.SourcesDirectory)/.ExternalData/MD5
-
-      displayName: Download dashboard script and testing data
       workingDirectory: $(Agent.BuildDirectory)
-    - script: |
-        set -x
+      displayName: 'Download dashboard script and testing data'
 
-        if [ -n "$(System.PullRequest.SourceCommitId)" ]; then
-          git checkout $(System.PullRequest.SourceCommitId)
-        fi
+    - bash: |
+        python_executable=`which python3`
+        cat > dashboard.cmake << EOF
+        set(CTEST_BUILD_CONFIGURATION "MinSizeRel")
+        set(CTEST_CMAKE_GENERATOR "Ninja")
+        set(BUILD_NAME_SUFFIX "-Python")
+        set(dashboard_cache "
+          PYTHON_EXECUTABLE:FILEPATH=${python_executable}
+          DISABLE_MODULE_TESTS:BOOL=ON
+          BUILD_SHARED_LIBS:BOOL=OFF
+          BUILD_EXAMPLES:BOOL=OFF
+          ITK_WRAP_PYTHON:BOOL=ON
+        ")
+        include(\$ENV{AGENT_BUILDDIRECTORY}/ITK-dashboard/azure_dashboard.cmake)
+        EOF
+        cat dashboard.cmake
+      workingDirectory: $(Agent.BuildDirectory)/ITK-dashboard
+      displayName: 'Configure CTest script'
+
+    - bash: |
+        set -x
 
         c++ --version
         cmake --version
 
-        export BUILD_EXAMPLES=OFF
-        export CTEST_BUILD_CONFIGURATION=MinSizeRel
-        export ITK_WRAP_PYTHON=ON
-        export CTEST_OUTPUT_ON_FAILURE=1
+        ctest -S $(Agent.BuildDirectory)/ITK-dashboard/dashboard.cmake -VV -j 4 -L Python
+      displayName: 'Build and test'
+      env:
+        CTEST_OUTPUT_ON_FAILURE: 1
 
-        ctest -S ITK-dashboard/azure_dashboard.cmake -V -j 4
-      displayName: Build and test
-      workingDirectory: $(Agent.BuildDirectory)
+    - script: |
+        ci_addons ctest_junit_formatter $(Build.SourcesDirectory)-build > $(Agent.BuildDirectory)/JUnitTestResults.xml
+      condition: succeededOrFailed()
+      displayName: 'Format CTest output in JUnit format'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: "$(Agent.BuildDirectory)/JUnitTestResults.xml"
+        testRunTitle: 'CTest $(Agent.OS)'
+      condition: succeededOrFailed()
+      displayName: 'Publish test results'

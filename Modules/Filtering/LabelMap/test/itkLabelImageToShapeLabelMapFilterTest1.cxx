@@ -21,58 +21,59 @@
 #include "itkLabelImageToShapeLabelMapFilter.h"
 #include "itkTestingMacros.h"
 
-int itkLabelImageToShapeLabelMapFilterTest1(int argc, char * argv[])
+int
+itkLabelImageToShapeLabelMapFilterTest1(int argc, char * argv[])
 {
-  if( argc != 6 )
-    {
+  if (argc != 6)
+  {
     std::cerr << "Usage: " << argv[0];
     std::cerr << " inputBinaryImage outputShapeLabelMap";
     std::cerr << " backgroundValue computeFeretDiameter computePerimeter";
     std::cerr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  const unsigned int dim = 2;
+  constexpr unsigned int dim = 2;
 
-  typedef unsigned char PixelType;
+  using PixelType = unsigned char;
 
-  typedef itk::Image< PixelType, dim > ImageType;
+  using ImageType = itk::Image<PixelType, dim>;
 
-  typedef itk::ShapeLabelObject< PixelType, dim >     LabelObjectType;
-  typedef itk::LabelMap< LabelObjectType >            LabelMapType;
+  using LabelObjectType = itk::ShapeLabelObject<PixelType, dim>;
+  using LabelMapType = itk::LabelMap<LabelObjectType>;
 
-  typedef itk::ImageFileReader< ImageType > ReaderType;
+  using ReaderType = itk::ImageFileReader<ImageType>;
   ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  reader->SetFileName(argv[1]);
 
-  typedef itk::LabelImageToShapeLabelMapFilter< ImageType, LabelMapType> L2SType;
+  using L2SType = itk::LabelImageToShapeLabelMapFilter<ImageType, LabelMapType>;
   L2SType::Pointer l2s = L2SType::New();
-  l2s->SetInput( reader->GetOutput() );
+  l2s->SetInput(reader->GetOutput());
 
-  const PixelType backgroundValue = atoi(argv[3]);
-  l2s->SetBackgroundValue( backgroundValue );
-  TEST_SET_GET_VALUE( backgroundValue, l2s->GetBackgroundValue() );
+  const PixelType backgroundValue = std::stoi(argv[3]);
+  l2s->SetBackgroundValue(backgroundValue);
+  ITK_TEST_SET_GET_VALUE(backgroundValue, l2s->GetBackgroundValue());
 
-  const bool computeFeretDiameter = atoi( argv[4]);
-  l2s->SetComputeFeretDiameter( computeFeretDiameter );
-  TEST_SET_GET_VALUE( computeFeretDiameter, l2s->GetComputeFeretDiameter() );
+  const bool computeFeretDiameter = std::stoi(argv[4]);
+  l2s->SetComputeFeretDiameter(computeFeretDiameter);
+  ITK_TEST_SET_GET_VALUE(computeFeretDiameter, l2s->GetComputeFeretDiameter());
 
-  const bool computePerimeter = atoi( argv[5]);
-  l2s->SetComputePerimeter( computePerimeter );
-  TEST_SET_GET_VALUE( computePerimeter, l2s->GetComputeFeretDiameter() );
+  const bool computePerimeter = std::stoi(argv[5]);
+  l2s->SetComputePerimeter(computePerimeter);
+  ITK_TEST_SET_GET_VALUE(computePerimeter, l2s->GetComputeFeretDiameter());
 
 
-  typedef itk::LabelMapToLabelImageFilter< LabelMapType, ImageType> L2IType;
+  using L2IType = itk::LabelMapToLabelImageFilter<LabelMapType, ImageType>;
   L2IType::Pointer l2i = L2IType::New();
-  l2i->SetInput( l2s->GetOutput() );
+  l2i->SetInput(l2s->GetOutput());
 
-  typedef itk::ImageFileWriter< ImageType > WriterType;
+  using WriterType = itk::ImageFileWriter<ImageType>;
   WriterType::Pointer writer = WriterType::New();
-  writer->SetInput( l2i->GetOutput() );
-  writer->SetFileName( argv[2] );
+  writer->SetInput(l2i->GetOutput());
+  writer->SetFileName(argv[2]);
   writer->UseCompressionOn();
 
-  TRY_EXPECT_NO_EXCEPTION( writer->Update() );
+  ITK_TRY_EXPECT_NO_EXCEPTION(writer->Update());
 
   return EXIT_SUCCESS;
 }

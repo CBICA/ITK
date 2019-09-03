@@ -30,28 +30,30 @@ namespace itk
  * \class ImageFileWriterException
  * \ingroup ITKIOImageBase
  */
-class ITKIOImageBase_EXPORT ImageFileWriterException:public ExceptionObject
+class ITKIOImageBase_EXPORT ImageFileWriterException : public ExceptionObject
 {
 public:
   /** Run-time information. */
   itkTypeMacro(ImageFileWriterException, ExceptionObject);
 
   /** Constructor. */
-  ImageFileWriterException(const char *file, unsigned int line,
-                           const char *message = "Error in IO",
-                           const char *loc = "Unknown"):
-    ExceptionObject(file, line, message, loc)
+  ImageFileWriterException(const char * file,
+                           unsigned int line,
+                           const char * message = "Error in IO",
+                           const char * loc = "Unknown")
+    : ExceptionObject(file, line, message, loc)
   {}
 
   /** Constructor. */
-  ImageFileWriterException(const std::string & file, unsigned int line,
-                           const char *message = "Error in IO",
-                           const char *loc = "Unknown"):
-    ExceptionObject(file, line, message, loc)
+  ImageFileWriterException(const std::string & file,
+                           unsigned int        line,
+                           const char *        message = "Error in IO",
+                           const char *        loc = "Unknown")
+    : ExceptionObject(file, line, message, loc)
   {}
 
   /** Has to have empty throw(). */
-  virtual ~ImageFileWriterException() ITK_NOEXCEPT ITK_OVERRIDE;
+  ~ImageFileWriterException() noexcept override;
 };
 
 /** \class ImageFileWriter
@@ -76,19 +78,21 @@ public:
  * \ingroup IOFilters
  * \ingroup ITKIOImageBase
  *
- * \wiki
- * \wikiexample{IO/ImageFileWriter,Write an image}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{IO/ImageBase/WriteAnImage,Write An image}
+ * \endsphinx
  */
-template< typename TInputImage >
-class ITKIOImageBase_HIDDEN ImageFileWriter:public ProcessObject
+template <typename TInputImage>
+class ITK_TEMPLATE_EXPORT ImageFileWriter : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageFileWriter            Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFileWriter);
+
+  /** Standard class type aliases. */
+  using Self = ImageFileWriter;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -96,19 +100,22 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(ImageFileWriter, ProcessObject);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                         InputImageType;
-  typedef typename InputImageType::Pointer    InputImagePointer;
-  typedef typename InputImageType::RegionType InputImageRegionType;
-  typedef typename InputImageType::PixelType  InputImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
 
   /** Set/Get the image input of this writer.  */
   using Superclass::SetInput;
-  void SetInput(const InputImageType *input);
+  void
+  SetInput(const InputImageType * input);
 
-  const InputImageType * GetInput();
+  const InputImageType *
+  GetInput();
 
-  const InputImageType * GetInput(unsigned int idx);
+  const InputImageType *
+  GetInput(unsigned int idx);
 
   /** Specify the name of the output file to write. */
   itkSetStringMacro(FileName);
@@ -124,13 +131,14 @@ public:
    * correct choice and will allow a file to be created regardless of
    * the file extension. If the factory has set the ImageIO, the
    * extension must be supported by the specified ImageIO. */
-  void SetImageIO(ImageIOBase *io)
+  void
+  SetImageIO(ImageIOBase * io)
   {
-    if ( this->m_ImageIO != io )
-      {
+    if (this->m_ImageIO != io)
+    {
       this->Modified();
       this->m_ImageIO = io;
-      }
+    }
     m_FactorySpecifiedImageIO = false;
   }
   itkGetModifiableObjectMacro(ImageIO, ImageIOBase);
@@ -142,13 +150,16 @@ public:
    * IORegion. If not set, then then the whole image is written.  Note
    * that the region will be cropped to fit the input image's
    * LargestPossibleRegion. */
-  virtual void Write();
+  virtual void
+  Write();
 
-  /** Specify the region to write. If left ITK_NULLPTR, then the whole image
+  /** Specify the region to write. If left nullptr, then the whole image
    * is written. */
-  void SetIORegion(const ImageIORegion & region);
+  void
+  SetIORegion(const ImageIORegion & region);
 
-  const ImageIORegion & GetIORegion(void) const
+  const ImageIORegion &
+  GetIORegion() const
   {
     return m_PasteIORegion;
   }
@@ -160,7 +171,8 @@ public:
 
   /** Aliased to the Write() method to be consistent with the rest of the
    * pipeline. */
-  virtual void Update() ITK_OVERRIDE
+  void
+  Update() override
   {
     this->Write();
   }
@@ -170,7 +182,8 @@ public:
    * Updates the pipeline, streaming it the NumberOfStreamDivisions times.
    * Existing PasteIORegion is reset.
    */
-  virtual void UpdateLargestPossibleRegion() ITK_OVERRIDE
+  void
+  UpdateLargestPossibleRegion() override
   {
     m_PasteIORegion = ImageIORegion(TInputImage::ImageDimension);
     m_UserSpecifiedIORegion = false;
@@ -181,6 +194,11 @@ public:
   itkSetMacro(UseCompression, bool);
   itkGetConstReferenceMacro(UseCompression, bool);
   itkBooleanMacro(UseCompression);
+
+  /** Set the compression level. \sa ImageIOBase for details.
+   * Set to a negative number to use ImageIO's default compression level. */
+  itkSetMacro(CompressionLevel, int);
+  itkGetConstReferenceMacro(CompressionLevel, int);
 
   /** By default the MetaDataDictionary is taken from the input image and
    *  passed to the ImageIO. In some cases, however, a user may prefer to
@@ -193,41 +211,38 @@ public:
   itkBooleanMacro(UseInputMetaDataDictionary);
 
 protected:
-  ImageFileWriter();
-  ~ImageFileWriter() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ImageFileWriter() = default;
+  ~ImageFileWriter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Does the real work. */
-  virtual void GenerateData(void) ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ImageFileWriter);
-
   std::string m_FileName;
 
   ImageIOBase::Pointer m_ImageIO;
-  bool                 m_UserSpecifiedImageIO; // track whether the ImageIO
-                                               // is user specified
+  bool                 m_UserSpecifiedImageIO{ false };
 
-  ImageIORegion m_PasteIORegion;
-  unsigned int  m_NumberOfStreamDivisions;
-  bool          m_UserSpecifiedIORegion;    // track whether the region
-                                            // is user specified
-  bool m_FactorySpecifiedImageIO;           //track whether the factory
-                                            //  mechanism set the ImageIO
-  bool m_UseCompression;
-  bool m_UseInputMetaDataDictionary;        // whether to use the
-                                            // MetaDataDictionary from the
-                                            // input or not.
+  ImageIORegion m_PasteIORegion{ TInputImage::ImageDimension };
+  unsigned int  m_NumberOfStreamDivisions{ 1 };
+  bool          m_UserSpecifiedIORegion{ false };
+
+  bool m_FactorySpecifiedImageIO{ false }; // did factory mechanism set the ImageIO?
+  bool m_UseCompression{ false };
+  int  m_CompressionLevel{ -1 };
+  bool m_UseInputMetaDataDictionary{ true };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkImageFileWriter.hxx"
+#  include "itkImageFileWriter.hxx"
 #endif
 
 #ifdef ITK_IO_FACTORY_REGISTER_MANAGER
-#include "itkImageIOFactoryRegisterManager.h"
+#  include "itkImageIOFactoryRegisterManager.h"
 #endif
 
 #endif // itkImageFileWriter_h

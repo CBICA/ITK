@@ -48,73 +48,83 @@ namespace itk
  * OtherPropagationSpeed instead.
  * \ingroup ITKLevelSets
  */
-template< typename TImageType, typename TSparseImageType >
-class ITK_TEMPLATE_EXPORT LevelSetFunctionWithRefitTerm:
-  public LevelSetFunction< TImageType >
+template <typename TImageType, typename TSparseImageType>
+class ITK_TEMPLATE_EXPORT LevelSetFunctionWithRefitTerm : public LevelSetFunction<TImageType>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LevelSetFunctionWithRefitTerm  Self;
-  typedef LevelSetFunction< TImageType > Superclass;
-  typedef SmartPointer< Self >           Pointer;
-  typedef SmartPointer< const Self >     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetFunctionWithRefitTerm);
+
+  /** Standard class type aliases. */
+  using Self = LevelSetFunctionWithRefitTerm;
+  using Superclass = LevelSetFunction<TImageType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods) */
   itkTypeMacro(LevelSetFunctionWithRefitTerm, LevelSetFunction);
 
   /** Standard New macro. */
-  itkNewMacro (Self);
+  itkNewMacro(Self);
 
   /** Extract some parameters from the superclass. */
-  typedef typename Superclass::ImageType              ImageType;
-  typedef typename Superclass::FloatOffsetType        FloatOffsetType;
-  typedef typename Superclass::ScalarValueType        ScalarValueType;
-  typedef typename Superclass::GlobalDataStruct       GlobalDataStruct;
-  typedef typename Superclass::NeighborhoodType       NeighborhoodType;
-  typedef typename Superclass::NeighborhoodScalesType NeighborhoodScalesType;
-  typedef typename Superclass::TimeStepType           TimeStepType;
+  using ImageType = typename Superclass::ImageType;
+  using FloatOffsetType = typename Superclass::FloatOffsetType;
+  using ScalarValueType = typename Superclass::ScalarValueType;
+  using GlobalDataStruct = typename Superclass::GlobalDataStruct;
+  using NeighborhoodType = typename Superclass::NeighborhoodType;
+  using NeighborhoodScalesType = typename Superclass::NeighborhoodScalesType;
+  using TimeStepType = typename Superclass::TimeStepType;
 
-  typedef typename NeighborhoodType::SizeValueType    NeighborhoodSizeValueType;
+  using NeighborhoodSizeValueType = typename NeighborhoodType::SizeValueType;
 
   /** Index type derived from the ImageType. */
-  typedef typename ImageType::IndexType IndexType;
+  using IndexType = typename ImageType::IndexType;
 
   /** The sparse image type used for the curvature target. */
-  typedef TSparseImageType SparseImageType;
+  using SparseImageType = TSparseImageType;
 
   /** The node type of the sparse image. */
-  typedef typename SparseImageType::NodeType NodeType;
+  using NodeType = typename SparseImageType::NodeType;
 
   /** The type for the normal vectors of the level set image. */
-  typedef typename NodeType::NodeDataType NormalVectorType;
+  using NormalVectorType = typename NodeType::NodeDataType;
 
   /** Set the relative weight of the refitting term. */
-  void SetRefitWeight(const ScalarValueType w)
+  void
+  SetRefitWeight(const ScalarValueType w)
   {
     m_RefitWeight = w;
   }
 
   /** This is the weight for propagation terms (other than refitting)
    * that can be defined by subclasses. */
-  void SetOtherPropagationWeight(const ScalarValueType w)
+  void
+  SetOtherPropagationWeight(const ScalarValueType w)
   {
     m_OtherPropagationWeight = w;
   }
 
   /** Sets the sparse image which has nodes containing the member variable
       m_Curvature used in refitting. */
-  void SetSparseTargetImage(SparseImageType *im)
-  { m_SparseTargetImage = im; }
+  void
+  SetSparseTargetImage(SparseImageType * im)
+  {
+    m_SparseTargetImage = im;
+  }
 
   /** Returns the sparse image. */
-  SparseImageType * GetSparseTargetImage() const
-  { return m_SparseTargetImage; }
+  SparseImageType *
+  GetSparseTargetImage() const
+  {
+    return m_SparseTargetImage;
+  }
 
   /** Computes the time step for an update given a global data structure.
    * This calls the ComputeGlobalTimeStep method defined in LevelSetFunction
    * and then imposes our own restrictions for the refitting term on the
    * returned value. */
-  virtual TimeStepType ComputeGlobalTimeStep(void *GlobalData) const ITK_OVERRIDE;
+  TimeStepType
+  ComputeGlobalTimeStep(void * GlobalData) const override;
 
 protected:
   /** The weight for the refitting term. */
@@ -124,33 +134,31 @@ protected:
       classes derived from this class. */
   ScalarValueType m_OtherPropagationWeight;
 
-  LevelSetFunctionWithRefitTerm ();
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  LevelSetFunctionWithRefitTerm();
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Computes the curvature of a level set neighbothood in a way that matches
       the curvature computation from normal vectors. */
-  ScalarValueType ComputeCurvature(const NeighborhoodType &) const;
+  ScalarValueType
+  ComputeCurvature(const NeighborhoodType &) const;
 
   /** Defines the virtual function in LevelSetFunction to add the refitting
    * term. This function also calls OtherPropagationSpeed to provide a
    * mechanism for subclasses to define other propagation terms. */
-  virtual ScalarValueType PropagationSpeed(const NeighborhoodType &,
-                                           const FloatOffsetType &,
-                                           GlobalDataStruct * = 0) const ITK_OVERRIDE;
+  ScalarValueType
+  PropagationSpeed(const NeighborhoodType &, const FloatOffsetType &, GlobalDataStruct * = 0) const override;
 
   /** Called by PropagationSpeed and added on to the refitting term. Function
    * classes derived from this class should define this method for their
    * propagation speed, NOT the actual PropagationSpeed method. */
-  virtual ScalarValueType OtherPropagationSpeed(const NeighborhoodType &,
-                                                const FloatOffsetType &,
-                                                GlobalDataStruct * = 0) const
+  virtual ScalarValueType
+  OtherPropagationSpeed(const NeighborhoodType &, const FloatOffsetType &, GlobalDataStruct * = 0) const
   {
-    return NumericTraits< ScalarValueType >::ZeroValue();
+    return NumericTraits<ScalarValueType>::ZeroValue();
   }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LevelSetFunctionWithRefitTerm);
-
   /** The sparse image that contains the target curvature information. */
   typename SparseImageType::Pointer m_SparseTargetImage;
 
@@ -158,13 +166,13 @@ private:
   ScalarValueType m_MinVectorNorm;
 
   /** Constants used in computations. */
-  static const NeighborhoodSizeValueType    m_NumVertex;
-  static const ScalarValueType              m_DimConst;
+  static const NeighborhoodSizeValueType m_NumVertex;
+  static const ScalarValueType           m_DimConst;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLevelSetFunctionWithRefitTerm.hxx"
+#  include "itkLevelSetFunctionWithRefitTerm.hxx"
 #endif
 
 #endif

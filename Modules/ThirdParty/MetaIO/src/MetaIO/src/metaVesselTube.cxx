@@ -16,8 +16,8 @@
 
 #include "metaVesselTube.h"
 
-#include <stdio.h>
-#include <ctype.h>
+#include <cctype>
+#include <cstdio>
 #include <string>
 
 
@@ -73,7 +73,7 @@ MetaVesselTube()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube()" << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube()" << std::endl;
     }
   Clear();
 }
@@ -85,7 +85,7 @@ MetaVesselTube(const char *_headerName)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube()" << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube()" << std::endl;
     }
   Clear();
   Read(_headerName);
@@ -98,7 +98,7 @@ MetaVesselTube(const MetaVesselTube *_VesselTube)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube()" << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube()" << std::endl;
     }
   Clear();
   CopyInfo(_VesselTube);
@@ -111,7 +111,7 @@ MetaVesselTube(unsigned int dim)
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube()" << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube()" << std::endl;
     }
   Clear();
 }
@@ -137,22 +137,22 @@ void MetaVesselTube::
 PrintInfo() const
 {
   MetaObject::PrintInfo();
-  METAIO_STREAM::cout << "ParentPoint = " << m_ParentPoint
-                      << METAIO_STREAM::endl;
+  std::cout << "ParentPoint = " << m_ParentPoint
+                      << std::endl;
   if(m_Root)
     {
-    METAIO_STREAM::cout << "Root = " << "True" << METAIO_STREAM::endl;
+    std::cout << "Root = " << "True" << std::endl;
     }
   else
     {
-    METAIO_STREAM::cout << "Root = " << "False" << METAIO_STREAM::endl;
+    std::cout << "Root = " << "False" << std::endl;
     }
-  METAIO_STREAM::cout << "Artery = " << m_Artery << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "PointDim = " << m_PointDim << METAIO_STREAM::endl;
-  METAIO_STREAM::cout << "NPoints = " << m_NPoints << METAIO_STREAM::endl;
+  std::cout << "Artery = " << m_Artery << std::endl;
+  std::cout << "PointDim = " << m_PointDim << std::endl;
+  std::cout << "NPoints = " << m_NPoints << std::endl;
   char str[255];
   MET_TypeToString(m_ElementType, str);
-  METAIO_STREAM::cout << "ElementType = " << str << METAIO_STREAM::endl;
+  std::cout << "ElementType = " << str << std::endl;
 }
 
 void MetaVesselTube::
@@ -170,7 +170,7 @@ PointDim(const char* pointDim)
 }
 
 const char* MetaVesselTube::
-PointDim(void) const
+PointDim() const
 {
   return m_PointDim;
 }
@@ -182,7 +182,7 @@ NPoints(int npnt)
 }
 
 int MetaVesselTube::
-NPoints(void) const
+NPoints() const
 {
   return m_NPoints;
 }
@@ -194,7 +194,7 @@ Root(bool root)
 }
 
 bool MetaVesselTube::
-Root(void) const
+Root() const
 {
   return m_Root;
 }
@@ -207,7 +207,7 @@ Artery(bool artery)
 }
 
 bool MetaVesselTube::
-Artery(void) const
+Artery() const
 {
   return m_Artery;
 }
@@ -220,18 +220,18 @@ ParentPoint(int parentpoint)
 }
 
 int MetaVesselTube::
-ParentPoint(void) const
+ParentPoint() const
 {
   return m_ParentPoint;
 }
 
 /** Clear VesselTube information */
 void MetaVesselTube::
-Clear(void)
+Clear()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube: Clear" << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: Clear" << std::endl;
     }
   MetaObject::Clear();
   // Delete the list of pointers to VesselTubes.
@@ -254,19 +254,19 @@ Clear(void)
 
 /** Destroy VesselTube information */
 void MetaVesselTube::
-M_Destroy(void)
+M_Destroy()
 {
   MetaObject::M_Destroy();
 }
 
 /** Set Read fields */
 void MetaVesselTube::
-M_SetupReadFields(void)
+M_SetupReadFields()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube: M_SetupReadFields"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: M_SetupReadFields"
+                        << std::endl;
     }
 
   MetaObject::M_SetupReadFields();
@@ -303,7 +303,7 @@ M_SetupReadFields(void)
 }
 
 void MetaVesselTube::
-M_SetupWriteFields(void)
+M_SetupWriteFields()
 {
   strcpy(m_ObjectTypeName,"Tube");
   strcpy(m_ObjectSubTypeName,"Vessel");
@@ -366,25 +366,25 @@ M_SetupWriteFields(void)
 
 
 bool MetaVesselTube::
-M_Read(void)
+M_Read()
 {
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube: M_Read: Loading Header"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: M_Read: Loading Header"
+                        << std::endl;
     }
 
   if(!MetaObject::M_Read())
     {
-    METAIO_STREAM::cout << "MetaVesselTube: M_Read: Error parsing file"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: M_Read: Error parsing file"
+                        << std::endl;
     return false;
     }
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube: M_Read: Parsing Header"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: M_Read: Parsing Header"
+                        << std::endl;
     }
 
   MET_FieldRecordType * mF;
@@ -468,13 +468,13 @@ M_Read(void)
   int posID = -1;
 
   int pntDim;
-  char** pntVal = NULL;
+  char** pntVal = nullptr;
   MET_StringToWordArray(m_PointDim, &pntDim, &pntVal);
 
   if(META_DEBUG)
     {
-    METAIO_STREAM::cout << "MetaVesselTube: Parsing point dim"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: Parsing point dim"
+                        << std::endl;
     }
 
   int j;
@@ -617,10 +617,10 @@ M_Read(void)
     int gc = static_cast<int>(m_ReadStream->gcount());
     if(gc != readSize)
       {
-      METAIO_STREAM::cout << "MetaLine: m_Read: data not read completely"
-                << METAIO_STREAM::endl;
-      METAIO_STREAM::cout << "   ideal = " << readSize
-                << " : actual = " << gc << METAIO_STREAM::endl;
+      std::cout << "MetaLine: m_Read: data not read completely"
+                << std::endl;
+      std::cout << "   ideal = " << readSize
+                << " : actual = " << gc << std::endl;
       delete [] _data;
       delete [] posDim;
       return false;
@@ -944,7 +944,7 @@ M_Read(void)
       }
 
 
-    const METAIO_STL::string objectType = MET_ReadType(*m_ReadStream);
+    const std::string objectType = MET_ReadType(*m_ReadStream);
     if(objectType.empty())
       {
       char c = ' ';
@@ -965,7 +965,7 @@ M_Read(void)
 }
 
 MET_ValueEnumType MetaVesselTube::
-ElementType(void) const
+ElementType() const
 {
   return m_ElementType;
 }
@@ -977,13 +977,13 @@ ElementType(MET_ValueEnumType _elementType)
 }
 
 bool MetaVesselTube::
-M_Write(void)
+M_Write()
 {
 
   if(!MetaObject::M_Write())
     {
-    METAIO_STREAM::cout << "MetaVesselTube: M_Read: Error parsing file"
-                        << METAIO_STREAM::endl;
+    std::cout << "MetaVesselTube: M_Read: Error parsing file"
+                        << std::endl;
     return false;
     }
 
@@ -1140,7 +1140,7 @@ M_Write(void)
 
       *m_WriteStream << (*it)->m_ID << " ";
 
-      *m_WriteStream << METAIO_STREAM::endl;
+      *m_WriteStream << std::endl;
       ++it;
       }
     }

@@ -46,31 +46,32 @@ namespace itk
  *
  * \ingroup ITKImageFusion
  */
-template< typename TLabelImage, typename  TOutputImage >
-class ITK_TEMPLATE_EXPORT LabelToRGBImageFilter:
-  public
-  UnaryFunctorImageFilter< TLabelImage, TOutputImage,
-                           Functor::LabelToRGBFunctor<
-                             typename TLabelImage::PixelType,
-                             typename TOutputImage::PixelType >   >
+template <typename TLabelImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT LabelToRGBImageFilter
+  : public UnaryFunctorImageFilter<
+      TLabelImage,
+      TOutputImage,
+      Functor::LabelToRGBFunctor<typename TLabelImage::PixelType, typename TOutputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef LabelToRGBImageFilter      Self;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabelToRGBImageFilter);
 
-  typedef UnaryFunctorImageFilter< TLabelImage, TOutputImage,
-                                   Functor::LabelToRGBFunctor<
-                                     typename TLabelImage::PixelType,
-                                     typename TOutputImage::PixelType >   >  Superclass;
+  /** Standard class type aliases. */
+  using Self = LabelToRGBImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TOutputImage OutputImageType;
-  typedef TLabelImage  LabelImageType;
+  using Superclass = UnaryFunctorImageFilter<
+    TLabelImage,
+    TOutputImage,
+    Functor::LabelToRGBFunctor<typename TLabelImage::PixelType, typename TOutputImage::PixelType>>;
 
-  typedef typename TOutputImage::PixelType                     OutputPixelType;
-  typedef typename TLabelImage::PixelType                      LabelPixelType;
-  typedef typename NumericTraits< OutputPixelType >::ValueType OutputPixelValueType;
+  using OutputImageType = TOutputImage;
+  using LabelImageType = TLabelImage;
+
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using LabelPixelType = typename TLabelImage::PixelType;
+  using OutputPixelValueType = typename NumericTraits<OutputPixelType>::ValueType;
 
   /** Runtime information support. */
   itkTypeMacro(LabelToRGBImageFilter, UnaryFunctorImageFilter);
@@ -87,39 +88,43 @@ public:
   itkGetConstReferenceMacro(BackgroundColor, OutputPixelType);
 
   /** Empty the color LUT container */
-  void ResetColors();
+  void
+  ResetColors();
 
   /** Get number of colors in the LUT container */
-  unsigned int GetNumberOfColors() const;
+  unsigned int
+  GetNumberOfColors() const;
 
   /** Type of the color component */
-  typedef typename OutputPixelType::ComponentType ComponentType;
+  using ComponentType = typename OutputPixelType::ComponentType;
 
   /** Add color to the LUT container */
-  void AddColor(ComponentType r, ComponentType g, ComponentType b);
+  void
+  AddColor(ComponentType r, ComponentType g, ComponentType b);
 
 protected:
   LabelToRGBImageFilter();
-  virtual ~LabelToRGBImageFilter() ITK_OVERRIDE {}
+  ~LabelToRGBImageFilter() override = default;
 
   /** Process to execute before entering the multithreaded section */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
   /** Print internal ivars */
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  void GenerateOutputInformation() ITK_OVERRIDE;
+  void
+  GenerateOutputInformation() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabelToRGBImageFilter);
-
   OutputPixelType m_BackgroundColor;
   LabelPixelType  m_BackgroundValue;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabelToRGBImageFilter.hxx"
+#  include "itkLabelToRGBImageFilter.hxx"
 #endif
 
 #endif

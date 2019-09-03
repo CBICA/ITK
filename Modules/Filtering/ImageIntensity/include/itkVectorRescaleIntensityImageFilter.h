@@ -27,45 +27,54 @@ namespace itk
 // to input values.
 namespace Functor
 {
-template< typename TInput, typename  TOutput >
+template <typename TInput, typename TOutput>
 class ITK_TEMPLATE_EXPORT VectorMagnitudeLinearTransform
 {
 public:
-  typedef typename NumericTraits< typename TInput::ValueType >::RealType RealType;
-  VectorMagnitudeLinearTransform() : m_Factor(0.0) {}
-  ~VectorMagnitudeLinearTransform() {}
-  void SetFactor(RealType a) { m_Factor = a; }
-  itkStaticConstMacro(VectorDimension, unsigned int, TInput::Dimension);
-  bool operator!=(const VectorMagnitudeLinearTransform & other) const
+  using RealType = typename NumericTraits<typename TInput::ValueType>::RealType;
+  VectorMagnitudeLinearTransform()
+    : m_Factor(0.0)
+  {}
+  ~VectorMagnitudeLinearTransform() = default;
+  void
+  SetFactor(RealType a)
   {
-    if ( Math::NotExactlyEquals(m_Factor, other.m_Factor) )
-      {
+    m_Factor = a;
+  }
+  static constexpr unsigned int VectorDimension = TInput::Dimension;
+  bool
+  operator!=(const VectorMagnitudeLinearTransform & other) const
+  {
+    if (Math::NotExactlyEquals(m_Factor, other.m_Factor))
+    {
       return true;
-      }
+    }
     return false;
   }
 
-  bool operator==(const VectorMagnitudeLinearTransform & other) const
+  bool
+  operator==(const VectorMagnitudeLinearTransform & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & x) const
+  inline TOutput
+  operator()(const TInput & x) const
   {
     TOutput result;
 
-    for ( unsigned int i = 0; i < VectorDimension; i++ )
-      {
-      const RealType scaledComponent = static_cast< RealType >( x[i] ) * m_Factor;
-      result[i] = static_cast< typename TOutput::ValueType >( scaledComponent );
-      }
+    for (unsigned int i = 0; i < VectorDimension; i++)
+    {
+      const RealType scaledComponent = static_cast<RealType>(x[i]) * m_Factor;
+      result[i] = static_cast<typename TOutput::ValueType>(scaledComponent);
+    }
     return result;
   }
 
 private:
   RealType m_Factor;
 };
-}  // end namespace functor
+} // end namespace Functor
 
 /** \class VectorRescaleIntensityImageFilter
  * \brief Applies a linear transformation to the magnitude of pixel vectors in a
@@ -85,39 +94,39 @@ private:
  *
  * \ingroup ITKImageIntensity
  *
- * \wiki
- * \wikiexample{Images/VectorRescaleIntensityImageFilter,Apply a transformation to the magnitude of vector valued image pixels}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/ImageIntensity/TransformVectorValuedImagePixels,Transform Magnitude Of Vector Valued Image
+ * Pixels} \endsphinx
  */
-template< typename TInputImage, typename TOutputImage = TInputImage >
-class ITK_TEMPLATE_EXPORT VectorRescaleIntensityImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::VectorMagnitudeLinearTransform<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType > >
+template <typename TInputImage, typename TOutputImage = TInputImage>
+class ITK_TEMPLATE_EXPORT VectorRescaleIntensityImageFilter
+  : public UnaryFunctorImageFilter<
+      TInputImage,
+      TOutputImage,
+      Functor::VectorMagnitudeLinearTransform<typename TInputImage::PixelType, typename TOutputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef VectorRescaleIntensityImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::VectorMagnitudeLinearTransform<
-      typename TInputImage::PixelType,
-      typename TOutputImage::PixelType > >    Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(VectorRescaleIntensityImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = VectorRescaleIntensityImageFilter;
+  using Superclass = UnaryFunctorImageFilter<
+    TInputImage,
+    TOutputImage,
+    Functor::VectorMagnitudeLinearTransform<typename TInputImage::PixelType, typename TOutputImage::PixelType>>;
 
-  typedef typename TOutputImage::PixelType                    OutputPixelType;
-  typedef typename TInputImage::PixelType                     InputPixelType;
-  typedef typename InputPixelType::ValueType                  InputValueType;
-  typedef typename OutputPixelType::ValueType                 OutputValueType;
-  typedef typename NumericTraits< InputValueType >::RealType  InputRealType;
-  typedef typename NumericTraits< OutputValueType >::RealType OutputRealType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename Superclass::InputImageType    InputImageType;
-  typedef typename Superclass::InputImagePointer InputImagePointer;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using InputValueType = typename InputPixelType::ValueType;
+  using OutputValueType = typename OutputPixelType::ValueType;
+  using InputRealType = typename NumericTraits<InputValueType>::RealType;
+  using OutputRealType = typename NumericTraits<OutputValueType>::RealType;
+
+  using InputImageType = typename Superclass::InputImageType;
+  using InputImagePointer = typename Superclass::InputImagePointer;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(VectorRescaleIntensityImageFilter, UnaryFunctorImageFilter);
@@ -139,26 +148,24 @@ public:
   itkGetConstReferenceMacro(InputMaximumMagnitude, InputRealType);
 
   /** Process to execute before entering the multithreaded section. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  void
+  BeforeThreadedGenerateData() override;
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< InputValueType > ) );
-  itkConceptMacro( OutputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< OutputValueType > ) );
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<InputValueType>));
+  itkConceptMacro(OutputHasNumericTraitsCheck, (Concept::HasNumericTraits<OutputValueType>));
   // End concept checking
 #endif
 
 protected:
   VectorRescaleIntensityImageFilter();
-  virtual ~VectorRescaleIntensityImageFilter() ITK_OVERRIDE {}
+  ~VectorRescaleIntensityImageFilter() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(VectorRescaleIntensityImageFilter);
-
   InputRealType m_Scale;
   InputRealType m_Shift;
 
@@ -168,7 +175,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkVectorRescaleIntensityImageFilter.hxx"
+#  include "itkVectorRescaleIntensityImageFilter.hxx"
 #endif
 
 #endif

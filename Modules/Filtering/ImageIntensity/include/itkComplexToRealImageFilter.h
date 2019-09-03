@@ -18,7 +18,7 @@
 #ifndef itkComplexToRealImageFilter_h
 #define itkComplexToRealImageFilter_h
 
-#include "itkUnaryFunctorImageFilter.h"
+#include "itkUnaryGeneratorImageFilter.h"
 #include "itkMath.h"
 
 namespace itk
@@ -31,72 +31,70 @@ namespace itk
  */
 namespace Functor
 {
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class ComplexToReal
 {
 public:
-  ComplexToReal() {}
-  ~ComplexToReal() {}
-  bool operator!=(const ComplexToReal &) const
+  ComplexToReal() = default;
+  ~ComplexToReal() = default;
+  bool
+  operator!=(const ComplexToReal &) const
   {
     return false;
   }
 
-  bool operator==(const ComplexToReal & other) const
+  bool
+  operator==(const ComplexToReal & other) const
   {
-    return !( *this != other );
+    return !(*this != other);
   }
 
-  inline TOutput operator()(const TInput & A) const
+  inline TOutput
+  operator()(const TInput & A) const
   {
-    return static_cast<TOutput>( A.real() );
+    return static_cast<TOutput>(A.real());
   }
 };
-}
+} // namespace Functor
 
-template< typename TInputImage, typename TOutputImage >
-class ComplexToRealImageFilter:
-  public
-  UnaryFunctorImageFilter< TInputImage, TOutputImage,
-                           Functor::ComplexToReal<
-                             typename TInputImage::PixelType,
-                             typename TOutputImage::PixelType >   >
+template <typename TInputImage, typename TOutputImage>
+class ComplexToRealImageFilter : public UnaryGeneratorImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ComplexToRealImageFilter Self;
-  typedef UnaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::ComplexToReal< typename TInputImage::PixelType,
-                            typename TOutputImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToRealImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ComplexToRealImageFilter;
+  using Superclass = UnaryGeneratorImageFilter<TInputImage, TOutputImage>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using FunctorType = Functor::ComplexToReal<typename TInputImage::PixelType, typename TOutputImage::PixelType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(ComplexToRealImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(ComplexToRealImageFilter, UnaryGeneratorImageFilter);
 
-  typedef typename TInputImage::PixelType                     InputPixelType;
-  typedef typename TOutputImage::PixelType                    OutputPixelType;
-  typedef typename NumericTraits< InputPixelType >::ValueType InputPixelValueType;
+  using InputPixelType = typename TInputImage::PixelType;
+  using OutputPixelType = typename TOutputImage::PixelType;
+  using InputPixelValueType = typename NumericTraits<InputPixelType>::ValueType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< InputPixelValueType, OutputPixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<InputPixelValueType, OutputPixelType>));
   // End concept checking
 #endif
 
 protected:
-  ComplexToRealImageFilter() {}
-  virtual ~ComplexToRealImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ComplexToRealImageFilter);
+  ComplexToRealImageFilter()
+  {
+#if !defined(ITK_WRAPPING_PARSER)
+    Superclass::SetFunctor(FunctorType());
+#endif
+  }
+  ~ComplexToRealImageFilter() override = default;
 };
 } // end namespace itk
 

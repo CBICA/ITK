@@ -36,17 +36,20 @@ namespace itk
  * \ingroup ITKGPUImageFilterBase
  */
 
-template< typename TInputImage, typename TOutputImage, typename TParentImageFilter = BoxImageFilter< TInputImage, TOutputImage > >
-class GPUBoxImageFilter :
-  public GPUImageToImageFilter< TInputImage, TOutputImage, TParentImageFilter >
+template <typename TInputImage,
+          typename TOutputImage,
+          typename TParentImageFilter = BoxImageFilter<TInputImage, TOutputImage>>
+class GPUBoxImageFilter : public GPUImageToImageFilter<TInputImage, TOutputImage, TParentImageFilter>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GPUBoxImageFilter                                                      Self;
-  typedef GPUImageToImageFilter< TInputImage, TOutputImage, TParentImageFilter > GPUSuperclass;
-  typedef TParentImageFilter                                                     CPUSuperclass;
-  typedef SmartPointer< Self >                                                   Pointer;
-  typedef SmartPointer< const Self >                                             ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GPUBoxImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = GPUBoxImageFilter;
+  using GPUSuperclass = GPUImageToImageFilter<TInputImage, TOutputImage, TParentImageFilter>;
+  using CPUSuperclass = TParentImageFilter;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method. */
   itkNewMacro(Self);
@@ -54,35 +57,31 @@ public:
   /** Runtime information support. */
   itkTypeMacro(GPUBoxImageFilter, GPUImageToImageFilter);
 
-  /** Image related typedefs. */
-  typedef TInputImage                        InputImageType;
-  typedef typename CPUSuperclass::RegionType RegionType;
-  typedef typename CPUSuperclass::SizeType   SizeType;
-  typedef typename CPUSuperclass::IndexType  IndexType;
-  typedef typename CPUSuperclass::OffsetType OffsetType;
-  typedef typename TInputImage::PixelType    InputPixelType;
+  /** Image related type alias. */
+  using InputImageType = TInputImage;
+  using RegionType = typename CPUSuperclass::RegionType;
+  using SizeType = typename CPUSuperclass::SizeType;
+  using IndexType = typename CPUSuperclass::IndexType;
+  using OffsetType = typename CPUSuperclass::OffsetType;
+  using InputPixelType = typename TInputImage::PixelType;
 
-  typedef TOutputImage                        OutputImageType;
-  typedef typename OutputImageType::PixelType OutputPixelType;
+  using OutputImageType = TOutputImage;
+  using OutputPixelType = typename OutputImageType::PixelType;
 
   /** n-dimensional Kernel radius. */
-  typedef typename CPUSuperclass::SizeType       RadiusType;
-  typedef typename InputImageType::SizeValueType RadiusValueType;
+  using RadiusType = typename CPUSuperclass::SizeType;
+  using RadiusValueType = typename InputImageType::SizeValueType;
 
 protected:
-  GPUBoxImageFilter() {
-  }
-  ~GPUBoxImageFilter() ITK_OVERRIDE {}
+  GPUBoxImageFilter() {}
+  ~GPUBoxImageFilter() override {}
 
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
   {
     GPUSuperclass::PrintSelf(os, indent);
   }
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GPUBoxImageFilter);
-
 };
-}
+} // namespace itk
 
 #endif

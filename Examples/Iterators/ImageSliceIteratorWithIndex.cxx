@@ -105,18 +105,18 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 
-int main( int argc, char *argv[] )
+int
+main(int argc, char * argv[])
 {
   //   Verify the number of parameters on the command line.
-  if ( argc < 4 )
-    {
+  if (argc < 4)
+  {
     std::cerr << "Missing parameters. " << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0]
-              << " inputImageFile outputImageFile projectionDirection"
+    std::cerr << argv[0] << " inputImageFile outputImageFile projectionDirection"
               << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Software Guide : BeginLatex
   //
@@ -127,9 +127,9 @@ int main( int argc, char *argv[] )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef unsigned short              PixelType;
-  typedef itk::Image< PixelType, 2 >  ImageType2D;
-  typedef itk::Image< PixelType, 3 >  ImageType3D;
+  using PixelType = unsigned short;
+  using ImageType2D = itk::Image<PixelType, 2>;
+  using ImageType3D = itk::Image<PixelType, 3>;
   // Software Guide : EndCodeSnippet
 
   // Software Guide : BeginLatex
@@ -139,28 +139,27 @@ int main( int argc, char *argv[] )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  typedef itk::ImageLinearIteratorWithIndex< ImageType2D > LinearIteratorType;
-  typedef itk::ImageSliceConstIteratorWithIndex< ImageType3D
-                                                          > SliceIteratorType;
+  using LinearIteratorType = itk::ImageLinearIteratorWithIndex<ImageType2D>;
+  using SliceIteratorType = itk::ImageSliceConstIteratorWithIndex<ImageType3D>;
   // Software Guide : EndCodeSnippet
 
-  typedef itk::ImageFileReader< ImageType3D > ReaderType;
-  typedef itk::ImageFileWriter< ImageType2D > WriterType;
+  using ReaderType = itk::ImageFileReader<ImageType3D>;
+  using WriterType = itk::ImageFileWriter<ImageType2D>;
 
   ImageType3D::ConstPointer inputImage;
-  ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( argv[1] );
+  ReaderType::Pointer       reader = ReaderType::New();
+  reader->SetFileName(argv[1]);
   try
-    {
+  {
     reader->Update();
     inputImage = reader->GetOutput();
-    }
-  catch ( itk::ExceptionObject &err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Software Guide : BeginLatex
   //
@@ -172,19 +171,18 @@ int main( int argc, char *argv[] )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  unsigned int projectionDirection =
-    static_cast<unsigned int>( ::atoi( argv[3] ) );
+  auto projectionDirection = static_cast<unsigned int>(::std::stoi(argv[3]));
 
   unsigned int i, j;
   unsigned int direction[2];
-  for (i = 0, j = 0; i < 3; ++i )
-    {
+  for (i = 0, j = 0; i < 3; ++i)
+  {
     if (i != projectionDirection)
-      {
+    {
       direction[j] = i;
       j++;
-      }
     }
+  }
   // Software Guide : EndCodeSnippet
 
 
@@ -200,23 +198,23 @@ int main( int argc, char *argv[] )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  ImageType2D::RegionType region;
-  ImageType2D::RegionType::SizeType size;
+  ImageType2D::RegionType            region;
+  ImageType2D::RegionType::SizeType  size;
   ImageType2D::RegionType::IndexType index;
 
   ImageType3D::RegionType requestedRegion = inputImage->GetRequestedRegion();
 
-  index[ direction[0] ]    = requestedRegion.GetIndex()[ direction[0] ];
-  index[ 1- direction[0] ] = requestedRegion.GetIndex()[ direction[1] ];
-  size[ direction[0] ]     = requestedRegion.GetSize()[  direction[0] ];
-  size[ 1- direction[0] ]  = requestedRegion.GetSize()[  direction[1] ];
+  index[direction[0]] = requestedRegion.GetIndex()[direction[0]];
+  index[1 - direction[0]] = requestedRegion.GetIndex()[direction[1]];
+  size[direction[0]] = requestedRegion.GetSize()[direction[0]];
+  size[1 - direction[0]] = requestedRegion.GetSize()[direction[1]];
 
-  region.SetSize( size );
-  region.SetIndex( index );
+  region.SetSize(size);
+  region.SetIndex(index);
 
   ImageType2D::Pointer outputImage = ImageType2D::New();
 
-  outputImage->SetRegions( region );
+  outputImage->SetRegions(region);
   outputImage->Allocate();
   // Software Guide : EndCodeSnippet
 
@@ -231,14 +229,13 @@ int main( int argc, char *argv[] )
   // Software Guide : EndLatex
 
   // Software Guide : BeginCodeSnippet
-  SliceIteratorType  inputIt(  inputImage, inputImage->GetRequestedRegion() );
-  LinearIteratorType outputIt( outputImage,
-                                          outputImage->GetRequestedRegion() );
+  SliceIteratorType  inputIt(inputImage, inputImage->GetRequestedRegion());
+  LinearIteratorType outputIt(outputImage, outputImage->GetRequestedRegion());
 
-  inputIt.SetFirstDirection(  direction[1] );
-  inputIt.SetSecondDirection( direction[0] );
+  inputIt.SetFirstDirection(direction[1]);
+  inputIt.SetSecondDirection(direction[0]);
 
-  outputIt.SetDirection( 1 - direction[0] );
+  outputIt.SetDirection(1 - direction[0]);
   // Software Guide : EndCodeSnippet
 
   // Software Guide: BeginLatex
@@ -255,51 +252,50 @@ int main( int argc, char *argv[] )
 
   // Software Guide : BeginCodeSnippet
   outputIt.GoToBegin();
-  while ( ! outputIt.IsAtEnd() )
+  while (!outputIt.IsAtEnd())
+  {
+    while (!outputIt.IsAtEndOfLine())
     {
-    while ( ! outputIt.IsAtEndOfLine() )
-      {
-      outputIt.Set( itk::NumericTraits<unsigned short>::NonpositiveMin() );
+      outputIt.Set(itk::NumericTraits<unsigned short>::NonpositiveMin());
       ++outputIt;
-      }
-    outputIt.NextLine();
     }
+    outputIt.NextLine();
+  }
 
   inputIt.GoToBegin();
   outputIt.GoToBegin();
 
-  while( !inputIt.IsAtEnd() )
+  while (!inputIt.IsAtEnd())
+  {
+    while (!inputIt.IsAtEndOfSlice())
     {
-    while ( !inputIt.IsAtEndOfSlice() )
+      while (!inputIt.IsAtEndOfLine())
       {
-      while ( !inputIt.IsAtEndOfLine() )
-        {
-        outputIt.Set( std::max( outputIt.Get(), inputIt.Get() ));
+        outputIt.Set(std::max(outputIt.Get(), inputIt.Get()));
         ++inputIt;
         ++outputIt;
-        }
+      }
       outputIt.NextLine();
       inputIt.NextLine();
-
-      }
+    }
     outputIt.GoToBegin();
     inputIt.NextSlice();
-    }
-    // Software Guide : EndCodeSnippet
+  }
+  // Software Guide : EndCodeSnippet
 
   WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName( argv[2] );
+  writer->SetFileName(argv[2]);
   writer->SetInput(outputImage);
   try
-    {
+  {
     writer->Update();
-    }
-  catch ( itk::ExceptionObject &err)
-    {
+  }
+  catch (itk::ExceptionObject & err)
+  {
     std::cerr << "ExceptionObject caught !" << std::endl;
     std::cerr << err << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Software Guide : BeginLatex
   //

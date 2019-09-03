@@ -23,69 +23,71 @@
 #include "itkDefaultDynamicMeshTraits.h"
 #include "itkTimeProbe.h"
 
-int itkTriangleMeshToSimplexMeshFilter2Test(int , char *[] )
+int
+itkTriangleMeshToSimplexMeshFilter2Test(int, char *[])
 {
 
   // Declare the type of the input and output mesh
-  typedef itk::DefaultDynamicMeshTraits<double, 3, 3, double, double, double> MeshTraits;
+  using MeshTraits = itk::DefaultDynamicMeshTraits<double, 3, 3, double, double, double>;
 
-  typedef itk::Mesh<double,3,MeshTraits>        TriangleMeshType;
-  typedef itk::SimplexMesh<double,3,MeshTraits> SimplexMeshType;
+  using TriangleMeshType = itk::Mesh<double, 3, MeshTraits>;
+  using SimplexMeshType = itk::SimplexMesh<double, 3, MeshTraits>;
 
 
   // declare triangle mesh source
-  typedef itk::RegularSphereMeshSource<TriangleMeshType>  SphereMeshSourceType;
-  typedef SphereMeshSourceType::PointType                 PointType;
-  typedef SphereMeshSourceType::VectorType                VectorType;
+  using SphereMeshSourceType = itk::RegularSphereMeshSource<TriangleMeshType>;
+  using PointType = SphereMeshSourceType::PointType;
+  using VectorType = SphereMeshSourceType::VectorType;
 
   // Declare the type of the gradient image
-  typedef itk::TriangleMeshToSimplexMeshFilter<TriangleMeshType, SimplexMeshType>  SimplexFilterType;
+  using SimplexFilterType = itk::TriangleMeshToSimplexMeshFilter<TriangleMeshType, SimplexMeshType>;
 
-  SphereMeshSourceType::Pointer  mySphereMeshSource = SphereMeshSourceType::New();
-  PointType center; center.Fill(0);
-  PointType::ValueType scaleInit[3] = {10,10,10};
-  VectorType scale = scaleInit;
+  SphereMeshSourceType::Pointer mySphereMeshSource = SphereMeshSourceType::New();
+  PointType                     center;
+  center.Fill(0);
+  PointType::ValueType scaleInit[3] = { 10, 10, 10 };
+  VectorType           scale = scaleInit;
 
   mySphereMeshSource->SetCenter(center);
   mySphereMeshSource->SetResolution(2);
   mySphereMeshSource->SetScale(scale);
 
   SimplexFilterType::Pointer simplexFilter = SimplexFilterType::New();
-  simplexFilter->SetInput( mySphereMeshSource->GetOutput() );
+  simplexFilter->SetInput(mySphereMeshSource->GetOutput());
   simplexFilter->Update();
 
   SimplexMeshType::Pointer simplexMesh = simplexFilter->GetOutput();
   simplexMesh->DisconnectPipeline();
 
-  typedef  SimplexMeshType::NeighborListType              NeighborsListType;
+  using NeighborsListType = SimplexMeshType::NeighborListType;
 
-  for (int i=0; i < 7; i++)
-    {
-    itk::TimeProbe timeProbe;
-    NeighborsListType* neighbors = ITK_NULLPTR;
+  for (int i = 0; i < 7; i++)
+  {
+    itk::TimeProbe      timeProbe;
+    NeighborsListType * neighbors = nullptr;
 
     timeProbe.Start();
     const unsigned int lastIndex = simplexMesh->GetPoints()->Size();
     for (unsigned int pointIndex = 0; pointIndex < lastIndex; pointIndex++)
-      {
-      neighbors = simplexMesh->GetNeighbors( pointIndex, i );
+    {
+      neighbors = simplexMesh->GetNeighbors(pointIndex, i);
       if (pointIndex != (lastIndex - 1))
-        {
-        delete neighbors;
-        }
-      }
-    timeProbe.Stop();
-    if(neighbors)
       {
+        delete neighbors;
+      }
+    }
+    timeProbe.Stop();
+    if (neighbors)
+    {
       std::cout << "Rigidity: " << i << ", neighbor list size: " << neighbors->size() << std::endl;
       delete neighbors;
-      }
-    else
-      {
-      std::cout << "Rigidity: " << i << ", no neighbor" << std::endl;
-      }
-    std::cout << ", Elapsed time (for getting neighbors): " << timeProbe.GetMean() << std::endl;
     }
+    else
+    {
+      std::cout << "Rigidity: " << i << ", no neighbor" << std::endl;
+    }
+    std::cout << ", Elapsed time (for getting neighbors): " << timeProbe.GetMean() << std::endl;
+  }
 
   std::cout << "[TEST DONE]" << std::endl;
   return EXIT_SUCCESS;

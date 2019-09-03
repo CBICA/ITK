@@ -47,61 +47,65 @@ namespace itk
  * \ingroup IntensityImageFilters  MultiThreaded
  * \ingroup ITKLabelMap
  *
- * \wiki
- * \wikiexample{ImageProcessing/BinaryNotImageFilter,Invert an image using the Binary Not operation}
- * \endwiki
+ * \sphinx
+ * \sphinxexample{Filtering/LabelMap/InvertImageUsingBinaryNot,Invert Image Using Binary Not Operation}
+ * \endsphinx
  */
-namespace Functor {
+namespace Functor
+{
 
-template< typename TPixel >
+template <typename TPixel>
 class BinaryNot
 {
 public:
-  BinaryNot() {};
-  ~BinaryNot() {};
-  bool operator!=( const BinaryNot & ) const
-    {
+  BinaryNot() = default;
+  ~BinaryNot() = default;
+  bool
+  operator!=(const BinaryNot &) const
+  {
     return false;
-    }
-  bool operator==( const BinaryNot & other ) const
-    {
+  }
+  bool
+  operator==(const BinaryNot & other) const
+  {
     return !(*this != other);
-    }
-  inline TPixel operator()( const TPixel & A )
+  }
+  inline TPixel
+  operator()(const TPixel & A)
+  {
+    bool a = (A == m_ForegroundValue);
+    if (!a)
     {
-    bool a = ( A == m_ForegroundValue );
-    if( !a )
-      {
       return m_ForegroundValue;
-      }
-    return m_BackgroundValue;
     }
+    return m_BackgroundValue;
+  }
 
   TPixel m_ForegroundValue;
   TPixel m_BackgroundValue;
 };
 
-}
+} // namespace Functor
 template <typename TImage>
-class BinaryNotImageFilter :
-    public UnaryFunctorImageFilter< TImage, TImage, Functor::BinaryNot< typename TImage::PixelType > >
+class BinaryNotImageFilter
+  : public UnaryFunctorImageFilter<TImage, TImage, Functor::BinaryNot<typename TImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryNotImageFilter                         Self;
-  typedef UnaryFunctorImageFilter<TImage, TImage,
-    Functor::BinaryNot<  typename TImage::PixelType> > Superclass;
-  typedef SmartPointer<Self>                           Pointer;
-  typedef SmartPointer<const Self>                     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryNotImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BinaryNotImageFilter;
+  using Superclass = UnaryFunctorImageFilter<TImage, TImage, Functor::BinaryNot<typename TImage::PixelType>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BinaryNotImageFilter,
-               UnaryFunctorImageFilter);
+  itkTypeMacro(BinaryNotImageFilter, UnaryFunctorImageFilter);
 
-  typedef typename TImage::PixelType     PixelType;
+  using PixelType = typename TImage::PixelType;
 
   /** Set/Get the value in the image considered as "foreground". Defaults to
    * maximum value of PixelType. */
@@ -118,41 +122,35 @@ public:
 
 protected:
   BinaryNotImageFilter()
-    {
+  {
     m_ForegroundValue = NumericTraits<PixelType>::max();
     m_BackgroundValue = NumericTraits<PixelType>::NonpositiveMin();
-    }
-  virtual ~BinaryNotImageFilter() ITK_OVERRIDE {}
+  }
+  ~BinaryNotImageFilter() override = default;
 
-  void PrintSelf(std::ostream& os, Indent indent) const ITK_OVERRIDE
-    {
-    Superclass::PrintSelf(os,indent);
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override
+  {
+    Superclass::PrintSelf(os, indent);
 
-    typedef typename NumericTraits<PixelType>::PrintType
-                                              PixelPrintType;
+    using PixelPrintType = typename NumericTraits<PixelType>::PrintType;
 
-    os << indent << "ForegroundValue: "
-                    << static_cast< PixelPrintType > (m_ForegroundValue)
-                    << std::endl;
+    os << indent << "ForegroundValue: " << static_cast<PixelPrintType>(m_ForegroundValue) << std::endl;
 
-    os << indent << "BackgroundValue: "
-                    << static_cast< PixelPrintType > (m_BackgroundValue)
-                    << std::endl;
-    }
+    os << indent << "BackgroundValue: " << static_cast<PixelPrintType>(m_BackgroundValue) << std::endl;
+  }
 
-  void GenerateData() ITK_OVERRIDE
-    {
+  void
+  GenerateData() override
+  {
     this->GetFunctor().m_ForegroundValue = m_ForegroundValue;
     this->GetFunctor().m_BackgroundValue = m_BackgroundValue;
     Superclass::GenerateData();
-    }
+  }
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryNotImageFilter);
-
   PixelType m_ForegroundValue;
   PixelType m_BackgroundValue;
-
 };
 
 } // end namespace itk

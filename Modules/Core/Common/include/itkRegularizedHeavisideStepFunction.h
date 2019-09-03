@@ -49,40 +49,40 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TInput = float, typename TOutput = double >
-class ITK_TEMPLATE_EXPORT RegularizedHeavisideStepFunction:
-    public HeavisideStepFunctionBase< TInput, TOutput >
+template <typename TInput = float, typename TOutput = double>
+class ITK_TEMPLATE_EXPORT RegularizedHeavisideStepFunction : public HeavisideStepFunctionBase<TInput, TOutput>
 {
 public:
-  typedef RegularizedHeavisideStepFunction             Self;
-  typedef HeavisideStepFunctionBase< TInput, TOutput > Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RegularizedHeavisideStepFunction);
 
-  typedef typename Superclass::InputType  InputType;
-  typedef typename Superclass::OutputType OutputType;
+  using Self = RegularizedHeavisideStepFunction;
+  using Superclass = HeavisideStepFunctionBase<TInput, TOutput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef typename NumericTraits< InputType >::RealType RealType;
+  using InputType = typename Superclass::InputType;
+  using OutputType = typename Superclass::OutputType;
 
-  void SetEpsilon(const RealType & ieps);
+  using RealType = typename NumericTraits<InputType>::RealType;
 
-  itkGetConstMacro( Epsilon, RealType );
-  itkGetConstMacro( OneOverEpsilon, RealType );
+  void
+  SetEpsilon(const RealType & ieps);
+
+  itkGetConstMacro(Epsilon, RealType);
+  itkGetConstMacro(OneOverEpsilon, RealType);
 
 protected:
   RegularizedHeavisideStepFunction();
-  virtual ~RegularizedHeavisideStepFunction();
+  ~RegularizedHeavisideStepFunction() override = default;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RegularizedHeavisideStepFunction);
-
   RealType m_Epsilon;
   RealType m_OneOverEpsilon;
 };
-}
+} // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRegularizedHeavisideStepFunction.hxx"
+#  include "itkRegularizedHeavisideStepFunction.hxx"
 #endif
 
 #endif

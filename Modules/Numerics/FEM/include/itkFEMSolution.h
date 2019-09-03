@@ -38,18 +38,17 @@ namespace fem
 class ITKFEM_EXPORT Solution
 {
 public:
-
-  /** Standard "Self" typedef. */
-  typedef Solution Self;
-  /** Standard "Superclass" typedef. */
-  typedef Solution Superclass;
+  /** Standard "Self" type alias. */
+  using Self = Solution;
+  /** Standard "Superclass" type alias. */
+  using Superclass = Solution;
   /**  Pointer to an object. */
-  typedef Self *Pointer;
+  using Pointer = Self *;
   /**  Const pointer to an object. */
-  typedef const Self *ConstPointer;
+  using ConstPointer = const Self *;
 
   /** Floating point storage type used within a class */
-  typedef double Float;
+  using Float = double;
 
   /**
    * Returns value of i-th element in a solution vector. This value
@@ -64,7 +63,8 @@ public:
    * \note If the solution vector doesn't exist (problem was not yet solved),
    *       or the index i is out of range, the function returns 0.0.
    */
-  virtual Float GetSolutionValue(unsigned int i, unsigned int solutionIndex = 0) const = 0;
+  virtual Float
+  GetSolutionValue(unsigned int i, unsigned int solutionIndex = 0) const = 0;
 
   /**
    * Virtual destructor should properly destroy the object and clean up any
@@ -72,7 +72,7 @@ public:
    */
   virtual ~Solution();
 };
-}
-}  // end namespace itk::fem
+} // end namespace fem
+} // end namespace itk
 
-#endif // #ifndef itkFEMSolution_h
+#endif // itkFEMSolution_h

@@ -42,43 +42,41 @@ namespace itk
 
   \ingroup ITKFastMarching
   */
-template< typename TInputDomain,
-          typename TNode,
-          typename TOutputDomain,
-          typename TSuperclass >
+template <typename TInputDomain, typename TNode, typename TOutputDomain, typename TSuperclass>
 class FastMarchingTraitsBase
-  {
+{
 public:
   /** Input Domain Type */
-  typedef TInputDomain                                        InputDomainType;
-  typedef typename InputDomainType::Pointer                   InputDomainPointer;
-  typedef typename InputDomainType::PixelType                 InputPixelType;
+  using InputDomainType = TInputDomain;
+  using InputDomainPointer = typename InputDomainType::Pointer;
+  using InputPixelType = typename InputDomainType::PixelType;
 
   /** Node type */
-  typedef TNode                                               NodeType;
+  using NodeType = TNode;
 
   /** Output Domain Type */
-  typedef TOutputDomain                                       OutputDomainType;
-  typedef typename OutputDomainType::Pointer                  OutputDomainPointer;
-  typedef typename OutputDomainType::PixelType                OutputPixelType;
+  using OutputDomainType = TOutputDomain;
+  using OutputDomainPointer = typename OutputDomainType::Pointer;
+  using OutputPixelType = typename OutputDomainType::PixelType;
 
-  typedef NodePair< NodeType, OutputPixelType >            NodePairType;
-  typedef VectorContainer< IdentifierType, NodePairType >  NodePairContainerType;
-  typedef typename NodePairContainerType::Pointer          NodePairContainerPointer;
-  typedef typename NodePairContainerType::Iterator         NodePairContainerIterator;
-  typedef typename NodePairContainerType::ConstIterator    NodePairContainerConstIterator;
+  using NodePairType = NodePair<NodeType, OutputPixelType>;
+  using NodePairContainerType = VectorContainer<IdentifierType, NodePairType>;
+  using NodePairContainerPointer = typename NodePairContainerType::Pointer;
+  using NodePairContainerIterator = typename NodePairContainerType::Iterator;
+  using NodePairContainerConstIterator = typename NodePairContainerType::ConstIterator;
 
   /*
-  typedef VectorContainer< IdentifierType, NodeType >      NodeContainerType;
-  typedef typename NodeContainerType::Pointer              NodeContainerPointer;
-  typedef typename NodeContainerType::Iterator             NodeContainerIterator;
-  typedef typename NodeContainerType::ConstIterator        NodeContainerConstIterator;
+  using NodeContainerType = VectorContainer< IdentifierType, NodeType >;
+  using NodeContainerPointer = typename NodeContainerType::Pointer;
+  using NodeContainerIterator = typename NodeContainerType::Iterator;
+  using NodeContainerConstIterator = typename NodeContainerType::ConstIterator;
   */
 
-  typedef TSuperclass                                      SuperclassType;
+  using SuperclassType = TSuperclass;
 
   /** \enum LabelType Fast Marching algorithm nodes types. */
-  enum LabelType {
+  enum LabelType
+  {
     /** \c Far represent far away nodes*/
     Far = 0,
     /** \c Alive represent nodes which have already been processed*/
@@ -91,59 +89,53 @@ public:
     Forbidden,
     /** \c Topology represent trial nodes but their inclusion would have
     violated topology checks. */
-    Topology };
+    Topology
+  };
 
 #ifdef ITK_USE_CONCEPT_CHECKING
-  itkConceptMacro( DoubleConvertibleOutputCheck,
-                  ( Concept::Convertible< double, OutputPixelType > ) );
+  itkConceptMacro(DoubleConvertibleOutputCheck, (Concept::Convertible<double, OutputPixelType>));
 
-  itkConceptMacro( OutputOStreamWritableCheck,
-                  ( Concept::OStreamWritable< OutputPixelType > ) );
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<OutputPixelType>));
 #endif
-  };
-
-
-template< typename TInput, typename TOutput >
-class FastMarchingTraits
-{
 };
 
-template<unsigned int VDimension,
-         typename TInputPixel,
-         typename TOutputPixel > // = TInputPixel >
-class FastMarchingTraits<Image<TInputPixel, VDimension>, Image<TOutputPixel, VDimension> > :
-    public FastMarchingTraitsBase<
-      Image< TInputPixel, VDimension >,
-      Index< VDimension >,
-      Image< TOutputPixel, VDimension >,
-      ImageToImageFilter< Image< TInputPixel, VDimension >,
-                          Image< TOutputPixel, VDimension > >
-    >
-  {
+
+template <typename TInput, typename TOutput>
+class FastMarchingTraits
+{};
+
+template <unsigned int VDimension,
+          typename TInputPixel,
+          typename TOutputPixel> // = TInputPixel >
+class FastMarchingTraits<Image<TInputPixel, VDimension>, Image<TOutputPixel, VDimension>>
+  : public FastMarchingTraitsBase<Image<TInputPixel, VDimension>,
+                                  Index<VDimension>,
+                                  Image<TOutputPixel, VDimension>,
+                                  ImageToImageFilter<Image<TInputPixel, VDimension>, Image<TOutputPixel, VDimension>>>
+{
 public:
-  itkStaticConstMacro(ImageDimension, unsigned int, VDimension);
-  };
+  static constexpr unsigned int ImageDimension = VDimension;
+};
 
 
-template< unsigned int VDimension,
+template <unsigned int VDimension,
           typename TInputPixel,
           typename TInputMeshTraits, //= QuadEdgeMeshTraits< TInputPixel, VDimension, bool, bool >,
-          typename TOutputPixel, //= TInputPixel,
-          class TOutputMeshTraits //= QuadEdgeMeshTraits< TOutputPixel, VDimension, bool, bool >
-         >
-class FastMarchingTraits<QuadEdgeMesh< TInputPixel, VDimension, TInputMeshTraits >, QuadEdgeMesh< TOutputPixel, VDimension, TOutputMeshTraits > > :
-    public FastMarchingTraitsBase<
-      QuadEdgeMesh< TInputPixel, VDimension, TInputMeshTraits >,
+          typename TOutputPixel,     //= TInputPixel,
+          class TOutputMeshTraits    //= QuadEdgeMeshTraits< TOutputPixel, VDimension, bool, bool >
+          >
+class FastMarchingTraits<QuadEdgeMesh<TInputPixel, VDimension, TInputMeshTraits>,
+                         QuadEdgeMesh<TOutputPixel, VDimension, TOutputMeshTraits>>
+  : public FastMarchingTraitsBase<
+      QuadEdgeMesh<TInputPixel, VDimension, TInputMeshTraits>,
       typename TInputMeshTraits::PointIdentifier,
-      QuadEdgeMesh< TOutputPixel, VDimension, TOutputMeshTraits >,
-      QuadEdgeMeshToQuadEdgeMeshFilter<
-        QuadEdgeMesh< TInputPixel, VDimension, TInputMeshTraits >,
-        QuadEdgeMesh< TOutputPixel, VDimension, TOutputMeshTraits > >
-    >
-  {
+      QuadEdgeMesh<TOutputPixel, VDimension, TOutputMeshTraits>,
+      QuadEdgeMeshToQuadEdgeMeshFilter<QuadEdgeMesh<TInputPixel, VDimension, TInputMeshTraits>,
+                                       QuadEdgeMesh<TOutputPixel, VDimension, TOutputMeshTraits>>>
+{
 public:
-  itkStaticConstMacro(PointDimension, unsigned int, VDimension);
-  };
+  static constexpr unsigned int PointDimension = VDimension;
+};
 
-}
+} // namespace itk
 #endif // itkFastMarchingTraits_h

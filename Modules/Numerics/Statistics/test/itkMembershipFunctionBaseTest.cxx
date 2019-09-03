@@ -19,22 +19,25 @@
 #include <iostream>
 #include "itkMembershipFunctionBase.h"
 
-namespace itk {
-namespace Statistics {
-namespace MembershipFunctionBaseTest {
+namespace itk
+{
+namespace Statistics
+{
+namespace MembershipFunctionBaseTest
+{
 
 template <typename TMeasurementVector>
-class MyMembershipFunctionBase : public MembershipFunctionBase< TMeasurementVector >
+class MyMembershipFunctionBase : public MembershipFunctionBase<TMeasurementVector>
 {
 public:
-  /** Standard class typedef. */
-  typedef MyMembershipFunctionBase  Self;
+  /** Standard class type alias. */
+  using Self = MyMembershipFunctionBase;
 
-  typedef MembershipFunctionBase< TMeasurementVector > Superclass;
+  using Superclass = MembershipFunctionBase<TMeasurementVector>;
 
-  typedef SmartPointer< Self > Pointer;
+  using Pointer = SmartPointer<Self>;
 
-  typedef SmartPointer<const Self> ConstPointer;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard macros */
   itkTypeMacro(MyMembershipFunctionBase, MembershipFunctionBase);
@@ -43,28 +46,28 @@ public:
   itkNewMacro(Self);
 
   /** Evaluate membership score */
-  double Evaluate(const TMeasurementVector & ) const ITK_OVERRIDE
-    {
+  double
+  Evaluate(const TMeasurementVector &) const override
+  {
     double score;
     score = 1;
     return score;
-    }
-
+  }
 };
 
-}
-}
-}
-int itkMembershipFunctionBaseTest(int, char* [] )
+} // namespace MembershipFunctionBaseTest
+} // namespace Statistics
+} // namespace itk
+int
+itkMembershipFunctionBaseTest(int, char *[])
 {
 
-  const unsigned int MeasurementVectorSize = 17;
+  constexpr unsigned int MeasurementVectorSize = 17;
 
-  typedef itk::FixedArray<
-    float, MeasurementVectorSize >  MeasurementVectorType;
+  using MeasurementVectorType = itk::FixedArray<float, MeasurementVectorSize>;
 
-  typedef itk::Statistics::MembershipFunctionBaseTest::MyMembershipFunctionBase<
-    MeasurementVectorType >   MembershipFunctionBaseType;
+  using MembershipFunctionBaseType =
+    itk::Statistics::MembershipFunctionBaseTest::MyMembershipFunctionBase<MeasurementVectorType>;
 
   MembershipFunctionBaseType::Pointer function = MembershipFunctionBaseType::New();
 
@@ -73,27 +76,28 @@ int itkMembershipFunctionBaseTest(int, char* [] )
 
   function->Print(std::cout);
 
-  function->SetMeasurementVectorSize( MeasurementVectorSize ); // for code coverage
+  function->SetMeasurementVectorSize(MeasurementVectorSize); // for code coverage
 
-  if( function->GetMeasurementVectorSize() != MeasurementVectorSize )
-    {
+  if (function->GetMeasurementVectorSize() != MeasurementVectorSize)
+  {
     std::cerr << "GetMeasurementVectorSize() Failed !" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  //Test if an exception will be thrown if we try to resize the measurement vector
-  //size
+  // Test if an exception will be thrown if we try to resize the measurement vector
+  // size
   try
-    {
-    function->SetMeasurementVectorSize( MeasurementVectorSize + 1 );
+  {
+    function->SetMeasurementVectorSize(MeasurementVectorSize + 1);
     std::cerr << "Exception should have been thrown since we are trying to resize\
-                  non-resizeable measurement vector type " << std::endl;
+                  non-resizeable measurement vector type "
+              << std::endl;
     return EXIT_FAILURE;
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Caughted expected exception: " << excp << std::endl;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

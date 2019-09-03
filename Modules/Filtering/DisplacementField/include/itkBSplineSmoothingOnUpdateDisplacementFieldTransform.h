@@ -48,49 +48,50 @@ namespace itk
  *
  * \ingroup ITKDisplacementField
  */
-template<typename TParametersValueType, unsigned int NDimensions>
-class ITK_TEMPLATE_EXPORT BSplineSmoothingOnUpdateDisplacementFieldTransform :
-  public DisplacementFieldTransform<TParametersValueType, NDimensions>
+template <typename TParametersValueType, unsigned int NDimensions>
+class ITK_TEMPLATE_EXPORT BSplineSmoothingOnUpdateDisplacementFieldTransform
+  : public DisplacementFieldTransform<TParametersValueType, NDimensions>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BSplineSmoothingOnUpdateDisplacementFieldTransform            Self;
-  typedef DisplacementFieldTransform<TParametersValueType, NDimensions> Superclass;
-  typedef SmartPointer<Self>                                            Pointer;
-  typedef SmartPointer<const Self>                                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineSmoothingOnUpdateDisplacementFieldTransform);
+
+  /** Standard class type aliases. */
+  using Self = BSplineSmoothingOnUpdateDisplacementFieldTransform;
+  using Superclass = DisplacementFieldTransform<TParametersValueType, NDimensions>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( BSplineSmoothingOnUpdateDisplacementFieldTransform, DisplacementFieldTransform );
+  itkTypeMacro(BSplineSmoothingOnUpdateDisplacementFieldTransform, DisplacementFieldTransform);
 
   /** New macro for creation of through a Smart Pointer */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Dimension of the domain spaces. */
-  itkStaticConstMacro( Dimension, unsigned int, NDimensions );
+  static constexpr unsigned int Dimension = NDimensions;
 
   /** Types from superclass */
-  typedef typename Superclass::ScalarType                    ScalarType;
-  typedef typename Superclass::DerivativeType                DerivativeType;
-  typedef typename DerivativeType::ValueType                 DerivativeValueType;
-  typedef typename Superclass::DisplacementFieldType         DisplacementFieldType;
-  typedef typename Superclass::DisplacementFieldPointer      DisplacementFieldPointer;
-  typedef typename Superclass::DisplacementFieldConstPointer DisplacementFieldConstPointer;
+  using ScalarType = typename Superclass::ScalarType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using DerivativeValueType = typename DerivativeType::ValueType;
+  using DisplacementFieldType = typename Superclass::DisplacementFieldType;
+  using DisplacementFieldPointer = typename Superclass::DisplacementFieldPointer;
+  using DisplacementFieldConstPointer = typename Superclass::DisplacementFieldConstPointer;
 
-  typedef typename Transform<TParametersValueType,NDimensions, NDimensions>::Pointer
-             TransformPointer;
+  using TransformPointer = typename Transform<TParametersValueType, NDimensions, NDimensions>::Pointer;
 
   /**
-   * typedefs for projecting the input displacement field onto a
+   * type alias for projecting the input displacement field onto a
    * B-spline field.
    */
-  typedef typename DisplacementFieldType::PixelType                            DisplacementVectorType;
-  typedef PointSet<DisplacementVectorType, Dimension>                          PointSetType;
-  typedef unsigned int                                                         SplineOrderType;
-  typedef DisplacementFieldToBSplineImageFilter<DisplacementFieldType>         BSplineFilterType;
-  typedef typename BSplineFilterType::WeightsContainerType                     WeightsContainerType;
-  typedef DisplacementFieldType                                                DisplacementFieldControlPointLatticeType;
-  typedef typename BSplineFilterType::ArrayType                                ArrayType;
-  typedef typename ArrayType::ValueType                                        ArrayValueType;
+  using DisplacementVectorType = typename DisplacementFieldType::PixelType;
+  using PointSetType = PointSet<DisplacementVectorType, Dimension>;
+  using SplineOrderType = unsigned int;
+  using BSplineFilterType = DisplacementFieldToBSplineImageFilter<DisplacementFieldType>;
+  using WeightsContainerType = typename BSplineFilterType::WeightsContainerType;
+  using DisplacementFieldControlPointLatticeType = DisplacementFieldType;
+  using ArrayType = typename BSplineFilterType::ArrayType;
+  using ArrayValueType = typename ArrayType::ValueType;
 
   /**
    * Update the transform's parameters by the values in \c update.  We
@@ -102,17 +103,18 @@ public:
    * added to the field.
    * See base class for more details.
    */
-  virtual void UpdateTransformParameters( const DerivativeType & update, ScalarType factor = 1.0 ) ITK_OVERRIDE;
+  void
+  UpdateTransformParameters(const DerivativeType & update, ScalarType factor = 1.0) override;
 
   /**
    * Set the spline order defining the bias field estimate.  Default = 3.
    */
-  itkSetMacro( SplineOrder, SplineOrderType );
+  itkSetMacro(SplineOrder, SplineOrderType);
 
   /**
    * Get the spline order defining the displacement field estimate.  Default = 3.
    */
-  itkGetConstMacro( SplineOrder, SplineOrderType );
+  itkGetConstMacro(SplineOrder, SplineOrderType);
 
   /**
    * Set the control point grid size defining the B-spline estimate of the
@@ -121,7 +123,7 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  itkSetMacro( NumberOfControlPointsForTheUpdateField, ArrayType );
+  itkSetMacro(NumberOfControlPointsForTheUpdateField, ArrayType);
 
   /**
    * Get the control point grid size defining the B-spline estimate of the
@@ -130,7 +132,7 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  itkGetConstMacro( NumberOfControlPointsForTheUpdateField, ArrayType );
+  itkGetConstMacro(NumberOfControlPointsForTheUpdateField, ArrayType);
 
   /**
    * Set the update field mesh size which is used to specify the control point
@@ -138,7 +140,8 @@ public:
    * difference between the control point grid size and the spline order, i.e.
    * meshSize = controlPointGridSize - SplineOrder.
    */
-  void SetMeshSizeForTheUpdateField( const ArrayType & );
+  void
+  SetMeshSizeForTheUpdateField(const ArrayType &);
 
   /**
    * Set the control point grid size defining the B-spline estimate of the
@@ -147,7 +150,7 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  itkSetMacro( NumberOfControlPointsForTheTotalField, ArrayType );
+  itkSetMacro(NumberOfControlPointsForTheTotalField, ArrayType);
 
   /**
    * Get the control point grid size defining the B-spline estimate of the
@@ -156,7 +159,7 @@ public:
    * Default = 4 control points in each dimension for a mesh size of 1 in each
    * dimension.
    */
-  itkGetConstMacro( NumberOfControlPointsForTheTotalField, ArrayType );
+  itkGetConstMacro(NumberOfControlPointsForTheTotalField, ArrayType);
 
   /**
    * Set the total field mesh size which is used to specify the control point
@@ -164,42 +167,44 @@ public:
    * difference between the control point grid size and the spline order, i.e.
    * meshSize = controlPointGridSize - SplineOrder.
    */
-  void SetMeshSizeForTheTotalField( const ArrayType & );
+  void
+  SetMeshSizeForTheTotalField(const ArrayType &);
 
   /**
    * Enforce stationary boundaries.  Important for diffeomorphic transforms.
    */
-  itkBooleanMacro( EnforceStationaryBoundary );
-  itkSetMacro( EnforceStationaryBoundary, bool );
-  itkGetConstMacro( EnforceStationaryBoundary, bool );
+  itkBooleanMacro(EnforceStationaryBoundary);
+  itkSetMacro(EnforceStationaryBoundary, bool);
+  itkGetConstMacro(EnforceStationaryBoundary, bool);
 
 protected:
   BSplineSmoothingOnUpdateDisplacementFieldTransform();
-  virtual ~BSplineSmoothingOnUpdateDisplacementFieldTransform() ITK_OVERRIDE;
+  ~BSplineSmoothingOnUpdateDisplacementFieldTransform() override = default;
 
-  void PrintSelf( std::ostream& os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Clone the current transform */
-  virtual typename LightObject::Pointer InternalClone() const ITK_OVERRIDE;
+  typename LightObject::Pointer
+  InternalClone() const override;
 
   /**
    * Smooth the displacement field using B-splines.
    */
-   DisplacementFieldPointer BSplineSmoothDisplacementField( const DisplacementFieldType *, const ArrayType & );
+  DisplacementFieldPointer
+  BSplineSmoothDisplacementField(const DisplacementFieldType *, const ArrayType &);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineSmoothingOnUpdateDisplacementFieldTransform);
-
-  SplineOrderType             m_SplineOrder;
-  bool                        m_EnforceStationaryBoundary;
-  ArrayType                   m_NumberOfControlPointsForTheUpdateField;
-  ArrayType                   m_NumberOfControlPointsForTheTotalField;
+  SplineOrderType m_SplineOrder{ 3 };
+  bool            m_EnforceStationaryBoundary{ true };
+  ArrayType       m_NumberOfControlPointsForTheUpdateField;
+  ArrayType       m_NumberOfControlPointsForTheTotalField;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkBSplineSmoothingOnUpdateDisplacementFieldTransform.hxx"
+#  include "itkBSplineSmoothingOnUpdateDisplacementFieldTransform.hxx"
 #endif
 
 #endif // itkBSplineSmoothingOnUpdateDisplacementFieldTransform_h

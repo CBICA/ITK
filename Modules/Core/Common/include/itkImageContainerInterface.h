@@ -49,22 +49,22 @@ namespace itk
  * \ingroup ImageObjects
  * \ingroup ITKCommon
  */
-template< typename TElementIdentifier, typename TElement >
-class ImageContainerInterface:public Object
+template <typename TElementIdentifier, typename TElement>
+class ImageContainerInterface : public Object
 {
 public:
-  /** Standard class typedefs. */
-  typedef ImageContainerInterface    Self;
-  typedef Object                     Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = ImageContainerInterface;
+  using Superclass = Object;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard part of every itk Object. */
   itkTypeMacro(ImageContainerInterface, Object);
 
   /** Save the template parameters. */
-  typedef TElementIdentifier ElementIdentifier;
-  typedef TElement           Element;
+  using ElementIdentifier = TElementIdentifier;
+  using Element = TElement;
 
   /** Index operator. This version can be an lvalue. */
   virtual TElement & operator[](const ElementIdentifier) = 0;
@@ -74,10 +74,12 @@ public:
 
   /** Return a pointer to the beginning of the buffer.  This is used by
    * the image iterator class. */
-  virtual TElement * GetBufferPointer() = 0;
+  virtual TElement *
+  GetBufferPointer() = 0;
 
   /** Get the number of elements currently stored in the container. */
-  virtual ElementIdentifier Size(void) const = 0;
+  virtual ElementIdentifier
+  Size() const = 0;
 
   /** Tell the container to allocate enough memory to allow at least
    * as many elements as the size given to be stored.  This is NOT
@@ -88,7 +90,8 @@ public:
   /** Tell the container to try to minimize its memory usage for storage of
    * the current number of elements.  This is NOT guaranteed to decrease
    * memory usage. */
-  virtual void Squeeze(void) = 0;
+  virtual void
+  Squeeze() = 0;
 };
 } // end namespace itk
 

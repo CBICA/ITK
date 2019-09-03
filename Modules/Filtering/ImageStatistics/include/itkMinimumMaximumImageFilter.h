@@ -18,8 +18,9 @@
 #ifndef itkMinimumMaximumImageFilter_h
 #define itkMinimumMaximumImageFilter_h
 
-#include "itkImageToImageFilter.h"
+#include "itkImageSink.h"
 #include "itkSimpleDataObjectDecorator.h"
+#include <mutex>
 
 #include <vector>
 
@@ -32,41 +33,42 @@ namespace itk
  * an image.
  *
  * It is templated over input image type only.
- * This filter just copies the input image through this output to
- * be included within the pipeline. The implementation uses the
- * StatisticsImageFilter.
+ *
+ * This filter is automatically multi-threaded and can stream its
+ * input when NumberOfStreamDivisions is set to more than
+ * 1. The extrema are independently computed for each streamed and
+ * threaded region then merged.
+ *
  *
  * \ingroup Operators
  * \sa StatisticsImageFilter
  * \ingroup ITKImageStatistics
  */
-template< typename TInputImage >
-class ITK_TEMPLATE_EXPORT MinimumMaximumImageFilter:
-  public ImageToImageFilter< TInputImage, TInputImage >
+template <typename TInputImage>
+class ITK_TEMPLATE_EXPORT MinimumMaximumImageFilter : public ImageSink<TInputImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(MinimumMaximumImageFilter);
+
   /** Extract dimension from input image. */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
 
-  /** Standard class typedefs. */
-  typedef MinimumMaximumImageFilter                      Self;
-  typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MinimumMaximumImageFilter;
+  using Superclass = ImageSink<TInputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  /** Image related typedefs. */
-  typedef typename TInputImage::Pointer InputImagePointer;
+  /** Image related type alias. */
+  using InputImagePointer = typename TInputImage::Pointer;
 
-  typedef typename TInputImage::RegionType RegionType;
-  typedef typename TInputImage::SizeType   SizeType;
-  typedef typename TInputImage::IndexType  IndexType;
-  typedef typename TInputImage::PixelType  PixelType;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
 
   /** Smart Pointer type to a DataObject. */
-  typedef typename DataObject::Pointer DataObjectPointer;
+  using DataObjectPointer = typename DataObject::Pointer;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -74,80 +76,70 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MinimumMaximumImageFilter, ImageToImageFilter);
 
-  /** Image typedef support. */
-  typedef TInputImage InputImageType;
+  /** Image type alias support */
+  using InputImageType = TInputImage;
 
   /** Type of DataObjects used for scalar outputs */
-  typedef SimpleDataObjectDecorator< PixelType > PixelObjectType;
+  using PixelObjectType = SimpleDataObjectDecorator<PixelType>;
 
   /** Return the computed Minimum. */
-  PixelType GetMinimum() const
-  { return this->GetMinimumOutput()->Get(); }
-  PixelObjectType * GetMinimumOutput();
-
-  const PixelObjectType * GetMinimumOutput() const;
+  itkGetDecoratedOutputMacro(Minimum, PixelType);
 
   /** Return the computed Maximum. */
-  PixelType GetMaximum() const
-  { return this->GetMaximumOutput()->Get(); }
-  PixelObjectType * GetMaximumOutput();
-
-  const PixelObjectType * GetMaximumOutput() const;
+  itkGetDecoratedOutputMacro(Maximum, PixelType);
 
   /** Make a DataObject of the correct type to be used as the specified
    * output. */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectIdentifierType = ProcessObject::DataObjectIdentifierType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(const DataObjectIdentifierType & name) override;
+
+
+  // Change the acces from protected to public to expose streaming option
+  using Superclass::SetNumberOfStreamDivisions;
+  using Superclass::GetNumberOfStreamDivisions;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( LessThanComparableCheck,
-                   ( Concept::LessThanComparable< PixelType > ) );
-  itkConceptMacro( GreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< PixelType > ) );
-  itkConceptMacro( OStreamWritableCheck,
-                   ( Concept::OStreamWritable< PixelType > ) );
+  itkConceptMacro(LessThanComparableCheck, (Concept::LessThanComparable<PixelType>));
+  itkConceptMacro(GreaterThanComparableCheck, (Concept::GreaterThanComparable<PixelType>));
+  itkConceptMacro(OStreamWritableCheck, (Concept::OStreamWritable<PixelType>));
   // End concept checking
 #endif
 
 protected:
   MinimumMaximumImageFilter();
-  virtual ~MinimumMaximumImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MinimumMaximumImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  /** Pass the input through unmodified. Do this by Grafting in the
-    AllocateOutputs method. */
-  void AllocateOutputs() ITK_OVERRIDE;
-
-  /** Initialize some accumulators before the threads run. */
-  void BeforeThreadedGenerateData() ITK_OVERRIDE;
+  /** Initialize some accumulators before any chunks are processes */
+  void
+  BeforeStreamedGenerateData() override;
 
   /** Do final mean and variance computation from data accumulated in threads.
-    */
-  void AfterThreadedGenerateData() ITK_OVERRIDE;
+   */
+  void
+  AfterStreamedGenerateData() override;
 
-  /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const RegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  ThreadedStreamedGenerateData(const RegionType &) override;
 
-  // Override since the filter needs all the data for the algorithm
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
 
-  // Override since the filter produces all of its output
-  void EnlargeOutputRequestedRegion(DataObject *data) ITK_OVERRIDE;
+  itkSetDecoratedOutputMacro(Minimum, PixelType);
+  itkSetDecoratedOutputMacro(Maximum, PixelType);
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MinimumMaximumImageFilter);
+  PixelType m_ThreadMin;
+  PixelType m_ThreadMax;
 
-  std::vector< PixelType > m_ThreadMin;
-  std::vector< PixelType > m_ThreadMax;
+  std::mutex m_Mutex;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMinimumMaximumImageFilter.hxx"
+#  include "itkMinimumMaximumImageFilter.hxx"
 #endif
 
 #endif

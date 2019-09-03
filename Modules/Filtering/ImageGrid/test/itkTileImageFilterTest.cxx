@@ -19,70 +19,77 @@
 #include "itkTileImageFilter.h"
 #include "itkImageFileReader.h"
 #include "itkImageSeriesWriter.h"
-#include "itkFilterWatcher.h"
+#include "itkSimpleFilterWatcher.h"
+#include "itkTestingMacros.h"
 
-int itkTileImageFilterTest(int argc, char *argv[] )
+int
+itkTileImageFilterTest(int argc, char * argv[])
 {
 
-  typedef itk::RGBPixel<unsigned char> PixelType;
-  enum { InputImageDimension = 2 };
-  enum { OutputImageDimension = 3 };
+  using PixelType = itk::RGBPixel<unsigned char>;
+  enum
+  {
+    InputImageDimension = 2
+  };
+  enum
+  {
+    OutputImageDimension = 3
+  };
 
-  typedef itk::Image<PixelType,InputImageDimension>              InputImageType;
-  typedef itk::Image<PixelType,OutputImageDimension>             OutputImageType;
-  typedef itk::ImageFileReader< InputImageType >                 ImageReaderType;
-  typedef itk::TileImageFilter<InputImageType,OutputImageType>   TilerType;
-  typedef itk::ImageSeriesWriter<OutputImageType,InputImageType> WriterType;
+  using InputImageType = itk::Image<PixelType, InputImageDimension>;
+  using OutputImageType = itk::Image<PixelType, OutputImageDimension>;
+  using ImageReaderType = itk::ImageFileReader<InputImageType>;
+  using TilerType = itk::TileImageFilter<InputImageType, OutputImageType>;
+  using WriterType = itk::ImageSeriesWriter<OutputImageType, InputImageType>;
 
   if (argc < 6)
-    {
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  iSize jSize kSize input1 input2 ... inputn output" << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << "  iSize jSize kSize input1 input2 ... inputn output"
+              << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
-  itk::FixedArray<unsigned int,3> layout;
-  layout[0] = atoi(argv[1]);
-  layout[1] = atoi(argv[2]);
-  layout[2] = atoi(argv[3]);
+  itk::FixedArray<unsigned int, 3> layout;
+  layout[0] = std::stoi(argv[1]);
+  layout[1] = std::stoi(argv[2]);
+  layout[2] = std::stoi(argv[3]);
 
   // Tile the input images
-  TilerType::Pointer tiler = TilerType::New();
-  FilterWatcher tileWatcher(tiler, "Tiler");
-  int f = 0;
-  for (int i=4; i < argc - 1; i++)
-    {
+  TilerType::Pointer       tiler = TilerType::New();
+  itk::SimpleFilterWatcher tileWatcher(tiler, "Tiler");
+  int                      f = 0;
+  for (int i = 4; i < argc - 1; i++)
+  {
     ImageReaderType::Pointer reader = ImageReaderType::New();
-    reader->SetFileName (argv[i]);
+    reader->SetFileName(argv[i]);
     reader->Update();
-    tiler->SetInput(f++,reader->GetOutput());
-    }
+    tiler->SetInput(f++, reader->GetOutput());
+  }
   tiler->SetLayout(layout);
-  unsigned char yellow[3] = {255, 255, 127};
+  unsigned char                yellow[3] = { 255, 255, 127 };
   itk::RGBPixel<unsigned char> fillPixel = yellow;
   tiler->SetDefaultPixelValue(fillPixel);
   tiler->Update();
   tiler->GetOutput()->Print(std::cout);
 
-  tiler->Print( std::cout );
+  tiler->Print(std::cout);
 
   WriterType::Pointer writer = WriterType::New();
 
-  writer->SetSeriesFormat (  argv[argc-1] );
+  writer->SetSeriesFormat(argv[argc - 1]);
 
   try
-    {
+  {
     writer->SetInput(tiler->GetOutput());
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Error while writing the series with SeriesFileNames generator" << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-
-    }
+  }
   std::cout << "Test passed." << std::endl;
   return EXIT_SUCCESS;
-
 }

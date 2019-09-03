@@ -22,16 +22,11 @@ set(VXL_CMAKE_DOXYGEN_DIR  ${VXL_ROOT_SOURCE_DIR}/config/cmake/doxygen)
 get_property(VXLTargets_MODULES GLOBAL PROPERTY VXLTargets_MODULES)
 
 set(VXL_CONFIG_CMAKE_DIR "share/vxl/cmake")
-if(${CMAKE_VERSION} VERSION_LESS 2.8.12)
-   set(INTERFACE_LINK_OPTION "")
-else()
-   set(INTERFACE_LINK_OPTION "EXPORT_LINK_INTERFACE_LIBRARIES")
-endif()
+set(INTERFACE_LINK_OPTION "EXPORT_LINK_INTERFACE_LIBRARIES")
 
 if(VXLTargets_MODULES)
   export(TARGETS
     ${VXLTargets_MODULES}
-    APPEND
     FILE "${CMAKE_CURRENT_BINARY_DIR}/VXLTargets.cmake"
     ${INTERFACE_LINK_OPTION}
   )
@@ -42,6 +37,8 @@ endif()
 # Create the VXLConfig.cmake file for the build tree.
 configure_file(${VXL_CMAKE_DIR}/VXLConfig.cmake.in
                ${PROJECT_BINARY_DIR}/VXLConfig.cmake @ONLY)
+configure_file(${VXL_CMAKE_DIR}/VXLConfigVersion.cmake.in
+               ${PROJECT_BINARY_DIR}/VXLConfigVersion.cmake @ONLY)
 
 configure_file(${VXL_CMAKE_DIR}/VXLConfig_export.cmake.in
                ${PROJECT_BINARY_DIR}/config/cmake/export/VXLConfig.cmake
@@ -49,6 +46,7 @@ configure_file(${VXL_CMAKE_DIR}/VXLConfig_export.cmake.in
 
 install(FILES
   ${PROJECT_BINARY_DIR}/config/cmake/export/VXLConfig.cmake
+  ${PROJECT_BINARY_DIR}/VXLConfigVersion.cmake
   ${VXL_CMAKE_DIR}/VXLStandardOptions.cmake
   ${VXL_CMAKE_DIR}/UseVXL.cmake
   ${VXL_CMAKE_DIR}/UseVGUI.cmake

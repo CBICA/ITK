@@ -18,13 +18,13 @@
 #ifndef itkParallelSparseFieldLevelSetImageFilter_h
 #define itkParallelSparseFieldLevelSetImageFilter_h
 
-#include <vector>
 #include "itkFiniteDifferenceImageFilter.h"
 #include "itkSparseFieldLayer.h"
 #include "itkObjectStore.h"
 #include "itkNeighborhoodIterator.h"
-#include "itkMultiThreader.h"
-#include "itkBarrier.h"
+#include "itkMultiThreaderBase.h"
+#include <condition_variable>
+#include <vector>
 
 namespace itk
 {
@@ -33,14 +33,14 @@ namespace itk
  * lists of indices and other values.
  * \ingroup ITKLevelSets
  */
-template< typename TNodeIndexType >
+template <typename TNodeIndexType>
 class ITK_TEMPLATE_EXPORT ParallelSparseFieldLevelSetNode
 {
 public:
-  TNodeIndexType                   m_Index;
-  float                            m_Value;
-  ParallelSparseFieldLevelSetNode *Next;
-  ParallelSparseFieldLevelSetNode *Previous;
+  TNodeIndexType                    m_Index;
+  float                             m_Value;
+  ParallelSparseFieldLevelSetNode * Next;
+  ParallelSparseFieldLevelSetNode * Previous;
 };
 
 /**
@@ -61,47 +61,52 @@ public:
  * Order of reference is lowest index to highest index in the neighborhood.
  * For example, for 4 connectivity, the indices refer to the following
  * neighbors:
- * \code
- *
- *  * 1 *
- *  2 * 3
- *  * 4 *
- *
- * \endcode
+   \code
+
+    * 1 *
+    2 * 3
+    * 4 *
+
+   \endcode
  *
  * \ingroup ITKLevelSets
  */
-template< typename TNeighborhoodType >
+template <typename TNeighborhoodType>
 class ITK_TEMPLATE_EXPORT ParallelSparseFieldCityBlockNeighborList
 {
 public:
-  typedef TNeighborhoodType                     NeighborhoodType;
-  typedef typename NeighborhoodType::OffsetType OffsetType;
-  typedef typename NeighborhoodType::RadiusType RadiusType;
+  using NeighborhoodType = TNeighborhoodType;
+  using OffsetType = typename NeighborhoodType::OffsetType;
+  using RadiusType = typename NeighborhoodType::RadiusType;
 
-  itkStaticConstMacro(Dimension, unsigned int, NeighborhoodType::Dimension);
+  static constexpr unsigned int Dimension = NeighborhoodType::Dimension;
 
-  const RadiusType & GetRadius() const
+  const RadiusType &
+  GetRadius() const
   {
     return m_Radius;
   }
 
-  const unsigned int & GetArrayIndex(unsigned int i) const
+  const unsigned int &
+  GetArrayIndex(unsigned int i) const
   {
     return m_ArrayIndex[i];
   }
 
-  const OffsetType & GetNeighborhoodOffset(unsigned int i) const
+  const OffsetType &
+  GetNeighborhoodOffset(unsigned int i) const
   {
     return m_NeighborhoodOffset[i];
   }
 
-  const unsigned int & GetSize() const
+  const unsigned int &
+  GetSize() const
   {
     return m_Size;
   }
 
-  unsigned int GetStride(unsigned int i)
+  unsigned int
+  GetStride(unsigned int i)
   {
     return m_StrideTable[i];
   }
@@ -114,14 +119,15 @@ public:
     m_NeighborhoodOffset.clear();
   }
 
-  void Print(std::ostream & os) const;
+  void
+  Print(std::ostream & os) const;
 
 private:
-  char                        m_Pad1[128];
-  unsigned int                m_Size;
-  RadiusType                  m_Radius;
-  std::vector< unsigned int > m_ArrayIndex;
-  std::vector< OffsetType >   m_NeighborhoodOffset;
+  char                      m_Pad1[128];
+  unsigned int              m_Size;
+  RadiusType                m_Radius;
+  std::vector<unsigned int> m_ArrayIndex;
+  std::vector<OffsetType>   m_NeighborhoodOffset;
 
   /** An internal table for keeping track of stride lengths in a neighborhood,
    *  i.e. the memory offsets between pixels along each dimensional axis. */
@@ -245,22 +251,24 @@ private:
  *
  * \ingroup ITKLevelSets
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT ParallelSparseFieldLevelSetImageFilter:
-  public FiniteDifferenceImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT ParallelSparseFieldLevelSetImageFilter
+  : public FiniteDifferenceImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs */
-  typedef ParallelSparseFieldLevelSetImageFilter                   Self;
-  typedef FiniteDifferenceImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                                     Pointer;
-  typedef SmartPointer< const Self >                               ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ParallelSparseFieldLevelSetImageFilter);
+
+  /** Standard class type aliases */
+  using Self = ParallelSparseFieldLevelSetImageFilter;
+  using Superclass = FiniteDifferenceImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /**Typedefs from the superclass */
-  typedef typename Superclass::TimeStepType                 TimeStepType;
-  typedef typename Superclass::FiniteDifferenceFunctionType FiniteDifferenceFunctionType;
-  typedef typename Superclass::RadiusType                   RadiusType;
-  typedef typename Superclass::NeighborhoodScalesType       NeighborhoodScalesType;
+  using TimeStepType = typename Superclass::TimeStepType;
+  using FiniteDifferenceFunctionType = typename Superclass::FiniteDifferenceFunctionType;
+  using RadiusType = typename Superclass::RadiusType;
+  using NeighborhoodScalesType = typename Superclass::NeighborhoodScalesType;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -269,42 +277,42 @@ public:
   itkTypeMacro(ParallelSparseFieldLevelSetImageFilter, FiniteDifferenceImageFilter);
 
   /** Information derived from the image types. */
-  typedef TInputImage                         InputImageType;
-  typedef TOutputImage                        OutputImageType;
-  typedef typename OutputImageType::IndexType IndexType;
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using IndexType = typename OutputImageType::IndexType;
 
-  itkStaticConstMacro(ImageDimension, unsigned int, TOutputImage::ImageDimension);
+  static constexpr unsigned int ImageDimension = TOutputImage::ImageDimension;
 
-  typedef typename OutputImageType::PixelType PixelType;
+  using PixelType = typename OutputImageType::PixelType;
 
-  typedef typename OutputImageType::RegionType ThreadRegionType;
+  using ThreadRegionType = typename OutputImageType::RegionType;
 
   /** The data type used in numerical computations.  Derived from the output
    *  image type. */
-  typedef typename OutputImageType::ValueType ValueType;
+  using ValueType = typename OutputImageType::ValueType;
 
   /** Node type used in parallel sparse field layer lists. */
-  typedef ParallelSparseFieldLevelSetNode< IndexType > LayerNodeType;
+  using LayerNodeType = ParallelSparseFieldLevelSetNode<IndexType>;
 
   /** A list type used in the algorithm. */
-  typedef SparseFieldLayer< LayerNodeType > LayerType;
-  typedef typename LayerType::Pointer       LayerPointerType;
+  using LayerType = SparseFieldLayer<LayerNodeType>;
+  using LayerPointerType = typename LayerType::Pointer;
 
   /** A type for a list of LayerPointerTypes */
-  typedef std::vector< LayerPointerType > LayerListType;
+  using LayerListType = std::vector<LayerPointerType>;
 
   /** Type used for storing status information */
-  typedef signed char StatusType;
+  using StatusType = signed char;
 
   /** The type of the image used to index status information.  Necessary for
    *  the internals of the algorithm. */
-  typedef Image< StatusType, itkGetStaticConstMacro(ImageDimension) > StatusImageType;
+  using StatusImageType = Image<StatusType, Self::ImageDimension>;
 
   /** Memory pre-allocator used to manage layer nodes in a multithreaded
    *  environment. */
-  typedef ObjectStore< LayerNodeType > LayerNodeStorageType;
+  using LayerNodeStorageType = ObjectStore<LayerNodeType>;
 
-  typedef Offset< itkGetStaticConstMacro(ImageDimension) > OffsetType;
+  using OffsetType = Offset<Self::ImageDimension>;
 
   /** Set/Get the number of layers to use in the sparse field.  Argument is the
    *  number of layers on ONE side of the active layer, so the total layers in
@@ -316,12 +324,13 @@ public:
   itkSetMacro(IsoSurfaceValue, ValueType);
   itkGetConstMacro(IsoSurfaceValue, ValueType);
 
-  LayerPointerType GetActiveListForIndex(const IndexType index)
+  LayerPointerType
+  GetActiveListForIndex(const IndexType index)
   {
     // get the 'z' value for the index
     const unsigned int indexZ = index[m_SplitAxis];
     // get the thread in whose region the index lies
-    const unsigned int ThreadNum = this->GetThreadNumber (indexZ);
+    const unsigned int ThreadNum = this->GetThreadNumber(indexZ);
 
     // get the active list for that thread
     return m_Data[ThreadNum].m_Layers[0];
@@ -329,27 +338,24 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( OutputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< PixelType > ) );
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, PixelType > ) );
-  itkConceptMacro( OutputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< PixelType > ) );
+  itkConceptMacro(OutputEqualityComparableCheck, (Concept::EqualityComparable<PixelType>));
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, PixelType>));
+  itkConceptMacro(OutputOStreamWritableCheck, (Concept::OStreamWritable<PixelType>));
   // End concept checking
 #endif
 
 protected:
   ParallelSparseFieldLevelSetImageFilter();
-  ~ParallelSparseFieldLevelSetImageFilter() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ParallelSparseFieldLevelSetImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Connectivity information for examining neighbor pixels.   */
-  ParallelSparseFieldCityBlockNeighborList< NeighborhoodIterator< OutputImageType > >
-  m_NeighborList;
+  ParallelSparseFieldCityBlockNeighborList<NeighborhoodIterator<OutputImageType>> m_NeighborList;
 
   /** The constant gradient to maintain between isosurfaces in the
       spare-field of the level-set image.  This value defaults to 1.0 */
-  double m_ConstantGradientValue;
+  double m_ConstantGradientValue{ 1.0 };
 
   /** Multiplicative identity of the ValueType. */
   static ValueType m_ValueOne;
@@ -417,44 +423,56 @@ protected:
 
   /** Reimplement the GenerateData() function from FiniteDifferenceImageFilter
    *  for more effective multithreading */
-  virtual void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Copies the input to the output image.  Processing occurs on the output
    * image, so the data type of the output image determines the precision of
    * the calculations (i.e. double or float).  This method overrides the
    * parent class method to do some additional processing. */
-  void CopyInputToOutput() ITK_OVERRIDE;
+  void
+  CopyInputToOutput() override;
 
   /** Reserves memory in the update buffer */
-  void AllocateUpdateBuffer() ITK_OVERRIDE {}
+  void
+  AllocateUpdateBuffer() override
+  {}
 
   /** Constructs the sparse field layers and initializes their values. Also
    *  creates data structures that are NOT local to a thread. */
-  void Initialize() ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /** Constructs the active layer and initialize the first layers inside and
    *  outside of the active layer.  The active layer defines the position of the
    *  zero level set by its values, which are constrained within a range around
    *  zero. */
-  void ConstructActiveLayer();
+  void
+  ConstructActiveLayer();
 
   /** Initializes the values of the active layer set. */
-  void InitializeActiveLayerValues();
+  void
+  InitializeActiveLayerValues();
 
   /** Initializes a layer of the sparse field using a previously initialized
    * layer. Builds the list of nodes in m_Layer[to] using m_Layer[from].
    * Marks values in the m_StatusImage. */
-  void ConstructLayer(const StatusType& from, const StatusType& to);
+  void
+  ConstructLayer(const StatusType & from, const StatusType & to);
 
   /** */
-  void ProcessStatusList(LayerType *InputList, const StatusType& ChangeToStatus,
-                         const StatusType& SearchForStatus, ThreadIdType ThreadId);
+  void
+  ProcessStatusList(LayerType *        InputList,
+                    const StatusType & ChangeToStatus,
+                    const StatusType & SearchForStatus,
+                    ThreadIdType       ThreadId);
 
   /** Adjusts the values associated with all the index layers of the sparse
    * field by propagating out one layer at a time from the active set. This
    * method also takes care of deleting nodes from the layers which have been
    * marked in the status image as having been moved to other layers. */
-  void PropagateAllLayerValues();
+  void
+  PropagateAllLayerValues();
 
   /** Adjusts the values in a single layer "to" using values in a neighboring
    *  layer "from".  The list of indices in "to" are traversed and assigned
@@ -463,21 +481,27 @@ protected:
    *  greater than the number of layers). "InOrOut" == 1 indicates this
    *  propagation is inwards (more negative).  "InOrOut" == 0 indicates this
    *  propagation is outwards (more positive). */
-  void PropagateLayerValues(const StatusType& from, const StatusType& to,
-                            const StatusType& promote, unsigned int InOrOut);
+  void
+  PropagateLayerValues(const StatusType & from,
+                       const StatusType & to,
+                       const StatusType & promote,
+                       unsigned int       InOrOut);
 
   /**This method pre-processes pixels inside and outside the sparse field
    * layers.  The default is to set them to positive and negative values,
    * respectively. This is not necessary as part of the calculations, but
    * produces a more intuitive output for the user. */
-  virtual void InitializeBackgroundPixels();
+  virtual void
+  InitializeBackgroundPixels();
 
   /** Each thread allocates and initializes the data it will use by itself.
    *  This maintains the memory locality of data w.r.t. the thread in a shared
    *  memory environment. */
-  void ThreadedAllocateData(ThreadIdType ThreadId);
+  void
+  ThreadedAllocateData(ThreadIdType ThreadId);
 
-  void ThreadedInitializeData(ThreadIdType ThreadId, const ThreadRegionType & ThreadRegion);
+  void
+  ThreadedInitializeData(ThreadIdType ThreadId, const ThreadRegionType & ThreadRegion);
 
   /** This performs the initial load distribution among the threads.  Every
    *  thread gets a slab of the data to work on. The slabs created along a specific
@@ -488,71 +512,73 @@ protected:
    *  chosen dimension.  This histogram is used to divide the work "equally" among
    *  threads so that each thread approximately get the same number of nodes to
    *  process. */
-  void ComputeInitialThreadBoundaries();
+  void
+  ComputeInitialThreadBoundaries();
 
   /** Find the thread to which a pixel belongs  */
-  unsigned int GetThreadNumber(unsigned int splitAxisValue);
+  unsigned int
+  GetThreadNumber(unsigned int splitAxisValue);
 
   /** Obtain a thread's region split as per the load balancing is done. */
-  void GetThreadRegionSplitByBoundary(ThreadIdType ThreadId, ThreadRegionType & ThreadRegion);
+  void
+  GetThreadRegionSplitByBoundary(ThreadIdType ThreadId, ThreadRegionType & ThreadRegion);
 
   /** Delete the data and synchronization primitives used by the threads during
    *  iterations. */
-  void DeallocateData();
-
-  /** Structure for managing thread-specific data */
-  struct ParallelSparseFieldLevelSetThreadStruct {
-    ParallelSparseFieldLevelSetImageFilter *Filter;
-    std::vector< TimeStepType > TimeStepList;
-    std::vector< bool > ValidTimeStepList;
-    TimeStepType TimeStep;
-  };
+  void
+  DeallocateData();
 
   /** This method calculates the change and does the update, i.e. one iteration
    *  of this iterative solver.  A barrier class is used to synchronize
    *  execution and keep the CalculateChange and ApplyUpdate sections from
    *  executing simultaneously.  */
-  void Iterate();
-
-  static ITK_THREAD_RETURN_TYPE IterateThreaderCallback(void *arg);
+  void
+  Iterate();
 
   /** This method allows a subclass to override the way in which updates to
    * output values are applied during each iteration.  The default simply
    * follows the standard finite difference scheme of scaling the change by the
    * timestep and adding to the value of the previous iteration. */
-  inline virtual ValueType ThreadedCalculateUpdateValue(const ThreadIdType itkNotUsed(ThreadId),
-                                                        const IndexType itkNotUsed(index),
-                                                        const TimeStepType & dt,
-                                                        const ValueType & value,
-                                                        const ValueType & change)
+  inline virtual ValueType
+  ThreadedCalculateUpdateValue(const ThreadIdType   itkNotUsed(ThreadId),
+                               const IndexType      itkNotUsed(index),
+                               const TimeStepType & dt,
+                               const ValueType &    value,
+                               const ValueType &    change)
   {
-    return ( value + static_cast< ValueType >( dt ) * change );
+    return (value + static_cast<ValueType>(dt) * change);
   }
 
   // This method can be overridden in derived classes.
   // The pixel at 'index' is entering the active layer for thread 'ThreadId'.
   // The outputimage at 'index' will have the value as given by the
   // 'value' parameter.
-  virtual void ThreadedProcessPixelEnteringActiveLayer( const IndexType& itkNotUsed(index),
-                                                        const ValueType& itkNotUsed(value),
-                                                        ThreadIdType itkNotUsed(ThreadId) );
+  virtual void
+  ThreadedProcessPixelEnteringActiveLayer(const IndexType & itkNotUsed(index),
+                                          const ValueType & itkNotUsed(value),
+                                          ThreadIdType      itkNotUsed(ThreadId));
 
   /** This method is not implemented or necessary for this solver */
-  void ApplyUpdate(const TimeStepType&) ITK_OVERRIDE {}
+  void
+  ApplyUpdate(const TimeStepType &) override
+  {}
 
   /** Does the actual work of updating the output from the UpdateContainer over
    *  an output region supplied by the multithreading mechanism.  */
-  virtual void ThreadedApplyUpdate(const TimeStepType& dt, ThreadIdType ThreadId);
+  virtual void
+  ThreadedApplyUpdate(const TimeStepType & dt, ThreadIdType ThreadId);
 
   /** This method is not implemented or necessary for this solver */
-  TimeStepType CalculateChange() ITK_OVERRIDE
+  TimeStepType
+  CalculateChange() override
   {
-    return NumericTraits< TimeStepType >::ZeroValue();
+    return NumericTraits<TimeStepType>::ZeroValue();
   }
 
   /** This method does the actual work of calculating change over a region
    *  supplied by the multithreading mechanism.  */
-  virtual TimeStepType ThreadedCalculateChange(ThreadIdType ThreadId);
+  virtual TimeStepType
+  ThreadedCalculateChange(ThreadIdType ThreadId);
 
   /** 1. Updates the values (in the output-image) of the nodes in the active layer
    *  that are moving OUT of the active layer. These values are used in the
@@ -560,33 +586,35 @@ protected:
    *  that are moving IN the active layer.
    *  2. This function also constructs the up/down lists for nodes that are moving
    *  out of the active layer. */
-  void ThreadedUpdateActiveLayerValues( const TimeStepType& dt,
-    LayerType   *StatusUpList,
-    LayerType   *StatusDownList,
-    ThreadIdType ThreadId);
+  void
+  ThreadedUpdateActiveLayerValues(const TimeStepType & dt,
+                                  LayerType *          StatusUpList,
+                                  LayerType *          StatusDownList,
+                                  ThreadIdType         ThreadId);
 
   /** Make a copy of the nodes in the FromList and insert them into the ToList.
-    */
-  void CopyInsertList( ThreadIdType ThreadId,
-    LayerPointerType FromListPtr,
-    LayerPointerType ToListPtr);
+   */
+  void
+  CopyInsertList(ThreadIdType ThreadId, LayerPointerType FromListPtr, LayerPointerType ToListPtr);
 
   /** Delete all nodes in the List */
-  void ClearList(ThreadIdType ThreadId, LayerPointerType ListPtr);
+  void
+  ClearList(ThreadIdType ThreadId, LayerPointerType ListPtr);
 
   /** Make a copy of the nodes given to one thread by its neighbors to process
    *  and insert them into the thread's own list. */
-  void CopyInsertInterNeighborNodeTransferBufferLayers(
-    ThreadIdType ThreadId,
-    LayerPointerType InputList,
-    unsigned int InOrOut,
-    unsigned int BufferLayerNumber);
+  void
+  CopyInsertInterNeighborNodeTransferBufferLayers(ThreadIdType     ThreadId,
+                                                  LayerPointerType InputList,
+                                                  unsigned int     InOrOut,
+                                                  unsigned int     BufferLayerNumber);
 
   /** Delete all nodes in a thread's own lists which its used to transfer nodes
    *  to neighboring threads. */
-  void ClearInterNeighborNodeTransferBufferLayers(
-    ThreadIdType ThreadId, unsigned int InOrOut,
-    unsigned int BufferLayerNumber);
+  void
+  ClearInterNeighborNodeTransferBufferLayers(ThreadIdType ThreadId,
+                                             unsigned int InOrOut,
+                                             unsigned int BufferLayerNumber);
 
   /** Performs two tasks. The situation here is that ThreadedProcessStatusList
    *  has been called just once after the active layer values have been updated and the
@@ -595,57 +623,58 @@ protected:
    *  1. modify the status-image like it is performed by the ThreadedProcessStatusList.
    *  2. Update the values in the output-image for those nodes that are moving IN the
    *  active layer. */
-  void ThreadedProcessFirstLayerStatusLists(
-    unsigned int InputLayerNumber,
-    unsigned int OutputLayerNumber,
-    const StatusType& SearchForStatus,
-    unsigned int InOrOut,
-    unsigned int BufferLayerNumber,
-    ThreadIdType ThreadId);
+  void
+  ThreadedProcessFirstLayerStatusLists(unsigned int       InputLayerNumber,
+                                       unsigned int       OutputLayerNumber,
+                                       const StatusType & SearchForStatus,
+                                       unsigned int       InOrOut,
+                                       unsigned int       BufferLayerNumber,
+                                       ThreadIdType       ThreadId);
 
   /** Push each index in the input list into its appropriate status layer
    *  (ChangeToStatus) and update the status image value at that index.
    *  Also examine the neighbors of the index, (with status SearchForStatus) to determine
    *  which need to go onto the output list.
    */
-  void ThreadedProcessStatusList(
-    unsigned int InputLayerNumber,
-    unsigned int OutputLayerNumber,
-    const StatusType& ChangeToStatus,
-    const StatusType& SearchForStatus,
-    unsigned int InOrOut,
-    unsigned int BufferLayerNumber,
-    ThreadIdType ThreadId);
+  void
+  ThreadedProcessStatusList(unsigned int       InputLayerNumber,
+                            unsigned int       OutputLayerNumber,
+                            const StatusType & ChangeToStatus,
+                            const StatusType & SearchForStatus,
+                            unsigned int       InOrOut,
+                            unsigned int       BufferLayerNumber,
+                            ThreadIdType       ThreadId);
 
   /** Push each index in the input list into its appropriate status layer
    *  (ChangeToStatus) and ... ... update the status image value at that index
    */
-  void ThreadedProcessOutsideList(
-    unsigned int InputLayerNumber,
-    const StatusType& ChangeToStatus,
-    unsigned int InOrOut,
-    unsigned int BufferLayerNumber,
-    ThreadIdType ThreadId);
+  void
+  ThreadedProcessOutsideList(unsigned int       InputLayerNumber,
+                             const StatusType & ChangeToStatus,
+                             unsigned int       InOrOut,
+                             unsigned int       BufferLayerNumber,
+                             ThreadIdType       ThreadId);
 
   /** */
-  void ThreadedPropagateLayerValues(
-    const StatusType& from,
-    const StatusType& to,
-    const StatusType& promote,
-    unsigned int InorOut,
-    ThreadIdType ThreadId);
+  void
+  ThreadedPropagateLayerValues(const StatusType & from,
+                               const StatusType & to,
+                               const StatusType & promote,
+                               unsigned int       InorOut,
+                               ThreadIdType       ThreadId);
 
   /** Split the volume uniformly along the chosen dimension for post processing
    *  the output. */
-  void GetThreadRegionSplitUniformly(
-    ThreadIdType ThreadId, ThreadRegionType & ThreadRegion);
+  void
+  GetThreadRegionSplitUniformly(ThreadIdType ThreadId, ThreadRegionType & ThreadRegion);
 
   /** Assign background pixels INSIDE the sparse field layers to a new level set
    *  with value less than the innermost layer.  Assign background pixels
    *  OUTSIDE the sparse field layers to a new level set with value greater than
    *  the outermost layer.
    */
-  void ThreadedPostProcessOutput(const ThreadRegionType & regionToProcess);
+  void
+  ThreadedPostProcessOutput(const ThreadRegionType & regionToProcess);
 
   /** Check if the load is fairly balanced among the threads.
    *  This is performed by just one thread while all other threads wait.
@@ -657,73 +686,75 @@ protected:
    *  which is defined in the IterateThreaderCallback() function.
    *  A parameter that defines a degree of unbalancedness of the load among threads is
    *  MAX_PIXEL_DIFFERENCE_PERCENT which is defined in CheckLoadBalance(). */
-  virtual void CheckLoadBalance();
+  virtual void
+  CheckLoadBalance();
 
   /** Redistribute an load among the threads to obtain a more balanced load distribution.
    *  This is performed in parallel by all the threads. */
-  virtual void ThreadedLoadBalance(ThreadIdType ThreadId);
+  void
+  ThreadedLoadBalance1(ThreadIdType ThreadId);
+  void
+  ThreadedLoadBalance2(ThreadIdType ThreadId);
 
-  /** Thread synchronization methods. */
-  void WaitForAll();
+  void
+  SignalNeighborsAndWait(ThreadIdType ThreadId);
 
-  void SignalNeighborsAndWait(ThreadIdType ThreadId);
+  void
+  SignalNeighbor(unsigned int SemaphoreArrayNumber, ThreadIdType ThreadId);
 
-  void SignalNeighbor(unsigned int SemaphoreArrayNumber, ThreadIdType ThreadId);
-
-  void WaitForNeighbor(unsigned int SemaphoreArrayNumber, ThreadIdType ThreadId);
+  void
+  WaitForNeighbor(unsigned int SemaphoreArrayNumber, ThreadIdType ThreadId);
 
   /** If child classes need an entry point to the start of every iteration step
    * they can override this method. This method is defined but empty in this class. */
-  virtual void ThreadedInitializeIteration(ThreadIdType ThreadId);
+  virtual void
+  ThreadedInitializeIteration(ThreadIdType ThreadId);
 
-  /**  For debugging.  Writes the active layer set (grid-points closest to evolving
-   *  interface) to a file. */
-  //  void WriteActivePointsToFile ();
+  /** Thread-specific data */
+  std::vector<TimeStepType> m_TimeStepList;
+  std::vector<bool>         m_ValidTimeStepList;
+  TimeStepType              m_TimeStep;
 
   /** The number of threads to use. */
-  ThreadIdType m_NumOfThreads;
+  ThreadIdType m_NumOfThreads{ 0 };
 
   /** The dimension along which to distribute the load. */
-  unsigned int m_SplitAxis;
+  unsigned int m_SplitAxis{ 0 };
 
   /** The length of the dimension along which to distribute the load. */
-  unsigned int m_ZSize;
+  unsigned int m_ZSize{ 0 };
 
   /** A boolean variable stating if the boundaries had been changed during
    *  CheckLoadBalance() */
-  bool m_BoundaryChanged;
+  bool m_BoundaryChanged{ false };
 
   /** The boundaries defining thread regions */
-  unsigned int *m_Boundary;
+  unsigned int * m_Boundary{ nullptr };
 
   /** Histogram of number of pixels in each Z plane for the entire 3D volume */
-  int *m_GlobalZHistogram;
+  int * m_GlobalZHistogram{ nullptr };
 
   /** The mapping from a z-value to the thread in whose region the z-value lies
-    */
-  unsigned int *m_MapZToThreadNumber;
+   */
+  unsigned int * m_MapZToThreadNumber{ nullptr };
 
   /** Cumulative frequency of number of pixels in each Z plane for the entire 3D
    *  volume  */
-  int *m_ZCumulativeFrequency;
-
-  /** A global barrier used for synchronization between all threads. */
-  typename Barrier::Pointer m_Barrier;
+  int * m_ZCumulativeFrequency{ nullptr };
 
   /** Local data for each individual thread. */
-  struct ThreadData {
-    char pad1[128];
-
-    TimeStepType TimeStep;
+  struct ThreadDataUnaligned
+  {
+    TimeStepType     TimeStep;
     ThreadRegionType ThreadRegion;
-    ValueType m_RMSChange;
-    unsigned int m_Count;
+    ValueType        m_RMSChange;
+    unsigned int     m_Count;
 
     /** The layers */
     LayerListType m_Layers;
 
     /** Used to transfer data between m_Layers during load balancing */
-    LayerListType *m_LoadTransferBufferLayers;
+    LayerListType * m_LoadTransferBufferLayers;
 
     /** Node memory pool */
     typename LayerNodeStorageType::Pointer m_LayerNodeStore;
@@ -733,14 +764,14 @@ protected:
 
     /** Used to transfer data between UpList and DownList across thread
      *  boundaries */
-    LayerPointerType **m_InterNeighborNodeTransferBufferLayers[2];
+    LayerPointerType ** m_InterNeighborNodeTransferBufferLayers[2];
 
     /** A pointer to the GlobalData struct obtained from the difference function.
      *  Every thread has its own copy of the struct */
-    void *globalData;
+    void * globalData;
 
     /** Local histogram with each thread */
-    int *m_ZHistogram;
+    int * m_ZHistogram;
 
     /** pseudo-Semaphores used for signalling and waiting neighbor
      *  threads. Strictly speaking the semaphores are NOT just
@@ -748,42 +779,40 @@ protected:
      *  BUT also by the thread's neighbors. So they are NOT truly "local" data. */
     int m_Semaphore[2];
 
-    SimpleMutexLock            m_Lock[2];
-    ConditionVariable::Pointer m_Condition[2];
+    std::mutex              m_Lock[2];
+    std::condition_variable m_Condition[2];
 
     /** Indicates whether to use m_Semaphore[0] or m_Semaphore[1] for
       signalling/waiting */
     unsigned int m_SemaphoreArrayNumber;
-
-    char m_Pad2[128];
   };
 
+  itkPadStruct(ITK_CACHE_LINE_ALIGNMENT, ThreadDataUnaligned, ThreadDataPadded);
+  itkAlignedTypedef(ITK_CACHE_LINE_ALIGNMENT, ThreadDataPadded, ThreadData);
+
   /** An array storing the individual (local) data structures for each thread.
-    */
-  ThreadData *m_Data;
+   */
+  ThreadData * m_Data{ nullptr };
 
   /** Used to check if there are too few pixels remaining. If yes, then we can
    *  stop iterating. */
-  bool m_Stop;
+  bool m_Stop{ false };
 
   /** This flag tells the solver whether or not to interpolate for the actual
       surface location when calculating change at each active layer node.  By
       default this is turned on. Subclasses which do not sample propagation
       (speed), advection, or curvature terms should turn this flag off. */
-  bool m_InterpolateSurfaceLocation;
+  bool m_InterpolateSurfaceLocation{ true };
 
 private:
-
-  ITK_DISALLOW_COPY_AND_ASSIGN(ParallelSparseFieldLevelSetImageFilter);
-
   /** This flag is true when methods need to check boundary conditions and
    *  false when methods do not need to check for boundary conditions. */
-  bool m_BoundsCheckingActive;
+  bool m_BoundsCheckingActive{ false };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkParallelSparseFieldLevelSetImageFilter.hxx"
+#  include "itkParallelSparseFieldLevelSetImageFilter.hxx"
 #endif
 
 #endif

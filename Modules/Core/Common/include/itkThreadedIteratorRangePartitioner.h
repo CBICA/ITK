@@ -19,12 +19,13 @@
 #define itkThreadedIteratorRangePartitioner_h
 
 #include "itkThreadedDomainPartitioner.h"
+#include "itkObjectFactory.h"
 
 namespace itk
 {
 
 // Forward reference because of circular dependencies
-template< typename TIterator >
+template <typename TIterator>
 class ITK_TEMPLATE_EXPORT ThreadedIteratorRangePartitioner;
 
 /** \class ThreadedIteratorRangePartitionerDomain
@@ -34,48 +35,51 @@ class ITK_TEMPLATE_EXPORT ThreadedIteratorRangePartitioner;
  *
  * \ingroup ITKCommon
  */
-template< typename TIterator >
+template <typename TIterator>
 class ITK_TEMPLATE_EXPORT ThreadedIteratorRangePartitionerDomain
 {
 public:
-  typedef TIterator                              IteratorType;
-  typedef ThreadedIteratorRangePartitionerDomain Self;
+  using IteratorType = TIterator;
+  using Self = ThreadedIteratorRangePartitionerDomain;
 
-  ThreadedIteratorRangePartitionerDomain() {}
+  ThreadedIteratorRangePartitionerDomain() = default;
 
-  ThreadedIteratorRangePartitionerDomain( const IteratorType & begin, const IteratorType & end )
-    {
+  ThreadedIteratorRangePartitionerDomain(const IteratorType & begin, const IteratorType & end)
+  {
     this->m_Begin = begin;
     this->m_End = end;
-    }
+  }
 
-  ThreadedIteratorRangePartitionerDomain( const Self & rhs )
-    {
+  ThreadedIteratorRangePartitionerDomain(const Self & rhs)
+  {
     this->m_Begin = rhs.m_Begin;
-    this->m_End   = rhs.m_End;
-    }
+    this->m_End = rhs.m_End;
+  }
 
-  void operator=( const Self & rhs )
+  void
+  operator=(const Self & rhs)
+  {
+    if (this == &rhs)
     {
-    if ( this == & rhs )
-      {
       return;
-      }
+    }
     this->m_Begin = rhs.m_Begin;
-    this->m_End   = rhs.m_End;
-    }
+    this->m_End = rhs.m_End;
+  }
 
-  const IteratorType & Begin() const
-    {
+  const IteratorType &
+  Begin() const
+  {
     return this->m_Begin;
-    }
-  const IteratorType & End() const
-    {
+  }
+  const IteratorType &
+  End() const
+  {
     return this->m_End;
-    }
+  }
 
 private:
-  friend class ThreadedIteratorRangePartitioner< IteratorType >;
+  friend class ThreadedIteratorRangePartitioner<IteratorType>;
   IteratorType m_Begin;
   IteratorType m_End;
 };
@@ -104,16 +108,18 @@ private:
  * \sa ThreadedIndexedContainerPartitioner
  * \ingroup ITKCommon
  */
-template< typename TIterator >
+template <typename TIterator>
 class ITK_TEMPLATE_EXPORT ThreadedIteratorRangePartitioner
-  : public ThreadedDomainPartitioner< ThreadedIteratorRangePartitionerDomain< TIterator > >
+  : public ThreadedDomainPartitioner<ThreadedIteratorRangePartitionerDomain<TIterator>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ThreadedIteratorRangePartitioner                                                  Self;
-  typedef ThreadedDomainPartitioner< ThreadedIteratorRangePartitionerDomain< TIterator > > Superclass;
-  typedef SmartPointer< Self >                                                              Pointer;
-  typedef SmartPointer< const Self >                                                        ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedIteratorRangePartitioner);
+
+  /** Standard class type aliases. */
+  using Self = ThreadedIteratorRangePartitioner;
+  using Superclass = ThreadedDomainPartitioner<ThreadedIteratorRangePartitionerDomain<TIterator>>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -122,9 +128,9 @@ public:
   itkTypeMacro(ThreadedIteratorRangePartitioner, ThreadedDomainPartitioner);
 
   /** Type for convenience of base class methods */
-  typedef typename Superclass::DomainType  DomainType;
+  using DomainType = typename Superclass::DomainType;
 
-  typedef TIterator IteratorType;
+  using IteratorType = TIterator;
 
   /** Split the domain \c completeDomain into up to \c requestedTotal
    * non-overlapping subdomains, setting subdomain number \c threadId as
@@ -137,25 +143,22 @@ public:
    * If \c threadId is greater than the return value, the contents of
    * \c subDomain are undefined.
    */
-  virtual
-  ThreadIdType PartitionDomain(const ThreadIdType threadId,
-                           const ThreadIdType requestedTotal,
-                           const DomainType& completeDomain,
-                           DomainType& subDomain) const ITK_OVERRIDE;
+
+  ThreadIdType
+  PartitionDomain(const ThreadIdType threadId,
+                  const ThreadIdType requestedTotal,
+                  const DomainType & completeDomain,
+                  DomainType &       subDomain) const override;
 
 protected:
-  ThreadedIteratorRangePartitioner();
-  virtual ~ThreadedIteratorRangePartitioner() ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ThreadedIteratorRangePartitioner);
-
+  ThreadedIteratorRangePartitioner() = default;
+  ~ThreadedIteratorRangePartitioner() override = default;
 };
 
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkThreadedIteratorRangePartitioner.hxx"
+#  include "itkThreadedIteratorRangePartitioner.hxx"
 #endif
 
 #endif

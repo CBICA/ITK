@@ -22,26 +22,29 @@
 #include "itkImageFileWriter.h"
 #include "itkImageFileReader.h"
 #include "itkStimulateImageIO.h"
+#include "itkTestingMacros.h"
 
 
-#define SPECIFIC_IMAGEIO_MODULE_TEST
+// Specific ImageIO test
 
-int itkStimulateImageIOTest(int argc, char* argv[] )
+int
+itkStimulateImageIOTest(int argc, char * argv[])
 {
-  typedef itk::Image<float,2> FloatImageType;
+  using FloatImageType = itk::Image<float, 2>;
 
-  if( argc < 3 )
-    {
+  if (argc < 3)
+  {
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  output1 output2 " << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << "  output1 output2 " << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Create a source object (in this case a random image generator).
   // The source object is templated on the output type.
   //
   FloatImageType::SizeValueType size[2];
-  size[0]=128; size[1]=64;
+  size[0] = 128;
+  size[1] = 64;
 
   itk::RandomImageSource<FloatImageType>::Pointer random;
   random = itk::RandomImageSource<FloatImageType>::New();
@@ -63,13 +66,13 @@ int itkStimulateImageIOTest(int argc, char* argv[] )
   writer->SetImageIO(sprIO);
   writer->Write();
 
-  if ( !sprIO->CanReadFile(argv[1]) )
-    {
+  if (!sprIO->CanReadFile(argv[1]))
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   try
-    {
+  {
     // Create a source object (in this case a reader)
     itk::ImageFileReader<FloatImageType>::Pointer reader;
     reader = itk::ImageFileReader<FloatImageType>::New();
@@ -80,11 +83,11 @@ int itkStimulateImageIOTest(int argc, char* argv[] )
     writer->SetInput(reader->GetOutput());
     writer->SetFileName(argv[2]);
     writer->Write();
-    }
-  catch (itk::ExceptionObject &e)
-    {
+  }
+  catch (itk::ExceptionObject & e)
+  {
     std::cerr << e << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

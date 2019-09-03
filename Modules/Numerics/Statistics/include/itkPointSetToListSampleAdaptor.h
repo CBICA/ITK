@@ -42,16 +42,17 @@ namespace Statistics
  * \ingroup ITKStatistics
  */
 
-template< typename TPointSet >
-class ITK_TEMPLATE_EXPORT PointSetToListSampleAdaptor:
-  public ListSample< typename TPointSet::PointType >
+template <typename TPointSet>
+class ITK_TEMPLATE_EXPORT PointSetToListSampleAdaptor : public ListSample<typename TPointSet::PointType>
 {
 public:
-  /** Standard class typedefs */
-  typedef PointSetToListSampleAdaptor                 Self;
-  typedef ListSample< typename TPointSet::PointType > Superclass;
-  typedef SmartPointer< Self >                        Pointer;
-  typedef SmartPointer< const Self >                  ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(PointSetToListSampleAdaptor);
+
+  /** Standard class type aliases */
+  using Self = PointSetToListSampleAdaptor;
+  using Superclass = ListSample<typename TPointSet::PointType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(PointSetToListSampleAdaptor, ListSample);
@@ -59,46 +60,52 @@ public:
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
-  /** PointSet typedefs */
-  typedef TPointSet                                        PointSetType;
-  typedef typename TPointSet::Pointer                      PointSetPointer;
-  typedef typename TPointSet::ConstPointer                 PointSetConstPointer;
-  typedef typename TPointSet::PointsContainer              PointsContainer;
-  typedef typename TPointSet::PointsContainerPointer       PointsContainerPointer;
-  typedef typename TPointSet::PointsContainerConstPointer  PointsContainerConstPointer;
-  typedef typename TPointSet::PointsContainerIterator      PointsContainerIteratorType;
-  typedef typename TPointSet::PointsContainerConstIterator PointsContainerConstIteratorType;
-  typedef typename TPointSet::PointType                    PointType;
+  /** PointSet type alias */
+  using PointSetType = TPointSet;
+  using PointSetPointer = typename TPointSet::Pointer;
+  using PointSetConstPointer = typename TPointSet::ConstPointer;
+  using PointsContainer = typename TPointSet::PointsContainer;
+  using PointsContainerPointer = typename TPointSet::PointsContainerPointer;
+  using PointsContainerConstPointer = typename TPointSet::PointsContainerConstPointer;
+  using PointsContainerIteratorType = typename TPointSet::PointsContainerIterator;
+  using PointsContainerConstIteratorType = typename TPointSet::PointsContainerConstIterator;
+  using PointType = typename TPointSet::PointType;
 
-  /** Superclass typedefs for Measurement vector, measurement,
+  /** Superclass type alias for Measurement vector, measurement,
    * Instance Identifier, frequency, size, size element value */
-  typedef typename Superclass::MeasurementType            MeasurementType;
-  typedef typename Superclass::MeasurementVectorType      MeasurementVectorType;
-  typedef typename Superclass::AbsoluteFrequencyType      AbsoluteFrequencyType;
-  typedef typename Superclass::TotalAbsoluteFrequencyType TotalAbsoluteFrequencyType;
-  typedef typename Superclass::MeasurementVectorSizeType  MeasurementVectorSizeType;
-  typedef typename Superclass::InstanceIdentifier         InstanceIdentifier;
+  using MeasurementType = typename Superclass::MeasurementType;
+  using MeasurementVectorType = typename Superclass::MeasurementVectorType;
+  using AbsoluteFrequencyType = typename Superclass::AbsoluteFrequencyType;
+  using TotalAbsoluteFrequencyType = typename Superclass::TotalAbsoluteFrequencyType;
+  using MeasurementVectorSizeType = typename Superclass::MeasurementVectorSizeType;
+  using InstanceIdentifier = typename Superclass::InstanceIdentifier;
 
-  typedef MeasurementVectorType ValueType;
+  using ValueType = MeasurementVectorType;
 
   /** Method to set the point set */
-  void SetPointSet(const TPointSet *pointSet);
+  void
+  SetPointSet(const TPointSet * pointSet);
 
   /** Method to get the point set */
-  const TPointSet * GetPointSet();
+  const TPointSet *
+  GetPointSet();
 
   /** returns the number of measurement vectors in this container */
-  InstanceIdentifier Size() const ITK_OVERRIDE;
+  InstanceIdentifier
+  Size() const override;
 
   /** returns the measurement vector that is specified by the instance
    * identifier argument. */
-  const MeasurementVectorType & GetMeasurementVector(InstanceIdentifier id) const ITK_OVERRIDE;
+  const MeasurementVectorType &
+  GetMeasurementVector(InstanceIdentifier id) const override;
 
   /** returns 1 as other subclasses of ListSampleBase does */
-  AbsoluteFrequencyType GetFrequency(InstanceIdentifier id) const ITK_OVERRIDE;
+  AbsoluteFrequencyType
+  GetFrequency(InstanceIdentifier id) const override;
 
   /** returns the size of this container */
-  TotalAbsoluteFrequencyType GetTotalFrequency() const ITK_OVERRIDE;
+  TotalAbsoluteFrequencyType
+  GetTotalFrequency() const override;
 
   /** \class ConstIterator
    * \ingroup ITKStatistics
@@ -107,12 +114,8 @@ public:
   {
     friend class PointSetToListSampleAdaptor;
 
-public:
-
-    ConstIterator(const PointSetToListSampleAdaptor *adaptor)
-    {
-      *this = adaptor->Begin();
-    }
+  public:
+    ConstIterator(const PointSetToListSampleAdaptor * adaptor) { *this = adaptor->Begin(); }
 
     ConstIterator(const ConstIterator & iter)
     {
@@ -120,57 +123,62 @@ public:
       m_InstanceIdentifier = iter.m_InstanceIdentifier;
     }
 
-    ConstIterator & operator=(const ConstIterator & iter)
+    ConstIterator &
+    operator=(const ConstIterator & iter)
     {
       m_Iter = iter.m_Iter;
       m_InstanceIdentifier = iter.m_InstanceIdentifier;
       return *this;
     }
 
-    AbsoluteFrequencyType GetFrequency() const
+    AbsoluteFrequencyType
+    GetFrequency() const
     {
       return 1;
     }
 
-    const MeasurementVectorType & GetMeasurementVector() const
+    const MeasurementVectorType &
+    GetMeasurementVector() const
     {
-      return ( const MeasurementVectorType & )m_Iter.Value();
+      return (const MeasurementVectorType &)m_Iter.Value();
     }
 
-    InstanceIdentifier GetInstanceIdentifier() const
+    InstanceIdentifier
+    GetInstanceIdentifier() const
     {
       return m_InstanceIdentifier;
     }
 
-    ConstIterator & operator++()
+    ConstIterator &
+    operator++()
     {
       ++m_Iter;
       ++m_InstanceIdentifier;
       return *this;
     }
 
-    bool operator!=(const ConstIterator & it)
+    bool
+    operator!=(const ConstIterator & it)
     {
-      return ( m_Iter != it.m_Iter );
+      return (m_Iter != it.m_Iter);
     }
 
-    bool operator==(const ConstIterator & it)
+    bool
+    operator==(const ConstIterator & it)
     {
-      return ( m_Iter == it.m_Iter );
+      return (m_Iter == it.m_Iter);
     }
 
-protected:
+  protected:
     // This method should only be available to the ListSample class
-    ConstIterator(
-      PointsContainerConstIteratorType iter,
-      InstanceIdentifier iid)
+    ConstIterator(PointsContainerConstIteratorType iter, InstanceIdentifier iid)
     {
       m_Iter = iter;
       m_InstanceIdentifier = iid;
     }
 
-private:
-    ConstIterator() ITK_DELETED_FUNCTION;
+  private:
+    ConstIterator() = delete;
     PointsContainerConstIteratorType m_Iter;
     InstanceIdentifier               m_InstanceIdentifier;
   };
@@ -178,64 +186,66 @@ private:
   /** \class Iterator
    * \ingroup ITKStatistics
    */
-  class Iterator:public ConstIterator
+  class Iterator : public ConstIterator
   {
     friend class PointSetToListSampleAdaptor;
 
-public:
-
-    Iterator(Self *adaptor):ConstIterator(adaptor)
+  public:
+    Iterator(Self * adaptor)
+      : ConstIterator(adaptor)
     {}
 
-    Iterator(const Iterator & iter):ConstIterator(iter)
+    Iterator(const Iterator & iter)
+      : ConstIterator(iter)
     {}
 
-    Iterator & operator=(const Iterator & iter)
+    Iterator &
+    operator=(const Iterator & iter)
     {
       this->ConstIterator::operator=(iter);
       return *this;
     }
 
-protected:
-    Iterator(
-      PointsContainerIteratorType iter,
-      InstanceIdentifier iid):ConstIterator(iter, iid)
+  protected:
+    Iterator(PointsContainerIteratorType iter, InstanceIdentifier iid)
+      : ConstIterator(iter, iid)
     {}
 
-private:
+  private:
     // To ensure const-correctness these method must not be in the public API.
     // The are not implemented, since they should never be called.
-    Iterator() ITK_DELETED_FUNCTION;
-    Iterator(const Self *adaptor) ITK_DELETED_FUNCTION;
-    Iterator(PointsContainerConstIteratorType iter, InstanceIdentifier iid) ITK_DELETED_FUNCTION;
-    Iterator(const ConstIterator & it) ITK_DELETED_FUNCTION;
-    ConstIterator & operator=(const ConstIterator & it) ITK_DELETED_FUNCTION;
-
+    Iterator() = delete;
+    Iterator(const Self * adaptor) = delete;
+    Iterator(PointsContainerConstIteratorType iter, InstanceIdentifier iid) = delete;
+    Iterator(const ConstIterator & it) = delete;
+    ConstIterator &
+    operator=(const ConstIterator & it) = delete;
   };
 
   /** returns an iterator that points to the beginning of the container */
-  Iterator Begin()
+  Iterator
+  Begin()
   {
-    PointsContainerPointer nonConstPointsDataContainer =
-      const_cast< PointsContainer * >( m_PointsContainer.GetPointer() );
-    Iterator iter(nonConstPointsDataContainer->Begin(), 0);
+    PointsContainerPointer nonConstPointsDataContainer = const_cast<PointsContainer *>(m_PointsContainer.GetPointer());
+    Iterator               iter(nonConstPointsDataContainer->Begin(), 0);
 
     return iter;
   }
 
   /** returns an iterator that points to the end of the container */
-  Iterator End()
+  Iterator
+  End()
   {
-    PointsContainerPointer nonConstPointsDataContainer =
-      const_cast< PointsContainer * >( m_PointsContainer.GetPointer() );
+    PointsContainerPointer nonConstPointsDataContainer = const_cast<PointsContainer *>(m_PointsContainer.GetPointer());
 
-    Iterator iter( nonConstPointsDataContainer->End(), m_PointsContainer->Size() );
+    Iterator iter(nonConstPointsDataContainer->End(), m_PointsContainer->Size());
 
     return iter;
   }
 
   /** returns an iterator that points to the beginning of the container */
-  ConstIterator Begin() const
+  ConstIterator
+  Begin() const
   {
     ConstIterator iter(m_PointsContainer->Begin(), 0);
 
@@ -243,9 +253,10 @@ private:
   }
 
   /** returns an iterator that points to the end of the container */
-  ConstIterator End() const
+  ConstIterator
+  End() const
   {
-    ConstIterator iter( m_PointsContainer->End(), m_PointsContainer->Size() );
+    ConstIterator iter(m_PointsContainer->End(), m_PointsContainer->Size());
 
     return iter;
   }
@@ -253,12 +264,11 @@ private:
 protected:
   PointSetToListSampleAdaptor();
 
-  virtual ~PointSetToListSampleAdaptor() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~PointSetToListSampleAdaptor() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(PointSetToListSampleAdaptor);
-
   /** the PointSet data source pointer */
   PointSetConstPointer m_PointSet;
 
@@ -268,12 +278,12 @@ private:
 
   /** temporary points for conversions */
   mutable PointType m_TempPoint;
-};  // end of class PointSetToListSampleAdaptor
+}; // end of class PointSetToListSampleAdaptor
 } // end of namespace Statistics
 } // end of namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkPointSetToListSampleAdaptor.hxx"
+#  include "itkPointSetToListSampleAdaptor.hxx"
 #endif
 
 #endif

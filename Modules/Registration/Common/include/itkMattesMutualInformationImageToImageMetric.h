@@ -24,7 +24,7 @@
 #include "itkBSplineDerivativeKernelFunction.h"
 #include "itkArray2D.h"
 
-#include "itkSimpleFastMutexLock.h"
+#include <mutex>
 
 
 namespace itk
@@ -107,53 +107,56 @@ namespace itk
  *
  * \ingroup RegistrationMetrics
  * \ingroup ITKRegistrationCommon
+ *
+ * \sphinx
+ * \sphinxexample{Registration/Common/WatchRegistration,Watch Registration}
+ * \endsphinx
  */
 template <typename TFixedImage, typename TMovingImage>
-class ITK_TEMPLATE_EXPORT MattesMutualInformationImageToImageMetric:
-  public ImageToImageMetric<TFixedImage, TMovingImage>
+class ITK_TEMPLATE_EXPORT MattesMutualInformationImageToImageMetric
+  : public ImageToImageMetric<TFixedImage, TMovingImage>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(MattesMutualInformationImageToImageMetric);
 
-  /** Standard class typedefs. */
-  typedef MattesMutualInformationImageToImageMetric     Self;
-  typedef ImageToImageMetric<TFixedImage, TMovingImage> Superclass;
-  typedef SmartPointer<Self>                            Pointer;
-  typedef SmartPointer<const Self>                      ConstPointer;
+  /** Standard class type aliases. */
+  using Self = MattesMutualInformationImageToImageMetric;
+  using Superclass = ImageToImageMetric<TFixedImage, TMovingImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro(MattesMutualInformationImageToImageMetric,
-               ImageToImageMetric);
+  itkTypeMacro(MattesMutualInformationImageToImageMetric, ImageToImageMetric);
 
   /** Types inherited from Superclass. */
-  typedef typename Superclass::TransformType                  TransformType;
-  typedef typename Superclass::TransformPointer               TransformPointer;
-  typedef typename Superclass::TransformJacobianType          TransformJacobianType;
-  typedef typename Superclass::InterpolatorType               InterpolatorType;
-  typedef typename Superclass::MeasureType                    MeasureType;
-  typedef typename Superclass::DerivativeType                 DerivativeType;
-  typedef typename Superclass::ParametersType                 ParametersType;
-  typedef typename Superclass::FixedImageType                 FixedImageType;
-  typedef typename Superclass::MovingImageType                MovingImageType;
-  typedef typename Superclass::MovingImagePointType           MovingImagePointType;
-  typedef typename Superclass::FixedImageConstPointer         FixedImageConstPointer;
-  typedef typename Superclass::MovingImageConstPointer        MovingImageConstPointer;
-  typedef typename Superclass::BSplineTransformWeightsType    BSplineTransformWeightsType;
-  typedef typename Superclass::BSplineTransformIndexArrayType BSplineTransformIndexArrayType;
+  using TransformType = typename Superclass::TransformType;
+  using TransformPointer = typename Superclass::TransformPointer;
+  using TransformJacobianType = typename Superclass::TransformJacobianType;
+  using InterpolatorType = typename Superclass::InterpolatorType;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using ParametersType = typename Superclass::ParametersType;
+  using FixedImageType = typename Superclass::FixedImageType;
+  using MovingImageType = typename Superclass::MovingImageType;
+  using MovingImagePointType = typename Superclass::MovingImagePointType;
+  using FixedImageConstPointer = typename Superclass::FixedImageConstPointer;
+  using MovingImageConstPointer = typename Superclass::MovingImageConstPointer;
+  using BSplineTransformWeightsType = typename Superclass::BSplineTransformWeightsType;
+  using BSplineTransformIndexArrayType = typename Superclass::BSplineTransformIndexArrayType;
 
-  typedef typename Superclass::CoordinateRepresentationType CoordinateRepresentationType;
-  typedef typename Superclass::FixedImageSampleContainer    FixedImageSampleContainer;
-  typedef typename Superclass::ImageDerivativesType         ImageDerivativesType;
-  typedef typename Superclass::WeightsValueType             WeightsValueType;
-  typedef typename Superclass::IndexValueType               IndexValueType;
+  using CoordinateRepresentationType = typename Superclass::CoordinateRepresentationType;
+  using FixedImageSampleContainer = typename Superclass::FixedImageSampleContainer;
+  using ImageDerivativesType = typename Superclass::ImageDerivativesType;
+  using WeightsValueType = typename Superclass::WeightsValueType;
+  using IndexValueType = typename Superclass::IndexValueType;
 
-  typedef typename FixedImageType::OffsetValueType OffsetValueType;
+  using OffsetValueType = typename FixedImageType::OffsetValueType;
 
   /** The moving image dimension. */
-  itkStaticConstMacro(MovingImageDimension, unsigned int,
-                      MovingImageType::ImageDimension);
+  static constexpr unsigned int MovingImageDimension = MovingImageType::ImageDimension;
 
   /**
    *  Initialize the Metric by
@@ -162,25 +165,30 @@ public:
    *  (2) uniformly select NumberOfSpatialSamples within
    *      the FixedImageRegion, and
    *  (3) allocate memory for pdf data structures. */
-  virtual void Initialize(void) ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /**  Get the value. */
-  MeasureType GetValue(const ParametersType & parameters) const ITK_OVERRIDE;
+  MeasureType
+  GetValue(const ParametersType & parameters) const override;
 
   /** Get the derivatives of the match measure. */
-  void GetDerivative(const ParametersType & parameters, DerivativeType & Derivative) const ITK_OVERRIDE;
+  void
+  GetDerivative(const ParametersType & parameters, DerivativeType & Derivative) const override;
 
   /**  Get the value and derivatives for single valued optimizers. */
-  void GetValueAndDerivative(const ParametersType & parameters, MeasureType & Value, DerivativeType & Derivative) const ITK_OVERRIDE;
+  void
+  GetValueAndDerivative(const ParametersType & parameters,
+                        MeasureType &          Value,
+                        DerivativeType &       Derivative) const override;
 
-/** Number of bins to used in the histogram.
-  * According to Mattes et al the optimum value is 50.
+  /** Number of bins to used in the histogram.
+   * According to Mattes et al the optimum value is 50.
    * The minimum value is 5 due to the padding required by the Parzen
    * windowing with a cubic-BSpline kernel. Note that even if the metric
    * is used on binary images, the number of bins should at least be
    * equal to five. */
-  itkSetClampMacro( NumberOfHistogramBins, SizeValueType,
-                    5, NumericTraits<SizeValueType>::max() );
+  itkSetClampMacro(NumberOfHistogramBins, SizeValueType, 5, NumericTraits<SizeValueType>::max());
   itkGetConstReferenceMacro(NumberOfHistogramBins, SizeValueType);
 
   /** This variable selects the method to be used for computing the Metric
@@ -212,24 +220,26 @@ public:
   itkBooleanMacro(UseExplicitPDFDerivatives);
 
   /** The marginal PDFs are stored as std::vector. */
-  typedef double PDFValueType; //NOTE:  floating point precision is not as stable.  Double precision proves faster and more robust in real-world testing.
+  using PDFValueType = double; // NOTE:  floating point precision is not as stable.  Double precision proves faster and
+                               // more robust in real-world testing.
 
   /** Typedef for the joint PDF and PDF derivatives are stored as ITK Images. */
-  typedef Image<PDFValueType, 2> JointPDFType;
-  typedef Image<PDFValueType, 3> JointPDFDerivativesType;
+  using JointPDFType = Image<PDFValueType, 2>;
+  using JointPDFDerivativesType = Image<PDFValueType, 3>;
 
   /**
    * Get the internal JointPDF image that was used in
    * creating the metric value.
    */
-  const typename JointPDFType::Pointer GetJointPDF () const
+  const typename JointPDFType::Pointer
+  GetJointPDF() const
+  {
+    if (this->m_MMIMetricPerThreadVariables == nullptr)
     {
-    if( this->m_MMIMetricPerThreadVariables == ITK_NULLPTR )
-      {
-      return JointPDFType::Pointer(ITK_NULLPTR);
-      }
-    return this->m_MMIMetricPerThreadVariables[0].JointPDF;
+      return JointPDFType::Pointer(nullptr);
     }
+    return this->m_MMIMetricPerThreadVariables[0].JointPDF;
+  }
 
   /**
    * Get the internal JointPDFDeriviative image that was used in
@@ -237,85 +247,95 @@ public:
    * This is only created when UseExplicitPDFDerivatives is ON, and
    * derivatives are requested.
    */
-  const typename JointPDFDerivativesType::Pointer GetJointPDFDerivatives () const
+  const typename JointPDFDerivativesType::Pointer
+  GetJointPDFDerivatives() const
+  {
+    if (this->m_MMIMetricPerThreadVariables == nullptr)
     {
-    if( this->m_MMIMetricPerThreadVariables == ITK_NULLPTR )
-      {
-      return JointPDFDerivativesType::Pointer(ITK_NULLPTR);
-      }
-    return this->m_MMIMetricPerThreadVariables[0].JointPDFDerivatives;
+      return JointPDFDerivativesType::Pointer(nullptr);
     }
+    return this->m_MMIMetricPerThreadVariables[0].JointPDFDerivatives;
+  }
 
 protected:
-
   MattesMutualInformationImageToImageMetric();
-  virtual ~MattesMutualInformationImageToImageMetric() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MattesMutualInformationImageToImageMetric() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MattesMutualInformationImageToImageMetric);
-
-  typedef JointPDFType::IndexType             JointPDFIndexType;
-  typedef JointPDFType::PixelType             JointPDFValueType;
-  typedef JointPDFType::RegionType            JointPDFRegionType;
-  typedef JointPDFType::SizeType              JointPDFSizeType;
-  typedef JointPDFDerivativesType::IndexType  JointPDFDerivativesIndexType;
-  typedef JointPDFDerivativesType::PixelType  JointPDFDerivativesValueType;
-  typedef JointPDFDerivativesType::RegionType JointPDFDerivativesRegionType;
-  typedef JointPDFDerivativesType::SizeType   JointPDFDerivativesSizeType;
+  using JointPDFIndexType = JointPDFType::IndexType;
+  using JointPDFValueType = JointPDFType::PixelType;
+  using JointPDFRegionType = JointPDFType::RegionType;
+  using JointPDFSizeType = JointPDFType::SizeType;
+  using JointPDFDerivativesIndexType = JointPDFDerivativesType::IndexType;
+  using JointPDFDerivativesValueType = JointPDFDerivativesType::PixelType;
+  using JointPDFDerivativesRegionType = JointPDFDerivativesType::RegionType;
+  using JointPDFDerivativesSizeType = JointPDFDerivativesType::SizeType;
 
   /** Typedefs for BSpline kernel and derivative functions. */
-  typedef BSplineKernelFunction<3,PDFValueType>           CubicBSplineFunctionType;
-  typedef BSplineDerivativeKernelFunction<3,PDFValueType> CubicBSplineDerivativeFunctionType;
+  using CubicBSplineFunctionType = BSplineKernelFunction<3, PDFValueType>;
+  using CubicBSplineDerivativeFunctionType = BSplineDerivativeKernelFunction<3, PDFValueType>;
 
   /** Precompute fixed image parzen window indices. */
-  void ComputeFixedImageParzenWindowIndices( FixedImageSampleContainer & samples);
+  void
+  ComputeFixedImageParzenWindowIndices(FixedImageSampleContainer & samples);
 
   /** Compute PDF derivative contribution for each parameter. */
-  void ComputePDFDerivatives(ThreadIdType threadId, unsigned int sampleNumber, int movingImageParzenWindowIndex,
-                                     const ImageDerivativesType
-                                     &  movingImageGradientValue,
-                                     PDFValueType cubicBSplineDerivativeValue) const;
+  void
+  ComputePDFDerivatives(ThreadIdType                 threadId,
+                        unsigned int                 sampleNumber,
+                        int                          movingImageParzenWindowIndex,
+                        const ImageDerivativesType & movingImageGradientValue,
+                        PDFValueType                 cubicBSplineDerivativeValue) const;
 
-  virtual void GetValueThreadPreProcess(ThreadIdType threadId, bool withinSampleThread) const ITK_OVERRIDE;
-  virtual void GetValueThreadPostProcess(ThreadIdType threadId, bool withinSampleThread) const ITK_OVERRIDE;
-  //NOTE:  The signature in base class requires that movingImageValue is of type double
-  virtual bool GetValueThreadProcessSample(ThreadIdType threadId, SizeValueType fixedImageSample,
-                                                  const MovingImagePointType & mappedPoint,
-                                                  double movingImageValue) const ITK_OVERRIDE;
+  void
+  GetValueThreadPreProcess(ThreadIdType threadId, bool withinSampleThread) const override;
+  void
+  GetValueThreadPostProcess(ThreadIdType threadId, bool withinSampleThread) const override;
+  // NOTE:  The signature in base class requires that movingImageValue is of type double
+  bool
+  GetValueThreadProcessSample(ThreadIdType                 threadId,
+                              SizeValueType                fixedImageSample,
+                              const MovingImagePointType & mappedPoint,
+                              double                       movingImageValue) const override;
 
-  virtual void GetValueAndDerivativeThreadPreProcess( ThreadIdType threadId, bool withinSampleThread) const ITK_OVERRIDE;
-  virtual void GetValueAndDerivativeThreadPostProcess( ThreadIdType threadId, bool withinSampleThread) const ITK_OVERRIDE;
-  //NOTE:  The signature in base class requires that movingImageValue is of type double
-  virtual bool GetValueAndDerivativeThreadProcessSample(ThreadIdType threadId, SizeValueType fixedImageSample,
-                                                               const MovingImagePointType & mappedPoint,
-                                                               double movingImageValue, const ImageDerivativesType &
-                                                               movingImageGradientValue) const ITK_OVERRIDE;
+  void
+  GetValueAndDerivativeThreadPreProcess(ThreadIdType threadId, bool withinSampleThread) const override;
+  void
+  GetValueAndDerivativeThreadPostProcess(ThreadIdType threadId, bool withinSampleThread) const override;
+  // NOTE:  The signature in base class requires that movingImageValue is of type double
+  bool
+  GetValueAndDerivativeThreadProcessSample(ThreadIdType                 threadId,
+                                           SizeValueType                fixedImageSample,
+                                           const MovingImagePointType & mappedPoint,
+                                           double                       movingImageValue,
+                                           const ImageDerivativesType & movingImageGradientValue) const override;
 
   /** Variables to define the marginal and joint histograms. */
-  SizeValueType m_NumberOfHistogramBins;
-  PDFValueType  m_MovingImageNormalizedMin;
-  PDFValueType  m_FixedImageNormalizedMin;
-  PDFValueType  m_FixedImageTrueMin;
-  PDFValueType  m_FixedImageTrueMax;
-  PDFValueType  m_MovingImageTrueMin;
-  PDFValueType  m_MovingImageTrueMax;
-  PDFValueType  m_FixedImageBinSize;
-  PDFValueType  m_MovingImageBinSize;
+  SizeValueType m_NumberOfHistogramBins{ 50 };
+  PDFValueType  m_MovingImageNormalizedMin{ 0.0 };
+  PDFValueType  m_FixedImageNormalizedMin{ 0.0 };
+  PDFValueType  m_FixedImageTrueMin{ 0.0 };
+  PDFValueType  m_FixedImageTrueMax{ 0.0 };
+  PDFValueType  m_MovingImageTrueMin{ 0.0 };
+  PDFValueType  m_MovingImageTrueMax{ 0.0 };
+  PDFValueType  m_FixedImageBinSize{ 0.0 };
+  PDFValueType  m_MovingImageBinSize{ 0.0 };
 
   /** Cubic BSpline kernel for computing Parzen histograms. */
   typename CubicBSplineFunctionType::Pointer           m_CubicBSplineKernel;
   typename CubicBSplineDerivativeFunctionType::Pointer m_CubicBSplineDerivativeKernel;
 
   /** Helper array for storing the values of the JointPDF ratios. */
-  typedef PDFValueType        PRatioType;
-  typedef Array2D<PRatioType> PRatioArrayType;
+  using PRatioType = PDFValueType;
+  using PRatioArrayType = Array2D<PRatioType>;
 
   mutable PRatioArrayType m_PRatioArray;
 
   /** The moving image marginal PDF. */
-  typedef std::vector< PDFValueType > MarginalPDFType;
-  mutable MarginalPDFType             m_MovingImageMarginalPDF;
+  using MarginalPDFType = std::vector<PDFValueType>;
+  mutable MarginalPDFType m_MovingImageMarginalPDF;
 
   struct MMIMetricPerThreadStruct
   {
@@ -337,10 +357,8 @@ private:
   };
 
 #if !defined(ITK_WRAPPING_PARSER)
-  itkPadStruct( ITK_CACHE_LINE_ALIGNMENT, MMIMetricPerThreadStruct,
-                                            PaddedMMIMetricPerThreadStruct);
-  itkAlignedTypedef( ITK_CACHE_LINE_ALIGNMENT, PaddedMMIMetricPerThreadStruct,
-                                               AlignedMMIMetricPerThreadStruct );
+  itkPadStruct(ITK_CACHE_LINE_ALIGNMENT, MMIMetricPerThreadStruct, PaddedMMIMetricPerThreadStruct);
+  itkAlignedTypedef(ITK_CACHE_LINE_ALIGNMENT, PaddedMMIMetricPerThreadStruct, AlignedMMIMetricPerThreadStruct);
   // Due to a bug in older version of Visual Studio where std::vector resize
   // uses a value instead of a const reference, this must be a pointer.
   // See
@@ -349,13 +367,13 @@ private:
   mutable AlignedMMIMetricPerThreadStruct * m_MMIMetricPerThreadVariables;
 #endif
 
-  bool         m_UseExplicitPDFDerivatives;
-  mutable bool m_ImplicitDerivativesSecondPass;
+  bool         m_UseExplicitPDFDerivatives{ true };
+  mutable bool m_ImplicitDerivativesSecondPass{ false };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMattesMutualInformationImageToImageMetric.hxx"
+#  include "itkMattesMutualInformationImageToImageMetric.hxx"
 #endif
 
 #endif

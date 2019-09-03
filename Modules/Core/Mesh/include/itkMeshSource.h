@@ -45,15 +45,17 @@ namespace itk
  * \ingroup DataSources
  * \ingroup ITKMesh
  */
-template< typename TOutputMesh >
-class ITK_TEMPLATE_EXPORT MeshSource:public ProcessObject
+template <typename TOutputMesh>
+class ITK_TEMPLATE_EXPORT MeshSource : public ProcessObject
 {
 public:
-  /** Standard class typedefs. */
-  typedef MeshSource                 Self;
-  typedef ProcessObject              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MeshSource);
+
+  /** Standard class type aliases. */
+  using Self = MeshSource;
+  using Superclass = ProcessObject;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -61,23 +63,26 @@ public:
   /** Run-time type information (and related methods). */
   itkTypeMacro(MeshSource, ProcessObject);
 
-  /** Some convenient typedefs. */
-  typedef DataObject::Pointer              DataObjectPointer;
-  typedef TOutputMesh                      OutputMeshType;
-  typedef typename OutputMeshType::Pointer OutputMeshPointer;
+  /** Some convenient type alias. */
+  using DataObjectPointer = DataObject::Pointer;
+  using OutputMeshType = TOutputMesh;
+  using OutputMeshPointer = typename OutputMeshType::Pointer;
 
-  typedef Superclass::DataObjectIdentifierType DataObjectIdentifierType;
+  using DataObjectIdentifierType = Superclass::DataObjectIdentifierType;
 
   /** Get the mesh output of this process object.  */
-  OutputMeshType * GetOutput();
+  OutputMeshType *
+  GetOutput();
 
-  OutputMeshType * GetOutput(unsigned int idx);
+  OutputMeshType *
+  GetOutput(unsigned int idx);
 
   /** Set the mesh output of this process object. This call is slated
    * to be removed from ITK. You should GraftOutput() and possible
    * DataObject::DisconnectPipeline() to properly change the output. */
   using Superclass::SetOutput;
-  void SetOutput(TOutputMesh *output);
+  void
+  SetOutput(TOutputMesh * output);
 
   /** Graft the specified DataObject onto this ProcessObject's output.
    * This method grabs a handle to the specified DataObject's bulk
@@ -90,21 +95,21 @@ public:
    * process object is implemented using a mini-pipeline which is
    * defined in its GenerateData() method.  The usage is:
    *
-   * \code
-   *    // setup the mini-pipeline to process the input to this filter
-   *    firstFilterInMiniPipeline->SetInput( this->GetInput() );
-   *
-   *    // setup the mini-pipeline to calculate the correct regions
-   *    // and write to the appropriate bulk data block
-   *    lastFilterInMiniPipeline->GraftOutput( this->GetOutput() );
-   *
-   *    // execute the mini-pipeline
-   *    lastFilterInMiniPipeline->Update();
-   *
-   *    // graft the mini-pipeline output back onto this filter's output.
-   *    // this is needed to get the appropriate regions passed back.
-   *    this->GraftOutput( lastFilterInMiniPipeline->GetOutput() );
-   * \endcode
+     \code
+        // setup the mini-pipeline to process the input to this filter
+        firstFilterInMiniPipeline->SetInput( this->GetInput() );
+
+        // setup the mini-pipeline to calculate the correct regions
+        // and write to the appropriate bulk data block
+        lastFilterInMiniPipeline->GraftOutput( this->GetOutput() );
+
+        // execute the mini-pipeline
+        lastFilterInMiniPipeline->Update();
+
+        // graft the mini-pipeline output back onto this filter's output.
+        // this is needed to get the appropriate regions passed back.
+        this->GraftOutput( lastFilterInMiniPipeline->GetOutput() );
+     \endcode
    *
    * For proper pipeline execution, a filter using a mini-pipeline
    * must implement the GenerateInputRequestedRegion(),
@@ -113,16 +118,19 @@ public:
    * how the mini-pipeline will execute (in other words, the outer
    * filter's pipeline mechanism must be consistent with what the
    * mini-pipeline will do). */
-  virtual void GraftOutput(DataObject *output);
+  virtual void
+  GraftOutput(DataObject * output);
 
   /** Graft the specified data object onto this ProcessObject's named
    * output. This is similar to the GraftOutput method except it
    * allows you to specify which output is affected.
    * See the GraftOutput for general usage information.
    */
-  virtual void GraftOutput(const DataObjectIdentifierType & key, DataObject *output);
+  virtual void
+  GraftOutput(const DataObjectIdentifierType & key, DataObject * output);
 
-  virtual void GraftNthOutput(unsigned int idx, DataObject *output);
+  virtual void
+  GraftNthOutput(unsigned int idx, DataObject * output);
 
   /** Make a DataObject of the correct type to used as the specified
    * output.  Every ProcessObject subclass must be able to create a
@@ -137,23 +145,24 @@ public:
    * SmartPointer to a DataObject. If a subclass of MeshSource has
    * multiple outputs of different types, then that class must provide
    * an implementation of MakeOutput(). */
-  typedef ProcessObject::DataObjectPointerArraySizeType DataObjectPointerArraySizeType;
+  using DataObjectPointerArraySizeType = ProcessObject::DataObjectPointerArraySizeType;
   using Superclass::MakeOutput;
-  virtual DataObjectPointer MakeOutput(DataObjectPointerArraySizeType idx) ITK_OVERRIDE;
+  DataObjectPointer
+  MakeOutput(DataObjectPointerArraySizeType idx) override;
 
 protected:
   MeshSource();
-  virtual ~MeshSource() ITK_OVERRIDE {}
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MeshSource() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Requested region of Mesh is specified as i of N unstructured regions.
    * Since all DataObjects should be able to set the requested region in
    * unstructured form, just copy output->RequestedRegion all inputs. */
-  virtual void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MeshSource);
-
   /** Used by streaming: The requested region of the output being processed
    * by the execute method. Set in the GenerateInputRequestedRegion method. */
   int m_GenerateDataRegion;
@@ -162,7 +171,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMeshSource.hxx"
+#  include "itkMeshSource.hxx"
 #endif
 
 #endif

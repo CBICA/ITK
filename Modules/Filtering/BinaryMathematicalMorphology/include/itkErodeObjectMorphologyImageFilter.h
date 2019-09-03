@@ -42,16 +42,18 @@ namespace itk
  * \ingroup ImageEnhancement MathematicalMorphologyImageFilters
  * \ingroup ITKBinaryMathematicalMorphology
  */
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT ErodeObjectMorphologyImageFilter:
-  public ObjectMorphologyImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT ErodeObjectMorphologyImageFilter
+  : public ObjectMorphologyImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard class typedefs. */
-  typedef ErodeObjectMorphologyImageFilter                                  Self;
-  typedef ObjectMorphologyImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
-  typedef SmartPointer< Self >                                              Pointer;
-  typedef SmartPointer< const Self >                                        ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(ErodeObjectMorphologyImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = ErodeObjectMorphologyImageFilter;
+  using Superclass = ObjectMorphologyImageFilter<TInputImage, TOutputImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Standard New method */
   itkNewMacro(Self);
@@ -60,30 +62,31 @@ public:
   itkTypeMacro(ErodeObjectMorphologyImageFilter, ObjectMorphologyImageFilter);
 
   /** Declaration of Pixel Type */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
-  /** Kernel typedef */
-  typedef TKernel KernelType;
+  /** Kernel type alias */
+  using KernelType = TKernel;
 
   /** Kernel (structuring element) iterator */
-  typedef typename KernelType::ConstIterator KernelIteratorType;
+  using KernelIteratorType = typename KernelType::ConstIterator;
 
-  typedef NeighborhoodIterator< TOutputImage > OutputNeighborhoodIteratorType;
+  using OutputNeighborhoodIteratorType = NeighborhoodIterator<TOutputImage>;
 
   /** Default boundary condition type */
-  typedef typename Superclass::DefaultBoundaryConditionType
-  DefaultBoundaryConditionType;
+  using DefaultBoundaryConditionType = typename Superclass::DefaultBoundaryConditionType;
 
   /** Set the object's value. Added for API consistency with itkBinaryErode
     filter */
-  void SetErodeValue(PixelType objectValue)
+  void
+  SetErodeValue(PixelType objectValue)
   {
     this->SetObjectValue(objectValue);
   }
 
   /** Set the object's value. Added for API consistency with itkBinaryErode
     filter */
-  PixelType GetErodeValue(void)
+  PixelType
+  GetErodeValue()
   {
     return this->GetObjectValue();
   }
@@ -95,30 +98,28 @@ public:
   itkGetConstMacro(BackgroundValue, PixelType);
 
   /** Type of the pixels in the Kernel. */
-  typedef typename TKernel::PixelType KernelPixelType;
+  using KernelPixelType = typename TKernel::PixelType;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( KernelGreaterThanComparableCheck,
-                   ( Concept::GreaterThanComparable< KernelPixelType > ) );
+  itkConceptMacro(KernelGreaterThanComparableCheck, (Concept::GreaterThanComparable<KernelPixelType>));
   // End concept checking
 #endif
 
 protected:
   ErodeObjectMorphologyImageFilter();
-  ~ErodeObjectMorphologyImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~ErodeObjectMorphologyImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** Apply the kernel to the neighborhood given.
    *
    * All values in neighborhood covered by the kernel will be set to the
    * background value.  */
-  void Evaluate(OutputNeighborhoodIteratorType & nit,
-                const KernelType & kernel) ITK_OVERRIDE;
+  void
+  Evaluate(OutputNeighborhoodIteratorType & nit, const KernelType & kernel) override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(ErodeObjectMorphologyImageFilter);
-
   PixelType m_BackgroundValue;
 
   // Default boundary condition for erosion filter, defaults to
@@ -128,7 +129,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkErodeObjectMorphologyImageFilter.hxx"
+#  include "itkErodeObjectMorphologyImageFilter.hxx"
 #endif
 
 #endif

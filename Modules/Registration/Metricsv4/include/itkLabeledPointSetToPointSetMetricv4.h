@@ -49,115 +49,122 @@ namespace itk
  *
  * \ingroup ITKMetricsv4
  */
-template<typename TFixedPointSet, typename TMovingPointSet = TFixedPointSet,
-  class TInternalComputationValueType = double>
-class ITK_TEMPLATE_EXPORT LabeledPointSetToPointSetMetricv4:
-  public PointSetToPointSetMetricv4<TFixedPointSet, TMovingPointSet, TInternalComputationValueType>
+template <typename TFixedPointSet,
+          typename TMovingPointSet = TFixedPointSet,
+          class TInternalComputationValueType = double>
+class ITK_TEMPLATE_EXPORT LabeledPointSetToPointSetMetricv4
+  : public PointSetToPointSetMetricv4<TFixedPointSet, TMovingPointSet, TInternalComputationValueType>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LabeledPointSetToPointSetMetricv4);
 
-  /** Standard class typedefs. */
-  typedef LabeledPointSetToPointSetMetricv4                            Self;
-  typedef PointSetToPointSetMetricv4<TFixedPointSet, TMovingPointSet,
-    TInternalComputationValueType>                                     Superclass;
-  typedef SmartPointer<Self>                                           Pointer;
-  typedef SmartPointer<const Self>                                     ConstPointer;
+  /** Standard class type aliases. */
+  using Self = LabeledPointSetToPointSetMetricv4;
+  using Superclass = PointSetToPointSetMetricv4<TFixedPointSet, TMovingPointSet, TInternalComputationValueType>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( LabeledPointSetToPointSetMetricv4, PointSetToPointSetMetricv4 );
+  itkTypeMacro(LabeledPointSetToPointSetMetricv4, PointSetToPointSetMetricv4);
 
-  typedef TFixedPointSet                              FixedPointSetType;
-  typedef typename FixedPointSetType::Pointer         FixedPointSetPointer;
-  typedef TMovingPointSet                             MovingPointSetType;
-  typedef typename MovingPointSetType::Pointer        MovingPointSetPointer;
+  using FixedPointSetType = TFixedPointSet;
+  using FixedPointSetPointer = typename FixedPointSetType::Pointer;
+  using MovingPointSetType = TMovingPointSet;
+  using MovingPointSetPointer = typename MovingPointSetType::Pointer;
 
   /** Types transferred from the base class */
-  typedef typename Superclass::MeasureType            MeasureType;
-  typedef typename Superclass::DerivativeType         DerivativeType;
-  typedef typename Superclass::LocalDerivativeType    LocalDerivativeType;
-  typedef typename Superclass::PointType              PointType;
-  typedef typename Superclass::PointIdentifier        PointIdentifier;
+  using MeasureType = typename Superclass::MeasureType;
+  using DerivativeType = typename Superclass::DerivativeType;
+  using LocalDerivativeType = typename Superclass::LocalDerivativeType;
+  using PointType = typename Superclass::PointType;
+  using PointIdentifier = typename Superclass::PointIdentifier;
 
-  typedef typename Superclass::PixelType              LabelType;
-  typedef std::vector<LabelType>                      LabelSetType;
+  using LabelType = typename Superclass::PixelType;
+  using LabelSetType = std::vector<LabelType>;
 
-  typedef Superclass                                  PointSetMetricType;
-  typedef typename PointSetMetricType::Pointer        PointSetMetricPointer;
+  using PointSetMetricType = Superclass;
+  using PointSetMetricPointer = typename PointSetMetricType::Pointer;
 
   /**
    * Initialize the metric by making sure that all the components
    *  are present and plugged together correctly.
    */
-  virtual void Initialize( void ) ITK_OVERRIDE;
+  void
+  Initialize() override;
 
   /**
    * Calculates the local metric value for a single point.  The label type
    * is used to segregate the computation.
    */
-  virtual MeasureType GetLocalNeighborhoodValue( const PointType &, const LabelType & ) const ITK_OVERRIDE;
+  MeasureType
+  GetLocalNeighborhoodValue(const PointType &, const LabelType &) const override;
 
   /**
    * Calculates the local value and derivative for a single point. The label type
    * is used to segregate the computation.
    */
-  virtual void GetLocalNeighborhoodValueAndDerivative( const PointType &,
-    MeasureType &, LocalDerivativeType &, const LabelType & ) const ITK_OVERRIDE;
+  void
+  GetLocalNeighborhoodValueAndDerivative(const PointType &,
+                                         MeasureType &,
+                                         LocalDerivativeType &,
+                                         const LabelType &) const override;
 
   /**
    * Set/get the specific unlabeled point set metric type.  Default is
    * the \c EuclideanDistancePointSetToPointSetMetricv4.
    */
-  itkSetObjectMacro( PointSetMetric, PointSetMetricType );
-  itkGetModifiableObjectMacro(PointSetMetric, PointSetMetricType );
+  itkSetObjectMacro(PointSetMetric, PointSetMetricType);
+  itkGetModifiableObjectMacro(PointSetMetric, PointSetMetricType);
 
   /**
    * Ensure label type is an integer type
    */
-  itkConceptMacro( LabelTypeIsInteger, ( Concept::IsInteger<LabelType> ) );
+  itkConceptMacro(LabelTypeIsInteger, (Concept::IsInteger<LabelType>));
 
 protected:
   LabeledPointSetToPointSetMetricv4();
-  virtual ~LabeledPointSetToPointSetMetricv4() ITK_OVERRIDE;
+  ~LabeledPointSetToPointSetMetricv4() override = default;
 
   /** PrintSelf function */
-  void PrintSelf( std::ostream & os, Indent indent ) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LabeledPointSetToPointSetMetricv4);
-
   /**
    * Private function to find the common label set for the moving
    * and fixed point sets.
    */
-  void DetermineCommonPointSetLabels();
+  void
+  DetermineCommonPointSetLabels();
 
   /**
    * Private function to create a fixed point set from the input fixed point
    * set with a specific label
    */
-  FixedPointSetPointer GetLabeledFixedPointSet( const LabelType ) const;
+  FixedPointSetPointer
+  GetLabeledFixedPointSet(const LabelType) const;
 
   /**
    * Private function to create a moving point set from the input moving point
    * set with a specific label
    */
-  MovingPointSetPointer GetLabeledMovingPointSet( const LabelType ) const;
+  MovingPointSetPointer
+  GetLabeledMovingPointSet(const LabelType) const;
 
-  PointSetMetricPointer                         m_PointSetMetric;
-  std::vector<PointSetMetricPointer>            m_PointSetMetricClones;
+  PointSetMetricPointer              m_PointSetMetric;
+  std::vector<PointSetMetricPointer> m_PointSetMetricClones;
 
-  LabelSetType                                  m_FixedPointSetLabels;
-  LabelSetType                                  m_MovingPointSetLabels;
-  LabelSetType                                  m_CommonPointSetLabels;
-
+  LabelSetType m_FixedPointSetLabels;
+  LabelSetType m_MovingPointSetLabels;
+  LabelSetType m_CommonPointSetLabels;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLabeledPointSetToPointSetMetricv4.hxx"
+#  include "itkLabeledPointSetToPointSetMetricv4.hxx"
 #endif
 
 #endif

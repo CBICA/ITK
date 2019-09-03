@@ -68,62 +68,64 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKMathematicalMorphology
  */
-template< typename TInputImage, typename TOutputImage, typename TKernel >
-class ITK_TEMPLATE_EXPORT MorphologyImageFilter:
-  public KernelImageFilter< TInputImage, TOutputImage, TKernel >
+template <typename TInputImage, typename TOutputImage, typename TKernel>
+class ITK_TEMPLATE_EXPORT MorphologyImageFilter : public KernelImageFilter<TInputImage, TOutputImage, TKernel>
 {
 public:
-  /** Standard Self typedef */
-  typedef MorphologyImageFilter                                   Self;
-  typedef KernelImageFilter< TInputImage, TOutputImage, TKernel > Superclass;
-  typedef SmartPointer< Self >                                    Pointer;
-  typedef SmartPointer< const Self >                              ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(MorphologyImageFilter);
+
+  /** Standard Self type alias */
+  using Self = MorphologyImageFilter;
+  using Superclass = KernelImageFilter<TInputImage, TOutputImage, TKernel>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Runtime information support. */
   itkTypeMacro(MorphologyImageFilter, KernelImageFilter);
 
-  /** Image related typedefs. */
-  typedef TInputImage                                InputImageType;
-  typedef TOutputImage                               OutputImageType;
-  typedef typename TInputImage::RegionType           RegionType;
-  typedef typename TInputImage::SizeType             SizeType;
-  typedef typename TInputImage::IndexType            IndexType;
-  typedef typename TInputImage::PixelType            PixelType;
-  typedef typename Superclass::OutputImageRegionType OutputImageRegionType;
+  /** Image related type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TOutputImage;
+  using RegionType = typename TInputImage::RegionType;
+  using SizeType = typename TInputImage::SizeType;
+  using IndexType = typename TInputImage::IndexType;
+  using PixelType = typename TInputImage::PixelType;
+  using OutputImageRegionType = typename Superclass::OutputImageRegionType;
 
-  /** Image related typedefs. */
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  /** Image related type alias. */
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
   /** Typedef for boundary conditions. */
-  typedef ImageBoundaryCondition< InputImageType > *      ImageBoundaryConditionPointerType;
-  typedef ImageBoundaryCondition< InputImageType > const *ImageBoundaryConditionConstPointerType;
-  typedef ConstantBoundaryCondition< InputImageType >     DefaultBoundaryConditionType;
+  using ImageBoundaryConditionPointerType = ImageBoundaryCondition<InputImageType> *;
+  using ImageBoundaryConditionConstPointerType = const ImageBoundaryCondition<InputImageType> *;
+  using DefaultBoundaryConditionType = ConstantBoundaryCondition<InputImageType>;
 
-/** Neighborhood iterator type. */
-  typedef ConstNeighborhoodIterator< TInputImage > NeighborhoodIteratorType;
+  /** Neighborhood iterator type. */
+  using NeighborhoodIteratorType = ConstNeighborhoodIterator<TInputImage>;
 
-  /** Kernel typedef. */
-  typedef TKernel KernelType;
+  /** Kernel type alias. */
+  using KernelType = TKernel;
 
   /** Kernel (structuring element) iterator. */
-  typedef typename KernelType::ConstIterator KernelIteratorType;
+  using KernelIteratorType = typename KernelType::ConstIterator;
 
   /** n-dimensional Kernel radius. */
-  typedef typename KernelType::SizeType RadiusType;
+  using RadiusType = typename KernelType::SizeType;
 
   /** Allows a user to override the internal boundary condition. Care should be
    * be taken to ensure that the overriding boundary condition is a persistent
    * object during the time it is referenced.  The overriding condition
    * can be of a different type than the default type as long as it is
    * a subclass of ImageBoundaryCondition. */
-  void OverrideBoundaryCondition(const ImageBoundaryConditionPointerType i)
+  void
+  OverrideBoundaryCondition(const ImageBoundaryConditionPointerType i)
   {
     m_BoundaryCondition = i;
   }
 
   /** Rest the boundary condition to the default */
-  void ResetBoundaryCondition()
+  void
+  ResetBoundaryCondition()
   {
     m_BoundaryCondition = &m_DefaultBoundaryCondition;
   }
@@ -133,23 +135,23 @@ public:
 
 protected:
   MorphologyImageFilter();
-  ~MorphologyImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~MorphologyImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  /** Multi-thread version GenerateData. */
-  void  ThreadedGenerateData(const OutputImageRegionType &
-                             outputRegionForThread,
-                             ThreadIdType threadId) ITK_OVERRIDE;
+  /** Multi-thread version of GenerateData. */
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
   /** Evaluate image neighborhood with kernel to find the new value
    * for the center pixel value. */
-  virtual PixelType Evaluate(const NeighborhoodIteratorType & nit,
-                             const KernelIteratorType kernelBegin,
-                             const KernelIteratorType kernelEnd) = 0;
+  virtual PixelType
+  Evaluate(const NeighborhoodIteratorType & nit,
+           const KernelIteratorType         kernelBegin,
+           const KernelIteratorType         kernelEnd) = 0;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(MorphologyImageFilter);
-
   /** Pointer to a persistent boundary condition object used
    * for the image iterator. */
   ImageBoundaryConditionPointerType m_BoundaryCondition;
@@ -160,7 +162,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkMorphologyImageFilter.hxx"
+#  include "itkMorphologyImageFilter.hxx"
 #endif
 
 #endif

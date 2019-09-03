@@ -20,53 +20,55 @@
 #include "itkMorphologicalGradientImageFilter.h"
 #include "itkBinaryBallStructuringElement.h"
 #include "itkSimpleFilterWatcher.h"
+#include "itkTestingMacros.h"
 
-int itkMorphologicalGradientImageFilterTest(int argc, char * argv[])
+int
+itkMorphologicalGradientImageFilterTest(int argc, char * argv[])
 {
-  if( argc < 3 )
+  if (argc < 3)
   {
     std::cerr << "Missing Arguments" << std::endl;
     std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << " inputImage outputImage " << std::endl;
+    std::cerr << itkNameOfTestExecutableMacro(argv) << " inputImage outputImage " << std::endl;
     return EXIT_FAILURE;
   }
 
-  const int dim = 2;
+  constexpr int dim = 2;
 
-  typedef unsigned char            PType;
-  typedef itk::Image< PType, dim > IType;
+  using PType = unsigned char;
+  using IType = itk::Image<PType, dim>;
 
-  typedef itk::ImageFileReader< IType > ReaderType;
+  using ReaderType = itk::ImageFileReader<IType>;
   ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(argv[1]);
 
-  typedef itk::BinaryBallStructuringElement< PType, dim  > StructuringElementType;
-  StructuringElementType  structuringElement;
-  structuringElement.SetRadius( 2 );
+  using StructuringElementType = itk::BinaryBallStructuringElement<PType, dim>;
+  StructuringElementType structuringElement;
+  structuringElement.SetRadius(2);
   structuringElement.CreateStructuringElement();
 
-  typedef itk::MorphologicalGradientImageFilter< IType, IType, StructuringElementType > GradientType;
+  using GradientType = itk::MorphologicalGradientImageFilter<IType, IType, StructuringElementType>;
   GradientType::Pointer gradient = GradientType::New();
   gradient->SetInput(reader->GetOutput());
-  gradient->SetKernel(  structuringElement );
+  gradient->SetKernel(structuringElement);
 
   itk::SimpleFilterWatcher watcher(gradient);
 
-  typedef itk::ImageFileWriter< IType > WriterType;
+  using WriterType = itk::ImageFileWriter<IType>;
   WriterType::Pointer writer = WriterType::New();
   writer->SetInput(gradient->GetOutput());
   writer->SetFileName(argv[2]);
 
   try
-    {
-  writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
+  {
+    writer->Update();
+  }
+  catch (itk::ExceptionObject & excp)
+  {
     std::cerr << "Exception caught ! " << std::endl;
     std::cerr << excp << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -42,58 +42,55 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKLabelMap
  */
-template< typename TInputImage, typename TFeatureImage >
-class ITK_TEMPLATE_EXPORT BinaryStatisticsKeepNObjectsImageFilter:
-  public ImageToImageFilter< TInputImage, TInputImage >
+template <typename TInputImage, typename TFeatureImage>
+class ITK_TEMPLATE_EXPORT BinaryStatisticsKeepNObjectsImageFilter : public ImageToImageFilter<TInputImage, TInputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef BinaryStatisticsKeepNObjectsImageFilter        Self;
-  typedef ImageToImageFilter< TInputImage, TInputImage > Superclass;
-  typedef SmartPointer< Self >                           Pointer;
-  typedef SmartPointer< const Self >                     ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryStatisticsKeepNObjectsImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                            InputImageType;
-  typedef TInputImage                            OutputImageType;
-  typedef typename InputImageType::Pointer       InputImagePointer;
-  typedef typename InputImageType::ConstPointer  InputImageConstPointer;
-  typedef typename InputImageType::RegionType    InputImageRegionType;
-  typedef typename InputImageType::PixelType     InputImagePixelType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
+  /** Standard class type aliases. */
+  using Self = BinaryStatisticsKeepNObjectsImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TInputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
-  typedef TFeatureImage                           FeatureImageType;
-  typedef typename FeatureImageType::Pointer      FeatureImagePointer;
-  typedef typename FeatureImageType::ConstPointer FeatureImageConstPointer;
-  typedef typename FeatureImageType::PixelType    FeatureImagePixelType;
+  /** Some convenient type alias. */
+  using InputImageType = TInputImage;
+  using OutputImageType = TInputImage;
+  using InputImagePointer = typename InputImageType::Pointer;
+  using InputImageConstPointer = typename InputImageType::ConstPointer;
+  using InputImageRegionType = typename InputImageType::RegionType;
+  using InputImagePixelType = typename InputImageType::PixelType;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
+
+  using FeatureImageType = TFeatureImage;
+  using FeatureImagePointer = typename FeatureImageType::Pointer;
+  using FeatureImageConstPointer = typename FeatureImageType::ConstPointer;
+  using FeatureImagePixelType = typename FeatureImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(InputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(ImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
+  static constexpr unsigned int InputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int ImageDimension = TInputImage::ImageDimension;
 
-  typedef SizeValueType LabelType;
+  using LabelType = SizeValueType;
 
-  typedef StatisticsLabelObject< LabelType, itkGetStaticConstMacro(ImageDimension) >     LabelObjectType;
-  typedef LabelMap< LabelObjectType >                                                    LabelMapType;
-  typedef BinaryImageToLabelMapFilter< InputImageType, LabelMapType >                    LabelizerType;
-  typedef StatisticsLabelMapFilter< LabelMapType, TFeatureImage >                        LabelObjectValuatorType;
-  typedef typename LabelObjectType::AttributeType                                        AttributeType;
-  typedef StatisticsKeepNObjectsLabelMapFilter< LabelMapType >                           KeepNObjectsType;
-  typedef LabelMapToBinaryImageFilter< LabelMapType, OutputImageType >                   BinarizerType;
+  using LabelObjectType = StatisticsLabelObject<LabelType, Self::ImageDimension>;
+  using LabelMapType = LabelMap<LabelObjectType>;
+  using LabelizerType = BinaryImageToLabelMapFilter<InputImageType, LabelMapType>;
+  using LabelObjectValuatorType = StatisticsLabelMapFilter<LabelMapType, TFeatureImage>;
+  using AttributeType = typename LabelObjectType::AttributeType;
+  using KeepNObjectsType = StatisticsKeepNObjectsLabelMapFilter<LabelMapType>;
+  using BinarizerType = LabelMapToBinaryImageFilter<LabelMapType, OutputImageType>;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(BinaryStatisticsKeepNObjectsImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(BinaryStatisticsKeepNObjectsImageFilter, ImageToImageFilter);
 
   /**
    * Set/Get whether the connected components are defined strictly by
@@ -107,12 +104,9 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputEqualityComparableCheck,
-                   ( Concept::EqualityComparable< InputImagePixelType > ) );
-  itkConceptMacro( IntConvertibleToInputCheck,
-                   ( Concept::Convertible< int, InputImagePixelType > ) );
-  itkConceptMacro( InputOStreamWritableCheck,
-                   ( Concept::OStreamWritable< InputImagePixelType > ) );
+  itkConceptMacro(InputEqualityComparableCheck, (Concept::EqualityComparable<InputImagePixelType>));
+  itkConceptMacro(IntConvertibleToInputCheck, (Concept::Convertible<int, InputImagePixelType>));
+  itkConceptMacro(InputOStreamWritableCheck, (Concept::OStreamWritable<InputImagePixelType>));
   // End concept checking
 #endif
 
@@ -151,67 +145,74 @@ public:
    */
   itkGetConstMacro(Attribute, AttributeType);
   itkSetMacro(Attribute, AttributeType);
-  void SetAttribute(const std::string & s)
+  void
+  SetAttribute(const std::string & s)
   {
-    this->SetAttribute( LabelObjectType::GetAttributeFromName(s) );
+    this->SetAttribute(LabelObjectType::GetAttributeFromName(s));
   }
 
   /** Set the feature image */
-  void SetFeatureImage(const TFeatureImage *input)
+  void
+  SetFeatureImage(const TFeatureImage * input)
   {
     // Process object is not const-correct so the const casting is required.
-    this->SetNthInput( 1, const_cast< TFeatureImage * >( input ) );
+    this->SetNthInput(1, const_cast<TFeatureImage *>(input));
   }
 
   /** Get the feature image */
-  const FeatureImageType * GetFeatureImage()
+  const FeatureImageType *
+  GetFeatureImage()
   {
-    return static_cast< const FeatureImageType * >( this->ProcessObject::GetInput(1) );
+    return static_cast<const FeatureImageType *>(this->ProcessObject::GetInput(1));
   }
 
   /** Set the input image */
-  void SetInput1(const InputImageType *input)
+  void
+  SetInput1(const InputImageType * input)
   {
     this->SetInput(input);
   }
 
   /** Set the feature image */
-  void SetInput2(const FeatureImageType *input)
+  void
+  SetInput2(const FeatureImageType * input)
   {
     this->SetFeatureImage(input);
   }
 
 protected:
   BinaryStatisticsKeepNObjectsImageFilter();
-  ~BinaryStatisticsKeepNObjectsImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~BinaryStatisticsKeepNObjectsImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** BinaryStatisticsKeepNObjectsImageFilter needs the entire input be
    * available. Thus, it needs to provide an implementation of
    * GenerateInputRequestedRegion(). */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** BinaryStatisticsKeepNObjectsImageFilter will produce the entire output. */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /** Single-threaded version of GenerateData.  This filter delegates
    * to GrayscaleGeodesicErodeImageFilter. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BinaryStatisticsKeepNObjectsImageFilter);
-
-  bool                 m_FullyConnected;
+  bool                 m_FullyConnected{ false };
   OutputImagePixelType m_BackgroundValue;
   OutputImagePixelType m_ForegroundValue;
-  SizeValueType        m_NumberOfObjects;
-  bool                 m_ReverseOrdering;
+  SizeValueType        m_NumberOfObjects{ 0 };
+  bool                 m_ReverseOrdering{ false };
   AttributeType        m_Attribute;
 }; // end of class
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBinaryStatisticsKeepNObjectsImageFilter.hxx"
+#  include "itkBinaryStatisticsKeepNObjectsImageFilter.hxx"
 #endif
 
 #endif

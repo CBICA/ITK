@@ -61,62 +61,63 @@ namespace itk
  * \ingroup ImageEnhancement  MathematicalMorphologyImageFilters
  * \ingroup ITKMathematicalMorphology
  */
-template< typename TInputImage, typename TOutputImage >
-class ITK_TEMPLATE_EXPORT GrayscaleGeodesicErodeImageFilter:
-  public ImageToImageFilter< TInputImage, TOutputImage >
+template <typename TInputImage, typename TOutputImage>
+class ITK_TEMPLATE_EXPORT GrayscaleGeodesicErodeImageFilter : public ImageToImageFilter<TInputImage, TOutputImage>
 {
 public:
-  /** Standard class typedefs. */
-  typedef GrayscaleGeodesicErodeImageFilter               Self;
-  typedef ImageToImageFilter< TInputImage, TOutputImage > Superclass;
-  typedef SmartPointer< Self >                            Pointer;
-  typedef SmartPointer< const Self >                      ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(GrayscaleGeodesicErodeImageFilter);
 
-  /** Some convenient typedefs. */
-  typedef TInputImage                            MarkerImageType;
-  typedef typename MarkerImageType::Pointer      MarkerImagePointer;
-  typedef typename MarkerImageType::ConstPointer MarkerImageConstPointer;
-  typedef typename MarkerImageType::RegionType   MarkerImageRegionType;
-  typedef typename MarkerImageType::PixelType    MarkerImagePixelType;
-  typedef TInputImage                            MaskImageType;
-  typedef typename MaskImageType::Pointer        MaskImagePointer;
-  typedef typename MaskImageType::ConstPointer   MaskImageConstPointer;
-  typedef typename MaskImageType::RegionType     MaskImageRegionType;
-  typedef typename MaskImageType::PixelType      MaskImagePixelType;
-  typedef TOutputImage                           OutputImageType;
-  typedef typename OutputImageType::Pointer      OutputImagePointer;
-  typedef typename OutputImageType::ConstPointer OutputImageConstPointer;
-  typedef typename OutputImageType::RegionType   OutputImageRegionType;
-  typedef typename OutputImageType::PixelType    OutputImagePixelType;
+  /** Standard class type aliases. */
+  using Self = GrayscaleGeodesicErodeImageFilter;
+  using Superclass = ImageToImageFilter<TInputImage, TOutputImage>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  /** Some convenient type alias. */
+  using MarkerImageType = TInputImage;
+  using MarkerImagePointer = typename MarkerImageType::Pointer;
+  using MarkerImageConstPointer = typename MarkerImageType::ConstPointer;
+  using MarkerImageRegionType = typename MarkerImageType::RegionType;
+  using MarkerImagePixelType = typename MarkerImageType::PixelType;
+  using MaskImageType = TInputImage;
+  using MaskImagePointer = typename MaskImageType::Pointer;
+  using MaskImageConstPointer = typename MaskImageType::ConstPointer;
+  using MaskImageRegionType = typename MaskImageType::RegionType;
+  using MaskImagePixelType = typename MaskImageType::PixelType;
+  using OutputImageType = TOutputImage;
+  using OutputImagePointer = typename OutputImageType::Pointer;
+  using OutputImageConstPointer = typename OutputImageType::ConstPointer;
+  using OutputImageRegionType = typename OutputImageType::RegionType;
+  using OutputImagePixelType = typename OutputImageType::PixelType;
 
   /** ImageDimension constants */
-  itkStaticConstMacro(MarkerImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(MaskImageDimension, unsigned int,
-                      TInputImage::ImageDimension);
-  itkStaticConstMacro(OutputImageDimension, unsigned int,
-                      TOutputImage::ImageDimension);
+  static constexpr unsigned int MarkerImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int MaskImageDimension = TInputImage::ImageDimension;
+  static constexpr unsigned int OutputImageDimension = TOutputImage::ImageDimension;
 
   /** Standard New method. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(GrayscaleGeodesicErodeImageFilter,
-               ImageToImageFilter);
+  itkTypeMacro(GrayscaleGeodesicErodeImageFilter, ImageToImageFilter);
 
   /** Set/Get the marker image. The marker image must be pixelwise
    * greater than or equal to the mask image. The marker image the
    * image that is eroded by this filter. */
-  void SetMarkerImage(const MarkerImageType *);
+  void
+  SetMarkerImage(const MarkerImageType *);
 
-  const MarkerImageType * GetMarkerImage();
+  const MarkerImageType *
+  GetMarkerImage();
 
   /** Set/Get the mask image. The mask image is used to "mask" the
    * eroded marker image. The mask operation is a pixelwise
    * maximum. */
-  void SetMaskImage(const MaskImageType *);
+  void
+  SetMaskImage(const MaskImageType *);
 
-  const MaskImageType * GetMaskImage();
+  const MaskImageType *
+  GetMaskImage();
 
   /** Set/Get whether the filter should run one iteration or until
    * convergence. When run to convergence, this filter is equivalent
@@ -141,19 +142,17 @@ public:
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( SameDimensionCheck,
-                   ( Concept::SameDimension< MarkerImageDimension, OutputImageDimension > ) );
-  itkConceptMacro( InputComparableCheck,
-                   ( Concept::Comparable< MarkerImagePixelType > ) );
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< MarkerImagePixelType, OutputImagePixelType > ) );
+  itkConceptMacro(SameDimensionCheck, (Concept::SameDimension<MarkerImageDimension, OutputImageDimension>));
+  itkConceptMacro(InputComparableCheck, (Concept::Comparable<MarkerImagePixelType>));
+  itkConceptMacro(InputConvertibleToOutputCheck, (Concept::Convertible<MarkerImagePixelType, OutputImagePixelType>));
   // End concept checking
 #endif
 
 protected:
   GrayscaleGeodesicErodeImageFilter();
-  ~GrayscaleGeodesicErodeImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~GrayscaleGeodesicErodeImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /** GrayscaleGeodesicErodeImageFilter needs to request enough of the
    * marker image to account for the elementary structuring element.
@@ -161,13 +160,15 @@ protected:
    * the filter is configured to run a single iteration or until
    * convergence, this method may request all of the marker and mask
    * image be provided. */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
   /** This filter will enlarge the output requested region to produce
    * all of the output if the filter is configured to run to
    * convergence.
    * \sa ProcessObject::EnlargeOutputRequestedRegion() */
-  void EnlargeOutputRequestedRegion( DataObject *itkNotUsed(output) ) ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * itkNotUsed(output)) override;
 
   /** Single-threaded version of GenerateData.  This version is used
    * when the filter is configured to run to convergence. This method
@@ -175,19 +176,18 @@ protected:
    * configured to run a single iteration.  Otherwise, it will
    * delegate to a separate instance to run each iteration until the
    * filter converges. */
-  void GenerateData() ITK_OVERRIDE;
+  void
+  GenerateData() override;
 
   /** Multi-thread version GenerateData. This version is used when the
    * filter is configured to run a single iteration. When the filter
    * is configured to run to convergence, the GenerateData() method is
    * called. */
-  void ThreadedGenerateData(const OutputImageRegionType &
-                            outputRegionForThread,
-                            ThreadIdType threadId) ITK_OVERRIDE;
+  void
+  DynamicThreadedGenerateData(const OutputImageRegionType & outputRegionForThread) override;
+
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(GrayscaleGeodesicErodeImageFilter);
-
   bool          m_RunOneIteration;
   unsigned long m_NumberOfIterationsUsed;
   bool          m_FullyConnected;
@@ -195,7 +195,7 @@ private:
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkGrayscaleGeodesicErodeImageFilter.hxx"
+#  include "itkGrayscaleGeodesicErodeImageFilter.hxx"
 #endif
 
 #endif

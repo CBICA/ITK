@@ -34,25 +34,28 @@ namespace itk
  * \ingroup ITKSpatialObjects
  */
 
-template< unsigned int TDimension = 3 >
-class ITK_TEMPLATE_EXPORT LandmarkSpatialObject:
-  public PointBasedSpatialObject<  TDimension >
+template <unsigned int TDimension = 3>
+class ITK_TEMPLATE_EXPORT LandmarkSpatialObject : public PointBasedSpatialObject<TDimension>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(LandmarkSpatialObject);
 
-  typedef LandmarkSpatialObject                        Self;
-  typedef PointBasedSpatialObject< TDimension >        Superclass;
-  typedef SmartPointer< Self >                         Pointer;
-  typedef SmartPointer< const Self >                   ConstPointer;
-  typedef double                                       ScalarType;
-  typedef SpatialObjectPoint< TDimension >             LandmarkPointType;
-  typedef std::vector< LandmarkPointType >             PointListType;
-  typedef typename Superclass::SpatialObjectPointType  SpatialObjectPointType;
-  typedef typename Superclass::PointType               PointType;
-  typedef typename Superclass::TransformType           TransformType;
-  typedef typename Superclass::BoundingBoxType         BoundingBoxType;
-  typedef VectorContainer< IdentifierType, PointType > PointContainerType;
-  typedef SmartPointer< PointContainerType >           PointContainerPointer;
+  using Self = LandmarkSpatialObject;
+  using Superclass = PointBasedSpatialObject<TDimension>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+
+  using ScalarType = double;
+
+  using LandmarkPointType = SpatialObjectPoint<TDimension>;
+  using LandmarkPointListType = std::vector<LandmarkPointType>;
+
+  using SpatialObjectPointType = typename Superclass::SpatialObjectPointType;
+  using PointType = typename Superclass::PointType;
+  using TransformType = typename Superclass::TransformType;
+  using BoundingBoxType = typename Superclass::BoundingBoxType;
+  using PointContainerType = VectorContainer<IdentifierType, PointType>;
+  using PointContainerPointer = SmartPointer<PointContainerType>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -60,69 +63,21 @@ public:
   /** Method for creation through the object factory. */
   itkTypeMacro(LandmarkSpatialObject, PointBasedSpatialObject);
 
-  /** Returns a reference to the list of the Landmark points. */
-  PointListType & GetPoints();
-
-  /** Returns a reference to the list of the Landmark points. */
-  const PointListType & GetPoints() const;
-
-  /** Set the list of Landmark points. */
-  void SetPoints(PointListType & newPoints);
-
-  /** Return a point in the list given the index */
-  const SpatialObjectPointType * GetPoint(IdentifierType id) const ITK_OVERRIDE
-  {
-    return &( m_Points[id] );
-  }
-
-  /** Return a point in the list given the index */
-  SpatialObjectPointType * GetPoint(IdentifierType id) ITK_OVERRIDE { return &( m_Points[id] ); }
-
-  /** Return the number of points in the list */
-  SizeValueType GetNumberOfPoints(void) const ITK_OVERRIDE
-  {
-    return static_cast<SizeValueType>( m_Points.size() );
-  }
-
-  /** Returns true if the Landmark is evaluable at the requested point,
-   *  false otherwise. */
-  bool IsEvaluableAt(const PointType & point,
-                     unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-
-  /** Returns the value of the Landmark at that point.
-   *  Currently this function returns a binary value,
-   *  but it might want to return a degree of membership
-   *  in case of fuzzy Landmarks. */
-  bool ValueAt(const PointType & point, double & value,
-               unsigned int depth = 0, char *name = ITK_NULLPTR) const ITK_OVERRIDE;
-
-  /** Returns true if the point is inside the Landmark, false otherwise. */
-  bool IsInside(const PointType & point,
-                unsigned int depth, char *name) const ITK_OVERRIDE;
-
-  /** Test whether a point is inside or outside the object
-   *  For computational speed purposes, it is faster if the method does not
-   *  check the name of the class and the current depth */
-  virtual bool IsInside(const PointType & point) const;
-
-  /** Compute the boundaries of the Landmark. */
-  bool ComputeLocalBoundingBox(void) const ITK_OVERRIDE;
-
 protected:
-  ITK_DISALLOW_COPY_AND_ASSIGN(LandmarkSpatialObject);
-
-  PointListType m_Points;
-
   LandmarkSpatialObject();
-  virtual ~LandmarkSpatialObject() ITK_OVERRIDE;
+  ~LandmarkSpatialObject() override = default;
 
   /** Method to print the object. */
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
+
+  typename LightObject::Pointer
+  InternalClone() const override;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkLandmarkSpatialObject.hxx"
+#  include "itkLandmarkSpatialObject.hxx"
 #endif
 
 #endif // itkLandmarkSpatialObject_h

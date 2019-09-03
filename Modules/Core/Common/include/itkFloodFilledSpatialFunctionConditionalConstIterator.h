@@ -31,91 +31,106 @@ namespace itk
  *
  * \ingroup ITKCommon
  */
-template< typename TImage, typename TFunction >
-class ITK_TEMPLATE_EXPORT FloodFilledSpatialFunctionConditionalConstIterator:public FloodFilledFunctionConditionalConstIterator<
-    TImage, TFunction >
+template <typename TImage, typename TFunction>
+class ITK_TEMPLATE_EXPORT FloodFilledSpatialFunctionConditionalConstIterator
+  : public FloodFilledFunctionConditionalConstIterator<TImage, TFunction>
 {
 public:
-  /** Standard class typedefs. */
-  typedef FloodFilledSpatialFunctionConditionalConstIterator               Self;
-  typedef FloodFilledFunctionConditionalConstIterator< TImage, TFunction > Superclass;
+  /** Standard class type aliases. */
+  using Self = FloodFilledSpatialFunctionConditionalConstIterator;
+  using Superclass = FloodFilledFunctionConditionalConstIterator<TImage, TFunction>;
 
   /** Type of function */
-  typedef typename Superclass::FunctionType FunctionType;
+  using FunctionType = typename Superclass::FunctionType;
 
   /** Type of vector used to store location info in the spatial function */
-  typedef typename Superclass::FunctionInputType FunctionInputType;
+  using FunctionInputType = typename Superclass::FunctionInputType;
 
-  /** Index typedef support. */
-  typedef typename Superclass::IndexType IndexType;
+  /** Index type alias support */
+  using IndexType = typename Superclass::IndexType;
 
   /** Index ContainerType. */
-  typedef typename Superclass::SeedsContainerType SeedsContainerType;
+  using SeedsContainerType = typename Superclass::SeedsContainerType;
 
-  /** Size typedef support. */
-  typedef typename Superclass::SizeType SizeType;
+  /** Size type alias support */
+  using SizeType = typename Superclass::SizeType;
 
-  /** Region typedef support */
-  typedef typename Superclass::RegionType RegionType;
+  /** Region type alias support */
+  using RegionType = typename Superclass::RegionType;
 
-  /** Image typedef support. */
-  typedef typename Superclass::ImageType ImageType;
+  /** Image type alias support */
+  using ImageType = typename Superclass::ImageType;
 
   /** Internal Pixel Type */
-  typedef typename Superclass::InternalPixelType InternalPixelType;
+  using InternalPixelType = typename Superclass::InternalPixelType;
 
   /** External Pixel Type */
-  typedef typename Superclass::PixelType PixelType;
+  using PixelType = typename Superclass::PixelType;
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. This version of the constructor uses
    * an explicit seed pixel for the flood fill, the "startIndex" */
-  FloodFilledSpatialFunctionConditionalConstIterator(const ImageType *imagePtr,
-                                                     FunctionType *fnPtr,
-                                                     IndexType startIndex);
+  FloodFilledSpatialFunctionConditionalConstIterator(const ImageType * imagePtr,
+                                                     FunctionType *    fnPtr,
+                                                     IndexType         startIndex);
 
   /** Constructor establishes an iterator to walk a particular image and a
    * particular region of that image. This version of the constructor
    * should be used when the seed pixel is unknown. */
-  FloodFilledSpatialFunctionConditionalConstIterator(const ImageType *imagePtr,
-                                                     FunctionType *fnPtr);
+  FloodFilledSpatialFunctionConditionalConstIterator(const ImageType * imagePtr, FunctionType * fnPtr);
   /** Default Destructor. */
-  virtual ~FloodFilledSpatialFunctionConditionalConstIterator() {}
+  ~FloodFilledSpatialFunctionConditionalConstIterator() override = default;
 
   /** Compute whether the index of interest should be included in the flood */
-  bool IsPixelIncluded(const IndexType & index) const;
+  bool
+  IsPixelIncluded(const IndexType & index) const override;
 
   /** Set the inclusion strategy to origin */
-  void SetOriginInclusionStrategy() { m_InclusionStrategy = 0; }
+  void
+  SetOriginInclusionStrategy()
+  {
+    m_InclusionStrategy = 0;
+  }
 
   /** Set the inclusion strategy to center */
-  void SetCenterInclusionStrategy() { m_InclusionStrategy = 1; }
+  void
+  SetCenterInclusionStrategy()
+  {
+    m_InclusionStrategy = 1;
+  }
 
   /** Set the inclusion strategy to complete */
-  void SetCompleteInclusionStrategy() { m_InclusionStrategy = 2; }
+  void
+  SetCompleteInclusionStrategy()
+  {
+    m_InclusionStrategy = 2;
+  }
 
   /** Set the inclusion strategy to intersect */
-  void SetIntersectInclusionStrategy() { m_InclusionStrategy = 3; }
+  void
+  SetIntersectInclusionStrategy()
+  {
+    m_InclusionStrategy = 3;
+  }
 
-protected: //made protected so other iterators can access
-
+protected: // made protected so other iterators can access
   /** How the pixel (index) is examined in order to decide whether or not
- * it's included. The strategies are:
- * 0) Origin: if the origin of the pixel in physical space is inside the function,
- * then the pixel is inside the function
- * 1) Center: if the center of a pixel, in physical space, is inside the function,
- * then the pixel is inside the function
- * 2) Complete: if all of the corners of the pixel in physical space are inside the function,
- * then the pixel is inside the function
- * 3) Intersect: if any of the corners of the pixel in physical space are inside the function,
- * then the pixel is inside the function */
+   * it's included. The strategies are:
+   * 0) Origin: if the origin of the pixel in physical space is inside the function,
+   * then the pixel is inside the function
+   * 1) Center: if the center of a pixel, in physical space, is inside the function,
+   * then the pixel is inside the function
+   * 2) Complete: if all of the corners of the pixel in physical space are inside the function,
+   * then the pixel is inside the function
+   * 3) Intersect: if any of the corners of the pixel in physical space are inside the function,
+   * then the pixel is inside the function */
 
   unsigned char m_InclusionStrategy;
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkFloodFilledSpatialFunctionConditionalConstIterator.hxx"
+#  include "itkFloodFilledSpatialFunctionConditionalConstIterator.hxx"
 #endif
 
 #endif

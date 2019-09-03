@@ -28,141 +28,153 @@ namespace itk
  * \tparam T Component type for Point
  * \tparam D Dimension of the space
  */
-template< typename T, unsigned int D >
-class NumericTraits< Point< T , D > >
+template <typename T, unsigned int D>
+class NumericTraits<Point<T, D>>
 {
 private:
-
-  typedef  typename NumericTraits< T >::AbsType        ElementAbsType;
-  typedef  typename NumericTraits< T >::AccumulateType ElementAccumulateType;
-  typedef  typename NumericTraits< T >::FloatType      ElementFloatType;
-  typedef  typename NumericTraits< T >::PrintType      ElementPrintType;
-  typedef  typename NumericTraits< T >::RealType       ElementRealType;
+  using ElementAbsType = typename NumericTraits<T>::AbsType;
+  using ElementAccumulateType = typename NumericTraits<T>::AccumulateType;
+  using ElementFloatType = typename NumericTraits<T>::FloatType;
+  using ElementPrintType = typename NumericTraits<T>::PrintType;
+  using ElementRealType = typename NumericTraits<T>::RealType;
 
 public:
-
   /** Return the type of the native component type. */
-  typedef T              ValueType;
-  typedef Point< T, D >  Self;
+  using ValueType = T;
+  using Self = Point<T, D>;
 
   /** Unsigned component type */
-  typedef Point< ElementAbsType, D > AbsType;
+  using AbsType = Point<ElementAbsType, D>;
 
   /** Accumulation of addition and multiplication. */
-  typedef Point< ElementAccumulateType, D > AccumulateType;
+  using AccumulateType = Point<ElementAccumulateType, D>;
 
   /** Typedef for operations that use floating point instead of real precision
-    */
-  typedef Point< ElementFloatType, D > FloatType;
+   */
+  using FloatType = Point<ElementFloatType, D>;
 
   /** Return the type that can be printed. */
-  typedef Point< ElementPrintType, D > PrintType;
+  using PrintType = Point<ElementPrintType, D>;
 
   /** Type for real-valued scalar operations. */
-  typedef Point< ElementRealType, D > RealType;
+  using RealType = Point<ElementRealType, D>;
 
   /** Type for real-valued scalar operations. */
-  typedef ElementRealType ScalarRealType;
+  using ScalarRealType = ElementRealType;
 
   /** Measurement vector type */
-  typedef Self MeasurementVectorType;
+  using MeasurementVectorType = Self;
 
   /** Component wise defined element
    *
    * \note minimum value for floating pointer types is defined as
    * minimum positive normalize value.
    */
-  static const Self max(const Self &)
+  static const Self
+  max(const Self &)
   {
-    return Self( NumericTraits< T >::max() );
+    return Self(NumericTraits<T>::max());
   }
 
-  static const Self min(const Self &)
+  static const Self
+  min(const Self &)
   {
-    return Self( NumericTraits< T >::min() );
+    return Self(NumericTraits<T>::min());
   }
 
-  static const Self max()
+  static const Self
+  max()
   {
-    return Self( NumericTraits< T >::max() );
+    return Self(NumericTraits<T>::max());
   }
 
-  static const Self min()
+  static const Self
+  min()
   {
-    return Self( NumericTraits< T >::min() );
+    return Self(NumericTraits<T>::min());
   }
 
-  static const Self NonpositiveMin()
+  static const Self
+  NonpositiveMin()
   {
-    return Self( NumericTraits< T >::NonpositiveMin() );
+    return Self(NumericTraits<T>::NonpositiveMin());
   }
 
-  static const Self ZeroValue()
+  static const Self
+  ZeroValue()
   {
-    return Self( NumericTraits< T >::ZeroValue() );
+    return Self(NumericTraits<T>::ZeroValue());
   }
 
-  static const Self OneValue()
+  static const Self
+  OneValue()
   {
-    return Self( NumericTraits< T >::OneValue() );
+    return Self(NumericTraits<T>::OneValue());
   }
 
-  static const Self NonpositiveMin(const Self &)
+  static const Self
+  NonpositiveMin(const Self &)
   {
     return NonpositiveMin();
   }
 
-  static const Self ZeroValue(const Self &)
+  static const Self
+  ZeroValue(const Self &)
   {
     return ZeroValue();
   }
 
-  static const Self OneValue(const Self &)
+  static const Self
+  OneValue(const Self &)
   {
     return OneValue();
   }
 
-  static ITK_CONSTEXPR_VAR bool IsSigned = NumericTraits< ValueType >::IsSigned;
-  static ITK_CONSTEXPR_VAR bool IsInteger = NumericTraits< ValueType >::IsInteger;
-  static ITK_CONSTEXPR_VAR bool IsComplex = NumericTraits< ValueType >::IsComplex;
+  static constexpr bool IsSigned = NumericTraits<ValueType>::IsSigned;
+  static constexpr bool IsInteger = NumericTraits<ValueType>::IsInteger;
+  static constexpr bool IsComplex = NumericTraits<ValueType>::IsComplex;
 
   /** Fixed length vectors cannot be resized, so an exception will
    *  be thrown if the input size is not valid.  If the size is valid
    *  the vector will be filled with zeros. */
-  static void SetLength(Point< T, D > & m, const unsigned int s)
+  static void
+  SetLength(Point<T, D> & m, const unsigned int s)
   {
-    if ( s != D )
-      {
-      itkGenericExceptionMacro(<< "Cannot set the size of a Point of length "
-                               << D << " to " << s);
-      }
-    m.Fill(NumericTraits< T >::ZeroValue());
+    if (s != D)
+    {
+      itkGenericExceptionMacro(<< "Cannot set the size of a Point of length " << D << " to " << s);
+    }
+    m.Fill(NumericTraits<T>::ZeroValue());
   }
 
   /** Return the dimensionality of the point. */
-  static unsigned int GetLength(const Point< T, D > &)
+  static unsigned int
+  GetLength(const Point<T, D> &)
   {
     return D;
   }
 
   /** Return the dimensionality of the point. */
-  static unsigned int GetLength()
+  static unsigned int
+  GetLength()
   {
     return D;
   }
 
-  static void AssignToArray( const Self & v, MeasurementVectorType & mv )
+  static void
+  AssignToArray(const Self & v, MeasurementVectorType & mv)
   {
     mv = v;
   }
 
-  template<typename TArray>
-  static void AssignToArray( const Self & v, TArray & mv )
+  template <typename TArray>
+  static void
+  AssignToArray(const Self & v, TArray & mv)
   {
-    for( unsigned int i=0; i<D; i++ )
-      {
+    for (unsigned int i = 0; i < D; i++)
+    {
       mv[i] = v[i];
-      }
+    }
   }
 
   /** \note: the functions are preferred over the member variables as

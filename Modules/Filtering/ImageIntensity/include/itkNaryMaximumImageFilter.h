@@ -30,41 +30,45 @@ namespace Functor
  * \brief
  * \ingroup ITKImageIntensity
  */
-template< typename TInput, typename TOutput >
+template <typename TInput, typename TOutput>
 class Maximum1
 {
 public:
-  typedef typename NumericTraits< TOutput >::ValueType OutputValueType;
-  // not sure if this typedef really makes things more clear... could just use
+  using OutputValueType = typename NumericTraits<TOutput>::ValueType;
+  // not sure if this type alias really makes things more clear... could just use
   // TOutput?
 
-  Maximum1() {}
-  ~Maximum1() {}
-  inline TOutput operator()(const std::vector< TInput > & B) const
+  Maximum1() = default;
+  ~Maximum1() = default;
+  inline TOutput
+  operator()(const std::vector<TInput> & B) const
   {
-    OutputValueType A = NumericTraits< TOutput >::NonpositiveMin();
+    OutputValueType A = NumericTraits<TOutput>::NonpositiveMin();
 
-    for ( unsigned int i = 0; i < B.size(); i++ )
+    for (unsigned int i = 0; i < B.size(); i++)
+    {
+      if (A < static_cast<OutputValueType>(B[i]))
       {
-      if ( A < static_cast< OutputValueType >( B[i] ) )
-        {
-        A = static_cast< OutputValueType >( B[i] );
-        }
+        A = static_cast<OutputValueType>(B[i]);
       }
+    }
     return A;
   }
 
-  bool operator==(const Maximum1 &) const
+  bool
+  operator==(const Maximum1 &) const
   {
     return true;
   }
 
-  bool operator!=(const Maximum1 &) const
+  bool
+  operator!=(const Maximum1 &) const
   {
     return false;
   }
 };
-}
+} // namespace Functor
+
 /** \class NaryMaximumImageFilter
  * \brief Computes the pixel-wise maximum of several images.
  *
@@ -76,13 +80,13 @@ public:
  * operator<. This condition is required because internally this filter will
  * perform an operation similar to:
  *
- * \code
- *    const OutputPixelType query_value = static_cast<OutputPixelType>(pixel_from_input_n);
- *    if(current_maximum < query_value)
- *      {
- *      current_maximum = query_value;
- *      }
- * \endcode
+   \code
+      const OutputPixelType query_value = static_cast<OutputPixelType>(pixel_from_input_n);
+      if(current_maximum < query_value)
+        {
+        current_maximum = query_value;
+        }
+   \endcode
  * (where current_maximum is also of type OutputPixelType)
  *
  * for each of the n input images.
@@ -100,49 +104,43 @@ public:
  * \ingroup MultiThreaded
  * \ingroup ITKImageIntensity
  */
-template< typename TInputImage, typename TOutputImage >
-class NaryMaximumImageFilter:
-  public
-  NaryFunctorImageFilter< TInputImage, TOutputImage,
-                          Functor::Maximum1<  typename TInputImage::PixelType,
-                                              typename TInputImage::PixelType > >
+template <typename TInputImage, typename TOutputImage>
+class NaryMaximumImageFilter
+  : public NaryFunctorImageFilter<TInputImage,
+                                  TOutputImage,
+                                  Functor::Maximum1<typename TInputImage::PixelType, typename TInputImage::PixelType>>
 {
 public:
-  /** Standard class typedefs. */
-  typedef NaryMaximumImageFilter Self;
-  typedef NaryFunctorImageFilter<
-    TInputImage, TOutputImage,
-    Functor::Maximum1< typename TInputImage::PixelType,
-                       typename TInputImage::PixelType > > Superclass;
+  ITK_DISALLOW_COPY_AND_ASSIGN(NaryMaximumImageFilter);
 
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  /** Standard class type aliases. */
+  using Self = NaryMaximumImageFilter;
+  using Superclass =
+    NaryFunctorImageFilter<TInputImage,
+                           TOutputImage,
+                           Functor::Maximum1<typename TInputImage::PixelType, typename TInputImage::PixelType>>;
+
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
 
   /** Runtime information support. */
-  itkTypeMacro(NaryMaximumImageFilter,
-               NaryFunctorImageFilter);
+  itkTypeMacro(NaryMaximumImageFilter, NaryFunctorImageFilter);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( InputConvertibleToOutputCheck,
-                   ( Concept::Convertible< typename TInputImage::PixelType,
-                                           typename TOutputImage::PixelType > ) );
-  itkConceptMacro( InputLessThanComparableCheck,
-                   ( Concept::LessThanComparable< typename TInputImage::PixelType > ) );
-  itkConceptMacro( InputHasNumericTraitsCheck,
-                   ( Concept::HasNumericTraits< typename TInputImage::PixelType > ) );
+  itkConceptMacro(InputConvertibleToOutputCheck,
+                  (Concept::Convertible<typename TInputImage::PixelType, typename TOutputImage::PixelType>));
+  itkConceptMacro(InputLessThanComparableCheck, (Concept::LessThanComparable<typename TInputImage::PixelType>));
+  itkConceptMacro(InputHasNumericTraitsCheck, (Concept::HasNumericTraits<typename TInputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
-  NaryMaximumImageFilter() {}
-  virtual ~NaryMaximumImageFilter() ITK_OVERRIDE {}
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(NaryMaximumImageFilter);
+  NaryMaximumImageFilter() = default;
+  ~NaryMaximumImageFilter() override = default;
 };
 } // end namespace itk
 

@@ -36,18 +36,18 @@ namespace itk
  * \ingroup ITKCommon
  */
 
-template< unsigned int VDimension = 3,
-          typename TInput = Point< double, VDimension > >
-class ITK_TEMPLATE_EXPORT TorusInteriorExteriorSpatialFunction:
-  public InteriorExteriorSpatialFunction< VDimension, TInput >
+template <unsigned int VDimension = 3, typename TInput = Point<double, VDimension>>
+class ITK_TEMPLATE_EXPORT TorusInteriorExteriorSpatialFunction
+  : public InteriorExteriorSpatialFunction<VDimension, TInput>
 {
 public:
+  ITK_DISALLOW_COPY_AND_ASSIGN(TorusInteriorExteriorSpatialFunction);
 
-  /** Standard class typedefs. */
-  typedef TorusInteriorExteriorSpatialFunction                  Self;
-  typedef InteriorExteriorSpatialFunction< VDimension, TInput > Superclass;
-  typedef SmartPointer< Self >                                  Pointer;
-  typedef SmartPointer< const Self >                            ConstPointer;
+  /** Standard class type aliases. */
+  using Self = TorusInteriorExteriorSpatialFunction;
+  using Superclass = InteriorExteriorSpatialFunction<VDimension, TInput>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run time information. */
   itkTypeMacro(TorusInteriorExteriorSpatialFunction, InteriorExteriorSpatialFunction);
@@ -56,13 +56,14 @@ public:
   itkNewMacro(Self);
 
   /** Input type for the function. */
-  typedef typename Superclass::InputType InputType;
+  using InputType = typename Superclass::InputType;
 
   /** Output type for the function. */
-  typedef typename Superclass::OutputType OutputType;
+  using OutputType = typename Superclass::OutputType;
 
   /** Evaluates the function at a given position. */
-  OutputType Evaluate(const InputType & position) const ITK_OVERRIDE;
+  OutputType
+  Evaluate(const InputType & position) const override;
 
   /** Set/Get the origin of the torus (the point from which the major
    * radius is measured). */
@@ -79,20 +80,19 @@ public:
 
 protected:
   TorusInteriorExteriorSpatialFunction();
-  virtual ~TorusInteriorExteriorSpatialFunction() ITK_OVERRIDE;
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~TorusInteriorExteriorSpatialFunction() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(TorusInteriorExteriorSpatialFunction);
-
   InputType m_Origin;
-  double    m_MajorRadius;
-  double    m_MinorRadius;
+  double    m_MajorRadius{ 3.0 };
+  double    m_MinorRadius{ 1.0 };
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkTorusInteriorExteriorSpatialFunction.hxx"
+#  include "itkTorusInteriorExteriorSpatialFunction.hxx"
 #endif
 
 #endif

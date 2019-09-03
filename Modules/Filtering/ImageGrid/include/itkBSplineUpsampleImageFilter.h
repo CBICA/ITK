@@ -79,17 +79,19 @@ namespace itk
  * \ingroup ITKImageGrid
  */
 
-template< typename TInputImage, typename TOutputImage, typename ResamplerType =
-            BSplineResampleImageFilterBase< TInputImage, TOutputImage > >
-class ITK_TEMPLATE_EXPORT BSplineUpsampleImageFilter:
-  public ResamplerType
+template <typename TInputImage,
+          typename TOutputImage,
+          typename ResamplerType = BSplineResampleImageFilterBase<TInputImage, TOutputImage>>
+class ITK_TEMPLATE_EXPORT BSplineUpsampleImageFilter : public ResamplerType
 {
 public:
-  /** Standard class typedefs. */
-  typedef BSplineUpsampleImageFilter Self;
-  typedef ResamplerType              Superclass;
-  typedef SmartPointer< Self >       Pointer;
-  typedef SmartPointer< const Self > ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineUpsampleImageFilter);
+
+  /** Standard class type aliases. */
+  using Self = BSplineUpsampleImageFilter;
+  using Superclass = ResamplerType;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** Run-time type information (and related methods). */
   itkTypeMacro(BSplineUpsampleImageFilter, ReamplerType);
@@ -97,49 +99,49 @@ public:
   /** New macro for creation of through a Smart Pointer */
   itkNewMacro(Self);
 
-  /** InputImageType typedef support. */
-  typedef typename Superclass::InputImageType InputImageType;
+  /** InputImageType type alias support */
+  using InputImageType = typename Superclass::InputImageType;
 
-  /** InputImagePointer typedef support. */
-  typedef typename Superclass::InputImagePointer InputImagePointer;
+  /** InputImagePointer type alias support */
+  using InputImagePointer = typename Superclass::InputImagePointer;
 
-  /** OutputImageIterator typedef support. */
-  typedef typename Superclass::OutputImageIterator OutputImageIterator;
+  /** OutputImageIterator type alias support */
+  using OutputImageIterator = typename Superclass::OutputImageIterator;
 
-  /** OutputImagePointer typedef support. */
-  typedef typename Superclass::OutputImagePointer OutputImagePointer;
+  /** OutputImagePointer type alias support */
+  using OutputImagePointer = typename Superclass::OutputImagePointer;
 
   /** Creates an image twice the size of the input image with spacing half the
-    * input image. */
-  void GenerateOutputInformation() ITK_OVERRIDE;
+   * input image. */
+  void
+  GenerateOutputInformation() override;
 
   /** This filter requires all of the input image */
-  void GenerateInputRequestedRegion() ITK_OVERRIDE;
+  void
+  GenerateInputRequestedRegion() override;
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   // Begin concept checking
-  itkConceptMacro( DoubleConvertibleToOutputCheck,
-                   ( Concept::Convertible< double, typename TOutputImage::PixelType > ) );
+  itkConceptMacro(DoubleConvertibleToOutputCheck, (Concept::Convertible<double, typename TOutputImage::PixelType>));
   // End concept checking
 #endif
 
 protected:
+  void
+  GenerateData() override;
 
-  void GenerateData() ITK_OVERRIDE;
+  void
+  EnlargeOutputRequestedRegion(DataObject * output) override;
 
-  void EnlargeOutputRequestedRegion(DataObject *output) ITK_OVERRIDE;
-
-  BSplineUpsampleImageFilter();
-  virtual ~BSplineUpsampleImageFilter() ITK_OVERRIDE {}
-  void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(BSplineUpsampleImageFilter);
+  BSplineUpsampleImageFilter() = default;
+  ~BSplineUpsampleImageFilter() override = default;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 };
 } // namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkBSplineUpsampleImageFilter.hxx"
+#  include "itkBSplineUpsampleImageFilter.hxx"
 #endif
 
 #endif

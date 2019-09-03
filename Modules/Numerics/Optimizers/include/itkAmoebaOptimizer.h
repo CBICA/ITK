@@ -58,17 +58,22 @@ namespace itk
  *
  * \ingroup Numerics Optimizers
  * \ingroup ITKOptimizers
+ *
+ * \sphinx
+ * \sphinxexample{Numerics/Optimizers/AmoebaOptimizer, Amoeba Optimization}
+ * \endsphinx
  */
-class ITKOptimizers_EXPORT AmoebaOptimizer:
-  public SingleValuedNonLinearVnlOptimizer
+class ITKOptimizers_EXPORT AmoebaOptimizer : public SingleValuedNonLinearVnlOptimizer
 {
 public:
-  /** Standard "Self" typedef. */
-  typedef AmoebaOptimizer                   Self;
-  typedef SingleValuedNonLinearVnlOptimizer Superclass;
-  typedef SmartPointer< Self >              Pointer;
-  typedef SmartPointer< const Self >        ConstPointer;
-  typedef unsigned int                      NumberOfIterationsType;
+  ITK_DISALLOW_COPY_AND_ASSIGN(AmoebaOptimizer);
+
+  /** Standard "Self" type alias. */
+  using Self = AmoebaOptimizer;
+  using Superclass = SingleValuedNonLinearVnlOptimizer;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
+  using NumberOfIterationsType = unsigned int;
 
   /** Method for creation through the object factory. */
   itkNewMacro(Self);
@@ -78,22 +83,24 @@ public:
 
   /**  Parameters type.
    *  It defines a position in the optimization search space. */
-  typedef Superclass::ParametersType ParametersType;
+  using ParametersType = Superclass::ParametersType;
 
-  /** InternalParameters typedef. */
-  typedef   vnl_vector< double > InternalParametersType;
+  /** InternalParameters type alias. */
+  using InternalParametersType = vnl_vector<double>;
 
   /** Start optimization with an initial value. */
-  virtual void StartOptimization(void) ITK_OVERRIDE;
+  void
+  StartOptimization() override;
 
   /** Plug in a Cost Function into the optimizer  */
-  virtual void SetCostFunction(SingleValuedCostFunction *costFunction) ITK_OVERRIDE;
+  void
+  SetCostFunction(SingleValuedCostFunction * costFunction) override;
 
   /** Set/Get the maximum number of iterations. The optimization algorithm will
    * terminate after the maximum number of iterations has been reached.
    * The default value is defined as DEFAULT_MAXIMAL_NUMBER_OF_ITERATIONS. */
-  itkSetMacro( MaximumNumberOfIterations, NumberOfIterationsType );
-  itkGetConstMacro( MaximumNumberOfIterations, NumberOfIterationsType );
+  itkSetMacro(MaximumNumberOfIterations, NumberOfIterationsType);
+  itkGetConstMacro(MaximumNumberOfIterations, NumberOfIterationsType);
 
   /** Set/Get the mode which determines how the amoeba algorithm
    * defines the initial simplex.  Default is
@@ -119,8 +126,8 @@ public:
 
   /** Set/Get the deltas that are used to define the initial simplex
    * when AutomaticInitialSimplex is off. */
-  void SetInitialSimplexDelta(ParametersType initialSimplexDelta,
-                              bool automaticInitialSimplex = false);
+  void
+  SetInitialSimplexDelta(ParametersType initialSimplexDelta, bool automaticInitialSimplex = false);
   itkGetConstMacro(InitialSimplexDelta, ParametersType);
 
   /** The optimization algorithm will terminate when the simplex
@@ -138,34 +145,37 @@ public:
   itkGetConstMacro(FunctionConvergenceTolerance, double);
 
   /** Report the reason for stopping. */
-  virtual const std::string GetStopConditionDescription() const ITK_OVERRIDE;
+  const std::string
+  GetStopConditionDescription() const override;
 
   /** Return Current Value */
-  MeasureType GetValue() const;
+  MeasureType
+  GetValue() const;
 
   /** Method for getting access to the internal optimizer. */
-  vnl_amoeba * GetOptimizer() const;
+  vnl_amoeba *
+  GetOptimizer() const;
 
 protected:
   AmoebaOptimizer();
-  virtual ~AmoebaOptimizer() ITK_OVERRIDE;
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  ~AmoebaOptimizer() override;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
-  typedef Superclass::CostFunctionAdaptorType CostFunctionAdaptorType;
+  using CostFunctionAdaptorType = Superclass::CostFunctionAdaptorType;
 
 private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(AmoebaOptimizer);
-
   /**Check that the settings are valid. If not throw an exception.*/
-  void ValidateSettings();
+  void
+  ValidateSettings();
 
-  NumberOfIterationsType          m_MaximumNumberOfIterations;
-  ParametersType::ValueType       m_ParametersConvergenceTolerance;
-  CostFunctionType::MeasureType   m_FunctionConvergenceTolerance;
-  bool                            m_AutomaticInitialSimplex;
-  ParametersType                  m_InitialSimplexDelta;
-  bool                            m_OptimizeWithRestarts;
-  vnl_amoeba *                    m_VnlOptimizer;
+  NumberOfIterationsType        m_MaximumNumberOfIterations;
+  ParametersType::ValueType     m_ParametersConvergenceTolerance;
+  CostFunctionType::MeasureType m_FunctionConvergenceTolerance;
+  bool                          m_AutomaticInitialSimplex;
+  ParametersType                m_InitialSimplexDelta;
+  bool                          m_OptimizeWithRestarts;
+  vnl_amoeba *                  m_VnlOptimizer;
 
   std::ostringstream m_StopConditionDescription;
 };

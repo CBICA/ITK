@@ -37,39 +37,41 @@ namespace itk
  *
  * \ingroup ITKOptimizersv4
  */
-template < typename TMetric >
-class ITK_TEMPLATE_EXPORT RegistrationParameterScalesFromJacobian :
-  public RegistrationParameterScalesEstimator< TMetric >
+template <typename TMetric>
+class ITK_TEMPLATE_EXPORT RegistrationParameterScalesFromJacobian : public RegistrationParameterScalesEstimator<TMetric>
 {
 public:
-  /** Standard class typedefs. */
-  typedef RegistrationParameterScalesFromJacobian         Self;
-  typedef RegistrationParameterScalesEstimator< TMetric > Superclass;
-  typedef SmartPointer<Self>                              Pointer;
-  typedef SmartPointer<const Self>                        ConstPointer;
+  ITK_DISALLOW_COPY_AND_ASSIGN(RegistrationParameterScalesFromJacobian);
+
+  /** Standard class type aliases. */
+  using Self = RegistrationParameterScalesFromJacobian;
+  using Superclass = RegistrationParameterScalesEstimator<TMetric>;
+  using Pointer = SmartPointer<Self>;
+  using ConstPointer = SmartPointer<const Self>;
 
   /** New macro for creation of through a Smart Pointer. */
-  itkNewMacro( Self );
+  itkNewMacro(Self);
 
   /** Run-time type information (and related methods). */
-  itkTypeMacro( RegistrationParameterScalesFromJacobian, RegistrationParameterScalesEstimator );
+  itkTypeMacro(RegistrationParameterScalesFromJacobian, RegistrationParameterScalesEstimator);
 
   /** Type of scales */
-  typedef typename Superclass::ScalesType                ScalesType;
+  using ScalesType = typename Superclass::ScalesType;
   /** Type of parameters of the optimizer */
-  typedef typename Superclass::ParametersType            ParametersType;
+  using ParametersType = typename Superclass::ParametersType;
   /** Type of float */
-  typedef typename Superclass::FloatType                 FloatType;
+  using FloatType = typename Superclass::FloatType;
 
-  typedef typename Superclass::VirtualPointType          VirtualPointType;
-  typedef typename Superclass::VirtualIndexType          VirtualIndexType;
-  typedef typename Superclass::MovingTransformType       MovingTransformType;
-  typedef typename Superclass::FixedTransformType        FixedTransformType;
-  typedef typename Superclass::JacobianType              JacobianType;
-  typedef typename Superclass::VirtualImageConstPointer  VirtualImageConstPointer;
+  using VirtualPointType = typename Superclass::VirtualPointType;
+  using VirtualIndexType = typename Superclass::VirtualIndexType;
+  using MovingTransformType = typename Superclass::MovingTransformType;
+  using FixedTransformType = typename Superclass::FixedTransformType;
+  using JacobianType = typename Superclass::JacobianType;
+  using VirtualImageConstPointer = typename Superclass::VirtualImageConstPointer;
 
   /** Estimate parameter scales. */
-  virtual void EstimateScales(ScalesType &scales) ITK_OVERRIDE;
+  void
+  EstimateScales(ScalesType & scales) override;
 
   /**
    *  Estimate the scale for \f$\Delta p\f$, the step of change on parameters.
@@ -88,35 +90,34 @@ public:
    *  For multiple voxels, we average the above formula to get the overall
    *  step scale.
    */
-  virtual FloatType EstimateStepScale(const ParametersType &step) ITK_OVERRIDE;
+  FloatType
+  EstimateStepScale(const ParametersType & step) override;
 
   /** Estimate the scales of local steps. */
-  virtual void EstimateLocalStepScales(const ParametersType &step,
-    ScalesType &localStepScales) ITK_OVERRIDE;
+  void
+  EstimateLocalStepScales(const ParametersType & step, ScalesType & localStepScales) override;
 
 protected:
-  RegistrationParameterScalesFromJacobian();
-  ~RegistrationParameterScalesFromJacobian() ITK_OVERRIDE {};
+  RegistrationParameterScalesFromJacobian() = default;
+  ~RegistrationParameterScalesFromJacobian() override = default;
 
-  virtual void PrintSelf(std::ostream & os, Indent indent) const ITK_OVERRIDE;
+  void
+  PrintSelf(std::ostream & os, Indent indent) const override;
 
   /**
    *  Compute the step scales for samples, i.e. the impacts on each sampled
    *  voxel from a change on the transform.
    */
-  void ComputeSampleStepScales(const ParametersType &step, ScalesType &sampleScales);
-
-private:
-  ITK_DISALLOW_COPY_AND_ASSIGN(RegistrationParameterScalesFromJacobian);
-
-}; //class RegistrationParameterScalesFromJacobian
+  void
+  ComputeSampleStepScales(const ParametersType & step, ScalesType & sampleScales);
+}; // class RegistrationParameterScalesFromJacobian
 
 
-}  // namespace itk
+} // namespace itk
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkRegistrationParameterScalesFromJacobian.hxx"
+#  include "itkRegistrationParameterScalesFromJacobian.hxx"
 #endif
 
 #endif /* itkRegistrationParameterScalesFromJacobian_h */
