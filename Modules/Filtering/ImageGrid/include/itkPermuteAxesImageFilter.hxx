@@ -148,9 +148,9 @@ PermuteAxesImageFilter<TImage>::GenerateOutputInformation()
   unsigned int i, j;
   for (j = 0; j < ImageDimension; j++)
   {
-    // origin does not change by a Permute.  But spacing, directions,
-    // size and start index do.
-    outputOrigin[j] = inputOrigin[j];
+    // // origin does not change by a Permute.  But spacing, directions,
+    // // size and start index do.
+    // outputOrigin[j] = inputOrigin[j];
 
     outputSpacing[j] = inputSpacing[m_Order[j]];
     outputSize[j] = inputSize[m_Order[j]];
@@ -160,6 +160,17 @@ PermuteAxesImageFilter<TImage>::GenerateOutputInformation()
       outputDirection[i][j] = inputDirection[i][m_Order[j]];
     }
   }
+
+  // The 0-index location of the image must not change, but the origin (at 0.5-index) will with anisotropic
+  // voxels.
+  ContinuousIndex<double, TImage::ImageDimension> zeroIndex;
+  zeroIndex.Fill(0.0);
+  typename TImage::PointType inputCorner =
+    inputPtr->template TransformContinuousIndexToPhysicalPoint<double>(zeroIndex);
+  typename TImage::PointType outputCorner =
+    outputPtr->template TransformContinuousIndexToPhysicalPoint<double>(zeroIndex);
+
+  outputOrigin = inputCorner - outputCorner;
 
   outputPtr->SetSpacing(outputSpacing);
   outputPtr->SetOrigin(outputOrigin);
